@@ -1,0 +1,91 @@
+#! /bin/sh
+#-----------------------------------------------------------------------------
+#   gensubst			- Generate output variables
+#
+#   Copyright (C) 2013, Karl Schmitz
+#
+#   This program is free software; you can redistribute it and/or modify
+#   it under the terms of the GNU General Public License as published by
+#   the Free Software Foundation; either version 2 of the License, or
+#   (at your option) any later version.
+#
+#   This program is distributed in the hope that it will be useful,
+#   but WITHOUT ANY WARRANTY; without even the implied warranty of
+#   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+#   GNU General Public License (file LICENSE) for more details.
+#
+#   You should have received a copy of the GNU General Public License along
+#   with this program; if not, write to the Free Software Foundation, Inc.,
+#   51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+#
+#   AUTHOR(S):	ks	Karl Schmitz <carolus.faber@googlemail.com>
+#
+#   WRITTEN BY:	ks	2013-02-12
+#   CHANGED BY:
+#-----------------------------------------------------------------------------
+#   Initialization:
+#-----------------------------------------------------------------------------
+LC_ALL=C; export LC_ALL			# Avoid locale insanities.
+
+cr_upper=ABCDEFGHIJKLMNOPQRSTUVWXYZ	# Define basic character ranges for
+cr_lower=abcdefghijklmnopqrstuvwxyz	# upper-/lowercase letters and
+cr_digit=0123456789			# decimal digits.
+cr_alpha=$cr_upper$cr_lower		# Combine character ranges for
+cr_alnum=$cr_alpha$cr_digit		# letters and alphanumerics.
+
+re_prefix=@
+re_suffix=@
+re_variable="[_$cr_alpha][_$cr_alnum]*"
+rs_prefix='$('
+rs_suffix=')'
+
+#-----------------------------------------------------------------------------
+#   Generate output variable:
+#-----------------------------------------------------------------------------
+if test $# -ge 1; then			# Output variable given?
+    name=$1; shift			# Yes, fetch it.
+    srcdir=`dirname "$0"`		# Auto-locate (top_)srcdir...
+    until test -f "$srcdir"/configure.ac; do
+	srcdir=`dirname "$srcdir"`
+    done
+
+    case $name in			# Which output variable?
+	CONFIG_STATUS_DEPENDENCIES)
+	    rs_top_srcdir="${rs_prefix}top_srcdir${rs_suffix}"
+	    echo " $*" | sed 's| | '"$rs_top_srcdir"'/|g;s|^ ||'
+	    ;;
+	FINALIZE)
+	    finalizees=`echo " $*" | sed 's| | '"$srcdir"'/|g;s|^ ||'`
+	    echos=`sed '
+		/'"$re_prefix$re_variable$re_suffix"'/s/$/@@/;t1
+		d;:1
+		s/^\(.*\)'"$re_prefix"'\('"$re_variable"'\)'"$re_suffix"'\([^@]*\)\(@@\)/\1\3\4 echo \2;/;t1
+		s/^.*@@ //;s/;$//
+	    ' $finalizees` || {
+		echo "$0: Update finalizees to generate $name!" >&2
+		echo false
+		exit 2
+	    }
+	    if test -n "$echos"; then
+		eval "$echos" | sort | uniq | sed '
+		    1i\
+		    -e '\''/^\\#.*{%%}$$/d'\''\
+		    -e '\''/^\\#.*{%-}$$/,/^\\#.*{%+}$$/d'\''
+		    s/^\(.*\)$/-e '\''s|'"$re_prefix"'\1'"$re_suffix"'|'"$rs_prefix"'\1'"$rs_suffix"'|g'\''/
+		' | eval echo sed `cat` | sed '
+		    s/ -e /'\''&'\''/g;s/$/'\''/;s/'\''//
+		'
+	    else
+		echo "$0: No templates found. Do you still need me?" >&2
+		echo cat
+	    fi
+	    ;;
+	*)
+	    echo "$0: Don't know how to generate $name!" >&2
+	    exit 1
+	    ;;
+    esac
+else
+    echo "Usage: $0 VARIABLE [FINALIZEE ...]" >&2
+    exit 2
+fi

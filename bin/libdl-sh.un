@@ -1,0 +1,82 @@
+#! /bin/sh
+#-----------------------------------------------------------------------------
+#   libdl-sh			- POSIX shell demand-loading helper
+#
+#   Copyright (C) 2013, Karl Schmitz
+#
+#   This program is free software; you can redistribute it and/or modify
+#   it under the terms of the GNU General Public License as published by
+#   the Free Software Foundation; either version 2 of the License, or
+#   (at your option) any later version.
+#
+#   This program is distributed in the hope that it will be useful,
+#   but WITHOUT ANY WARRANTY; without even the implied warranty of
+#   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+#   GNU General Public License (file LICENSE) for more details.
+#
+#   You should have received a copy of the GNU General Public License along
+#   with this program; if not, write to the Free Software Foundation, Inc.,
+#   51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+#									  {%-}
+#   AUTHOR(S):	ks	Karl Schmitz <carolus.faber@googlemail.com>
+#
+#   WRITTEN BY:	ks	2013-02-12
+#   CHANGED BY:
+#
+#   USAGE:
+#	eval `libdl-sh load`	- Load libdl.sh into program.
+#	path=`libdl-sh path`	- Read libdl.sh configuration and print colon-
+#				  sepratated library search path.
+#	libdl-sh echo NAME ...	- Echo given installation path(s).
+#-----------------------------------------------------------------------------
+#   include(CONF ...)		Print demand-loading configuration	  {%+}
+#-----------------------------------------------------------------------------
+include () {
+    local line
+
+    sed '
+	y/	/ /;s/   */ /g;s/^ //;/^#/d;/^$/d;s/ #.*$//;s/ $//
+    ' /dev/null ${1+"$@"} 2>/dev/null | while read line; do
+	case "$line" in
+	    'include '*)
+		eval "$line"	;;
+	    *)	echo "$line"	;;
+	esac
+    done
+}
+
+#-------------------------------------------------------------------------{%-}
+#   Main program:
+#-------------------------------------------------------------------------{%+}
+case $1 in
+    load)
+	echo '. @shdir@/libdl.sh || exit 127'
+	;;
+    path)
+	libpath=:
+	for item in `
+	    include ${HOME+$HOME/.libdl.sh.conf} @sysconfdir@/libdl.sh.conf
+	`; do
+	    eval 'test -d "$item" 2>/dev/null' && case $libpath in
+		*:$item:*)			;;
+		*)  libpath=$libpath$item:	;;
+	    esac
+	done
+	echo "$libpath" | sed 's/^://;s/:$//'
+	;;
+    echo)
+	shift; for name in ${1+"$@"}; do
+	    case $name in
+		bindir)	    echo @bindir@	;;
+		sysconfdir) echo @sysconfdir@	;;
+		pkgdatadir) echo @pkgdatadir@	;;
+		shdir)	    echo @shdir@	;;
+		*)	    exit 1		;;
+	    esac
+	done
+	;;
+    *)
+	echo "$0: Unknown action \`$1'!" >&2
+	exit 2
+	;;
+esac

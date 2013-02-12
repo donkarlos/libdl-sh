@@ -1,0 +1,89 @@
+#! /bin/sh								  {%%}
+#-----------------------------------------------------------------------------
+#   libdl.sh			- POSIX shell demand-loading library
+#
+#   Copyright (C) 2013, Karl Schmitz
+#
+#   This program is free software; you can redistribute it and/or modify
+#   it under the terms of the GNU General Public License as published by
+#   the Free Software Foundation; either version 2 of the License, or
+#   (at your option) any later version.
+#
+#   This program is distributed in the hope that it will be useful,
+#   but WITHOUT ANY WARRANTY; without even the implied warranty of
+#   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+#   GNU General Public License (file LICENSE) for more details.
+#
+#   You should have received a copy of the GNU General Public License along
+#   with this program; if not, write to the Free Software Foundation, Inc.,
+#   51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+#									  {%-}
+#   AUTHOR(S):	ks	Karl Schmitz <carolus.faber@googlemail.com>
+#
+#   WRITTEN BY:	ks	2013-02-12
+#   CHANGED BY:
+#-----------------------------------------------------------------------------
+#   Initialization:							  {%+}
+#-----------------------------------------------------------------------------
+dl_libpath=`@bindir@/libdl path` || exit 127
+dl_atloads=:
+dl_atexits='exit $status'
+dl_loaded=:dl:
+dl_needed=
+
+#-------------------------------------------------------------------------{%-}
+#   dl_init(LIBPATH)		Prepend LIBPATH to library search path
+#-------------------------------------------------------------------------{%+}
+dl_init () {
+    dl_libpath=${1+$1:}$dl_libpath
+}
+
+#-------------------------------------------------------------------------{%-}
+#   dl_atload(HOOK)		Register load-time hook
+#-------------------------------------------------------------------------{%+}
+dl_atload () {
+    dl_atloads="${1-:} "'$lib'" && $dl_atloads"
+}
+
+#-------------------------------------------------------------------------{%-}
+#   dl_load(LIB ...)		Load demanded libraries
+#-------------------------------------------------------------------------{%+}
+dl_load () {
+    local lib needed path
+
+    test -n "$dl_needed" || { path=$PATH; PATH=$dl_libpath${PATH+:$PATH}; }
+					# Augment path.
+    for lib in ${1+"$@"}; do		# Foreach demanded library do...
+	case $dl_loaded$dl_needed in	# Is it already loaded or needed?
+	    *:$lib:*)			# Yes, skip it.
+		;;
+	    *)	needed=$dl_needed; dl_needed=$dl_needed$lib:
+		. "lib$lib.sh" || dl_exit 127
+		dl_needed=$needed; dl_loaded=:$lib$dl_loaded
+		eval "$dl_atloads" || dl_exit $?
+		;;			# No, mark it as needed, load it, mark
+	esac				# it as loaded, and invoke load hooks.
+    done
+    test -n "$dl_needed" || PATH=$path	# Restore path.
+}
+
+#-------------------------------------------------------------------------{%-}
+#   dl_atexit(HOOK)		Register exit-time hook
+#-------------------------------------------------------------------------{%+}
+dl_atexit () {
+    dl_atexits="$1 "'$status'"; $dl_atexits"
+}
+
+#-------------------------------------------------------------------------{%-}
+#   dl_exit([STATUS=$?])	Terminate program with STATUS
+#-------------------------------------------------------------------------{%+}
+dl_exit () {
+    local status=${1-$?}
+
+    trap '' 0; eval "$dl_atexits"
+}
+
+#-------------------------------------------------------------------------{%-}
+#   Initialization:
+#-------------------------------------------------------------------------{%+}
+trap 'dl_exit $?' 0

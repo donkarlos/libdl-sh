@@ -1,0 +1,44 @@
+##								-*-Makefile-*-
+##  Makefile.am			- libsh `Makefile.in' template
+##
+##  Copyright (C) 2013, Karl Schmitz
+##
+##  This program is free software; you can redistribute it and/or modify
+##  it under the terms of the GNU General Public License as published by
+##  the Free Software Foundation; either version 2 of the License, or
+##  (at your option) any later version.
+##
+##  This program is distributed in the hope that it will be useful,
+##  but WITHOUT ANY WARRANTY; without even the implied warranty of
+##  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+##  GNU General Public License (file LICENSE) for more details.
+##
+##  You should have received a copy of the GNU General Public License along
+##  with this program; if not, write to the Free Software Foundation, Inc.,
+##  51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+##
+##  AUTHOR(S):	ks	Karl Schmitz <carolus.faber@googlemail.com>
+##
+##  WRITTEN BY:	ks	2013-02-12
+##  CHANGED BY:
+##
+##  NOTE:   (1)	Update the build system with autoreconf(1).
+##----------------------------------------------------------------------------
+##  Initialization:
+##----------------------------------------------------------------------------
+ACLOCAL_AMFLAGS		= -I auto
+
+shdir			= @datarootdir@/sh
+
+include $(top_srcdir)/auto/finalize.am
+
+##----------------------------------------------------------------------------
+##  Finalize and install scripts, package data, and libraries:
+##----------------------------------------------------------------------------
+bin_SCRIPTS		= bin/libdl-sh
+sysconf_DATA		= etc/libdl.sh.conf
+pkgdata_DATA		= auto/finalize.am	\
+			  auto/finalize.m4	\
+			  auto/gensubst
+sh_DATA			= lib/libdl.sh
+
