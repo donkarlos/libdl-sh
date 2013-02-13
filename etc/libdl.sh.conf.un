@@ -23,4 +23,4 @@
 #   CHANGED BY:
 #-------------------------------------------------------------------------{%+}
 include @sysconfdir@/libdl.sh.conf.d/*.conf
-@shdir@
+@shlibdir@

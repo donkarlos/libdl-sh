@@ -28,7 +28,7 @@
 ##----------------------------------------------------------------------------
 ACLOCAL_AMFLAGS		= -I auto
 
-shdir			= @datarootdir@/sh
+shlibdir		= @libdir@
 
 include $(top_srcdir)/auto/finalize.am
 
@@ -40,5 +40,5 @@ sysconf_DATA		= etc/libdl.sh.conf
 pkgdata_DATA		= auto/finalize.am	\
 			  auto/finalize.m4	\
 			  auto/gensubst
-sh_DATA			= lib/libdl.sh
+shlib_DATA		= lib/libdl.sh
 

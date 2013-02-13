@@ -50,7 +50,7 @@ include () {
 #-------------------------------------------------------------------------{%+}
 case $1 in
     load)
-	echo '. @shdir@/libdl.sh || exit 127'
+	echo '. @shlibdir@/libdl.sh || exit 127'
 	;;
     path)
 	libpath=:
@@ -68,9 +68,9 @@ case $1 in
 	shift; for name in ${1+"$@"}; do
 	    case $name in
 		bindir)	    echo @bindir@	;;
+		libdir)	    echo @shlibdir@	;;
 		sysconfdir) echo @sysconfdir@	;;
 		pkgdatadir) echo @pkgdatadir@	;;
-		shdir)	    echo @shdir@	;;
 		*)	    exit 1		;;
 	    esac
 	done
