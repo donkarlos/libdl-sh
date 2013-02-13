@@ -38,6 +38,7 @@ include () {
 	y/	/ /;s/   */ /g;s/^ //;/^#/d;/^$/d;s/ #.*$//;s/ $//
     ' /dev/null ${1+"$@"} 2>/dev/null | while read line; do
 	case "$line" in
+	    'include')		;;
 	    'include '*)
 		eval "$line"	;;
 	    *)	echo "$line"	;;
