@@ -33,20 +33,20 @@ dnl				generate output variables CONFIG_STATUS_DEPEN-
 dnl				DENCIES and FINALIZE
 dnl
 AC_DEFUN([AF_FINISH_FILES], [
-AC_SUBST([libsh_cleanfiles], 'm4_normalize([$1])')
-libsh_finalizees=`echo $libsh_cleanfiles | sed 's|$| |;s| |.un |g;s| $||'`
-m4_ifval([$2], [libsh_gensubst=$2], [libsh_gensubst=gensubst])
-AC_SUBST([libsh_config_status_deps], [`
-    ${srcdir}/${libsh_gensubst} CONFIG_STATUS_DEPENDENCIES ${libsh_gensubst} ${libsh_finalizees}
+AC_SUBST([af__CLEAN_FILES], 'm4_normalize([$1])')
+af__unfinished=`echo $af__CLEAN_FILES | sed 's|$| |;s| |.un |g;s| $||'`
+m4_ifval([$2], [af__gensubst=$2], [af__gensubst=gensubst])
+AC_SUBST([af__config_status_deps], [`
+    ${srcdir}/${af__gensubst} CONFIG_STATUS_DEPENDENCIES ${af__gensubst} ${af__unfinished}
 `])
 AC_SUBST([FINALIZE], [`
-    ${srcdir}/${libsh_gensubst} FINALIZE ${libsh_finalizees}
+    ${srcdir}/${af__gensubst} FINISH ${af__unfinished}
 `])
 AC_CONFIG_COMMANDS([finishing], [sed '
-    s/\$(EXTRA_DIST)/$(libsh_config_status_deps) &/g
-    s/\$(CONFIG_STATUS_DEPENDENCIES)/$(libsh_config_status_deps) &/g
+    s/\$(EXTRA_DIST)/$(af__config_status_deps) &/g
+    s/\$(CONFIG_STATUS_DEPENDENCIES)/$(af__config_status_deps) &/g
     /^clean-am:/a\
-	-rm -f $(libsh_cleanfiles)
+	-rm -f $(af__CLEAN_FILES)
 ' Makefile >Makefile.new && mv Makefile.new Makefile || rm -f Makefile.new
 ])
 ])
