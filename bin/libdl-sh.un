@@ -24,23 +24,46 @@
 #   CHANGED BY:
 #
 #   USAGE:
-#	eval `libdl-sh load`	- Load libdl.sh into program.
+#	eval `libdl-sh load`	- Load libdl.sh into program, thereby boot-
+#				  strapping the demand-loading mechanism.
 #	path=`libdl-sh path`	- Read libdl.sh configuration and print colon-
 #				  sepratated library search path.
 #	libdl-sh echo NAME ...	- Echo given installation path(s).
 #-----------------------------------------------------------------------------
-#   include(CONF ...)		Print demand-loading configuration	  {%+}
+#   include(CONF ...)		Parse demand-loading configuration file(s)
+#				into list of library search path items
+#
+#   The format of demand-loading configuration files is similar to that of
+#   ld.so(8) dynamic linker/loader configuration files:
+#	- Comments (introduced by '#') and empty lines will be ignored.
+#	- Lines of the form `include CONF ...' recursively parse the given
+#	  demand-loading configuration file(s).
+#	- Other lines are treated as whitespace-separated list of library
+#	  search path items.
+#	- Configuration file pathnames and library search path items are
+#	  subjected to one level of shell substitutions, so that a line like
+#	    include $HOME/etc/libdl.sh.conf.d/*.conf
+#	  will behave as expected.
+#	- Nonexisting configuration files are silently ignored.		  {%+}
 #-----------------------------------------------------------------------------
 include () {
     local line
 
     sed '
-	y/	/ /;s/   */ /g;s/^ //;/^#/d;/^$/d;s/ #.*$//;s/ $//
-    ' /dev/null ${1+"$@"} 2>/dev/null | while read line; do
-	case "$line" in
-	    'include')				;;
-	    'include '*)    eval "$line"	;;
-	    *)		    eval "echo $line"	;;
+	y/	/ /;s/   */ /g;		# Compress whitespace. Remove leading
+	s/^ //;/^#/d;/^$/d;		# whitespace, comment/empty lines,
+	s/ #.*$//;s/ $//;		# and trailing comments/whitespace.
+    ' /dev/null ${1+"$@"} 2>/dev/null | while read line
+    do					# Foreach configuration line do...
+	case "$line" in			# Which kind?
+	    'include')			# `include' without argument...
+		;;			# ...is ignored.
+	    'include '*)		# `include' with argument(s)...
+		eval "$line"		# ...is recursively parsed after ap-
+		;;			# plying shell substitutions.
+	    *)				# Library search path items...
+		eval "echo $line"	# ...are echoed with shell substitu-
+		;;			# tions applied.
 	esac
     done
 }
@@ -48,32 +71,37 @@ include () {
 #-------------------------------------------------------------------------{%-}
 #   Main program:
 #-------------------------------------------------------------------------{%+}
-case $1 in
-    load)
+case $1 in				# Which action?
+    load)				# Emit command to load libdl.sh...
 	echo '. @shlibdir@/libdl.sh || exit 127'
 	;;
-    path)
-	libpath=:
+    path)				# Emit library search path...
+	libpath=:			# Start with denomalized empty path.
 	for item in `
 	    include ${HOME+$HOME/.libdl.sh.conf} @sysconfdir@/libdl.sh.conf
-	`; do
+	`				# Foreach item in user's and system-
+	do				# wide configuration do...
 	    test -d "$item" && case $libpath in
-		*:$item:*)			;;
-		*)  libpath=$libpath$item:	;;
+		*:$item:*)		# Item exists and is already on path?
+		    ;;			# Skip it.
+		*)			# Item exists but is not on path?
+		    libpath=$libpath$item:
+		    ;;			# Append it to path.
 	    esac
 	done
 	echo "$libpath" | sed 's/^://;s/:$//'
-	;;
-    echo)
-	shift; for name in ${1+"$@"}; do
+	;;				# Normalize library search path.
+    echo)				# Emit installation path(s)...
+	shift; for name in ${1+"$@"}	# Foreach given name do...
+	do
 	    case $name in
 		bindir)	    echo @bindir@	;;
 		libdir)	    echo @shlibdir@	;;
 		sysconfdir) echo @sysconfdir@	;;
 		pkgdatadir) echo @pkgdatadir@	;;
 		*)	    exit 1		;;
-	    esac
-	done
+	    esac			# Emit installation path if name is
+	done				# valid, bail out if not.
 	;;
     *)
 	echo "$0: Unknown action \`$1'!" >&2
