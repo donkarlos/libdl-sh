@@ -54,14 +54,14 @@ if test $# -ge 1; then			# Output variable given?
 	    rs_top_srcdir="${rs_prefix}top_srcdir${rs_suffix}"
 	    echo " $*" | sed 's| | '"$rs_top_srcdir"'/|g;s|^ ||'
 	    ;;
-	FINALIZE)
-	    finalizees=`echo " $*" | sed 's| | '"$srcdir"'/|g;s|^ ||'`
+	FINISH)
+	    unfinished=`echo " $*" | sed 's| | '"$srcdir"'/|g;s|^ ||'`
 	    echos=`sed '
 		/'"$re_prefix$re_variable$re_suffix"'/s/$/@@/;t1
 		d;:1
 		s/^\(.*\)'"$re_prefix"'\('"$re_variable"'\)'"$re_suffix"'\([^@]*\)\(@@\)/\1\3\4 echo \2;/;t1
 		s/^.*@@ //;s/;$//
-	    ' $finalizees` || {
+	    ' $unfinished` || {
 		echo "$0: Update AF_FINISH_FILES() invocation to generate $name!" >&2
 		echo false
 		exit 2

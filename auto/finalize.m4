@@ -30,7 +30,7 @@ dnl AF_FINISH_FILES(FINISHED [,GENSUBST=gensubst])
 dnl				Trigger build-time finishing of @VARIABLE@
 dnl				placeholders in FINISHED by letting GENSUBST
 dnl				generate output variables CONFIG_STATUS_DEPEN-
-dnl				DENCIES and FINALIZE
+dnl				DENCIES and FINISH
 dnl
 AC_DEFUN([AF_FINISH_FILES], [
 AC_SUBST([af__CLEAN_FILES], 'm4_normalize([$1])')
@@ -39,7 +39,7 @@ m4_ifval([$2], [af__gensubst=$2], [af__gensubst=gensubst])
 AC_SUBST([af__config_status_deps], [`
     ${srcdir}/${af__gensubst} CONFIG_STATUS_DEPENDENCIES ${af__gensubst} ${af__unfinished}
 `])
-AC_SUBST([FINALIZE], [`
+AC_SUBST([FINISH], [`
     ${srcdir}/${af__gensubst} FINISH ${af__unfinished}
 `])
 AC_CONFIG_COMMANDS([finishing], [sed '

@@ -33,5 +33,5 @@ SUFFIXES		= .un
 
 .un:
 	@$(MKDIR_P) `dirname $@` && rm -f $@
-	$(FINALIZE) $< >$@
+	$(FINISH) $< >$@
 
