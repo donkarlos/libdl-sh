@@ -1,5 +1,5 @@
 ##								-*-Makefile-*-
-##  auto/finalize.am		- libsh finalization rules
+##  autofinish.am		- Build-time finishing rules
 ##
 ##  Copyright (C) 2013, Karl Schmitz
 ##

@@ -30,15 +30,15 @@ ACLOCAL_AMFLAGS		= -I auto
 
 shlibdir		= @libdir@
 
-include $(top_srcdir)/auto/finalize.am
+include $(top_srcdir)/auto/autofinish.am
 
 ##----------------------------------------------------------------------------
 ##  Finalize and install scripts, package data, and libraries:
 ##----------------------------------------------------------------------------
 bin_SCRIPTS		= bin/libdl-sh
 sysconf_DATA		= etc/libdl.sh.conf
-pkgdata_DATA		= auto/finalize.am	\
-			  auto/finalize.m4	\
+pkgdata_DATA		= auto/autofinish.am	\
+			  auto/autofinish.m4	\
 			  auto/gensubst
 shlib_DATA		= lib/libdl.sh
 

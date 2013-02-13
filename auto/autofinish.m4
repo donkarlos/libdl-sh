@@ -1,5 +1,5 @@
 ##								-*-Autoconf-*-
-##  auto/finalize.m4		- Define macro AF_FINISH_FILES()
+##  autofinish.m4		- Build-time finishing macro
 ##
 ##  Copyright (C) 2013, Karl Schmitz
 ##
