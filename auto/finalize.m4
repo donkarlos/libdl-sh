@@ -1,5 +1,5 @@
 ##								-*-Autoconf-*-
-##  auto/finalize.m4		- Define macro LIBSH_FINISH_FILES()
+##  auto/finalize.m4		- Define macro AF_FINISH_FILES()
 ##
 ##  Copyright (C) 2013, Karl Schmitz
 ##
@@ -26,13 +26,13 @@
 ##		by aclocal(1) as well as m4(1).
 ##----------------------------------------------------------------------------
 dnl
-dnl LIBSH_FINISH_FILES(FINALIZED [,GENSUBST=gensubst])
-dnl				Trigger build-time finalization of @VARIABLE@
-dnl				placeholders in finalizees by having GENSUBST
+dnl AF_FINISH_FILES(FINISHED [,GENSUBST=gensubst])
+dnl				Trigger build-time finishing of @VARIABLE@
+dnl				placeholders in FINISHED by letting GENSUBST
 dnl				generate output variables CONFIG_STATUS_DEPEN-
 dnl				DENCIES and FINALIZE
 dnl
-AC_DEFUN([LIBSH_FINISH_FILES], [
+AC_DEFUN([AF_FINISH_FILES], [
 AC_SUBST([libsh_cleanfiles], 'm4_normalize([$1])')
 libsh_finalizees=`echo $libsh_cleanfiles | sed 's|$| |;s| |.un |g;s| $||'`
 m4_ifval([$2], [libsh_gensubst=$2], [libsh_gensubst=gensubst])
@@ -42,7 +42,7 @@ AC_SUBST([libsh_config_status_deps], [`
 AC_SUBST([FINALIZE], [`
     ${srcdir}/${libsh_gensubst} FINALIZE ${libsh_finalizees}
 `])
-AC_CONFIG_COMMANDS([finalizing], [sed '
+AC_CONFIG_COMMANDS([finishing], [sed '
     s/\$(EXTRA_DIST)/$(libsh_config_status_deps) &/g
     s/\$(CONFIG_STATUS_DEPENDENCIES)/$(libsh_config_status_deps) &/g
     /^clean-am:/a\

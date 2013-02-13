@@ -40,7 +40,7 @@ AM_MAINTAINER_MODE
 dnl
 dnl Generate output files:
 dnl
-LIBSH_FINISH_FILES([
+AF_FINISH_FILES([
     bin/libdl-sh
     etc/libdl.sh.conf
     lib/libdl.sh
