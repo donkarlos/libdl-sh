@@ -38,10 +38,9 @@ include () {
 	y/	/ /;s/   */ /g;s/^ //;/^#/d;/^$/d;s/ #.*$//;s/ $//
     ' /dev/null ${1+"$@"} 2>/dev/null | while read line; do
 	case "$line" in
-	    'include')		;;
-	    'include '*)
-		eval "$line"	;;
-	    *)	echo "$line"	;;
+	    'include')				;;
+	    'include '*)    eval "$line"	;;
+	    *)		    eval "echo $line"	;;
 	esac
     done
 }
@@ -58,7 +57,7 @@ case $1 in
 	for item in `
 	    include ${HOME+$HOME/.libdl.sh.conf} @sysconfdir@/libdl.sh.conf
 	`; do
-	    eval 'test -d "$item" 2>/dev/null' && case $libpath in
+	    test -d "$item" && case $libpath in
 		*:$item:*)			;;
 		*)  libpath=$libpath$item:	;;
 	    esac
