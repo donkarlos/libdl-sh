@@ -32,6 +32,8 @@ dnl				placeholders in FINISHED by letting GENSUBST
 dnl				generate output variables CONFIG_STATUS_DEPEN-
 dnl				DENCIES and FINISH
 dnl
+dnl NOTE:   (1)	All pathnames passed must be relative to $(top_srcdir)!
+dnl
 AC_DEFUN([AF_FINISH_FILES], [
 AC_SUBST([af__CLEAN_FILES], 'm4_normalize([$1])')
 af__unfinished=`echo $af__CLEAN_FILES | sed 's|$| |;s| |.un |g;s| $||'`
