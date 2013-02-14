@@ -1,0 +1,151 @@
+#! /usr/bin/awk -f							 #{%%}
+#-----------------------------------------------------------------------------
+#   conf.awk			- Process GIT-style configuration files
+#
+#   Copyright (C) 2013, Karl Schmitz
+#
+#   This program is free software; you can redistribute it and/or modify
+#   it under the terms of the GNU General Public License as published by
+#   the Free Software Foundation; either version 2 of the License, or
+#   (at your option) any later version.
+#
+#   This program is distributed in the hope that it will be useful,
+#   but WITHOUT ANY WARRANTY; without even the implied warranty of
+#   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+#   GNU General Public License (file LICENSE) for more details.
+#
+#   You should have received a copy of the GNU General Public License along
+#   with this program; if not, write to the Free Software Foundation, Inc.,
+#   51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+#									  {%-}
+#   AUTHOR(S):	ks	Karl Schmitz <carolus.faber@googlemail.com>
+#
+#   WRITTEN BY:	ks	2013-02-14
+#   CHANGED BY:
+#-----------------------------------------------------------------------------
+#   Initialization:							  {%+}
+#-----------------------------------------------------------------------------
+BEGIN {
+    re_ind = "^[ \t]*"; re_fld = "[^ \t]+"; re_sep = "[ \t]+"
+    re_sk1 = re_ind re_fld; re_sk2 = re_sk1 re_sep re_fld
+    ec = mc = sc = si = 0; cfpn = ARGV[ARGC - 2]
+
+}
+
+function has_si(si) {
+    return (si in si2vc)
+}
+
+function get_si(sn) {
+    return ((si = sn2si[sn]) && (si in si2vc))
+}
+
+function set_si(sn) {
+    if (!(si = sn2si[sn])) {
+	si = sn2si[sn] = ++sc; si2sn[si] = sn; si2vc[si] = 0
+    } else if (!(si in si2vc)) {
+	si2vc[si] = 0
+    }
+}
+
+function has_vi(si,vi) {
+    return ((si,vi) in sivi2vv)
+}
+
+function get_vi(si,vn) {
+    return ((vi = sivn2vi[si,vn]) && ((si,vi) in sivi2vv))
+}
+
+function set_vi(si,vn) {
+    if (!(vi = sivn2vi[si,vn]) || (vi > si2vc[si])) {
+	vi = sivn2vi[si,vn] = ++si2vc[si]; sivi2vn[si,vi] = vn
+    }
+}
+
+function get_sn_vn(item) {
+    if (match(item, "^([^.]+\\.)+")) {
+	sn = substr(item, RSTART, RLENGTH - 1)
+	vn = substr(item, RSTART + RLENGTH)
+    }
+    return RSTART
+}
+
+function set_vv(si,vi,re) {
+    match($0, re) && sivi2vv[si,vi] = substr($0, RSTART + RLENGTH + 1)
+}
+
+($0 ~ "^\\[[^] \"[]+ \"[^\"]+\"\\]$") {
+    sn = $0; sub("^\\[", "", sn); sub(" \"", ".", sn); sub("\"\\]$", "", sn)
+    set_si(sn)
+    next
+}
+
+($0 ~ "^\\[[^] \"[]+\\]$") {
+    sn = $0; sub("^\\[", "", sn); sub("\\]$", "", sn)
+    set_si(sn)
+    next
+}
+
+($0 ~ "^\\[") {
+    si = 0;
+    ++ec
+    next
+}
+
+($0 ~ "^\t") && ($2 == "=") {
+    if (!si) {
+	++ec
+    } else {
+	set_vi(si, $1); set_vv(si, vi, re_sk2)
+    }
+    next
+}
+
+($1 == "has") {
+    (get_sn_vn($2) && get_si(sn) && get_vi(si, vn)) || ++ec
+    next
+}
+
+($1 == "get") {
+    dc = 0; if (get_sn_vn($2)) {
+	if (sn != "*") {
+	    if (get_si(sn) && get_vi(si, vn)) {
+		print sivi2vv[si,vi]; ++dc
+	    }
+	} else for (si = 1; si <= sc; ++si) {
+	    if (has_si(si) && get_vi(si, vn)) {
+		print sivi2vv[si,vi]; ++dc
+	    }
+	}
+    }
+    dc || ++ec
+    next
+}
+
+($1 == "set") {
+    if (!get_sn_vn($2)) {
+	++ec
+    } else {
+	set_si(sn); set_vi(si,vn); set_vv(si,vi,re_sk2)
+	++mc
+    }
+    next
+}
+
+($1 == "unset") {
+    if (get_sn_vn($2) && get_si(sn) && get_vi(si, vn)) {
+	delete sivi2vv[si,vi]
+	++mc
+    }
+    next
+}
+
+END {
+    if (ec) exit 1
+    if (mc) for (si = 1; si <= sc; ++si) if (has_si(si)) {
+	sn = si2sn[si]; sub("\\.", " \"", sn) && sub("$", "\"", sn)
+	printf("[%s]\n", sn) > cfpn
+	for (vi = 1; vi <= si2vc[si]; ++vi) if (has_vi(si,vi))
+	    printf("\t%s = %s\n", sivi2vn[si,vi], sivi2vv[si,vi]) > cfpn
+    }
+}

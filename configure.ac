@@ -21,7 +21,7 @@ dnl AUTHOR(S):	ks	Karl Schmitz <carolus.faber@googlemail.com>
 dnl
 dnl WRITTEN BY:	ks	2013-02-12
 dnl CHANGED BY:	ks	2013-02-13	Add libquote.sh and libundo.sh.
-dnl		ks	2013-02-14	Add libsafe.sh.
+dnl		ks	2013-02-14	Add libsafe.sh and libconf.sh.
 dnl
 dnl NOTE:   (1)	Update the build system with autoreconf(1).
 dnl	    (2)	AM_INIT_AUTOMAKE() already invokes AC_ARG_PROGRAM, AC_PROG_-
@@ -45,6 +45,7 @@ AF_FINISH_FILES([
     bin/libdl-sh
     etc/libdl.sh.conf
     lib/libdl.sh lib/libquote.sh lib/libundo.sh lib/libsafe.sh
+    lib/conf.awk lib/libconf.sh
 ], [auto/gensubst])
 AC_CONFIG_FILES([
     Makefile

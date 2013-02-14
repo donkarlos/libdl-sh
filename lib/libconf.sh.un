@@ -1,0 +1,85 @@
+#! /bin/sh								  {%%}
+#-----------------------------------------------------------------------------
+#   libconf.sh			- GIT-style config. file processing library
+#
+#   Copyright (C) 2013, Karl Schmitz
+#
+#   This program is free software; you can redistribute it and/or modify
+#   it under the terms of the GNU General Public License as published by
+#   the Free Software Foundation; either version 2 of the License, or
+#   (at your option) any later version.
+#
+#   This program is distributed in the hope that it will be useful,
+#   but WITHOUT ANY WARRANTY; without even the implied warranty of
+#   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+#   GNU General Public License (file LICENSE) for more details.
+#
+#   You should have received a copy of the GNU General Public License along
+#   with this program; if not, write to the Free Software Foundation, Inc.,
+#   51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+#									  {%-}
+#   AUTHOR(S):	ks	Karl Schmitz <carolus.faber@googlemail.com>
+#
+#   WRITTEN BY:	ks	2013-02-14
+#   CHANGED BY:
+#
+#   NOTE:   (1)	The library just wraps around its 'workhorse' AWK script!
+#-----------------------------------------------------------------------------
+#   Global variables:							  {%+}
+#-----------------------------------------------------------------------------
+conf_awk=@pkgdatadir@/conf.awk
+
+#-------------------------------------------------------------------------{%-}
+#   conf_exec(CFPN)		Process configuration file CFPN by
+#				executing commands from standard input
+#-------------------------------------------------------------------------{%+}
+conf_exec () {
+    awk -f "$conf_awk" "$1" -
+}
+
+#-------------------------------------------------------------------------{%-}
+#   conf_has(CFPN ITEM)		Configuration file CFPN has ITEM?
+#-------------------------------------------------------------------------{%+}
+conf_has () {
+    awk -f "$conf_awk" "$1" - <<EOF
+	has $2
+EOF
+}
+
+#-------------------------------------------------------------------------{%-}
+#   conf_get(CFPN ITEM [VALUE])	Get ITEM from CFPN (or VALUE)
+#-------------------------------------------------------------------------{%+}
+conf_get () {
+    awk -f "$conf_awk" "$1" - <<EOF || { test -n "${3+set}" && echo "$3"; }
+	get $2
+EOF
+}
+
+#-------------------------------------------------------------------------{%-}
+#   conf_set(CFPN ITEM VALUE)	Set ITEM to VALUE in CFPN
+#-------------------------------------------------------------------------{%+}
+conf_set () {
+    awk -f "$conf_awk" "$1" - <<EOF
+	set $2 $3
+EOF
+}
+
+#-------------------------------------------------------------------------{%-}
+#   conf_unset(CFPN ITEM)	Unset ITEM in CFPN
+#-------------------------------------------------------------------------{%+}
+conf_unset () {
+    awk -f "$conf_awk" "$1" - <<EOF
+	unset $2
+EOF
+}
+
+#-------------------------------------------------------------------------{%-}
+#   conf_getenv(VARIABLE CFPN ITEM [VALUE])
+#				Get ITEM from VARIABLE or CFPN (or VALUE)
+#-------------------------------------------------------------------------{%+}
+conf_getenv () {
+    eval 'case ${'"$1"'+set} in
+	set)	echo "$'"$1"'"		;;
+	*)	shift; conf_get "$@"	;;
+    esac'
+}
