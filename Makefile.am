@@ -20,7 +20,7 @@
 ##  AUTHOR(S):	ks	Karl Schmitz <carolus.faber@googlemail.com>
 ##
 ##  WRITTEN BY:	ks	2013-02-12
-##  CHANGED BY:	ks	2013-02-13	Add libquote.sh.
+##  CHANGED BY:	ks	2013-02-13	Add libquote.sh and libundo.sh.
 ##
 ##  NOTE:   (1)	Update the build system with autoreconf(1).
 ##----------------------------------------------------------------------------
@@ -37,9 +37,6 @@ include $(top_srcdir)/auto/autofinish.am
 ##----------------------------------------------------------------------------
 bin_SCRIPTS		= bin/libdl-sh
 sysconf_DATA		= etc/libdl.sh.conf
-pkgdata_DATA		= auto/autofinish.am	\
-			  auto/autofinish.m4	\
-			  auto/gensubst
-shlib_DATA		= lib/libdl.sh		\
-			  lib/libquote.sh
+pkgdata_DATA		= auto/autofinish.am auto/autofinish.m4 auto/gensubst
+shlib_DATA		= lib/libdl.sh lib/libquote.sh lib/libundo.sh
 
