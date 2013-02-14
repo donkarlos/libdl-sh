@@ -20,7 +20,7 @@ dnl
 dnl AUTHOR(S):	ks	Karl Schmitz <carolus.faber@googlemail.com>
 dnl
 dnl WRITTEN BY:	ks	2013-02-12
-dnl CHANGED BY:
+dnl CHANGED BY:	ks	2013-02-13	Add libquote.sh.
 dnl
 dnl NOTE:   (1)	Update the build system with autoreconf(1).
 dnl	    (2)	AM_INIT_AUTOMAKE() already invokes AC_ARG_PROGRAM, AC_PROG_-
@@ -43,7 +43,7 @@ dnl
 AF_FINISH_FILES([
     bin/libdl-sh
     etc/libdl.sh.conf
-    lib/libdl.sh
+    lib/libdl.sh lib/libquote.sh
 ], [auto/gensubst])
 AC_CONFIG_FILES([
     Makefile
