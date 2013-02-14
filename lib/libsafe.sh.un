@@ -1,0 +1,188 @@
+#! /bin/sh								  {%%}
+#-----------------------------------------------------------------------------
+#   libsafe.sh			- Safe directory/file operations library
+#
+#   Copyright (C) 2013, Karl Schmitz
+#
+#   This program is free software; you can redistribute it and/or modify
+#   it under the terms of the GNU General Public License as published by
+#   the Free Software Foundation; either version 2 of the License, or
+#   (at your option) any later version.
+#
+#   This program is distributed in the hope that it will be useful,
+#   but WITHOUT ANY WARRANTY; without even the implied warranty of
+#   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+#   GNU General Public License (file LICENSE) for more details.
+#
+#   You should have received a copy of the GNU General Public License along
+#   with this program; if not, write to the Free Software Foundation, Inc.,
+#   51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+#									  {%-}
+#   AUTHOR(S):	ks	Karl Schmitz <carolus.faber@googlemail.com>
+#
+#   WRITTEN BY:	ks	2013-02-14
+#   CHANGED BY:
+#-----------------------------------------------------------------------------
+#   Global variables:							  {%+}
+#-----------------------------------------------------------------------------
+safe_tmpdir=
+safe_suffix=$$
+safe_tarid=0
+safe_locks=
+safe_exit0=
+
+#-------------------------------------------------------------------------{%-}
+#   safe_init(TAG)		Set cleanups tag for successful exit
+#-------------------------------------------------------------------------{%+}
+safe_init () {
+    undo_init "$1" && safe_exit0=$1
+}
+
+#-------------------------------------------------------------------------{%-}
+#   safe_mktmpdir(&DPN [DRN])	Safely make temporary directory
+#-------------------------------------------------------------------------{%+}
+safe_mktmpdir () {
+    test -n "$safe_tmpdir" || {		# Temporary directory made?
+	safe_tmpdir=`mktemp -d` || return 1
+					# No, try to make it once and for all.
+	undo_push $safe_exit0 'rm -rf' "$safe_tmpdir"
+    }
+
+    case $# in				# Optional relative name supplied?
+	2)  mkdir -p "$safe_tmpdir/$2" && eval "$1"'=$safe_tmpdir/$2'
+	    ;;				# Yes, try to make it and pass it on.
+	1)  eval "$1"'=$safe_tmpdir'	# No, just pass it on.
+	    ;;
+    esac
+}
+
+#-------------------------------------------------------------------------{%-}
+#   safe_mkdir(DPN ...)		Safely make directories
+#-------------------------------------------------------------------------{%+}
+safe_mkdir () {
+    local dpn
+
+    for dpn in ${1+"$@"}; do		# Foreach directory do...
+	test -d "$dpn" || {		# Does it already exist?
+	    safe_mkdir "`dirname "$dpn"`" && mkdir "$dpn" || break
+	    undo_push rmdir "$dpn" '2>/dev/null'
+	}				# No, try to make it recursively.
+    done
+}
+
+#-------------------------------------------------------------------------{%-}
+#   safe_chdir(DPN)		Safely change directory
+#-------------------------------------------------------------------------{%+}
+safe_chdir () {
+    local d=`pwd`; cd "$1" && undo_push cd "$d" '2>/dev/null'
+}
+
+#-------------------------------------------------------------------------{%-}
+#   safe_touch(FPN ...)		Safely touch file(s) into existence
+#-------------------------------------------------------------------------{%+}
+safe_touch () {
+    local fpn
+
+    for fpn in ${1+"$@"}; do		# Foreach file do...
+	test -f "$fpn" || {		# Does it already exist?
+	    safe_mkdir "`dirname "$fpn"`" && touch "$fpn" || break
+	    undo_push 'rm -f' "$fpn"
+	}				# No, try to make it recursively.
+    done
+}
+
+#-------------------------------------------------------------------------{%-}
+#   safe_save(FPN)		Safely save existing file
+#-------------------------------------------------------------------------{%+}
+safe_save () {
+    test -f "$1~B$safe_suffix" || {	# File has already been saved?
+	cp -p "$1" "$1~B$safe_suffix" && {
+	    undo_push $safe_exit0 'rm -f' "$1~B$safe_suffix"
+	    undo_push mv "$1~B$safe_suffix" "$1"
+	}				# No, try to save it.
+    }
+}
+
+#-------------------------------------------------------------------------{%-}
+#   safe_rename(OLDPN NEWPN)	Safely rename file
+#-------------------------------------------------------------------------{%+}
+safe_rename () {
+    test -e "$1" || return 1
+    test -e "$2" && return 1
+    mv "$1" "$2" && undo_push mv "$2" "$1"
+}
+
+#-------------------------------------------------------------------------{%-}
+#   safe_remove(PN ...)		Safely remove directory tree(s)/file(s)
+#-------------------------------------------------------------------------{%+}
+safe_remove () {
+    local tmpdn tarpn pn
+
+    safe_mktmpdir tmpdn safe && {	# Make temporary directory.
+	safe_tarid=`expr $safe_tarid + 1`
+	tarpn=$tmpdn/$safe_tarid.tar	# Construct backup archive's name.
+	for pn in ${1+"$@"}; do		# Foreach removee do...
+	    test -e "$pn" && {		# Append it to backup archive.
+		tar rPf "$tarpn" "$pn" || return 1
+	    }
+	done
+	if test -e "$tarpn"; then
+	    undo_push 'tar xPf' "$tarpn" '2>/dev/null' && rm -rf "$@"
+	else
+	    :
+	fi
+    }
+}
+
+#-------------------------------------------------------------------------{%-}
+#   safe_umask(UMASK COMMAND [ARGUMENT ...])
+#				Invoke COMMAND with umask UMASK
+#-------------------------------------------------------------------------{%+}
+safe_umask () {
+    local umask=`umask` status		# Save umask.
+
+    umask $1; shift			# Adjust umask.
+    ${1+"$@"}				# Invoke command.
+    status=$?; umask $umask		# Save status and restore umask.
+
+    return $status			# Indicate status.
+}
+
+#-------------------------------------------------------------------------{%-}
+#   safe_unlock(PN)		Safely unlock directory or file PN
+#-------------------------------------------------------------------------{%+}
+safe_unlock () {
+    echo "$safe_locks" | fgrep -qxe "$1" && rmdir "$1~lock" && {
+	safe_locks="`echo "$safe_locks" | fgrep -vxe "$1"`" || :
+    }
+}
+
+#-------------------------------------------------------------------------{%-}
+#   safe_lock(PN)		Safely try locking directory or file PN
+#-------------------------------------------------------------------------{%+}
+safe_lock () {
+    echo "$safe_locks" | fgrep -qxe "$1" || {
+	safe_mkdir "`dirname "$1"`" &&
+	    safe_umask 277 mkdir "$1~lock" 2>/dev/null &&
+	    undo_push $safe_exit0 safe_unlock "$1" &&
+	    safe_locks="$safe_locks$1$NL"
+    }
+}
+
+#-------------------------------------------------------------------------{%-}
+#   safe_wait(PN [SECONDS=30])	Try locking PN within SECONDS seconds
+#-------------------------------------------------------------------------{%+}
+safe_wait () {
+    local seconds=${2-30}
+
+    until safe_lock "$1"; do		# Until we lock map file do...
+	test -d "$1~lock" || return 1	# Cond. indic. failure to lock at all.
+	sleep 1; seconds=`expr $seconds - 1`
+	test $seconds -gt 0 || return 2	# Cond. indicate timeout.
+    done
+}
+
+#-------------------------------------------------------------------------{%-}
+#   Initialization:
+#-------------------------------------------------------------------------{%+}
+dl_load undo
