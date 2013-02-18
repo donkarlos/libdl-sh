@@ -1,6 +1,6 @@
 #-----------------------------------------------------------------------------
-#   libdl.sh.conf		- POSIX shell demand-loading configuration
-#
+#   libdl.sh.conf		- libsh system-wide demand-loading config.
+#									  {%-}
 #   Copyright (C) 2013, Karl Schmitz
 #
 #   This library is free software; you can redistribute it and/or

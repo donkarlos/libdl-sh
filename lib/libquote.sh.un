@@ -1,6 +1,6 @@
 #! /bin/sh								  {%%}
 #-----------------------------------------------------------------------------
-#   libquote.sh			- String quoting library
+#   libquote.sh			- libsh string quoting library
 #
 #   Copyright (C) 2013, Karl Schmitz
 #

@@ -1,6 +1,6 @@
 #! /bin/sh								  {%%}
 #-----------------------------------------------------------------------------
-#   libsafe.sh			- Safe directory/file operations library
+#   libsafe.sh			- libsh safe dir./file operations library
 #
 #   Copyright (C) 2013, Karl Schmitz
 #

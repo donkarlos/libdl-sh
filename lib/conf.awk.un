@@ -1,6 +1,6 @@
 #! /usr/bin/awk -f							  {%%}
 #-----------------------------------------------------------------------------
-#   conf.awk			- Process GIT-style configuration files
+#   conf.awk			- libsh GIT-style config. file processor
 #
 #   Copyright (C) 2013, Karl Schmitz
 #

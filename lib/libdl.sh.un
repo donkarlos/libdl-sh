@@ -1,6 +1,6 @@
 #! /bin/sh								  {%%}
 #-----------------------------------------------------------------------------
-#   libdl.sh			- POSIX shell demand-loading library
+#   libdl.sh			- libsh demand-loading library
 #
 #   Copyright (C) 2013, Karl Schmitz
 #

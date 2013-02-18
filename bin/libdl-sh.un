@@ -1,6 +1,6 @@
 #! /bin/sh
 #-----------------------------------------------------------------------------
-#   libdl-sh			- POSIX shell demand-loading helper
+#   libdl-sh			- libsh demand-loading helper
 #
 #   Copyright (C) 2013, Karl Schmitz
 #

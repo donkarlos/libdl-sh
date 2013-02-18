@@ -1,6 +1,6 @@
 #! /bin/sh								  {%%}
 #-----------------------------------------------------------------------------
-#   libundo.sh			- Undo stack management library
+#   libundo.sh			- libsh undo stack management library
 #
 #   Copyright (C) 2013, Karl Schmitz
 #
