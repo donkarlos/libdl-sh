@@ -31,7 +31,7 @@ dnl
 dnl Initialization:
 dnl
 AC_INIT([Demand-loadable libraries for POSIX shell scripts],
-    [0.1], [carolus.faber@googlemail.com], [libsh])
+    [0.1.1], [carolus.faber@googlemail.com], [libsh])
 AC_PREREQ([2.61])
 AC_CONFIG_SRCDIR([bin/libdl-sh.un])
 AC_CONFIG_AUX_DIR([auto])
