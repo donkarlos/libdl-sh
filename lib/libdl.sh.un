@@ -25,7 +25,7 @@
 #-----------------------------------------------------------------------------
 #   Initialization:							  {%+}
 #-----------------------------------------------------------------------------
-dl_libpath=`@bindir@/libdl path` || exit 127
+dl_libpath=`@bindir@/libdl-sh path` || exit 127
 dl_atloads=:
 dl_atexits='exit $status'
 dl_loaded=:dl:
