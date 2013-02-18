@@ -39,12 +39,12 @@ include $(top_srcdir)/auto/autofinish.am
 dist_noinst_DATA	= LICENSE
 
 ##----------------------------------------------------------------------------
-##  Finalize and install scripts, package data, and libraries:
+##  Finalize and install scripts, libraries, and package data:
 ##----------------------------------------------------------------------------
 bin_SCRIPTS		= bin/libdl-sh
+shlib_DATA		= lib/libdl.sh lib/libquote.sh lib/libundo.sh	\
+			  lib/libsafe.sh lib/libconf.sh
 sysconf_DATA		= etc/libdl.sh.conf
 pkgdata_DATA		= auto/autofinish.am auto/autofinish.m4		\
 			  auto/gensubst lib/conf.awk
-shlib_DATA		= lib/libdl.sh lib/libquote.sh lib/libundo.sh	\
-			  lib/libsafe.sh lib/libconf.sh
 
