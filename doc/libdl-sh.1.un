@@ -1,0 +1,106 @@
+.\"								-*- nroff -*-
+.\" libdl-sh.1			- libdl-sh(1) manual page
+.\"
+.\" Copyright (C) 2013, Karl Schmitz
+.\"
+.\" This library is free software; you can redistribute it and/or
+.\" modify it under the terms of the GNU Lesser General Public License
+.\" as published by the Free Software Foundation; either
+.\" version 2.1 of the License, or (at your option) any later version.
+.\"
+.\" This library is distributed in the hope that it will be useful,
+.\" but WITHOUT ANY WARRANTY; without even the implied warranty of
+.\" MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+.\" Lesser General Public License for more details.
+.\"
+.\" You should have received a copy of the GNU Lesser General Public License
+.\" along with this library; if not, write to the Free Software Founda-
+.\" tion, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
+.\"
+.\" AUTHOR(S):	ks	Karl Schmitz <carolus.faber@googlemail.com>
+.\"
+.\" WRITTEN BY:	ks	2013-02-18
+.\" CHANGED BY:
+.\"
+.\" NOTE: (1)	Please adjust below date whenever revising the manual page.
+.\"		vvvvvv
+.TH LIBDL-SH 1 2013-02-18 "@PACKAGE_TARNAME@ @PACKAGE_VERSION@" "Shell Programming"
+
+.SH NAME
+libdl-sh \- POSIX shell library demand-loading helper
+
+.SH SYNOPSIS
+.B libdl-sh
+.I ACTION
+.RI [ ARGUMENT " ...]"
+
+.SH DESCRIPTION
+\fBLibdl-sh\fP, the demand-loading helper, and \fBlibdl.sh\fP, its companion
+demand-loading library, form the core of @PACKAGE_TARNAME@'s shell library
+demand-loading mechanism. POSIX shell applications wishing to use that
+mechanism invoke \fBlibdl-sh load\fP (see below for exact details) to load
+\fBlibdl.sh\fP, thereby establishing the mechanism within the application.
+
+.SH ACTIONS
+.TP
+.BR load
+Write a shell statement to standard output which, when executed, loads (i.e.,
+sources) the companion demand-loading library (see \fBFILES\fP below) or
+exits the application with status \fB127\fP (like a binary executable that
+fails to load a shared library would). Thus, an application executes
+
+.in +4
+\fBeval "`libdl-sh load`"\fP
+.in -4
+
+to load the companion demand-loading library, (optionally) initializes the
+demand-loading mechanism with
+.BR dl_init (3sh),
+and demand-loads additional libraries with
+.BR dl_load (3sh).
+
+.TP
+.BR path
+Parse the demand-loading library's configuration and write the resulting,
+colon-separated library search path to standard output. The system-wide
+configuration is contained in files
+.BR @sysconfdir@/libdl.sh.conf " and " @sysconfdir@/libdl.sh.conf.d/ * .conf ,
+where the latter are intended for adding package-specific search path items.
+
+Every user may extend the library search path by creating a user-specific
+configuration file
+.BR $HOME/.libdl.sh.conf ,
+which is parsed before the system-wide configuration files. The format of
+demand-loading library's configuration files is described in
+.BR libdl.sh.conf (5).
+
+The action's primary purpose is initializing the demand-loading library's
+search path. Of course, you may also use it to verify your configuration.
+
+.TP
+.BR echo " \fINAME\fP ..."
+Write installation path \fINAME\fP to standard output, where \fINAME\fP
+may be
+.BR bindir ", " libdir ", " sysconfdir ", or " pkgdatadir .
+The action's purpose is helping other packages providing
+demand-loadable POSIX shell libraries integrate with the demand-loading
+mechanism. It's not used internally by @PACKAGE_TARNAME@.
+
+.SH FILES
+.TP
+.BR @bindir@/libdl-sh ", " @shlibdir@/libdl.sh
+The demand-loading helper described here and its companion demand-loading
+library.
+.TP
+.BR $HOME/.libdl.sh.conf ", " @sysconfdir@/libdl.sh.conf
+The user-specific and system-wide demand-loading configuration defining the
+library search path.
+
+.SH SEE ALSO
+.BR dl_init (3sh),
+.BR dl_load (3sh),
+.BR libdl.sh.conf (5).
+
+.SH AUTHOR
+.B Libdl-sh
+was written by Karl Schmitz <@PACKAGE_BUGREPORT@>.

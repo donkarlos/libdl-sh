@@ -22,13 +22,6 @@
 #
 #   WRITTEN BY:	ks	2013-02-12
 #   CHANGED BY:
-#
-#   USAGE:
-#	eval `libdl-sh load`	- Load libdl.sh into program, thereby boot-
-#				  strapping the demand-loading mechanism.
-#	path=`libdl-sh path`	- Read libdl.sh configuration and print colon-
-#				  sepratated library search path.
-#	libdl-sh echo NAME ...	- Echo given installation path(s).
 #-----------------------------------------------------------------------------
 #   include(CONF ...)		Parse demand-loading configuration file(s)
 #				into list of library search path items
