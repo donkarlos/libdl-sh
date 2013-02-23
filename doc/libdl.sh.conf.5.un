@@ -1,0 +1,80 @@
+.\"								-*- nroff -*-
+.\" libdl.sh.conf.5		- libdl.sh.conf(5) manual page
+.\"
+.\" Copyright (C) 2013, Karl Schmitz
+.\"
+.\" This library is free software; you can redistribute it and/or
+.\" modify it under the terms of the GNU Lesser General Public License
+.\" as published by the Free Software Foundation; either
+.\" version 2.1 of the License, or (at your option) any later version.
+.\"
+.\" This library is distributed in the hope that it will be useful,
+.\" but WITHOUT ANY WARRANTY; without even the implied warranty of
+.\" MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+.\" Lesser General Public License for more details.
+.\"
+.\" You should have received a copy of the GNU Lesser General Public License
+.\" along with this library; if not, write to the Free Software Founda-
+.\" tion, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
+.\"
+.\" AUTHOR(S):	ks	Karl Schmitz <carolus.faber@googlemail.com>
+.\"
+.\" WRITTEN BY:	ks	2013-02-22
+.\" CHANGED BY:
+.\"
+.\" NOTE: (1)	Please adjust below date whenever revising the manual page.
+.\"		vvvvvv
+.TH libdl.sh.conf 5 2013-02-22 "@PACKAGE_TARNAME@ @PACKAGE_VERSION@" "Shell Programming"
+
+.SH NAME
+libdl.sh.conf \- POSIX shell library demand-loading configuration
+
+.SH DESCRIPTION
+The demand-loading library \fBlibdl.sh\fP loads libraries needed by POSIX
+shell applications, searching for them along the library search path, which is
+defined by the user-specific and system-wide configuration files
+.BR $HOME/.libdl.sh.conf " and " @sysconfdir@/libdl.sh.conf ,
+respectively.
+
+The format of demand-loading configuration files is similar to that of
+.BR ld.so (8)
+dynamic linker/loader configuration files:
+.IP \(bu 2
+Comments introduced by '#' and empty lines are ignored.
+.IP \(bu
+Lines of the form
+
+.in +4
+\fBinclude\fP \fIPATHNAME\fP ...
+.in -4
+
+are substituted by the contents of the given configuration file(s), in the
+order they are given.
+.IP \(bu
+Other lines are treated as a whitespace-separated list of library search path
+items (i.e., directories appended to the library search path).
+.IP \(bu
+Configuration file pathnames and library search path items are subjected to one
+level of shell substitutions, so that lines like
+
+.in +4
+\fBinclude $HOME/etc/libdl.sh.conf.d/*.conf\fP
+.in -4
+
+behave as expected.
+.IP \(bu
+Nonexisting configuration files and library search path items are silently
+ignored.
+
+.SH BUGS
+The current implementation doesn't guard against inadvertent infinte
+recursion by imposing a maximum \fBinclude\fP nesting depth. You have been
+warned!
+
+.SH SEE ALSO
+.BR libdl-sh (1),
+.BR dl_init (3sh),
+.BR dl_load (3sh).
+
+.SH AUTHOR
+Karl Schmitz <@PACKAGE_BUGREPORT@>

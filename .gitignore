@@ -47,6 +47,7 @@ Makefile
 #   make(1) results:
 #-----------------------------------------------------------------------------
 /bin/libdl-sh
+/doc/*.[15]
 /etc/libdl.sh.conf
 /lib/*.awk
 /lib/*.sh

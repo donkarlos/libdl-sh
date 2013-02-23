@@ -44,7 +44,7 @@ dist_noinst_DATA	= LICENSE
 bin_SCRIPTS		= bin/libdl-sh
 shlib_DATA		= lib/libdl.sh lib/libquote.sh lib/libundo.sh	\
 			  lib/libsafe.sh lib/libconf.sh
-man_MANS		= doc/libdl-sh.1
+man_MANS		= doc/libdl-sh.1 doc/libdl.sh.conf.5
 sysconf_DATA		= etc/libdl.sh.conf
 pkgdata_DATA		= auto/autofinish.am auto/autofinish.m4		\
 			  auto/gensubst lib/conf.awk

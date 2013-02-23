@@ -24,20 +24,7 @@
 #   CHANGED BY:
 #-----------------------------------------------------------------------------
 #   include(CONF ...)		Parse demand-loading configuration file(s)
-#				into list of library search path items
-#
-#   The format of demand-loading configuration files is similar to that of
-#   ld.so(8) dynamic linker/loader configuration files:
-#	- Comments (introduced by '#') and empty lines will be ignored.
-#	- Lines of the form `include CONF ...' recursively parse the given
-#	  demand-loading configuration file(s).
-#	- Other lines are treated as whitespace-separated list of library
-#	  search path items.
-#	- Configuration file pathnames and library search path items are
-#	  subjected to one level of shell substitutions, so that a line like
-#	    include $HOME/etc/libdl.sh.conf.d/*.conf
-#	  will behave as expected.
-#	- Nonexisting configuration files are silently ignored.		  {%+}
+#				into list of library search path items	  {%+}
 #-----------------------------------------------------------------------------
 include () {
     local line
