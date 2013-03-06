@@ -1,6 +1,6 @@
 #! /usr/bin/awk -f							  {%%}
 #-----------------------------------------------------------------------------
-#   conf.awk			- libsh GIT-style config. file processor
+#   conf.awk			- libconf.sh GIT-style config. file processor
 #
 #   Copyright (C) 2013, Karl Schmitz
 #
@@ -21,7 +21,7 @@
 #   AUTHOR(S):	ks	Karl Schmitz <carolus.faber@googlemail.com>
 #
 #   WRITTEN BY:	ks	2013-02-14
-#   CHANGED BY:
+#   CHANGED BY:	ks	2013-03-06	Attribute this to `libconf.sh'.
 #-----------------------------------------------------------------------------
 #   Initialization:							  {%+}
 #-----------------------------------------------------------------------------

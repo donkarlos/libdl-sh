@@ -1,4 +1,4 @@
-libsh
-=====
+libdl-sh
+========
 
-A small collection of dynamically-loadable POSIX shell libraries
+Demand-loadable libraries for POSIX shell scripts

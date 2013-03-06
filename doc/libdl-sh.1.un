@@ -20,11 +20,11 @@
 .\" AUTHOR(S):	ks	Karl Schmitz <carolus.faber@googlemail.com>
 .\"
 .\" WRITTEN BY:	ks	2013-02-18
-.\" CHANGED BY:
+.\" CHANGED BY:	ks	2013-03-06	Rename configuration files.
 .\"
 .\" NOTE: (1)	Please adjust below date whenever revising the manual page.
 .\"		vvvvvv
-.TH LIBDL-SH 1 2013-02-18 "@PACKAGE_TARNAME@ @PACKAGE_VERSION@" "Shell Programming"
+.TH LIBDL-SH 1 2013-03-06 "@PACKAGE_TARNAME@ @PACKAGE_VERSION@" "Shell Programming"
 
 .SH NAME
 libdl-sh \- POSIX shell library demand-loading helper
@@ -64,15 +64,15 @@ and demand-loads additional libraries with
 Parse the demand-loading library's configuration and write the resulting,
 colon-separated library search path to standard output. The system-wide
 configuration is contained in files
-.BR @sysconfdir@/libdl.sh.conf " and " @sysconfdir@/libdl.sh.conf.d/ * .conf ,
+.BR @sysconfdir@/libdl-sh.conf " and " @sysconfdir@/libdl-sh.conf.d/ * .conf ,
 where the latter are intended for adding package-specific search path items.
 
 Every user may extend the library search path by creating a user-specific
 configuration file
-.BR $HOME/.libdl.sh.conf ,
+.BR $HOME/.libdl-sh.conf ,
 which is parsed before the system-wide configuration files. The format of
 demand-loading library's configuration files is described in
-.BR libdl.sh.conf (5).
+.BR libdl-sh.conf (5).
 
 The action's primary purpose is initializing the demand-loading library's
 search path. Of course, you may also use it to verify your configuration.

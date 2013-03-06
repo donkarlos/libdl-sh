@@ -1,5 +1,5 @@
 dnl								-*-Autoconf-*-
-dnl configure.ac		- libsh Autotools configuration
+dnl configure.ac		- libdl-sh Autotools configuration
 dnl
 dnl Copyright (C) 2013, Karl Schmitz
 dnl
@@ -22,6 +22,7 @@ dnl
 dnl WRITTEN BY:	ks	2013-02-12
 dnl CHANGED BY:	ks	2013-02-13	Add libquote.sh and libundo.sh.
 dnl		ks	2013-02-14	Add libsafe.sh and libconf.sh.
+dnl		ks	2013-03-06	Rename package to `libdl-sh'.
 dnl
 dnl NOTE:   (1)	Update the build system with autoreconf(1).
 dnl	    (2)	AM_INIT_AUTOMAKE() already invokes AC_ARG_PROGRAM, AC_PROG_-
@@ -31,7 +32,7 @@ dnl
 dnl Initialization:
 dnl
 AC_INIT([Demand-loadable libraries for POSIX shell scripts],
-    [0.2], [carolus.faber@googlemail.com], [libsh])
+    [0.2], [carolus.faber@googlemail.com], [libdl-sh])
 AC_PREREQ([2.61])
 AC_CONFIG_SRCDIR([bin/libdl-sh.un])
 AC_CONFIG_AUX_DIR([auto])
@@ -43,8 +44,8 @@ dnl Generate output files:
 dnl
 AF_FINISH_FILES([
     bin/libdl-sh
-    doc/libdl-sh.1 doc/libdl.sh.conf.5
-    etc/libdl.sh.conf
+    doc/libdl-sh.1 doc/libdl-sh.conf.5
+    etc/libdl-sh.conf
     lib/libdl.sh lib/libquote.sh lib/libundo.sh lib/libsafe.sh
     lib/conf.awk lib/libconf.sh
 ], [auto/gensubst])

@@ -1,6 +1,6 @@
 #! /bin/sh
 #-----------------------------------------------------------------------------
-#   libdl-sh			- libsh demand-loading helper
+#   libdl-sh			- libdl.sh Demand-loading helper
 #
 #   Copyright (C) 2013, Karl Schmitz
 #
@@ -21,7 +21,7 @@
 #   AUTHOR(S):	ks	Karl Schmitz <carolus.faber@googlemail.com>
 #
 #   WRITTEN BY:	ks	2013-02-12
-#   CHANGED BY:
+#   CHANGED BY:	ks	2013-03-06	Attribute this to `libdl.sh'.
 #-----------------------------------------------------------------------------
 #   include(CONF ...)		Parse demand-loading configuration file(s)
 #				into list of library search path items	  {%+}
@@ -58,7 +58,7 @@ case $1 in				# Which action?
     path)				# Emit library search path...
 	libpath=:			# Start with denomalized empty path.
 	for item in `
-	    include ${HOME+$HOME/.libdl.sh.conf} @sysconfdir@/libdl.sh.conf
+	    include ${HOME+$HOME/.libdl-sh.conf} @sysconfdir@/libdl-sh.conf
 	`				# Foreach item in user's and system-
 	do				# wide configuration do...
 	    test -d "$item" && case $libpath in

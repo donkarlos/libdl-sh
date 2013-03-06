@@ -1,5 +1,5 @@
 .\"								-*- nroff -*-
-.\" libdl.sh.conf.5		- libdl.sh.conf(5) manual page
+.\" libdl-sh.conf.5		- libdl-sh.conf(5) manual page
 .\"
 .\" Copyright (C) 2013, Karl Schmitz
 .\"
@@ -20,21 +20,20 @@
 .\" AUTHOR(S):	ks	Karl Schmitz <carolus.faber@googlemail.com>
 .\"
 .\" WRITTEN BY:	ks	2013-02-22
-.\" CHANGED BY:
+.\" CHANGED BY:	ks	2013-03-06	Rename configuration files.
 .\"
 .\" NOTE: (1)	Please adjust below date whenever revising the manual page.
 .\"		vvvvvv
-.TH libdl.sh.conf 5 2013-02-22 "@PACKAGE_TARNAME@ @PACKAGE_VERSION@" "Shell Programming"
+.TH LIBDL-SH.CONF 5 2013-03-06 "@PACKAGE_TARNAME@ @PACKAGE_VERSION@" "Shell Programming"
 
 .SH NAME
-libdl.sh.conf \- POSIX shell library demand-loading configuration
+libdl-sh.conf \- POSIX shell library demand-loading configuration
 
 .SH DESCRIPTION
 The demand-loading library \fBlibdl.sh\fP loads libraries needed by POSIX
 shell applications, searching for them along the library search path, which is
 defined by the user-specific and system-wide configuration files
-.BR $HOME/.libdl.sh.conf " and " @sysconfdir@/libdl.sh.conf ,
-respectively.
+\fB$HOME/.libdl-sh.conf\fP and \fB@sysconfdir@/libdl-sh.conf\fP, respectively.
 
 The format of demand-loading configuration files is similar to that of
 .BR ld.so (8)
@@ -58,7 +57,7 @@ Configuration file pathnames and library search path items are subjected to one
 level of shell substitutions, so that lines like
 
 .in +4
-\fBinclude $HOME/etc/libdl.sh.conf.d/*.conf\fP
+\fBinclude $HOME/etc/libdl-sh.conf.d/*.conf\fP
 .in -4
 
 behave as expected.

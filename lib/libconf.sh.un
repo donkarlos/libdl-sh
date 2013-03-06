@@ -1,6 +1,6 @@
 #! /bin/sh								  {%%}
 #-----------------------------------------------------------------------------
-#   libconf.sh			- libsh GIT-style config. file library
+#   libconf.sh			- GIT-style config. file processing library
 #
 #   Copyright (C) 2013, Karl Schmitz
 #

@@ -1,5 +1,5 @@
 #-----------------------------------------------------------------------------
-#   .gitignore			- libsh git(1) exclude patterns
+#   .gitignore			- libdl-sh git(1) exclude patterns
 #
 #   Copyright (C) 2013, Karl Schmitz
 #
@@ -20,7 +20,7 @@
 #   AUTHOR(S):	ks	Karl Schmitz <carolus.faber@googlemail.com>
 #
 #   WRITTEN BY:	ks	2013-02-12
-#   CHANGED BY:
+#   CHANGED BY:	ks	2013-03-06	Rename package to `libdl-sh'.
 #
 #   NOTE:   (1)	Exclude patterns for tools beyond the actual build tools have
 #		been left out intentionally! Such patterns are better kept in
@@ -48,7 +48,7 @@ Makefile
 #-----------------------------------------------------------------------------
 /bin/libdl-sh
 /doc/*.[15]
-/etc/libdl.sh.conf
+/etc/*.conf
 /lib/*.awk
 /lib/*.sh
 

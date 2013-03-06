@@ -1,5 +1,5 @@
 #-----------------------------------------------------------------------------
-#   libdl.sh.conf		- libsh system-wide demand-loading config.
+#   libdl-sh.conf		- System-wide demand-loading configuration
 #									  {%-}
 #   Copyright (C) 2013, Karl Schmitz
 #
@@ -24,7 +24,7 @@
 #-----------------------------------------------------------------------------
 #   Include package-specific configuration:				  {%+}
 #-----------------------------------------------------------------------------
-include @sysconfdir@/libdl.sh.conf.d/*.conf
+include @sysconfdir@/libdl-sh.conf.d/*.conf
 
 #-------------------------------------------------------------------------{%-}
 #   Default library search path item:
