@@ -27,7 +27,7 @@
 #-----------------------------------------------------------------------------
 BEGIN {
     re_ind = "^[ \t]*"; re_fld = "[^ \t]+"; re_sep = "[ \t]+"
-    re_sk1 = re_ind re_fld; re_sk2 = re_sk1 re_sep re_fld
+    re_sk2 = re_ind re_fld re_sep re_fld
     ec = mc = sc = si = 0; cfpn = ARGV[ARGC - 2]
 
 }
