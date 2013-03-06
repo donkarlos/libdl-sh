@@ -39,7 +39,7 @@ The format of demand-loading configuration files is similar to that of
 .BR ld.so (8)
 dynamic linker/loader configuration files:
 .IP \(bu 2
-Comments introduced by '#' and empty lines are ignored.
+Comments introduced by '#' as well as empty lines are ignored.
 .IP \(bu
 Lines of the form
 
@@ -48,7 +48,7 @@ Lines of the form
 .in -4
 
 are substituted by the contents of the given configuration file(s), in the
-order they are given.
+order given.
 .IP \(bu
 Other lines are treated as a whitespace-separated list of library search path
 items (i.e., directories appended to the library search path).
@@ -67,8 +67,8 @@ ignored.
 
 .SH BUGS
 The current implementation doesn't guard against inadvertent infinte
-recursion by imposing a maximum \fBinclude\fP nesting depth. You have been
-warned!
+recursion (e.g., by imposing a maximum \fBinclude\fP nesting depth).
+You have been warned!
 
 .SH SEE ALSO
 .BR libdl-sh (1),
