@@ -23,6 +23,7 @@
 ##  CHANGED BY:	ks	2013-02-13	Add libquote.sh and libundo.sh.
 ##		ks	2013-02-14	Add libsafe.sh and libconf.sh.
 ##		ks	2013-03-06	Rename package to `libdl-sh'.
+##					Add libemit.sh.
 ##
 ##  NOTE:   (1)	Update the build system with autoreconf(1).
 ##----------------------------------------------------------------------------
@@ -44,7 +45,7 @@ dist_noinst_DATA	= LICENSE
 ##----------------------------------------------------------------------------
 bin_SCRIPTS		= bin/libdl-sh
 shlib_DATA		= lib/libdl.sh lib/libquote.sh lib/libundo.sh	\
-			  lib/libsafe.sh lib/libconf.sh
+			  lib/libsafe.sh lib/libconf.sh lib/libemit.sh
 man_MANS		= doc/libdl-sh.1 doc/libdl-sh.conf.5
 sysconf_DATA		= etc/libdl-sh.conf
 pkgdata_DATA		= auto/autofinish.am auto/autofinish.m4		\

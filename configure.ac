@@ -23,6 +23,7 @@ dnl WRITTEN BY:	ks	2013-02-12
 dnl CHANGED BY:	ks	2013-02-13	Add libquote.sh and libundo.sh.
 dnl		ks	2013-02-14	Add libsafe.sh and libconf.sh.
 dnl		ks	2013-03-06	Rename package to `libdl-sh'.
+dnl					Add libemit.sh.
 dnl
 dnl NOTE:   (1)	Update the build system with autoreconf(1).
 dnl	    (2)	AM_INIT_AUTOMAKE() already invokes AC_ARG_PROGRAM, AC_PROG_-
@@ -47,7 +48,7 @@ AF_FINISH_FILES([
     doc/libdl-sh.1 doc/libdl-sh.conf.5
     etc/libdl-sh.conf
     lib/libdl.sh lib/libquote.sh lib/libundo.sh lib/libsafe.sh
-    lib/conf.awk lib/libconf.sh
+    lib/conf.awk lib/libconf.sh lib/libemit.sh
 ], [auto/gensubst])
 AC_CONFIG_FILES([
     Makefile
