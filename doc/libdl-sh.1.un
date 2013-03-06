@@ -35,17 +35,17 @@ libdl-sh \- POSIX shell library demand-loading helper
 .RI [ ARGUMENT " ...]"
 
 .SH DESCRIPTION
-\fBLibdl-sh\fP, the demand-loading helper, and \fBlibdl.sh\fP, its companion
-demand-loading library, form the core of @PACKAGE_TARNAME@'s shell library
-demand-loading mechanism. POSIX shell applications wishing to use that
-mechanism invoke \fBlibdl-sh load\fP (see below for exact details) to load
-\fBlibdl.sh\fP, thereby establishing the mechanism within the application.
+The demand-loading library \fBlibdl.sh\fP and its helper \fBlibdl-sh\fP are the
+core of @PACKAGE_TARNAME@'s shell library demand-loading mechanism. POSIX shell
+applications wishing to use the mechanism invoke \fBlibdl-sh load\fP (see below
+for details) to load \fBlibdl.sh\fP, thereby instantiating the mechanism within
+the application.
 
 .SH ACTIONS
 .TP
 .BR load
 Write a shell statement to standard output which, when executed, loads (i.e.,
-sources) the companion demand-loading library (see \fBFILES\fP below) or
+sources) the demand-loading library \fBlibdl.sh\fP (see \fBFILES\fP below) or
 exits the application with status \fB127\fP (like a binary executable that
 fails to load a shared library would). Thus, an application executes
 
@@ -53,25 +53,24 @@ fails to load a shared library would). Thus, an application executes
 \fBeval "`libdl-sh load`"\fP
 .in -4
 
-to load the companion demand-loading library, (optionally) initializes the
-demand-loading mechanism with
+to load the demand-loading library, (optionally) prepends application-specific
+library search path items with
 .BR dl_init (3sh),
-and demand-loads additional libraries with
+and demand-loads further libraries with
 .BR dl_load (3sh).
 
 .TP
 .BR path
-Parse the demand-loading library's configuration and write the resulting,
+Parse the demand-loading configuration and write the resulting,
 colon-separated library search path to standard output. The system-wide
-configuration is contained in files
-.BR @sysconfdir@/libdl-sh.conf " and " @sysconfdir@/libdl-sh.conf.d/ * .conf ,
-where the latter are intended for adding package-specific search path items.
+configuration is obtained from files \fB@sysconfdir@/libdl-sh.conf\fP and
+\fB@sysconfdir@/libdl-sh.conf.d/\fP*\fB.conf\fP, where the latter are intended
+for adding package-specific search path items.
 
-Every user may extend the library search path by creating a user-specific
-configuration file
-.BR $HOME/.libdl-sh.conf ,
-which is parsed before the system-wide configuration files. The format of
-demand-loading library's configuration files is described in
+Any user may extend the library search path by creating a user-specific
+configuration file \fB$HOME/.libdl-sh.conf\fP, which is parsed before the
+system-wide configuration files. The format and semantics of demand-loading
+configuration files is described in
 .BR libdl-sh.conf (5).
 
 The action's primary purpose is initializing the demand-loading library's
@@ -80,27 +79,24 @@ search path. Of course, you may also use it to verify your configuration.
 .TP
 .BR echo " \fINAME\fP ..."
 Write installation path \fINAME\fP to standard output, where \fINAME\fP
-may be
-.BR bindir ", " libdir ", " sysconfdir ", or " pkgdatadir .
-The action's purpose is helping other packages providing
-demand-loadable POSIX shell libraries integrate with the demand-loading
+may be \fBbindir\fP, \fBlibdir\fP, \fBsysconfdir\fP, or \fBpkgdatadir\fP.
+The action's purpose is helping other packages which provide
+demand-loadable POSIX shell libraries integrating with the demand-loading
 mechanism. It's not used internally by @PACKAGE_TARNAME@.
 
 .SH FILES
 .TP
-.BR @bindir@/libdl-sh ", " @shlibdir@/libdl.sh
-The demand-loading helper described here and its companion demand-loading
-library.
+\fB@shlibdir@/libdl.sh\fP, \fB@bindir@/libdl-sh\fP
+The demand-loading library and its helper described here.
 .TP
-.BR $HOME/.libdl.sh.conf ", " @sysconfdir@/libdl.sh.conf
-The user-specific and system-wide demand-loading configuration defining the
-library search path.
+\fB$HOME/.libdl-sh.conf\fP, \fB@sysconfdir@/libdl-sh.conf\fP
+The user-specific and system-wide demand-loading configuration files defining
+the library search path.
 
 .SH SEE ALSO
 .BR dl_init (3sh),
 .BR dl_load (3sh),
-.BR libdl.sh.conf (5).
+.BR libdl-sh.conf (5).
 
 .SH AUTHOR
-.B Libdl-sh
-was written by Karl Schmitz <@PACKAGE_BUGREPORT@>.
+Karl Schmitz <@PACKAGE_BUGREPORT@>
