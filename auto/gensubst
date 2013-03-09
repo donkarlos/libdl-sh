@@ -21,7 +21,8 @@
 #   AUTHOR(S):	ks	Karl Schmitz <carolus.faber@googlemail.com>
 #
 #   WRITTEN BY:	ks	2013-02-12
-#   CHANGED BY:
+#   CHANGED BY:	ks	2013-03-09	Move script comment stripping to
+#					`auto/gensubst.sed'.
 #-----------------------------------------------------------------------------
 #   Initialization:
 #-----------------------------------------------------------------------------
@@ -69,8 +70,7 @@ if test $# -ge 1; then			# Output variable given?
 	    if test -n "$echos"; then
 		eval "$echos" | sort | uniq | sed '
 		    1i\
-		    -e '\''/^\\#.*{%%}$$/d'\''\
-		    -e '\''/^\\#.*{%-}$$/,/^\\#.*{%+}$$/d'\''
+		    -f '"$0"'.sed
 		    s/^\(.*\)$/-e '\''s|'"$re_prefix"'\1'"$re_suffix"'|'"$rs_prefix"'\1'"$rs_suffix"'|g'\''/
 		' | eval echo sed `cat` | sed '
 		    s/ -e /'\''&'\''/g;s/$/'\''/;s/'\''//

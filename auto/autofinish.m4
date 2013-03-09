@@ -20,7 +20,8 @@
 ##  AUTHOR(S):	ks	Karl Schmitz <carolus.faber@googlemail.com>
 ##
 ##  WRITTEN BY:	ks	2013-02-12
-##  CHANGED BY:
+##  CHANGED BY:	ks	2013-03-09	Move script comment stripping to
+##					`auto/gensubst.sed'.
 ##
 ##  NOTE:   (1)	Never mind these mixed-style comments; this file is processed
 ##		by aclocal(1) as well as m4(1).
@@ -39,7 +40,8 @@ AC_SUBST([af__CLEAN_FILES], 'm4_normalize([$1])')
 af__unfinished=`echo $af__CLEAN_FILES | sed 's|$| |;s| |.un |g;s| $||'`
 m4_ifval([$2], [af__gensubst=$2], [af__gensubst=gensubst])
 AC_SUBST([af__config_status_deps], [`
-    ${srcdir}/${af__gensubst} CONFIG_STATUS_DEPENDENCIES ${af__gensubst} ${af__unfinished}
+    ${srcdir}/${af__gensubst} CONFIG_STATUS_DEPENDENCIES \
+	${af__gensubst} ${af__gensubst}.sed ${af__unfinished}
 `])
 AC_SUBST([FINISH], [`
     ${srcdir}/${af__gensubst} FINISH ${af__unfinished}
