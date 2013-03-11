@@ -1,6 +1,6 @@
 #-----------------------------------------------------------------------------
 #   libdl-sh.conf		- System-wide demand-loading configuration
-##
+#
 ##  Copyright (C) 2013, Karl Schmitz
 ##
 ##  This library is free software; you can redistribute it and/or
@@ -22,11 +22,11 @@
 ##  WRITTEN BY:	ks	2013-02-12
 ##  CHANGED BY:
 ##----------------------------------------------------------------------------
-##  Include package-specific configuration:
+#   Include package-specific configuration:
 #-----------------------------------------------------------------------------
 include @sysconfdir@/libdl-sh.conf.d/*.conf
 
-##----------------------------------------------------------------------------
-##  Default library search path item:
-##----------------------------------------------------------------------------
+#-----------------------------------------------------------------------------
+#   Default library search path item:
+#-----------------------------------------------------------------------------
 @shlibdir@
