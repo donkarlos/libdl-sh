@@ -30,20 +30,20 @@ include () {
     local line
 
     sed '
-	y/	/ /;s/   */ /g;		# Compress whitespace. Remove leading
-	s/^ //;/^#/d;/^$/d;		# whitespace, comment/empty lines,
-	s/ #.*$//;s/ $//;		# and trailing comments/whitespace.
+	y/	/ /;s/   */ /g		## Compress whitespace. Remove leading
+	s/^ //;/^#/d;/^$/d		## whitespace, comment/empty lines,
+	s/ #.*$//;s/ $//		## and trailing comments/whitespace.
     ' /dev/null ${1+"$@"} 2>/dev/null | while read line
-    do					# Foreach configuration line do...
-	case "$line" in			# Which kind?
-	    'include')			# `include' without argument...
-		;;			# ...is ignored.
-	    'include '*)		# `include' with argument(s)...
-		eval "$line"		# ...is recursively parsed after ap-
-		;;			# plying shell substitutions.
-	    *)				# Library search path items...
-		eval "echo $line"	# ...are echoed with shell substitu-
-		;;			# tions applied.
+    do					## Foreach configuration line do...
+	case "$line" in			## Which kind?
+	    'include')			## `include' without argument...
+		;;			## ...is ignored.
+	    'include '*)		## `include' with argument(s)...
+		eval "$line"		## ...is recursively parsed after ap-
+		;;			## plying shell substitutions.
+	    *)				## Library search path items...
+		eval "echo $line"	## ...are echoed with shell substitu-
+		;;			## tions applied.
 	esac
     done
 }
@@ -51,28 +51,28 @@ include () {
 ##----------------------------------------------------------------------------
 ##  Main program:
 ##----------------------------------------------------------------------------
-case $1 in				# Which action?
-    load)				# Emit command to load libdl.sh...
+case $1 in				## Which action?
+    load)				## Emit command to load libdl.sh...
 	echo '. @shlibdir@/libdl.sh || exit 127'
 	;;
-    path)				# Emit library search path...
-	libpath=:			# Start with denomalized empty path.
+    path)				## Emit library search path...
+	libpath=:			## Start with denomalized empty path.
 	for item in `
 	    include ${HOME+$HOME/.libdl-sh.conf} @sysconfdir@/libdl-sh.conf
-	`				# Foreach item in user's and system-
-	do				# wide configuration do...
+	`				## Foreach item in user's and system-
+	do				## wide configuration do...
 	    test -d "$item" && case $libpath in
-		*:$item:*)		# Item exists and is already on path?
-		    ;;			# Skip it.
-		*)			# Item exists but is not on path?
+		*:$item:*)		## Item exists and is already on path?
+		    ;;			## Skip it.
+		*)			## Item exists but is not on path?
 		    libpath=$libpath$item:
-		    ;;			# Append it to path.
+		    ;;			## Append it to path.
 	    esac
 	done
 	echo "$libpath" | sed 's/^://;s/:$//'
-	;;				# Normalize library search path.
-    echo)				# Emit installation path(s)...
-	shift; for name in ${1+"$@"}	# Foreach given name do...
+	;;				## Normalize library search path.
+    echo)				## Emit installation path(s)...
+	shift; for name in ${1+"$@"}	## Foreach given name do...
 	do
 	    case $name in
 		bindir)	    echo @bindir@	;;
@@ -80,8 +80,8 @@ case $1 in				# Which action?
 		sysconfdir) echo @sysconfdir@	;;
 		pkgdatadir) echo @pkgdatadir@	;;
 		*)	    exit 1		;;
-	    esac			# Emit installation path if name is
-	done				# valid, bail out if not.
+	    esac			## Emit installation path if name is
+	done				## valid, bail out if not.
 	;;
     *)
 	echo "$0: Unknown action \`$1'!" >&2

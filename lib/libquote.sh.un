@@ -52,9 +52,9 @@ quote_sh () {
 ##				Quote sh(1) command
 ##----------------------------------------------------------------------------
 quote_command () {
-    local cmd="$1" arg; shift		# Fetch command.
+    local cmd="$1" arg; shift		## Fetch command.
 
-    case $BASH in			# Append each redirection/argument...
+    case $BASH in			## Append each redirection/argument...
 	?*) for arg in ${1+"$@"}; do case $arg in
 		*\<*|*\>*)
 		    cmd="$cmd $arg"					;;
@@ -67,7 +67,7 @@ quote_command () {
 	    esac; done	;;
     esac
 
-    echo "$cmd"				# Emit quoted command.
+    echo "$cmd"				## Emit quoted command.
 }
 
 ##----------------------------------------------------------------------------

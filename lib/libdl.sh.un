@@ -52,19 +52,20 @@ dl_load () {
     local lib needed path
 
     test -n "$dl_needed" || { path=$PATH; PATH=$dl_libpath${PATH+:$PATH}; }
-					# Augment path.
-    for lib in ${1+"$@"}; do		# Foreach demanded library do...
-	case $dl_loaded$dl_needed in	# Is it already loaded or needed?
-	    *:$lib:*)			# Yes, skip it.
+					## Augment path.
+    for lib in ${1+"$@"}; do		## Foreach demanded library do...
+	case $dl_loaded$dl_needed in	## Is it already loaded or needed?
+	    *:$lib:*)			## Yes, skip it.
 		;;
 	    *)	needed=$dl_needed; dl_needed=$dl_needed$lib:
 		. "lib$lib.sh" || dl_exit 127
 		dl_needed=$needed; dl_loaded=:$lib$dl_loaded
 		eval "$dl_atloads" || dl_exit $?
-		;;			# No, mark it as needed, load it, mark
-	esac				# it as loaded, and invoke load hooks.
+					## No, mark it as needed, load it,
+		;;			## mark it as loaded, and invoke load-
+	esac				## time hooks.
     done
-    test -n "$dl_needed" || PATH=$path	# Restore path.
+    test -n "$dl_needed" || PATH=$path	## Restore path.
 }
 
 ##----------------------------------------------------------------------------
@@ -78,9 +79,9 @@ dl_atexit () {
 ##  dl_exit([STATUS=$?])	Terminate program with STATUS
 ##----------------------------------------------------------------------------
 dl_exit () {
-    local status=${1-$?}
-
-    trap '' 0; eval "$dl_atexits"
+    local status=${1-$?}		## Fetch exit status ($dl_atexits re-
+					## fers to it!), unregister exit trap,
+    trap '' 0; eval "$dl_atexits"	## and invoke exit-time hooks.
 }
 
 ##----------------------------------------------------------------------------
