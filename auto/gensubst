@@ -57,18 +57,19 @@ if test $# -ge 1; then			# Output variable given?
 	    ;;
 	FINISH)
 	    unfinished=`echo " $*" | sed 's| | '"$srcdir"'/|g;s|^ ||'`
-	    echos=`sed '
-		/'"$re_prefix$re_variable$re_suffix"'/s/$/@@/;t1
+	    templates="`sed '
+		/'"$re_prefix$re_variable$re_suffix"'/b1
 		d;:1
-		s/^\(.*\)'"$re_prefix"'\('"$re_variable"'\)'"$re_suffix"'\([^@]*\)\(@@\)/\1\3\4 echo \2;/;t1
-		s/^.*@@ //;s/;$//
-	    ' $unfinished` || {
+		s/^[^@]*'"$re_prefix"'\('"$re_variable"'\)'"$re_prefix"'/\1@@/;t2
+		d;:2
+		h;s/@@.*$//p;x;s/^[^@]*@@//;b1
+	    ' $unfinished`" || {
 		echo "$0: Update AF_FINISH_FILES() invocation to generate $name!" >&2
 		echo false
 		exit 2
 	    }
-	    if test -n "$echos"; then
-		eval "$echos" | sort | uniq | sed '
+	    if test -n "$templates"; then
+		echo "$templates" | sort | uniq | sed '
 		    1i\
 		    -f '"$0"'.sed
 		    s/^\(.*\)$/-e '\''s|'"$re_prefix"'\1'"$re_suffix"'|'"$rs_prefix"'\1'"$rs_suffix"'|g'\''/
