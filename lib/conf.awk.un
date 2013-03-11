@@ -22,14 +22,23 @@
 #
 #   WRITTEN BY:	ks	2013-02-14
 #   CHANGED BY:	ks	2013-03-06	Attribute this to `libconf.sh'.
+#		ks	2013-03-11	Work around mawk(1)'s misfeature of
+#					aborting on nonexisting input files.
 #-----------------------------------------------------------------------------
 #   Initialization:							  {%+}
 #-----------------------------------------------------------------------------
 BEGIN {
+    ai = 0; ac = ARGC - 2; cfpn = ARGV[ac]
+    while (++ai <= ac) {		# Foreach pathname argument do...
+	av = ARGV[ai]; gsub("'", "&\\\\&&", av)
+	if (system("test -f '" av "'")) delete ARGV[ai]
+					# Delete it from ARGV[] if it doesn't
+    }					# exist.
+
     re_ind = "^[ \t]*"; re_fld = "[^ \t]+"; re_sep = "[ \t]+"
     re_sk2 = re_ind re_fld re_sep re_fld
-    ec = mc = sc = si = 0; cfpn = ARGV[ARGC - 2]
 
+    ec = mc = sc = si = ai = 0
 }
 
 function has_si(si) {
