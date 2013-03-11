@@ -17,19 +17,19 @@
 #   You should have received a copy of the GNU Lesser General Public License
 #   along with this library; if not, write to the Free Software Founda-
 #   tion, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
-#									  {%-}
-#   AUTHOR(S):	ks	Karl Schmitz <carolus.faber@googlemail.com>
-#
-#   WRITTEN BY:	ks	2013-02-12
-#   CHANGED BY:
-#-----------------------------------------------------------------------------
-#   Global variables:							  {%+}
+##
+##  AUTHOR(S):	ks	Karl Schmitz <carolus.faber@googlemail.com>
+##
+##  WRITTEN BY:	ks	2013-02-12
+##  CHANGED BY:
+##----------------------------------------------------------------------------
+##  Global variables:
 #-----------------------------------------------------------------------------
 emit_heads=:
 
-#-------------------------------------------------------------------------{%-}
-#   emit_set_head(LEVEL HEAD)	Set LEVEL's emit head to HEAD
-#-------------------------------------------------------------------------{%+}
+##----------------------------------------------------------------------------
+##  emit_set_head(LEVEL HEAD)	Set LEVEL's emit head to HEAD
+##----------------------------------------------------------------------------
 emit_set_head () {
     eval emit_head_$1=\$2
 
@@ -39,9 +39,9 @@ emit_set_head () {
     esac
 }
 
-#-------------------------------------------------------------------------{%-}
-#   emit_get_head(LEVEL)	Get LEVEL's emit head
-#-------------------------------------------------------------------------{%+}
+##----------------------------------------------------------------------------
+##  emit_get_head(LEVEL)	Get LEVEL's emit head
+##----------------------------------------------------------------------------
 emit_get_head () {
     case $emit_heads in
 	*:$1:*)	eval echo \"\$emit_head_$1\"	;;
@@ -49,9 +49,9 @@ emit_get_head () {
     esac
 }
 
-#-------------------------------------------------------------------------{%-}
-#   emit(LEVEL MESSAGE ...)	Emit message at LEVEL
-#-------------------------------------------------------------------------{%+}
+##----------------------------------------------------------------------------
+##  emit(LEVEL MESSAGE ...)	Emit message at LEVEL
+##----------------------------------------------------------------------------
 emit () {
     local l="$1"; shift			# Fetch level.
 

@@ -17,20 +17,20 @@
 #   You should have received a copy of the GNU Lesser General Public License
 #   along with this library; if not, write to the Free Software Founda-
 #   tion, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
-#									  {%-}
-#   AUTHOR(S):	ks	Karl Schmitz <carolus.faber@googlemail.com>
-#
-#   WRITTEN BY:	ks	2013-02-13
-#   CHANGED BY:
-#-----------------------------------------------------------------------------
-#   Global variables:							  {%+}
+##
+##  AUTHOR(S):	ks	Karl Schmitz <carolus.faber@googlemail.com>
+##
+##  WRITTEN BY:	ks	2013-02-13
+##  CHANGED BY:
+##----------------------------------------------------------------------------
+##  Global variables:
 #-----------------------------------------------------------------------------
 undo_stack=
 undo_exit0=
 
-#-------------------------------------------------------------------------{%-}
-#   undo_init(TAG)		Set cleanups tag for successful exit
-#-------------------------------------------------------------------------{%+}
+##----------------------------------------------------------------------------
+##  undo_init(TAG)		Set cleanups tag for successful exit
+##----------------------------------------------------------------------------
 undo_init () {
     case $1 in				# Tag is valid?
 	:*) undo_exit0=$1	;;	# Yes, set cleanups tag.
@@ -38,10 +38,10 @@ undo_init () {
     esac
 }
 
-#-------------------------------------------------------------------------{%-}
-#   undo_push([TAG] COMMAND [ARGUMENT|REDIRECTION ...])
-#				Push (tagged) command onto undo stack
-#-------------------------------------------------------------------------{%+}
+##----------------------------------------------------------------------------
+##  undo_push([TAG] COMMAND [ARGUMENT|REDIRECTION ...])
+##				Push (tagged) command onto undo stack
+##----------------------------------------------------------------------------
 undo_push () {
     local tag
 
@@ -51,9 +51,9 @@ undo_push () {
 					# Push (tagged) command onto stack.
 }
 
-#-------------------------------------------------------------------------{%-}
-#   undo_drop(TAG|[COUNT=1])	Drop (tagged) command(s) from undo stack
-#-------------------------------------------------------------------------{%+}
+##----------------------------------------------------------------------------
+##  undo_drop(TAG|[COUNT=1])	Drop (tagged) command(s) from undo stack
+##----------------------------------------------------------------------------
 undo_drop () {
     local script
 
@@ -64,9 +64,9 @@ undo_drop () {
     undo_stack=`echo "$undo_stack" | sed "$script"`
 }
 
-#-------------------------------------------------------------------------{%-}
-#   undo_pull(TAG|[COUNT=1])	Apply and drop (tagged) command(s)
-#-------------------------------------------------------------------------{%+}
+##----------------------------------------------------------------------------
+##  undo_pull(TAG|[COUNT=1])	Apply and drop (tagged) command(s)
+##----------------------------------------------------------------------------
 undo_pull () {
     local script
 
@@ -78,11 +78,11 @@ undo_pull () {
     undo_drop ${1+"$1"}
 }
 
-#-------------------------------------------------------------------------{%-}
-#   undo_exit(STATUS)		Apply cleanups/undos
-#
-#   NOTE:   (1)	This function is registered for invocation by dl_exit()!
-#-------------------------------------------------------------------------{%+}
+##----------------------------------------------------------------------------
+##  undo_exit(STATUS)		Apply cleanups/undos
+##
+##  NOTE:   (1)	This function is registered for invocation by dl_exit()!
+##----------------------------------------------------------------------------
 undo_exit () {
     case ${1-1}$undo_exit0 in		# Exit with...
 	0)				# ...success and cleanups tag unset?
@@ -96,7 +96,7 @@ undo_exit () {
     esac
 }
 
-#-------------------------------------------------------------------------{%-}
-#   Initialization:
-#-------------------------------------------------------------------------{%+}
+##----------------------------------------------------------------------------
+##  Initialization:
+##----------------------------------------------------------------------------
 dl_load quote && dl_atexit undo_exit

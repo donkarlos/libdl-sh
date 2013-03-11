@@ -17,29 +17,29 @@
 #   You should have received a copy of the GNU Lesser General Public License
 #   along with this library; if not, write to the Free Software Founda-
 #   tion, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
-#									  {%-}
-#   AUTHOR(S):	ks	Karl Schmitz <carolus.faber@googlemail.com>
-#
-#   WRITTEN BY:	ks	2013-02-13
-#   CHANGED BY:
-#
-#   NOTE:   (1)	To avoid cluttering code, this library is exempted from need-
-#		ing namespace prefixes for its special character and portable
-#		character range definitions.
-#-----------------------------------------------------------------------------
-#   Define special characters:						  {%+}
+##
+##  AUTHOR(S):	ks	Karl Schmitz <carolus.faber@googlemail.com>
+##
+##  WRITTEN BY:	ks	2013-02-13
+##  CHANGED BY:
+##
+##  NOTE:   (1)	To avoid cluttering code, this library is exempted from need-
+##		ing namespace prefixes for its special character and portable
+##		character range definitions.
+##----------------------------------------------------------------------------
+##  Define special characters:
 #-----------------------------------------------------------------------------
 BQ=\` DQ=\" SQ=\' BS=\\ CS='#' DS=\$ QB=\` QE=\' CR=`printf '\r'` NL='
 '
 
-#-------------------------------------------------------------------------{%-}
-#   Global variables:
-#-------------------------------------------------------------------------{%+}
+##----------------------------------------------------------------------------
+##  Global variables:
+##----------------------------------------------------------------------------
 quote_sh_sedex="s/$SQ/$SQ$BS$BS$SQ$SQ/g;s/^_/$SQ/;s/$DS/$SQ/"
 
-#-------------------------------------------------------------------------{%-}
-#   quote_sh(STRING)		Quote STRING for sh(1)
-#-------------------------------------------------------------------------{%+}
+##----------------------------------------------------------------------------
+##  quote_sh(STRING)		Quote STRING for sh(1)
+##----------------------------------------------------------------------------
 quote_sh () {
     case $BASH in
 	?*) echo \'${1//\'/\'\\\'\'}\'		;;
@@ -47,10 +47,10 @@ quote_sh () {
     esac
 }
 
-#-------------------------------------------------------------------------{%-}
-#   quote_command(COMMAND [ARGUMENT|REDIRECTION ...])
-#				Quote sh(1) command
-#-------------------------------------------------------------------------{%+}
+##----------------------------------------------------------------------------
+##  quote_command(COMMAND [ARGUMENT|REDIRECTION ...])
+##				Quote sh(1) command
+##----------------------------------------------------------------------------
 quote_command () {
     local cmd="$1" arg; shift		# Fetch command.
 
@@ -70,24 +70,24 @@ quote_command () {
     echo "$cmd"				# Emit quoted command.
 }
 
-#-------------------------------------------------------------------------{%-}
-#   quote_grep(STRING)		Quote STRING for grep(1)
-#-------------------------------------------------------------------------{%+}
+##----------------------------------------------------------------------------
+##  quote_grep(STRING)		Quote STRING for grep(1)
+##----------------------------------------------------------------------------
 quote_grep () {
     echo "_$1" | sed 's/^_//;s/\([]^\.*$[]\)/\\\1/g'
 }
 
-#-------------------------------------------------------------------------{%-}
-#   quote_egrep(STRING)		Quote STRING for egrep(1)
-#-------------------------------------------------------------------------{%+}
+##----------------------------------------------------------------------------
+##  quote_egrep(STRING)		Quote STRING for egrep(1)
+##----------------------------------------------------------------------------
 quote_egrep () {
     echo "_$1" | sed 's/^_//;s/\([]^\.(|)?*+{}$[]\)/\\\1/g'
 }
 
-#-------------------------------------------------------------------------{%-}
-#   quote_sed(STRING [DELIMITER=/])
-#				Quote STRING for sed(1)
-#-------------------------------------------------------------------------{%+}
+##----------------------------------------------------------------------------
+##  quote_sed(STRING [DELIMITER=/])
+##				Quote STRING for sed(1)
+##----------------------------------------------------------------------------
 quote_sed () {
     echo "_$1" | sed 's/^_//;s/\([]'"${2-/}"'^\.*$[]\)/\\\1/g'
 }

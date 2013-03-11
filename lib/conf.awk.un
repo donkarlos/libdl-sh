@@ -17,15 +17,15 @@
 #   You should have received a copy of the GNU Lesser General Public License
 #   along with this library; if not, write to the Free Software Founda-
 #   tion, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
-#									  {%-}
-#   AUTHOR(S):	ks	Karl Schmitz <carolus.faber@googlemail.com>
-#
-#   WRITTEN BY:	ks	2013-02-14
-#   CHANGED BY:	ks	2013-03-06	Attribute this to `libconf.sh'.
-#		ks	2013-03-11	Work around mawk(1)'s misfeature of
-#					aborting on nonexisting input files.
-#-----------------------------------------------------------------------------
-#   Initialization:							  {%+}
+##
+##  AUTHOR(S):	ks	Karl Schmitz <carolus.faber@googlemail.com>
+##
+##  WRITTEN BY:	ks	2013-02-14
+##  CHANGED BY:	ks	2013-03-06	Attribute this to `libconf.sh'.
+##		ks	2013-03-11	Work around mawk(1)'s misfeature of
+##					aborting on nonexisting input files.
+##----------------------------------------------------------------------------
+##  Initialization:
 #-----------------------------------------------------------------------------
 BEGIN {
     ai = 0; ac = ARGC - 2; cfpn = ARGV[ac]
@@ -41,14 +41,29 @@ BEGIN {
     ec = mc = sc = si = ai = 0
 }
 
+##----------------------------------------------------------------------------
+##  has_si(SI)			Section index SI is alive?
+##
+##  NOTE:   (1)	si2vc[SI] is the section's VC, which may be deleted to kill a
+##		section (whereas its sn2si[]/si2sn[] entries remain, allowing
+##		to rebear the section under its old index).
+##----------------------------------------------------------------------------
 function has_si(si) {
     return (si in si2vc)
 }
 
+##----------------------------------------------------------------------------
+##  get_si(SN)			Map section name SN to live SI (or 0), setting
+##				`si'as a side-effect.
+##----------------------------------------------------------------------------
 function get_si(sn) {
     return ((si = sn2si[sn]) && (si in si2vc))
 }
 
+##----------------------------------------------------------------------------
+##  set_si(SN)			Map section name SN to (new) SI, setting
+##				`si' as a side-effect.
+##----------------------------------------------------------------------------
 function set_si(sn) {
     if (!(si = sn2si[sn])) {
 	si = sn2si[sn] = ++sc; si2sn[si] = sn; si2vc[si] = 0
@@ -57,14 +72,28 @@ function set_si(sn) {
     }
 }
 
+##----------------------------------------------------------------------------
+##  has_vi(SI,VI)		Variable (SI,VI) is alive?
+##
+##  NOTE:   (1)	sivi2vv[SI,VI] is the variable's VV, which may be deleted to
+##		unset a variable.
+##----------------------------------------------------------------------------
 function has_vi(si,vi) {
     return ((si,vi) in sivi2vv)
 }
 
+##----------------------------------------------------------------------------
+##  get_vi(SI,VN)		Map variable name VN to live VI within SI,
+##				setting `vi' as a side-effect.
+##----------------------------------------------------------------------------
 function get_vi(si,vn) {
     return ((vi = sivn2vi[si,vn]) && ((si,vi) in sivi2vv))
 }
 
+##----------------------------------------------------------------------------
+##  set_vi(SI,VN)		Map variable name VN to (new) VI within SI,
+##				setting `vi' as a side-effect.
+##----------------------------------------------------------------------------
 function set_vi(si,vn) {
     if (!(vi = sivn2vi[si,vn]) || (vi > si2vc[si])) {
 	vi = sivn2vi[si,vn] = ++si2vc[si]; sivi2vn[si,vi] = vn
@@ -83,6 +112,9 @@ function set_vv(si,vi,re) {
     match($0, re) && sivi2vv[si,vi] = substr($0, RSTART + RLENGTH + 1)
 }
 
+##----------------------------------------------------------------------------
+##  Actions:
+##----------------------------------------------------------------------------
 ($0 ~ "^\\[[^] \"[]+ \"[^\"]+\"\\]$") {
     sn = $0; sub("^\\[", "", sn); sub(" \"", ".", sn); sub("\"\\]$", "", sn)
     set_si(sn)
