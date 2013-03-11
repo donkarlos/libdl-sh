@@ -1,4 +1,4 @@
-#! /bin/sh								  {%%}
+#! /bin/sh ##
 #-----------------------------------------------------------------------------
 #   libsafe.sh			- Safe directory/file operations library
 #

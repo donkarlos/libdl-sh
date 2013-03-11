@@ -1,4 +1,4 @@
-#! /bin/sh								  {%%}
+#! /bin/sh ##
 #-----------------------------------------------------------------------------
 #   libconf.sh			- GIT-style config. file processing library
 #
