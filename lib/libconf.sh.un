@@ -42,7 +42,7 @@ conf_exec () {
 ##----------------------------------------------------------------------------
 conf_has () {
     awk -f "$conf_awk" "$1" - <<EOF
-	has $2
+has $2
 EOF
 }
 
@@ -50,8 +50,8 @@ EOF
 ##  conf_get(CFPN ITEM [VALUE])	Get ITEM from CFPN (or VALUE)
 ##----------------------------------------------------------------------------
 conf_get () {
-    awk -f "$conf_awk" "$1" - <<EOF || { test -n "${3+set}" && echo "$3"; }
-	get $2
+    awk -f "$conf_awk" "$1" - <<EOF
+get $2${3+=$3}
 EOF
 }
 

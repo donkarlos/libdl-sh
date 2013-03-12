@@ -43,12 +43,13 @@ BEGIN {
     re_sub	= "\\[[^] \"[]+ \"[^\"]+\"\\]"
     re_var	= "[^ \t.=]+"
     re_sk0	= "^" re_ind
+    re_sk1	= re_sk0 re_fld re_sep
 
-    re_l_com	= "^" re_ind re_com "$"	## Define corresponding syntax REs.
-    re_l_sec	= "^" re_ind re_sec re_ind re_com "$"
-    re_l_sub	= "^" re_ind re_sub re_ind re_com "$"
-    re_l_sk2	= "^" re_ind re_fld re_sep re_fld
-    re_l_set	= "^" re_ind re_var re_ind "="
+    re_l_com	= re_sk0 re_com "$"	## Define corresponding syntax REs.
+    re_l_sec	= re_sk0 re_sec re_ind re_com "$"
+    re_l_sub	= re_sk0 re_sub re_ind re_com "$"
+    re_l_sk2	= re_sk0 re_fld re_sep re_fld
+    re_l_set	= re_sk0 re_var re_ind "="
 
     ec = mc = sc = si = ai = 0
 }
@@ -129,6 +130,21 @@ function set_vv(si,vi,re) {
 }
 
 ##----------------------------------------------------------------------------
+##  get_sn_vn_vv(ITEM)		Split `SECTION.VARIABLE[=VALUE]' string ITEM,
+##				setting `sn', `vn', and `vv' as a side-effect
+##				and return the number of recognized fields.
+##----------------------------------------------------------------------------
+function get_sn_vn_vv(item) {
+    if (!match(item, "^([^.=]+\\.)+")) return 0
+    vn = substr(item, RSTART + RLENGTH)
+    sn = substr(item, RSTART, RLENGTH - 1)
+    if (!match(vn, "^[^=]+")) return 1
+    vv = substr(vn, RSTART + RLENGTH + 1)
+    vn = substr(vn, RSTART, RLENGTH)
+    return index(item, "=") ? 3 : 2
+}
+
+##----------------------------------------------------------------------------
 ##  Actions:
 ##----------------------------------------------------------------------------
 ($0 ~ re_l_com) {			## Empty or comment line!
@@ -169,20 +185,26 @@ function set_vv(si,vi,re) {
 }
 
 ($1 == "has") {				## `has' instruction!
-    (get_sn_vn($2) && get_si(sn) && get_vi(si, vn)) || ++ec
+    sub(re_sk1, "")
+    ((get_sn_vn_vv($0) > 1) && get_si(sn) && get_vi(si, vn)) || ++ec
     next
 }
 
 ($1 == "get") {				## `get' instruction!
-    dc = 0; if (get_sn_vn($2)) {
-	if (sn != "*") {
+    sub(re_sk1, ""); dc = 0
+    if ((nf = get_sn_vn_vv($0)) > 1) {	## Item split into SN and VN?
+	if (sn != "*") {		## SN is specific?
 	    if (get_si(sn) && get_vi(si, vn)) {
 		print sivi2vv[si,vi]; ++dc
+					## Print VV if SN -> SI and VN -> VI.
+	    } else if (nf > 2) {
+		print vv; ++dc		## Print default VV if not.
 	    }
 	} else for (si = 1; si <= sc; ++si) {
+					## Foreach SI do...
 	    if (has_si(si) && get_vi(si, vn)) {
 		print sivi2vv[si,vi]; ++dc
-	    }
+	    }				## Print VV if VN -> VI within SI.
 	}
     }
     dc || ++ec
