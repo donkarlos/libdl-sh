@@ -36,13 +36,15 @@ BEGIN {
     }					# exist.
 
     re_ind	= "[ \t]*"		## Define RE building blocks for in-
-    re_fld	= "[^ \t]+"		## dent, field (separator), and
+    re_fld	= "[^ \t]+"		## dent, field (separator), comment,
     re_sep	= "[ \t]+"		## section header (with subsection).
+    re_com	= "([#;].*)?"
     re_sec	= "\\[[^] \"[]+\\]"
     re_sub	= "\\[[^] \"[]+ \"[^\"]+\"\\]"
 
-    re_l_sec	= "^" re_sec "$"
-    re_l_sub	= "^" re_sub "$"
+    re_l_com	= "^" re_ind re_com "$"	## Define corresponding syntax REs.
+    re_l_sec	= "^" re_ind re_sec re_ind re_com "$"
+    re_l_sub	= "^" re_ind re_sub re_ind re_com "$"
     re_l_sk2	= "^" re_ind re_fld re_sep re_fld
 
     ec = mc = sc = si = ai = 0
@@ -125,15 +127,27 @@ function set_vv(si,vi,re) {
 ##----------------------------------------------------------------------------
 ##  Actions:
 ##----------------------------------------------------------------------------
+($0 ~ re_l_com) {			## Empty or comment line!
+    next				## Skip it.
+}
+
 ($0 ~ re_l_sub) {			## Section header with subsection!
-    sn = $0; sub("^\\[", "", sn); sub(" \"", ".", sn); sub("\"\\]$", "", sn)
-    set_si(sn)
+    if (match($0, re_sub)) {
+	sn = substr($0, RSTART + 1, RLENGTH - 3); sub(" \"", ".", sn)
+	set_si(sn)
+    } else {
+	++ec
+    }
     next
 }
 
 ($0 ~ re_l_sec) {			## Section header!
-    sn = $0; sub("^\\[", "", sn); sub("\\]$", "", sn)
-    set_si(sn)
+    if (match($0, re_sec)) {
+	sn = substr($0, RSTART + 1, RLENGTH - 2)
+	set_si(sn)
+    } else {
+	++ec
+    }
     next
 }
 
