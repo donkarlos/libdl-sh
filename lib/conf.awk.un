@@ -29,11 +29,11 @@
 #-----------------------------------------------------------------------------
 BEGIN {
     ai = 0; ac = ARGC - 2; cfpn = ARGV[ac]
-    while (++ai <= ac) {		# Foreach pathname argument do...
+    while (++ai <= ac) {		## Foreach pathname argument do...
 	av = ARGV[ai]; gsub("'", "&\\\\&&", av)
 	if (system("test -f '" av "'")) delete ARGV[ai]
-					# Delete it from ARGV[] if it doesn't
-    }					# exist.
+					## Delete it from ARGV[] if it doesn't
+    }					## exist.
 
     re_ind	= "[ \t]*"		## Define RE building blocks for in-
     re_fld	= "[^ \t]+"		## dent, field (separator), comment,
@@ -105,8 +105,9 @@ function get_vi(si,vn) {
 ##----------------------------------------------------------------------------
 function set_vi(si,vn) {
     if (!(vi = sivn2vi[si,vn]) || (vi > si2vc[si])) {
+					## VN not mapped in SI yet?
 	vi = sivn2vi[si,vn] = ++si2vc[si]; sivi2vn[si,vi] = vn
-    }
+    }					## Create VN <-> VI mappings.
 }
 
 ##----------------------------------------------------------------------------
@@ -132,40 +133,40 @@ function set_vv(si,vi,re) {
 }
 
 ($0 ~ re_l_sub) {			## Section header with subsection!
-    if (match($0, re_sub)) {
-	sn = substr($0, RSTART + 1, RLENGTH - 3); sub(" \"", ".", sn)
-	set_si(sn)
+    if (match($0, re_sub)) {		## Line contains proper header?
+	sn = substr($0, RSTART + 1, RLENGTH - 3)
+	sub(" \"", ".", sn); set_si(sn)	## Map SN -> SI.
     } else {
-	++ec
+	++ec				## Count error.
     }
     next
 }
 
 ($0 ~ re_l_sec) {			## Section header!
-    if (match($0, re_sec)) {
+    if (match($0, re_sec)) {		## Line contains proper header?
 	sn = substr($0, RSTART + 1, RLENGTH - 2)
-	set_si(sn)
+	set_si(sn)			## Map SN -> SI.
     } else {
-	++ec
+	++ec				## Count error.
     }
     next
 }
 
 ($0 ~ "^\t") && ($2 == "=") {		## Variable setting!
-    if (!si) {
-	++ec
+    if (!si) {				## Out-of-section?
+	++ec				## Count error.
     } else {
 	set_vi(si, $1); set_vv(si, vi, re_l_sk2)
     }
     next
 }
 
-($1 == "has") {
+($1 == "has") {				## `has' instruction!
     (get_sn_vn($2) && get_si(sn) && get_vi(si, vn)) || ++ec
     next
 }
 
-($1 == "get") {
+($1 == "get") {				## `get' instruction!
     dc = 0; if (get_sn_vn($2)) {
 	if (sn != "*") {
 	    if (get_si(sn) && get_vi(si, vn)) {
