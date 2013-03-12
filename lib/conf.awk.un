@@ -48,7 +48,6 @@ BEGIN {
     re_l_com	= re_sk0 re_com "$"	## Define corresponding syntax REs.
     re_l_sec	= re_sk0 re_sec re_ind re_com "$"
     re_l_sub	= re_sk0 re_sub re_ind re_com "$"
-    re_l_sk2	= re_sk0 re_fld re_sep re_fld
     re_l_set	= re_sk0 re_var re_ind "="
 
     ec = mc = sc = si = ai = 0
@@ -112,21 +111,6 @@ function set_vi(si,vn) {
 					## VN not mapped in SI yet?
 	vi = sivn2vi[si,vn] = ++si2vc[si]; sivi2vn[si,vi] = vn
     }					## Create VN <-> VI mappings.
-}
-
-##----------------------------------------------------------------------------
-##  get_sn_vn(ITEM)		Split SECTION.VARIABLE into `sn' and `vn'.
-##----------------------------------------------------------------------------
-function get_sn_vn(item) {
-    if (match(item, "^([^.]+\\.)+")) {
-	sn = substr(item, RSTART, RLENGTH - 1)
-	vn = substr(item, RSTART + RLENGTH)
-    }
-    return RSTART
-}
-
-function set_vv(si,vi,re) {
-    match($0, re) && sivi2vv[si,vi] = substr($0, RSTART + RLENGTH + 1)
 }
 
 ##----------------------------------------------------------------------------
@@ -211,20 +195,17 @@ function get_sn_vn_vv(item) {
     next
 }
 
-($1 == "set") {
-    if (!get_sn_vn($2)) {
-	++ec
-    } else {
-	set_si(sn); set_vi(si,vn); set_vv(si,vi,re_l_sk2)
-	++mc
-    }
-    next
-}
-
-($1 == "unset") {
-    if (get_sn_vn($2) && get_si(sn) && get_vi(si, vn)) {
-	delete sivi2vv[si,vi]
-	++mc
+($1 == "put") {				## `put' instruction!
+    sub(re_sk1, "")
+    if ((nf = get_sn_vn_vv($0)) < 2) {	## Item not split?
+	++ec				## Count error.
+    } else if (nf > 2) {		## Item split into SN, VN, and VV?
+	set_si(sn); set_vi(si, vn)	## Map SN -> SI, VN -> VI,
+	sivi2vv[si,vi] = vv		## and set value.
+	++mc				## Count modification.
+    } else if (get_si(sn) && get_vi(si, vn)) {
+	delete sivi2vv[si,vi]		## Unset VV if SN -> SI and VN -> VI.
+	++mc				## Count modification.
     }
     next
 }
