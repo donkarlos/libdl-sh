@@ -37,15 +37,18 @@ BEGIN {
 
     re_ind	= "[ \t]*"		## Define RE building blocks for in-
     re_fld	= "[^ \t]+"		## dent, field (separator), comment,
-    re_sep	= "[ \t]+"		## section header (with subsection).
-    re_com	= "([#;].*)?"
+    re_sep	= "[ \t]+"		## section header (with subsection),
+    re_com	= "([#;].*)?"		## and variable name.
     re_sec	= "\\[[^] \"[]+\\]"
     re_sub	= "\\[[^] \"[]+ \"[^\"]+\"\\]"
+    re_var	= "[^ \t.=]+"
+    re_sk0	= "^" re_ind
 
     re_l_com	= "^" re_ind re_com "$"	## Define corresponding syntax REs.
     re_l_sec	= "^" re_ind re_sec re_ind re_com "$"
     re_l_sub	= "^" re_ind re_sub re_ind re_com "$"
     re_l_sk2	= "^" re_ind re_fld re_sep re_fld
+    re_l_set	= "^" re_ind re_var re_ind "="
 
     ec = mc = sc = si = ai = 0
 }
@@ -152,11 +155,15 @@ function set_vv(si,vi,re) {
     next
 }
 
-($0 ~ "^\t") && ($2 == "=") {		## Variable setting!
+($0 ~ re_l_set) {			## Variable setting!
     if (!si) {				## Out-of-section?
 	++ec				## Count error.
     } else {
-	set_vi(si, $1); set_vv(si, vi, re_l_sk2)
+	sub(re_sk0, ""); if (match($0, "[ \t]*=[ \t]*")) {
+	    vn = substr($0, 1, RSTART - 1); vv = substr($0, RSTART + RLENGTH)
+	    set_vi(si, vn); sivi2vv[si,vi] = vv
+					## Split undented line into VN and VV,
+	}				## map VN -> VI, and set value.
     }
     next
 }
