@@ -151,12 +151,6 @@ function set_vv(si,vi,re) {
     next
 }
 
-($0 ~ "^\\[") {
-    si = 0;
-    ++ec
-    next
-}
-
 ($0 ~ "^\t") && ($2 == "=") {		## Variable setting!
     if (!si) {
 	++ec
@@ -202,6 +196,11 @@ function set_vv(si,vi,re) {
 	delete sivi2vv[si,vi]
 	++mc
     }
+    next
+}
+
+{					## None of the above!
+    ++ec				## Count error.
     next
 }
 
