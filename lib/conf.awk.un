@@ -28,11 +28,11 @@
 ##  Initialization:
 #-----------------------------------------------------------------------------
 BEGIN {
-    ai = 0; ac = ARGC - 2; cfpn = ARGV[ac]
-    while (++ai <= ac) {		## Foreach pathname argument do...
-	av = ARGV[ai]; gsub("'", "&\\\\&&", av)
+    ai = 0; ac = ARGC - 2		## Foreach pathname argument do...
+    while (++ai <= ac) {		## Create AV <-> AI mappings and
+	ai2av[ai] = av = ARGV[ai]; av2ai[av] = ai; gsub("'", "&\\\\&&", av)
 	if (system("test -f '" av "'")) delete ARGV[ai]
-					## Delete it from ARGV[] if it doesn't
+					## delete ARGV[ai] if it doesn't
     }					## exist.
 
     re_ind	= "[ \t]*"		## Define RE building blocks for in-
@@ -50,8 +50,8 @@ BEGIN {
     re_l_sub	= re_sk0 re_sub re_ind re_com "$"
     re_l_set	= re_sk0 re_var re_ind "="
 
-    ec = mc = sc = si = ai = 0
-}
+    ec = mc = sc = si = ai = 0		## Reset error/modif./section counts
+}					## and section/argument indexes.
 
 ##----------------------------------------------------------------------------
 ##  has_si(SI)			Section index SI is alive?
@@ -77,10 +77,13 @@ function get_si(sn) {
 ##				`si' as a side-effect.
 ##----------------------------------------------------------------------------
 function set_si(sn) {
-    if (!(si = sn2si[sn])) {
-	si = sn2si[sn] = ++sc; si2sn[si] = sn; si2vc[si] = 0
-    } else if (!(si in si2vc)) {
-	si2vc[si] = 0
+    if (!(si = sn2si[sn])) {		## SN not mapped yet?
+	si = sn2si[sn] = ++sc; si2sn[si] = sn
+	si2vc[si] = 0; si2ai[si] = ai	## Create SN <-> SI mappings, bear the
+					## section by clearing its VC, and
+					## update section's AI.
+    } else if (!(si in si2vc)) {	## SN not alive?
+	si2vc[si] = 0; si2ai[si] = ai	## Rebear it.
     }
 }
 
@@ -110,7 +113,8 @@ function set_vi(si,vn) {
     if (!(vi = sivn2vi[si,vn]) || (vi > si2vc[si])) {
 					## VN not mapped in SI yet?
 	vi = sivn2vi[si,vn] = ++si2vc[si]; sivi2vn[si,vi] = vn
-    }					## Create VN <-> VI mappings.
+	sivi2ai[si,vi] = ai		## Create VN <-> VI mappings and
+    }					## update variable's AI.
 }
 
 ##----------------------------------------------------------------------------
@@ -151,6 +155,11 @@ function get_sn_vn_vv(item) {
 ##----------------------------------------------------------------------------
 ##  Actions:
 ##----------------------------------------------------------------------------
+(FNR == 1) {				## First line of input file!
+    mc = 0; ai = (FILENAME in av2ai) ? av2ai[FILENAME] : ac
+					## Clear modification count and map
+}					## pathname -> AI.
+
 ($0 ~ re_l_com) {			## Empty or comment line!
     next				## Skip it.
 }
@@ -223,7 +232,7 @@ function get_sn_vn_vv(item) {
 	set_si(sn); set_vi(si, vn)	## Map SN -> SI, VN -> VI,
 	sivi2vv[si,vi] = vv		## and set value.
 	++mc				## Count modification.
-    } else if (get_si(sn) && get_vi(si, vn)) {
+    } else if (get_si(sn) && get_vi(si, vn) && (sivi2ai[si,vi] >= ac)) {
 	delete sivi2vv[si,vi]		## Unset VV if SN -> SI and VN -> VI.
 	++mc				## Count modification.
     }
@@ -235,12 +244,14 @@ function get_sn_vn_vv(item) {
     next
 }
 
-END {
-    if (ec) exit 1
-    if (mc) for (si = 1; si <= sc; ++si) if (has_si(si) && has_vc(si)) {
-	sn = si2sn[si]; sub("\\.", " \"", sn) && sub("$", "\"", sn)
-	printf("[%s]\n", sn) > cfpn
-	for (vi = 1; vi <= si2vc[si]; ++vi) if (has_vi(si,vi))
-	    printf("\t%s = %s\n", sivi2vn[si,vi], sivi2vv[si,vi]) > cfpn
-    }
+END {					## Finally!
+    if (ec) exit 1			## Exit prematurely on errors.
+    if (mc) for (si = 1; si <= sc; ++si)
+	if (has_si(si) && (si2ai[si] >= ac) && has_vc(si)) {
+		sn = si2sn[si]; sub("\\.", " \"", sn) && sub("$", "\"", sn)
+		printf("[%s]\n", sn) > ai2av[ac]
+		for (vi = 1; vi <= si2vc[si]; ++vi)
+		    if (has_vi(si,vi) && (sivi2ai[si,vi] >= ac))
+			printf("\t%s = %s\n", sivi2vn[si,vi], sivi2vv[si,vi]) > ai2av[ac]
+	}
 }
