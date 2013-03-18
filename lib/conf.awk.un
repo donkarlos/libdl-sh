@@ -56,9 +56,9 @@ BEGIN {
 ##----------------------------------------------------------------------------
 ##  has_si(SI)			Section index SI is alive?
 ##
-##  NOTE:   (1)	si2vc[SI] is the section's VC, which may be deleted to kill a
-##		section (whereas its sn2si[]/si2sn[] entries remain, allowing
-##		to rebear the section under its old index).
+##  NOTE:   (1)	si2vc[SI] is a section's VC, which may be deleted to kill it
+##		(whereas its SN <-> SI map entries remain so that it may be
+##		reborn under its former index).
 ##----------------------------------------------------------------------------
 function has_si(si) {
     return (si in si2vc)
@@ -69,7 +69,7 @@ function has_si(si) {
 ##				`si'as a side-effect.
 ##----------------------------------------------------------------------------
 function get_si(sn) {
-    return ((si = sn2si[sn]) && (si in si2vc))
+    return ((si = sn2si[sn]) in si2vc)
 }
 
 ##----------------------------------------------------------------------------
@@ -99,7 +99,7 @@ function has_vi(si,vi) {
 ##				setting `vi' as a side-effect.
 ##----------------------------------------------------------------------------
 function get_vi(si,vn) {
-    return ((vi = sivn2vi[si,vn]) && ((si,vi) in sivi2vv))
+    return ((si,vi = sivn2vi[si,vn]) in sivi2vv)
 }
 
 ##----------------------------------------------------------------------------
