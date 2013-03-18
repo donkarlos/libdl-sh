@@ -116,16 +116,28 @@ function set_vi(si,vn) {
 ##----------------------------------------------------------------------------
 ##  get_sn_vn_vv(ITEM)		Split `SECTION.VARIABLE[=VALUE]' string ITEM,
 ##				setting `sn', `vn', and `vv' as a side-effect
-##				and return the number of recognized fields.
+##				and return the number of recognized parts.
 ##----------------------------------------------------------------------------
 function get_sn_vn_vv(item) {
-    if (!match(item, "^([^.=]+\\.)+")) return 0
-    vn = substr(item, RSTART + RLENGTH)
-    sn = substr(item, RSTART, RLENGTH - 1)
-    if (!match(vn, "^[^=]+")) return 1
-    vv = substr(vn, RSTART + RLENGTH + 1)
-    vn = substr(vn, RSTART, RLENGTH)
-    return index(item, "=") ? 3 : 2
+    if (match(item, "^([^.=]+\\.)+")) {	## ITEM has `SECTION.' part?
+	sn = substr(item, 1, RLENGTH - 1)
+					## Extract `SECTION' to sn.
+	if (match(item, "\\.[^.=]+=")) {
+					## ITEM has `.VARIABLE=VALUE' part?
+	    vn = substr(item, RSTART + 1, RLENGTH - 2)
+	    vv = substr(item, RSTART + RLENGTH)
+					## Extract `VARIABLE'/`VALUE' to vn/vv
+	    return 3			## and indicate three parts.
+	}
+	if (match(item, "\\.[^.=]+$")) {
+					## ITEM has `.VARIABLE' part instead?
+	    vn = substr(item, RSTART + 1, RLENGTH - 1)
+					## Extract `VARIABLE' to vn
+	    return 2			## and indicate two parts.
+	}
+	return 1
+    }
+    return 0
 }
 
 ##----------------------------------------------------------------------------
