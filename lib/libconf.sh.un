@@ -21,65 +21,143 @@
 ##  AUTHOR(S):	ks	Karl Schmitz <carolus.faber@googlemail.com>
 ##
 ##  WRITTEN BY:	ks	2013-02-14
-##  CHANGED BY:
+##  CHANGED BY:	ks	2013-03-18	Introduce new multi-file API.
 ##
 ##  NOTE:   (1)	The library just wraps around its 'workhorse' AWK script!
 ##----------------------------------------------------------------------------
 ##  Global variables:
 #-----------------------------------------------------------------------------
 conf_awk=@pkgdatadir@/conf.awk
+conf_api=old
 
 ##----------------------------------------------------------------------------
-##  conf_exec(CFPN)		Process configuration file CFPN by
+##  conf_init(API)		Select (default) old or new API
+##----------------------------------------------------------------------------
+conf_init () {
+    case $1 in
+	old|new)
+	    conf_api=$1	;;
+	*)  return 1	;;
+    esac
+}
+
+##----------------------------------------------------------------------------
+##  conf_exec(CFPN ...)		Process configuration file(s) CFPN by
 ##				executing commands from standard input
 ##----------------------------------------------------------------------------
 conf_exec () {
-    awk -f "$conf_awk" "$1" -
+    awk -f "$conf_awk" ${1+"$@"} -
 }
 
 ##----------------------------------------------------------------------------
-##  conf_has(CFPN ITEM)		Configuration file CFPN has ITEM?
+##  conf_has(CFPN ITEM)							[OLD]
+##  conf_has(ITEM[=VALUE] CFPN ...)					[NEW]
+##				(Some) Configuration file CFPN has ITEM?
 ##----------------------------------------------------------------------------
 conf_has () {
-    awk -f "$conf_awk" "$1" - <<EOF
+    case $conf_api:$# in
+	old:2)
+	    awk -f "$conf_awk" "$1" - <<EOF
 has $2
 EOF
+	    ;;
+	old:*|new:0)
+	    return 2
+	    ;;
+	new:*)
+	    local item=$1; shift
+
+	    awk -f "$conf_awk" ${1+"$@"} - <<EOF
+has $item
+EOF
+	    ;;
+    esac
 }
 
 ##----------------------------------------------------------------------------
-##  conf_get(CFPN ITEM [VALUE])	Get ITEM from CFPN (or VALUE)
+##  conf_get(CFPN ITEM [VALUE])						[OLD]
+##  conf_get(ITEM[=VALUE] CFPN ...)					[NEW]
+##				Get ITEM from (some) CFPN (or VALUE)
 ##----------------------------------------------------------------------------
 conf_get () {
-    awk -f "$conf_awk" "$1" - <<EOF
+    case $conf_api:$# in
+	old:[23])
+	    awk -f "$conf_awk" "$1" - <<EOF
 get $2${3+=$3}
 EOF
+	    ;;
+	old:*|new:0)
+	    return 2
+	    ;;
+	new:*)
+	    local item=$1; shift
+
+	    awk -f "$conf_awk" ${1+"$@"} - <<EOF
+get $item
+EOF
+	    ;;
+    esac
 }
 
 ##----------------------------------------------------------------------------
-##  conf_set(CFPN ITEM VALUE)	Set ITEM to VALUE in CFPN
+##  conf_set(CFPN ITEM VALUE)	Set ITEM to VALUE in CFPN		[OLD]
 ##----------------------------------------------------------------------------
 conf_set () {
-    awk -f "$conf_awk" "$1" - <<EOF
+    case $conf_api:$# in
+	old:3)
+	    awk -f "$conf_awk" "$1" - <<EOF
 put $2=$3
 EOF
+	    ;;
+	old:*|new:*)
+	    return 2
+	    ;;
+    esac
 }
 
 ##----------------------------------------------------------------------------
-##  conf_unset(CFPN ITEM)	Unset ITEM in CFPN
+##  conf_put(ITEM[=VALUE] CFPN ...)					[NEW]
+##				Unset ITEM/Set ITEM to VALUE in last CFPN
+##----------------------------------------------------------------------------
+conf_put () {
+    case $conf_api:$# in
+	old:*|new:0)
+	    return 2
+	    ;;
+	new:*)
+	    local item=$1; shift
+
+	    awk -f "$conf_awk" ${1+"$@"} - <<EOF
+put $item
+EOF
+	    ;;
+    esac
+}
+
+##----------------------------------------------------------------------------
+##  conf_unset(CFPN ITEM)	Unset ITEM in CFPN			[OLD]
 ##----------------------------------------------------------------------------
 conf_unset () {
-    awk -f "$conf_awk" "$1" - <<EOF
+    case $conf_api:$# in
+	old:2)
+	    awk -f "$conf_awk" "$1" - <<EOF
 put $2
 EOF
+	    ;;
+	old:*|new:*)
+	    return 2
+	    ;;
+    esac
 }
 
 ##----------------------------------------------------------------------------
-##  conf_getenv(VARIABLE CFPN ITEM [VALUE])
+##  conf_getenv(VARIABLE CFPN ITEM [VALUE])				[OLD]
+##  conf_getenv(VARIABLE ITEM[=VALUE] CFPN ...)				[NEW]
 ##				Get ITEM from VARIABLE or CFPN (or VALUE)
 ##----------------------------------------------------------------------------
 conf_getenv () {
     eval 'case ${'"$1"'+set} in
-	set)	echo "$'"$1"'"		;;
-	*)	shift; conf_get "$@"	;;
+	set)	echo "$'"$1"'"		    ;;
+	*)	shift; conf_get ${1+"$@"}   ;;
     esac'
 }
