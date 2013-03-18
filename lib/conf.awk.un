@@ -114,6 +114,14 @@ function set_vi(si,vn) {
 }
 
 ##----------------------------------------------------------------------------
+##  has_vc(SI)			Section index SI contains variables?
+##----------------------------------------------------------------------------
+function has_vc(si ,vi) {
+    for (vi = 1; vi <= si2vc[si]; ++vi) if (has_vi(si,vi)) return 1
+    return 0
+}
+
+##----------------------------------------------------------------------------
 ##  get_sn_vn_vv(ITEM)		Split `SECTION.VARIABLE[=VALUE]' string ITEM,
 ##				setting `sn', `vn', and `vv' as a side-effect
 ##				and return the number of recognized parts.
@@ -229,7 +237,7 @@ function get_sn_vn_vv(item) {
 
 END {
     if (ec) exit 1
-    if (mc) for (si = 1; si <= sc; ++si) if (has_si(si)) {
+    if (mc) for (si = 1; si <= sc; ++si) if (has_si(si) && has_vc(si)) {
 	sn = si2sn[si]; sub("\\.", " \"", sn) && sub("$", "\"", sn)
 	printf("[%s]\n", sn) > cfpn
 	for (vi = 1; vi <= si2vc[si]; ++vi) if (has_vi(si,vi))
