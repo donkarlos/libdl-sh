@@ -49,5 +49,6 @@ shlib_DATA		= lib/libdl.sh lib/libquote.sh lib/libundo.sh	\
 			  lib/libsafe.sh lib/libconf.sh lib/libemit.sh
 man_MANS		= doc/libdl-sh.1 doc/libdl-sh.conf.5
 sysconf_DATA		= etc/libdl-sh.conf
-pkgdata_DATA		= auto/autofinish.am auto/autofinish.m4 lib/conf.awk
+pkgdata_DATA		= auto/autofinish.am auto/autofinish.m4		\
+			  auto/gensubst.sed lib/conf.awk
 
