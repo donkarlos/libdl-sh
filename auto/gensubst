@@ -60,7 +60,7 @@ if test $# -ge 1; then			# Output variable given?
 	    templates="`sed '
 		/'"$re_prefix$re_variable$re_suffix"'/b1
 		d;:1
-		s/^[^@]*'"$re_prefix"'\('"$re_variable"'\)'"$re_prefix"'/\1@@/;t2
+		s/^[^@]*'"$re_prefix"'\('"$re_variable"'\)'"$re_suffix"'/\1@@/;t2
 		d;:2
 		h;s/@@.*$//p;x;s/^[^@]*@@//;b1
 	    ' $unfinished`" || {
