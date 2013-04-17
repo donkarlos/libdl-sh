@@ -23,6 +23,7 @@
 #   WRITTEN BY:	ks	2013-02-12
 #   CHANGED BY:	ks	2013-03-09	Move script comment stripping to
 #					`auto/gensubst.sed'.
+#		ks	2013-04-17	Fix and optimize template extraction.
 #-----------------------------------------------------------------------------
 #   Initialization:
 #-----------------------------------------------------------------------------
@@ -58,11 +59,11 @@ if test $# -ge 1; then			# Output variable given?
 	FINISH)
 	    unfinished=`echo " $*" | sed 's| | '"$srcdir"'/|g;s|^ ||'`
 	    templates="`sed '
-		/'"$re_prefix$re_variable$re_suffix"'/b1
-		d;:1
-		s/^[^@]*'"$re_prefix"'\('"$re_variable"'\)'"$re_suffix"'/\1@@/;t2
-		d;:2
-		h;s/@@.*$//p;x;s/^[^@]*@@//;b1
+		:1
+		/^[^'"$re_prefix"']*'"$re_prefix"'/!d;s///
+		/^'"$re_variable$re_suffix"'/{
+		    h;s///;x;s/'"$re_suffix"'.*$//p;x
+		};b1
 	    ' $unfinished`" || {
 		echo "$0: Update AF_FINISH_FILES() invocation to generate $name!" >&2
 		echo false
