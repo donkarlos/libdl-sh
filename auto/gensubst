@@ -24,6 +24,8 @@
 #   CHANGED BY:	ks	2013-03-09	Move script comment stripping to
 #					`auto/gensubst.sed'.
 #		ks	2013-04-17	Fix and optimize template extraction.
+#					Allow to tune the finishing mechanism
+#					with $(FINISH_ANTE/POST_SEDFLAGS).
 #-----------------------------------------------------------------------------
 #   Initialization:
 #-----------------------------------------------------------------------------
@@ -70,12 +72,12 @@ if test $# -ge 1; then			# Output variable given?
 		exit 2
 	    }
 	    if test -n "$templates"; then
+		rs_ante="${rs_prefix}FINISH_ANTE_SEDFLAGS${rs_suffix} -f $0.sed -e '"
+		rs_post="' ${rs_prefix}FINISH_POST_SEDFLAGS${rs_suffix}"
 		echo "$templates" | sort | uniq | sed '
-		    1i\
-		    -f '"$0"'.sed
-		    s/^\(.*\)$/-e '\''s|'"$re_prefix"'\1'"$re_suffix"'|'"$rs_prefix"'\1'"$rs_suffix"'|g'\''/
-		' | eval echo sed `cat` | sed '
-		    s/ -e /'\''&'\''/g;s/$/'\''/;s/'\''//
+		    s/^\(.*\)$/s|'"$re_prefix"'\1'"$re_suffix"'|'"$rs_prefix"'\1'"$rs_suffix"'|g/
+		    H;$!d
+		    x;s|\n|;|g;s|^;||;s|^|sed '"$rs_ante"'|;s|$|'"$rs_post"'|
 		'
 	    else
 		echo "$0: No templates found. Do you still need me?" >&2
