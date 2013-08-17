@@ -20,7 +20,7 @@
 #   AUTHOR(S):	ks	Karl Schmitz <carolus.faber@googlemail.com>
 #
 #   WRITTEN BY:	ks	2013-03-09
-#   CHANGED BY:
+#   CHANGED BY:	ks	2013-08-17	Strip comments in finalized manpages.
 #-----------------------------------------------------------------------------
 /^#.*{%%}$/d
 /^#.*{%-}$/,/^#.*{%+}$/d
@@ -28,3 +28,4 @@
 /^##/d
 /[ 	][ 	]*##$/{;s///;/^$/d;}
 /[ 	][ 	]*## .*$/{;s///;/^$/d;}
+/^\.\\#/d

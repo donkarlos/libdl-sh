@@ -17,13 +17,13 @@
 .\" along with this library; if not, write to the Free Software Founda-
 .\" tion, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
 .\"
-.\" AUTHOR(S):	ks	Karl Schmitz <carolus.faber@googlemail.com>
-.\"
-.\" WRITTEN BY:	ks	2013-08-17
-.\" CHANGED BY:
-.\"
-.\" NOTE: (1)	Please adjust below date whenever revising the manual page.
-.\"		vvvvvv
+.\# AUTHOR(S):	ks	Karl Schmitz <carolus.faber@googlemail.com>
+.\#
+.\# WRITTEN BY:	ks	2013-08-17
+.\# CHANGED BY:
+.\#
+.\# NOTE: (1)	Please adjust below date whenever revising the manual page.
+.\#		vvvvvv
 .TH LIBDL 3SH 2013-08-17 "@PACKAGE_TARNAME@ @PACKAGE_VERSION@" "Shell Programming"
 
 .SH NAME

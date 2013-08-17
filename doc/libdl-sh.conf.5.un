@@ -17,14 +17,14 @@
 .\" along with this library; if not, write to the Free Software Founda-
 .\" tion, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
 .\"
-.\" AUTHOR(S):	ks	Karl Schmitz <carolus.faber@googlemail.com>
-.\"
-.\" WRITTEN BY:	ks	2013-02-22
-.\" CHANGED BY:	ks	2013-03-06	Rename configuration files.
-.\"
-.\" NOTE: (1)	Please adjust below date whenever revising the manual page.
-.\"		vvvvvv
-.TH LIBDL-SH.CONF 5 2013-03-06 "@PACKAGE_TARNAME@ @PACKAGE_VERSION@" "Shell Programming"
+.\# AUTHOR(S):	ks	Karl Schmitz <carolus.faber@googlemail.com>
+.\#
+.\# WRITTEN BY:	ks	2013-02-22
+.\# CHANGED BY:	ks	2013-03-06	Rename configuration files.
+.\#
+.\# NOTE: (1)	Please adjust below date whenever revising the manual page.
+.\#		vvvvvv
+.TH LIBDL-SH.CONF 5 2013-08-17 "@PACKAGE_TARNAME@ @PACKAGE_VERSION@" "Shell Programming"
 
 .SH NAME
 libdl-sh.conf \- POSIX shell library demand-loading configuration
