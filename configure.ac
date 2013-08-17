@@ -17,7 +17,7 @@ dnl You should have received a copy of the GNU Lesser General Public License
 dnl along with this library; if not, write to the Free Software Founda-
 dnl tion, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
 dnl
-dnl AUTHOR(S):	ks	Karl Schmitz <carolus.faber@googlemail.com>
+dnl AUTHOR(S):	ks	Karl Schmitz <carolus.faber@gmail.com>
 dnl
 dnl WRITTEN BY:	ks	2013-02-12
 dnl CHANGED BY:	ks	2013-02-13	Add libquote.sh and libundo.sh.
@@ -33,7 +33,7 @@ dnl
 dnl Initialization:
 dnl
 AC_INIT([Demand-loadable libraries for POSIX shell scripts],
-    [0.3.4], [carolus.faber@googlemail.com], [libdl-sh])
+    [0.3.4], [carolus.faber@gmail.com], [libdl-sh])
 AC_PREREQ([2.61])
 AC_CONFIG_SRCDIR([bin/libdl-sh.un])
 AC_CONFIG_AUX_DIR([auto])
