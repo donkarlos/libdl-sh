@@ -45,7 +45,7 @@ dnl Generate output files:
 dnl
 AF_FINISH_FILES([
     bin/libdl-sh
-    doc/libdl-sh.1 doc/libdl-sh.conf.5
+    doc/libdl-sh.1 doc/libdl-sh.conf.5 doc/libdl.3sh
     etc/libdl-sh.conf
     lib/libdl.sh lib/libquote.sh lib/libundo.sh lib/libsafe.sh
     lib/conf.awk lib/libconf.sh lib/libemit.sh

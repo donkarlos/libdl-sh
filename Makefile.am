@@ -36,9 +36,15 @@ shlibdir		= @libdir@
 include $(top_srcdir)/auto/autofinish.am
 
 ##----------------------------------------------------------------------------
-##  Distribute data:
+##  Distribute license:
 ##----------------------------------------------------------------------------
 dist_noinst_DATA	= LICENSE
+
+##----------------------------------------------------------------------------
+##  Distribute and install manpages:
+##----------------------------------------------------------------------------
+dist_man_MANS		= doc/dl_atload.3sh doc/dl_atexit.3sh		\
+			  doc/dl_exit.3sh doc/dl_init.3sh doc/dl_load.3sh
 
 ##----------------------------------------------------------------------------
 ##  Finalize and install scripts, libraries, manpages, and package data:
@@ -47,7 +53,7 @@ bin_SCRIPTS		= bin/libdl-sh
 pkgdata_SCRIPTS		= auto/gensubst
 shlib_DATA		= lib/libdl.sh lib/libquote.sh lib/libundo.sh	\
 			  lib/libsafe.sh lib/libconf.sh lib/libemit.sh
-man_MANS		= doc/libdl-sh.1 doc/libdl-sh.conf.5
+man_MANS		= doc/libdl-sh.1 doc/libdl-sh.conf.5 doc/libdl.3sh
 sysconf_DATA		= etc/libdl-sh.conf
 pkgdata_DATA		= auto/autofinish.am auto/autofinish.m4		\
 			  auto/gensubst.sed lib/conf.awk
