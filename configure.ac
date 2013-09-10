@@ -38,7 +38,6 @@ AC_PREREQ([2.61])
 AC_CONFIG_SRCDIR([bin/libdl-sh.un])
 AC_CONFIG_AUX_DIR([auto])
 AM_INIT_AUTOMAKE([foreign no-define 1.9])
-AM_MAINTAINER_MODE
 
 dnl
 dnl Generate output files:
