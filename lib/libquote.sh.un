@@ -36,7 +36,7 @@ readonly BQ DQ SQ BS CS DS QB QE CR NL
 ##----------------------------------------------------------------------------
 ##  Global variables:
 ##----------------------------------------------------------------------------
-quote_sh_sedex="s/$SQ/$SQ$BS$BS$SQ$SQ/g;s/^_/$SQ/;s/$DS/$SQ/"
+quote_sh_sedex="s/$SQ/$SQ$BS$BS$SQ$SQ/g;s/^/$SQ/;s/$DS/$SQ/"
 readonly quote_sh_sedex
 
 ##----------------------------------------------------------------------------
@@ -44,8 +44,12 @@ readonly quote_sh_sedex
 ##----------------------------------------------------------------------------
 quote_sh () {
     case $BASH in
-	?*) echo \'${1//\'/\'\\\'\'}\'		;;
-	*)  echo "_$1" | sed "$quote_sh_sedex"	;;
+	?*) echo \'${1//\'/\'\\\'\'}\'
+	    ;;
+	*)  sed "$quote_sh_sedex" <<EOF
+$1
+EOF
+	    ;;
     esac
 }
 
@@ -59,13 +63,15 @@ quote_command () {
     case $BASH in			## Append each redirection/argument...
 	?*) for arg in ${1+"$@"}; do case $arg in
 		*\<*|*\>*)
-		    cmd="$cmd $arg"					;;
-		*)  cmd="$cmd "\'${arg//\'/\'\\\'\'}\'			;;
+		    cmd="$cmd $arg"			;;
+		*)  cmd="$cmd "\'${arg//\'/\'\\\'\'}\'	;;
 	    esac; done	;;
 	*)  for arg in ${1+"$@"}; do case $arg in
 		*\<*|*\>*)
-		    cmd="$cmd $arg"					;;
-		*)  cmd="$cmd `echo "_$arg" | sed "$quote_sh_sedex"`"	;;
+		    cmd="$cmd $arg"			;;
+		*)  cmd="$cmd `sed "$quote_sh_sedex" <<EOF
+$arg
+EOF`"							;;
 	    esac; done	;;
     esac
 
