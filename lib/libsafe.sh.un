@@ -42,16 +42,16 @@ safe_init () {
 ##  safe_mktmpdir(&DPN [DRN])	Safely make temporary directory
 ##----------------------------------------------------------------------------
 safe_mktmpdir () {
-    test -n "$safe_tmpdir" || {		# Temporary directory made?
+    test -n "$safe_tmpdir" || {		## Temporary directory made?
 	safe_tmpdir=`mktemp -d` || return 1
-					# No, try to make it once and for all.
+					## No, try to make it once and for all.
 	undo_push $safe_exit0 'rm -rf' "$safe_tmpdir"
     }
 
-    case $# in				# Optional relative name supplied?
+    case $# in				## Optional relative name supplied?
 	2)  mkdir -p "$safe_tmpdir/$2" && eval "$1"'=$safe_tmpdir/$2'
-	    ;;				# Yes, try to make it and pass it on.
-	1)  eval "$1"'=$safe_tmpdir'	# No, just pass it on.
+	    ;;				## Yes, try to make it and pass it on.
+	1)  eval "$1"'=$safe_tmpdir'	## No, just pass it on.
 	    ;;
     esac
 }
@@ -62,11 +62,11 @@ safe_mktmpdir () {
 safe_mkdir () {
     local dpn
 
-    for dpn in ${1+"$@"}; do		# Foreach directory do...
-	test -d "$dpn" || {		# Does it already exist?
+    for dpn in ${1+"$@"}; do		## Foreach directory do...
+	test -d "$dpn" || {		## Does it already exist?
 	    safe_mkdir "`dirname "$dpn"`" && mkdir "$dpn" || break
 	    undo_push rmdir "$dpn" '2>/dev/null'
-	}				# No, try to make it recursively.
+	}				## No, try to make it recursively.
     done
 }
 
@@ -83,11 +83,11 @@ safe_chdir () {
 safe_touch () {
     local fpn
 
-    for fpn in ${1+"$@"}; do		# Foreach file do...
-	test -f "$fpn" || {		# Does it already exist?
+    for fpn in ${1+"$@"}; do		## Foreach file do...
+	test -f "$fpn" || {		## Does it already exist?
 	    safe_mkdir "`dirname "$fpn"`" && touch "$fpn" || break
 	    undo_push 'rm -f' "$fpn"
-	}				# No, try to make it recursively.
+	}				## No, try to make it recursively.
     done
 }
 
@@ -95,11 +95,11 @@ safe_touch () {
 ##  safe_save(FPN)		Safely save existing file
 ##----------------------------------------------------------------------------
 safe_save () {
-    test -f "$1~B$safe_suffix" || {	# File has already been saved?
+    test -f "$1~B$safe_suffix" || {	## File has already been saved?
 	cp -p "$1" "$1~B$safe_suffix" && {
 	    undo_push $safe_exit0 'rm -f' "$1~B$safe_suffix"
 	    undo_push mv "$1~B$safe_suffix" "$1"
-	}				# No, try to save it.
+	}				## No, try to save it.
     }
 }
 
@@ -118,11 +118,11 @@ safe_rename () {
 safe_remove () {
     local tmpdn tarpn pn
 
-    safe_mktmpdir tmpdn safe && {	# Make temporary directory.
+    safe_mktmpdir tmpdn safe && {	## Make temporary directory.
 	safe_tarid=`expr $safe_tarid + 1`
-	tarpn=$tmpdn/$safe_tarid.tar	# Construct backup archive's name.
-	for pn in ${1+"$@"}; do		# Foreach removee do...
-	    test -e "$pn" && {		# Append it to backup archive.
+	tarpn=$tmpdn/$safe_tarid.tar	## Construct backup archive's name.
+	for pn in ${1+"$@"}; do		## Foreach removee do...
+	    test -e "$pn" && {		## Append it to backup archive.
 		tar rPf "$tarpn" "$pn" || return 1
 	    }
 	done
@@ -139,13 +139,13 @@ safe_remove () {
 ##				Invoke COMMAND with umask UMASK
 ##----------------------------------------------------------------------------
 safe_umask () {
-    local umask=`umask` status		# Save umask.
+    local umask=`umask` status		## Save umask.
 
-    umask $1; shift			# Adjust umask.
-    ${1+"$@"}				# Invoke command.
-    status=$?; umask $umask		# Save status and restore umask.
+    umask $1; shift			## Adjust umask.
+    ${1+"$@"}				## Invoke command.
+    status=$?; umask $umask		## Save status and restore umask.
 
-    return $status			# Indicate status.
+    return $status			## Indicate status.
 }
 
 ##----------------------------------------------------------------------------
@@ -175,10 +175,10 @@ safe_lock () {
 safe_wait () {
     local seconds=${2-30}
 
-    until safe_lock "$1"; do		# Until we lock map file do...
-	test -d "$1~lock" || return 1	# Cond. indic. failure to lock at all.
+    until safe_lock "$1"; do		## Until we lock map file do...
+	test -d "$1~lock" || return 1	## Cond. indic. failure to lock at all.
 	sleep 1; seconds=`expr $seconds - 1`
-	test $seconds -gt 0 || return 2	# Cond. indicate timeout.
+	test $seconds -gt 0 || return 2	## Cond. indicate timeout.
     done
 }
 

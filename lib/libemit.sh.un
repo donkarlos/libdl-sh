@@ -53,7 +53,7 @@ emit_get_head () {
 ##  emit(LEVEL MESSAGE ...)	Emit message at LEVEL
 ##----------------------------------------------------------------------------
 emit () {
-    local l="$1"; shift			# Fetch level.
+    local l="$1"; shift			## Fetch level.
 
     case $emit_heads in
 	*:$l:*)	eval echo \"\$emit_head_$l\$*\"	;;
