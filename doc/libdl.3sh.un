@@ -92,7 +92,7 @@ Demand-load each given shell library \fILIB\fP into the application by looking
 for \fBlib\fP\fILIB\fP\fB.sh\fP along the library search path and sourcing the
 first one found. If \fILIB\fP can't be loaded (either because it isn't found
 or its initialization commands fail), the application is terminated with
-\fBdl_exit\ 127\fP, thereby invoking registered exit-time hooks. 
+\fBdl_exit\ 127\fP, thereby invoking registered exit-time hooks.
 
 .TP
 \fBdl_atexit\fP \fIHOOK\fP
@@ -128,7 +128,7 @@ All symbols defined in the global scope (e.g., functions, global variables,
 etc.) must match the modern RE \fB^\fP\fILIB\fP\fB(_[A-Za-z09-9_]+)?$\fP (see
 .BR regex (7)
 for further details). This naturally implies that \fILIB\fP itself must match
-the modern RE \fB^[A-Za-z][A-Za-z0-9]*$\fP. 
+the modern RE \fB^[A-Za-z][A-Za-z0-9]*$\fP.
 .IP 2.
 Exceptions to the above rule ought to be rare and must be properly documented.
 .IP 3.
