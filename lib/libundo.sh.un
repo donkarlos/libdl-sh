@@ -40,6 +40,21 @@ undo_init () {
 }
 
 ##----------------------------------------------------------------------------
+##  undo_mark(MARK)		Push MARK onto undo stack
+##
+##  NOTE:   (1)	Contrary to tags (which are appended as a comment), marks
+##		occupy a whole line. Keep this in mind when pulling/dropping
+##		undos by count!
+##----------------------------------------------------------------------------
+undo_mark () {
+    case $1 in				## Mark is first?
+	::?*)	undo_stack="#{$1::}#$NL$undo_stack"	;;
+					## Push mark onto undo stack.
+	*)	return 2				;;
+    esac				## No, it's not a mark!
+}
+
+##----------------------------------------------------------------------------
 ##  undo_push([TAG] COMMAND [ARGUMENT|REDIRECTION ...])
 ##				Push (TAGged) COMMAND (with quoted ARGUMENTs
 ##				and/or raw REDIRECTIONs) onto undo stack
