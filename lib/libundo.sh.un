@@ -32,24 +32,27 @@ undo_exit0=
 ##  undo_init(TAG)		Set cleanups tag for successful exit
 ##----------------------------------------------------------------------------
 undo_init () {
-    case $1 in				# Tag is valid?
-	:*) undo_exit0=$1	;;	# Yes, set cleanups tag.
-	*)  return 1		;;	# No, indicate failure!
+    case $1 in				## Cleanups tag is first?
+	::*)	return 2	;;	## No, it's a mark!
+	:?*)	undo_exit0=$1	;;	## Yes, set cleanups tag.
+	*)	return 2	;;	## No, it's not a tag!
     esac
 }
 
 ##----------------------------------------------------------------------------
 ##  undo_push([TAG] COMMAND [ARGUMENT|REDIRECTION ...])
-##				Push (tagged) command onto undo stack
+##				Push (TAGged) COMMAND (with quoted ARGUMENTs
+##				and/or raw REDIRECTIONs) onto undo stack
 ##----------------------------------------------------------------------------
 undo_push () {
     local tag
 
-    case $1 in :*) tag=" $CS$1"; shift;; esac
-					# Conditionally fetch tag.
+    case $1 in				## Tag is first?
+	::*) return 2		;;	## No, it's a mark!
+	:?*) tag=" #$1"; shift	;;	## Yes, fetch it.
+    esac
     undo_stack="`quote_command ${1+"$@"}`$tag$NL$undo_stack"
-					# Push (tagged) command onto stack.
-}
+}					## Push (tagged) undo onto stack.
 
 ##----------------------------------------------------------------------------
 ##  undo_drop(TAG|[COUNT=1])	Drop (tagged) command(s) from undo stack
