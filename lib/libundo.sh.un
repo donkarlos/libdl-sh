@@ -135,17 +135,14 @@ undo_pull () {
 }				## from stack.
 
 ##----------------------------------------------------------------------------
-##  undo_drop(TAG|[COUNT=1])	Drop (tagged) command(s) from undo stack
+##  undo_drop(MARK)		Drop undos within MARKed range and MARK,
+##  undo_drop(MARK TAG)		Drop TAGged undos within MARKed range,
+##  undo_drop(TAG)		Drop TAGged undos, or
+##  undo_drop([COUNT=1])	Drop COUNT undos from undo stack
 ##----------------------------------------------------------------------------
 undo_drop () {
-    local script
-
-    case $1 in
-	:*) script='/#'"$1"'$/d';;
-	*)  script="1${1+,$1}d"	;;
-    esac
-    undo_stack=`echo "$undo_stack" | sed "$script"`
-}
+    undo_stack=`undo_emit drop ${1+"$@"}`
+}					## Drop selected undos from stack.
 
 ##----------------------------------------------------------------------------
 ##  undo_exit(STATUS)		Apply cleanups/undos
