@@ -40,6 +40,59 @@ undo_init () {
 }
 
 ##----------------------------------------------------------------------------
+##  undo_emit(MODE MARK)	Emit undos within MARKed range and MARK,
+##  undo_emit(MODE MARK TAG)	Emit TAGged undos within MARKed range,
+##  undo_emit(MODE TAG)		Emit TAGged undos, or
+##  undo_emit(MODE [COUNT=1])	Emit COUNT undos on behalf of undo_MODE(),
+##				where MODE is drop or keep.
+##
+##  NOTE:   (1)	When emitting a marked range, an empty line is prepended
+##		so that the range matches even if MARK is on top.
+##		Otherwise, the undo stack might be accidentally cleared or
+##		not modified at all!
+##----------------------------------------------------------------------------
+undo_emit () {
+    local i mark range km d1 sedex
+
+    case $1 in				## Which mode?
+	drop)		;;		## Drop, i.e. don't invert deletes.
+	keep) i='!'	;;		## Keep, i.e. invert deletes.
+	*)    return 2	;;		## None of the above!
+    esac
+
+    case $2 in				## Mark is next?
+	::?*)				## Yes, derive mark/range fragments.
+	    mark='/^#{'"$2"'::}#$/'; range="1,$mark"
+	    case $1 in			## Which mode?
+		keep) km="${mark}bp;" d1=';1d;:p';;
+					## Keep, i.e. keep mark but drop 1st.
+	    esac
+	    case $3 in			## Tag is next?
+		::*)	return 2		;;
+					## No, it's another mark!
+		:?*)	sedex="{;$km/#$3"'$/'"${i}d;}$d1";;
+					## Yes, (don't) drop tagged undos
+					## within marked range.
+		?*)	return 2		;;
+					## No, it's not a tag!
+		*)	sedex="${i}d$d1"	;;
+	    esac			## No, (don't) drop marked range.
+	    ;;
+	::*)				## Tag is first?
+	    return 2			## It's a mark!
+	    ;;
+	:?*)
+	    sedex="/#$2"'$/'"${i}d"	## Yes, (don't) drop tagged undos.
+	    ;;
+	*)  sedex="1${2+,$2}${i}d"	## No, assume it's a count.
+	    ;;
+    esac
+    sed "$range$sedex" 2>/dev/null <<EOF
+${range+$NL}$undo_stack
+EOF
+}
+
+##----------------------------------------------------------------------------
 ##  undo_mark(MARK)		Push MARK onto undo stack
 ##
 ##  NOTE:   (1)	Contrary to tags (which are appended as a comment), marks
