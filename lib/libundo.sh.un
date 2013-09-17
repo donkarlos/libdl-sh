@@ -123,18 +123,16 @@ undo_push () {
 }					## Push (tagged) undo onto stack.
 
 ##----------------------------------------------------------------------------
-##  undo_pull(TAG|[COUNT=1])	Apply and drop (tagged) command(s)
+##  undo_pull(MARK)		Pull undos within MARKed range and MARK,
+##  undo_pull(MARK TAG)		Pull TAGged undos within MARKed range,
+##  undo_pull(TAG)		Pull TAGged undos, or
+##  undo_pull([COUNT=1])	Pull COUNT undos from undo stack
 ##----------------------------------------------------------------------------
 undo_pull () {
-    local script
-
-    case $1 in
-	:*) script='/#'"$1"'$/p';;
-	*)  script="1${1+,$1}p"	;;
-    esac
-    eval "`echo "$undo_stack" | sed -n "$script"`"
-    undo_drop ${1+"$1"}
-}
+    eval "`undo_emit keep ${1+"$@"}`"
+    undo_stack=`undo_emit drop ${1+"$@"}`
+				## Pull (i.e. apply and drop) selected undos
+}				## from stack.
 
 ##----------------------------------------------------------------------------
 ##  undo_drop(TAG|[COUNT=1])	Drop (tagged) command(s) from undo stack
