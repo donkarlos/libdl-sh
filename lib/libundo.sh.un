@@ -147,17 +147,17 @@ undo_drop () {
 ##----------------------------------------------------------------------------
 ##  undo_exit(STATUS)		Apply cleanups/undos
 ##
-##  NOTE:   (1)	This function is registered for invocation by dl_exit()!
+##  NOTE:   (1)	This function is registered as exit-time hook!
 ##----------------------------------------------------------------------------
 undo_exit () {
-    case ${1-1}$undo_exit0 in		# Exit with...
-	0)				# ...success and cleanups tag unset?
-	    ;;				# What's done is done.
-	0:*)				# ...success and cleanups tag set?
-	    eval "`echo "$undo_stack" | grep '#'"$undo_exit0"'$'`"
-	    ;;				# Pick and apply cleanups.
-	*)				# ...failure?
-	    eval "$undo_stack"		# Apply undos.
+    case ${1-1}$undo_exit0 in		## Exit with...
+	0)				## ...success and no cleanups tag?
+	    ;;				## What's done is done.
+	0:*)				## ...success and cleanups tag?
+	    eval "`undo_emit keep "$undo_exit0"`"
+	    ;;				## Apply cleanups.
+	*)				## ...failure?
+	    eval "$undo_stack"		## Apply undos.
 	    ;;
     esac
 }
