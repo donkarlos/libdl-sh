@@ -96,8 +96,8 @@ EOF
 ##  undo_mark(MARK)		Push MARK onto undo stack
 ##
 ##  NOTE:   (1)	Contrary to tags (which are appended as a comment), marks
-##		occupy a whole line. Keep this in mind when pulling/dropping
-##		undos by count!
+##		occupy a whole line. Keep this in mind when pulling/dropping/
+##		keeping undos by count!
 ##----------------------------------------------------------------------------
 undo_mark () {
     case $1 in				## Mark is first?
@@ -143,6 +143,16 @@ undo_pull () {
 undo_drop () {
     undo_stack=`undo_emit drop ${1+"$@"}`
 }					## Drop selected undos from stack.
+
+##----------------------------------------------------------------------------
+##  undo_keep(MARK)		Keep undos within MARKed range and MARK,
+##  undo_keep(MARK TAG)		Keep TAGged within MARKed range,
+##  undo_keep(TAG)		Keep TAGged undos, or
+##  undo_keep([COUNT=1])	Keep COUNT undos on undo stack
+##----------------------------------------------------------------------------
+undo_keep () {
+    undo_stack=`undo_emit keep ${1+"$@"}`
+}					## Keep selected undos on stack.
 
 ##----------------------------------------------------------------------------
 ##  undo_exit(STATUS)		Apply cleanups/undos
