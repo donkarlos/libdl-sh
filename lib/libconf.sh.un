@@ -29,6 +29,7 @@
 #-----------------------------------------------------------------------------
 conf_awk=@pkgdatadir@/conf.awk
 conf_api=old
+readonly conf_awk
 
 ##----------------------------------------------------------------------------
 ##  conf_init(API)		Select (default) old or new API
