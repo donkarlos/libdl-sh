@@ -54,7 +54,7 @@ Applications having private library directories may augment the library search
 path by invoking \fBdl_init\fP before loading more libraries.
 
 Applications and/or libraries may also register load-time hooks (i.e.,
-functions invoked after succesfully loading a library) as well as exit-time
+functions invoked after successfully loading a library) as well as exit-time
 hooks (i.e., functions invoked before ultimately terminating execution) with
 \fBdl_atload\fP and \fBdl_atexit\fP, respectively.
 
@@ -78,7 +78,7 @@ private library directories. They should do so only once and before invoking
 Register load-time \fIHOOK\fP by pushing it onto the stack of load-time hooks
 maintained by \fBlibdl.sh\fP.
 
-After \fBdl_load\fP succesfully loads some library \fILIB\fP, all registered
+After \fBdl_load\fP successfully loads some library \fILIB\fP, all registered
 load-time hooks are invoked in LRFI (last-registered first-invoked) order,
 with \fILIB\fP as the only argument.
 
