@@ -17,7 +17,7 @@ dnl You should have received a copy of the GNU Lesser General Public License
 dnl along with this library; if not, write to the Free Software Founda-
 dnl tion, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
 dnl
-dnl AUTHOR(S):	ks	Karl Schmitz <carolus.faber@gmail.com>
+dnl AUTHOR(S):	ks	Karl Schmitz <ks@computerlabor.org>
 dnl
 dnl WRITTEN BY:	ks	2013-02-12
 dnl CHANGED BY:	ks	2013-02-13	Add libquote.sh and libundo.sh.

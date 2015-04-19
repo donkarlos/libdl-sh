@@ -17,7 +17,7 @@
 #   along with this library; if not, write to the Free Software Founda-
 #   tion, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
 #
-#   AUTHOR(S):	ks	Karl Schmitz <carolus.faber@gmail.com>
+#   AUTHOR(S):	ks	Karl Schmitz <ks@computerlabor.org>
 #
 #   WRITTEN BY:	ks	2013-03-09
 #   CHANGED BY:	ks	2013-08-17	Strip comments in finalized manpages.
