@@ -22,6 +22,7 @@
 ##
 ##  WRITTEN BY:	ks	2013-02-12
 ##  CHANGED BY:	ks	2013-03-06	Attribute this to `libdl.sh'.
+##		ks	2015-04-19	Optimize LSP normalization.
 ##----------------------------------------------------------------------------
 ##  include(CONF ...)		Parse demand-loading configuration file(s)
 ##				into list of library search path items
@@ -55,8 +56,8 @@ case $1 in				## Which action?
     load)				## Emit command to load libdl.sh...
 	echo '. @shlibdir@/libdl.sh || exit 127'
 	;;
-    path)				## Emit library search path...
-	libpath=:			## Start with denomalized empty path.
+    path)				## Emit library search path (LSP)...
+	libpath=:			## Start with denormalized empty path.
 	for item in `
 	    include ${HOME+$HOME/.libdl-sh.conf} @sysconfdir@/libdl-sh.conf
 	`				## Foreach item in user's and system-
@@ -68,9 +69,10 @@ case $1 in				## Which action?
 		    libpath=$libpath$item:
 		    ;;			## Append it to path.
 	    esac
-	done
-	echo "$libpath" | sed 's/^://;s/:$//'
-	;;				## Normalize library search path.
+	done; sed 's/^://;s/:$//' <<EOF	## Normalize library search path.
+$libpath
+EOF
+	;;
     echo)				## Emit installation path(s)...
 	shift; for name in ${1+"$@"}	## Foreach given name do...
 	do
