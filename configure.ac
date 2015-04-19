@@ -1,7 +1,7 @@
 dnl								-*-Autoconf-*-
 dnl configure.ac		- libdl-sh Autotools configuration
 dnl
-dnl Copyright (C) 2013 Karl Schmitz
+dnl Copyright (C) 2013-2015 Das Computerlabor (DCl-M)
 dnl
 dnl This library is free software; you can redistribute it and/or
 dnl modify it under the terms of the GNU Lesser General Public License

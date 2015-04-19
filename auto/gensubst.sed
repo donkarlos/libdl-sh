@@ -1,7 +1,7 @@
 #-----------------------------------------------------------------------------
 #   gensubst.sed		- Strip tagged script comments
 #
-#   Copyright (C) 2013 Karl Schmitz
+#   Copyright (C) 2013-2015 Das Computerlabor (DCl-M)
 #
 #   This library is free software; you can redistribute it and/or
 #   modify it under the terms of the GNU Lesser General Public License

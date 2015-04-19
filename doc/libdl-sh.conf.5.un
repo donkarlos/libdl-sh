@@ -1,7 +1,7 @@
 .\"								-*- nroff -*-
 .\" libdl-sh.conf.5		- libdl-sh.conf(5) manual page
 .\"
-.\" Copyright (C) 2013 Karl Schmitz
+.\" Copyright (C) 2013-2015 Das Computerlabor (DCl-M)
 .\"
 .\" This library is free software; you can redistribute it and/or
 .\" modify it under the terms of the GNU Lesser General Public License

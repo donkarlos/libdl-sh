@@ -1,7 +1,7 @@
 .\"								-*- nroff -*-
 .\" libconf.3sh			- libconf(3sh) manual page
 .\"
-.\" Copyright (C) 2014 Karl Schmitz
+.\" Copyright (C) 2014-2015 Das Computerlabor (DCl-M)
 .\"
 .\" This library is free software; you can redistribute it and/or
 .\" modify it under the terms of the GNU Lesser General Public License
