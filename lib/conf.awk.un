@@ -248,10 +248,10 @@ END {					## Finally!
     if (ec) exit 1			## Exit prematurely on errors.
     if (mc) for (si = 1; si <= sc; ++si)
 	if (has_si(si) && (si2ai[si] >= ac) && has_vc(si)) {
-		sn = si2sn[si]; sub("\\.", " \"", sn) && sub("$", "\"", sn)
-		printf("[%s]\n", sn) > ai2av[ac]
-		for (vi = 1; vi <= si2vc[si]; ++vi)
-		    if (has_vi(si,vi) && (sivi2ai[si,vi] >= ac))
-			printf("\t%s = %s\n", sivi2vn[si,vi], sivi2vv[si,vi]) > ai2av[ac]
+	    sn = si2sn[si]; sub("\\.", " \"", sn) && sub("$", "\"", sn)
+	    printf("[%s]\n", sn) > ai2av[ac]
+	    for (vi = 1; vi <= si2vc[si]; ++vi)
+		if (has_vi(si,vi) && (sivi2ai[si,vi] >= ac))
+		    printf("\t%s = %s\n", sivi2vn[si,vi], sivi2vv[si,vi]) > ai2av[ac]
 	}
 }
