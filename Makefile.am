@@ -56,12 +56,11 @@ dist_man_MANS		= doc/dl_atload.3sh doc/dl_atexit.3sh		\
 ##  Finalize and install scripts, libraries, manpages, and package data:
 ##----------------------------------------------------------------------------
 bin_SCRIPTS		= bin/libdl-sh
-pkgdata_SCRIPTS		= auto/gensubst auto/gensubst.sed
+pkgdata_SCRIPTS		= auto/gensubst auto/gensubst.sed lib/conf.awk
 shlib_DATA		= lib/libdl.sh lib/libquote.sh lib/libundo.sh	\
 			  lib/libsafe.sh lib/libconf.sh lib/libemit.sh
 man_MANS		= doc/libdl-sh.1 doc/libdl-sh.conf.5		\
 			  doc/libdl.3sh doc/libconf.3sh
 sysconf_DATA		= etc/libdl-sh.conf
-pkgdata_DATA		= auto/autofinish.am auto/autofinish.m4		\
-			  lib/conf.awk
+pkgdata_DATA		= auto/autofinish.am auto/autofinish.m4
 
