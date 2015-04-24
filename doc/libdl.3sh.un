@@ -27,7 +27,8 @@
 .TH LIBDL 3SH 2015-04-23 "@PACKAGE_TARNAME@ @PACKAGE_VERSION@" "Shell Programming"
 
 .SH NAME
-dl_init, dl_atload, dl_load, dl_atexit, dl_exit, dl_meta \- Demand-load POSIX shell libraries
+dl_init, dl_atload, dl_load, dl_atexit, dl_exit, dl_which, dl_meta
+\- Demand-load POSIX shell libraries
 
 .SH SYNOPSIS
 \fBeval "`libdl-sh load`"\fP
@@ -41,6 +42,8 @@ dl_init, dl_atload, dl_load, dl_atexit, dl_exit, dl_meta \- Demand-load POSIX sh
 \fBdl_atexit\fP \fIHOOK\fP
 .br
 \fBdl_exit\fP [\fISTATUS\fP=$?]
+.br
+\fBdl_which\fP \fILIB\fP
 .br
 \fBdl_meta\fP \fIMETA\fP [\fIARG\fP ...]
 
@@ -110,6 +113,12 @@ Terminate execution by invoking registered exit-time hooks and \fBexit\fPing
 with \fISTATUS\fP. All registered exit-time hooks are invoked in LRFI
 (last-registered first-invoked) order with \fISTATUS\fP as the only argument;
 their return status is ignored by \fBdl_exit\fP.
+
+.TP +4
+\fBdl_which\fP \fILIB\fP
+Try to locate shell library \fILIB\fP on the library search path and write its
+absolute pathname to standard output if it's found. Otherwise, return status
+\fB127\fP.
 
 .TP +4
 \fBdl_meta\fP \fIMETA\fP [\fIARG\fP ...]

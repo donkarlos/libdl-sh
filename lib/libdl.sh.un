@@ -40,7 +40,7 @@ dl_meta () {
     case $1-$2 in			## Which META operation?
 	get-apis)			## Inquire APIs...
 	    cat <<EOF
-$dl_api:,meta,init,atload,load,atexit,exit,
+$dl_api:,meta,init,which,atload,load,atexit,exit,
 EOF
 	    ;;
 	get-api|get-libpath|get-atloads|get-atexits|get-loaded)
@@ -59,6 +59,24 @@ EOF
 ##----------------------------------------------------------------------------
 dl_init () {
     dl_meta pre libpath ${1+"$1"}
+}
+
+##----------------------------------------------------------------------------
+##  dl_which(LIB)		Locate LIBrary on library search path
+##----------------------------------------------------------------------------
+dl_which () {
+    local ifs lib=$1 item
+
+    ifs=$IFS; IFS=:; set shiftee `sed '
+	s/^/:/;s/$/:/;:1		## Let empty items explicitly refer
+	s/::/:.:/g;t1			## to '.' on the combined library
+	s/^://;s/:$//			## search path.
+    ' <<EOF
+$dl_libpath${PATH+:$PATH}
+EOF`; shift; IFS=$ifs			## Split combined library search path.
+    for item in ${1+"$@"}; do		## Locate library...
+	test -f "$item/lib$lib.sh" && echo "$item/lib$lib.sh" && return
+    done; return 127
 }
 
 ##----------------------------------------------------------------------------
