@@ -22,6 +22,7 @@
 ##
 ##  WRITTEN BY:	ks	2013-02-12
 ##  CHANGED BY:	ks	2015-04-23	Implement meta operations.
+##					Lay session concept foundation.
 ##----------------------------------------------------------------------------
 ##  Global variables:
 #-----------------------------------------------------------------------------
@@ -29,6 +30,7 @@ dl_api=0				## Define API version.
 dl_libpath=`@bindir@/libdl-sh path` || exit 127
 dl_atloads=:
 dl_atexits='exit $status'
+dl_session=
 dl_loaded=:dl:
 dl_needed=
 readonly dl_api
@@ -43,11 +45,13 @@ dl_meta () {
 $dl_api:,meta,init,which,atload,load,atexit,exit,
 EOF
 	    ;;
-	get-api|get-libpath|get-atloads|get-atexits|get-loaded)
+	get-api|get-libpath|get-atloads|get-atexits|get-session|get-loaded)
 					## Inquire internal variable...
 	    eval 'echo "$dl_'"$2"'"'		;;
 	pre-libpath)			## Prepend to library search path...
 	    eval 'dl_'"$2"'=${3+$3:}$dl_'"$2"	;;
+	set-session)			## Set session ID...
+	    eval 'dl_'"$2"'=$3'			;;
 	*)				## Anything else...
 	    return 2			## Indicate usage error!
 	    ;;

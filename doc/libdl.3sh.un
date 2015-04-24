@@ -21,6 +21,7 @@
 .\#
 .\# WRITTEN BY:	ks	2013-08-17
 .\# CHANGED BY:	ks	2015-04-23	Implement meta operations.
+.\#					Lay session concept foundation.
 .\#
 .\# NOTE: (1)	Please adjust below date whenever revising the manual page.
 .\#		vvvvvv
@@ -153,6 +154,14 @@ Inquire current library search path (LSP) and write it to standard output.
 \fBget loaded\fP
 Inquire (denormalized colon-separated) list of loaded libraries and write it
 to standard output.
+
+.TP
+\fBset session\fP \fIID\fP
+Register an arbitrary session IDentifier.
+
+.TP
+\fBget session\fP
+Inquire registered session identifier and write it to standard output.
 .RE
 
 .SH TRAPS
