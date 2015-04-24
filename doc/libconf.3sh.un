@@ -78,7 +78,7 @@ while the old API remains available.
 The following paragraphs describe the new API. For a description of the old
 API, see section \fBOBSOLETE FUNCTIONS\fP.
 
-.TP
+.TP 4
 \fBconf_init\fP \fIAPI\fP
 Choose between \fBold\fP or \fBnew\fP API (see \fBAPIs\fP).
 
