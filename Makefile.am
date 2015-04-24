@@ -48,9 +48,10 @@ dist_noinst_DATA	= LICENSE
 ##----------------------------------------------------------------------------
 dist_man_MANS		= doc/dl_atload.3sh doc/dl_atexit.3sh		\
 			  doc/dl_exit.3sh doc/dl_init.3sh		\
-			  doc/dl_load.3sh doc/conf_get.3sh		\
-			  doc/conf_getenv.3sh doc/conf_has.3sh		\
-			  doc/conf_init.3sh doc/conf_put.3sh
+			  doc/dl_load.3sh doc/dl_meta.3sh		\
+			  doc/conf_get.3sh doc/conf_getenv.3sh		\
+			  doc/conf_has.3sh doc/conf_init.3sh		\
+			  doc/conf_put.3sh
 
 ##----------------------------------------------------------------------------
 ##  Finish and install scripts, libraries, manpages, and package data:

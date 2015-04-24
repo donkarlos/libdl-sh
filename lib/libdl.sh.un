@@ -21,15 +21,36 @@
 ##  AUTHOR(S):	ks	Karl Schmitz <ks@computerlabor.org>
 ##
 ##  WRITTEN BY:	ks	2013-02-12
-##  CHANGED BY:
+##  CHANGED BY:	ks	2015-04-23	Implement meta operations.
 ##----------------------------------------------------------------------------
 ##  Global variables:
 #-----------------------------------------------------------------------------
+dl_api=0				## Define API version.
 dl_libpath=`@bindir@/libdl-sh path` || exit 127
 dl_atloads=:
 dl_atexits='exit $status'
 dl_loaded=:dl:
 dl_needed=
+readonly dl_api
+
+##----------------------------------------------------------------------------
+##  dl_meta(META [ARG ...])	Perform META operation (with ARGs)
+##----------------------------------------------------------------------------
+dl_meta () {
+    case $1-$2 in			## Which META operation?
+	get-apis)			## Inquire APIs...
+	    cat <<EOF
+$dl_api:,meta,init,atload,load,atexit,exit,
+EOF
+	    ;;
+	get-api|get-libpath|get-atloads|get-atexits|get-loaded)
+					## Inquire internal variable...
+	    eval 'echo "$dl_'"$2"'"'		;;
+	*)				## Anything else...
+	    return 2			## Indicate usage error!
+	    ;;
+    esac
+}
 
 ##----------------------------------------------------------------------------
 ##  dl_init(LIBPATH)		Prepend LIBPATH to library search path

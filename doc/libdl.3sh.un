@@ -20,14 +20,14 @@
 .\# AUTHOR(S):	ks	Karl Schmitz <ks@computerlabor.org>
 .\#
 .\# WRITTEN BY:	ks	2013-08-17
-.\# CHANGED BY:
+.\# CHANGED BY:	ks	2015-04-23	Implement meta operations.
 .\#
 .\# NOTE: (1)	Please adjust below date whenever revising the manual page.
 .\#		vvvvvv
-.TH LIBDL 3SH 2013-08-17 "@PACKAGE_TARNAME@ @PACKAGE_VERSION@" "Shell Programming"
+.TH LIBDL 3SH 2015-04-23 "@PACKAGE_TARNAME@ @PACKAGE_VERSION@" "Shell Programming"
 
 .SH NAME
-dl_init, dl_atload, dl_load, dl_atexit, dl_exit \- Demand-load POSIX shell libraries
+dl_init, dl_atload, dl_load, dl_atexit, dl_exit, dl_meta \- Demand-load POSIX shell libraries
 
 .SH SYNOPSIS
 \fBeval "`libdl-sh load`"\fP
@@ -41,6 +41,8 @@ dl_init, dl_atload, dl_load, dl_atexit, dl_exit \- Demand-load POSIX shell libra
 \fBdl_atexit\fP \fIHOOK\fP
 .br
 \fBdl_exit\fP [\fISTATUS\fP=$?]
+.br
+\fBdl_meta\fP \fIMETA\fP [\fIARG\fP ...]
 
 .SH DESCRIPTION
 The demand-loading library \fBlibdl.sh\fP and its helper \fBlibdl-sh\fP are the
@@ -61,6 +63,9 @@ hooks (i.e., functions invoked before ultimately terminating execution) with
 Applications and/or libraries terminate execution by either \fBexit\fPing or
 invoking \fBdl_exit\fP, thereby triggering invocation of registered exit-time
 hooks.
+
+Applications and/or libraries wishing to inquire or modify certain library
+internals may do so by performing meta operations.
 
 .SH FUNCTIONS
 .TP +4
@@ -105,6 +110,41 @@ Terminate execution by invoking registered exit-time hooks and \fBexit\fPing
 with \fISTATUS\fP. All registered exit-time hooks are invoked in LRFI
 (last-registered first-invoked) order with \fISTATUS\fP as the only argument;
 their return status is ignored by \fBdl_exit\fP.
+
+.TP +4
+\fBdl_meta\fP \fIMETA\fP [\fIARG\fP ...]
+Perform one of \fBlibdl.sh\fP's meta operations. These allow to inquire or
+modify certain library internals in a controlled manner. Currently, the
+following meta operations are implemented:
+.RS +4
+.TP +4
+\fBget api\fP
+Inquire current API version (\fB0\fP) and write it to standard output.
+
+.TP +4
+\fBget apis\fP
+Inquire available API versions and write them to standard output. Each API
+version is represented by a line of two colon-separated fields: \fIVERSION\fP
+and \fISIGNATURE\fP, where the latter is a denormalized (i.e., with leading
+and trailing separator) comma-separated list of function names with the
+\fBdl_\fP prefix stripped.
+
+Thus, if you want to know which API versions of \fBlibdl.sh\fP provide
+\fBdl_atload()\fP, you'd invoke:
+
+.in +4
+\fBdl_meta get apis | sed '/,atload,/!d;s/:.*$//'\fP
+.in -4
+
+.TP +4
+\fBget libpath\fP
+Inquire current library search path (LSP) and write it to standard output.
+
+.TP +4
+\fBget loaded\fP
+Inquire (denormalized colon-separated) list of loaded libraries and write it
+to standard output.
+.RE
 
 .SH TRAPS
 In order to have "naïve" applications benefit from \fBlibdl.sh\fP's exit-time
