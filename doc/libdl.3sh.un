@@ -71,7 +71,7 @@ Applications and/or libraries wishing to inquire or modify certain library
 internals may do so by performing meta operations.
 
 .SH FUNCTIONS
-.TP +4
+.TP 4
 \fBdl_init\fP \fILIBPATH\fP
 Prepend \fILIBPATH\fP, a colon-separated list of library search path items
 (i.e., directories containing demand-loadable libraries) to the library search
@@ -81,7 +81,7 @@ Applications may invoke \fBdl_init\fP to augment the library search path with
 private library directories. They should do so only once and before invoking
 \fBdl_load\fP to load more libraries.
 
-.TP +4
+.TP
 \fBdl_atload\fP \fIHOOK\fP
 Register load-time \fIHOOK\fP by pushing it onto the stack of load-time hooks
 maintained by \fBlibdl.sh\fP.
@@ -94,7 +94,7 @@ If some load-time hook fails (i.e., returns non-zero status), \fBdl_load\fP
 terminates execution by invoking \fBdl_exit\fP with the status returned by the
 failing hook.
 
-.TP +4
+.TP
 \fBdl_load\fP \fILIB\fP ...
 Demand-load each given shell library \fILIB\fP into the application by looking
 for \fBlib\fP\fILIB\fP\fB.sh\fP along the library search path and sourcing the
@@ -114,23 +114,23 @@ with \fISTATUS\fP. All registered exit-time hooks are invoked in LRFI
 (last-registered first-invoked) order with \fISTATUS\fP as the only argument;
 their return status is ignored by \fBdl_exit\fP.
 
-.TP +4
+.TP
 \fBdl_which\fP \fILIB\fP
 Try to locate shell library \fILIB\fP on the library search path and write its
 absolute pathname to standard output if it's found. Otherwise, return status
 \fB127\fP.
 
-.TP +4
+.TP
 \fBdl_meta\fP \fIMETA\fP [\fIARG\fP ...]
 Perform one of \fBlibdl.sh\fP's meta operations. These allow to inquire or
 modify certain library internals in a controlled manner. Currently, the
 following meta operations are implemented:
-.RS +4
-.TP +4
+.RS 4
+.TP 4
 \fBget api\fP
 Inquire current API version (\fB0\fP) and write it to standard output.
 
-.TP +4
+.TP
 \fBget apis\fP
 Inquire available API versions and write them to standard output. Each API
 version is represented by a line of two colon-separated fields: \fIVERSION\fP
@@ -145,11 +145,11 @@ Thus, if you want to know which API versions of \fBlibdl.sh\fP provide
 \fBdl_meta get apis | sed '/,atload,/!d;s/:.*$//'\fP
 .in -4
 
-.TP +4
+.TP
 \fBget libpath\fP
 Inquire current library search path (LSP) and write it to standard output.
 
-.TP +4
+.TP
 \fBget loaded\fP
 Inquire (denormalized colon-separated) list of loaded libraries and write it
 to standard output.
