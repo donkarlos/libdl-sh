@@ -74,8 +74,9 @@ dl_atload () {
 dl_load () {
     local lib needed path
 
-    test -n "$dl_needed" || { path=$PATH; PATH=$dl_libpath${PATH+:$PATH}; }
-					## Augment path.
+    case $dl_needed in
+	'') path=$PATH; PATH=$dl_libpath${PATH+:$PATH}	;;
+    esac				## Augment path when necessary.
     for lib in ${1+"$@"}; do		## Foreach demanded library do...
 	case $dl_loaded$dl_needed in	## Is it already loaded or needed?
 	    *:$lib:*)			## Yes, skip it.
@@ -88,7 +89,9 @@ dl_load () {
 		;;			## mark it as loaded, and invoke load-
 	esac				## time hooks.
     done
-    test -n "$dl_needed" || PATH=$path	## Restore path.
+    case $dl_needed in
+	'') PATH=$path	;;		## Restore path when necessary.
+    esac
 }
 
 ##----------------------------------------------------------------------------
