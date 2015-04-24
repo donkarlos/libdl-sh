@@ -46,6 +46,8 @@ EOF
 	get-api|get-libpath|get-atloads|get-atexits|get-loaded)
 					## Inquire internal variable...
 	    eval 'echo "$dl_'"$2"'"'		;;
+	pre-libpath)			## Prepend to library search path...
+	    eval 'dl_'"$2"'=${3+$3:}$dl_'"$2"	;;
 	*)				## Anything else...
 	    return 2			## Indicate usage error!
 	    ;;
@@ -56,7 +58,7 @@ EOF
 ##  dl_init(LIBPATH)		Prepend LIBPATH to library search path
 ##----------------------------------------------------------------------------
 dl_init () {
-    dl_libpath=${1+$1:}$dl_libpath
+    dl_meta pre libpath ${1+"$1"}
 }
 
 ##----------------------------------------------------------------------------
