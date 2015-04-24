@@ -53,7 +53,7 @@ dist_man_MANS		= doc/dl_atload.3sh doc/dl_atexit.3sh		\
 			  doc/conf_init.3sh doc/conf_put.3sh
 
 ##----------------------------------------------------------------------------
-##  Finalize and install scripts, libraries, manpages, and package data:
+##  Finish and install scripts, libraries, manpages, and package data:
 ##----------------------------------------------------------------------------
 bin_SCRIPTS		= bin/libdl-sh
 pkgdata_SCRIPTS		= auto/gensubst auto/gensubst.sed lib/conf.awk
