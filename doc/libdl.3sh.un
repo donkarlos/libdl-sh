@@ -63,7 +63,7 @@ invoking \fBdl_exit\fP, thereby triggering invocation of registered exit-time
 hooks.
 
 .SH FUNCTIONS
-.TP
+.TP +4
 \fBdl_init\fP \fILIBPATH\fP
 Prepend \fILIBPATH\fP, a colon-separated list of library search path items
 (i.e., directories containing demand-loadable libraries) to the library search
@@ -73,7 +73,7 @@ Applications may invoke \fBdl_init\fP to augment the library search path with
 private library directories. They should do so only once and before invoking
 \fBdl_load\fP to load more libraries.
 
-.TP
+.TP +4
 \fBdl_atload\fP \fIHOOK\fP
 Register load-time \fIHOOK\fP by pushing it onto the stack of load-time hooks
 maintained by \fBlibdl.sh\fP.
@@ -86,7 +86,7 @@ If some load-time hook fails (i.e., returns non-zero status), \fBdl_load\fP
 terminates execution by invoking \fBdl_exit\fP with the status returned by the
 failing hook.
 
-.TP
+.TP +4
 \fBdl_load\fP \fILIB\fP ...
 Demand-load each given shell library \fILIB\fP into the application by looking
 for \fBlib\fP\fILIB\fP\fB.sh\fP along the library search path and sourcing the
@@ -94,12 +94,12 @@ first one found. If \fILIB\fP can't be loaded (either because it isn't found
 or its initialization commands fail), the application is terminated with
 \fBdl_exit\ 127\fP, thereby invoking registered exit-time hooks.
 
-.TP
+.TP +4
 \fBdl_atexit\fP \fIHOOK\fP
 Register exit-time \fIHOOK\fP by pushing it onto the stack of exit-time hooks
 maintained by \fBlibdl.sh\fP.
 
-.TP
+.TP +4
 \fBdl_exit\fP [\fISTATUS\fP=$?]
 Terminate execution by invoking registered exit-time hooks and \fBexit\fPing
 with \fISTATUS\fP. All registered exit-time hooks are invoked in LRFI
