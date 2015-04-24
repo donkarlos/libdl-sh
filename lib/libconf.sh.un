@@ -22,6 +22,7 @@
 ##
 ##  WRITTEN BY:	ks	2013-02-14
 ##  CHANGED BY:	ks	2013-03-18	Introduce new multi-file API.
+##		ks	2015-04-25	Implement meta operations.
 ##
 ##  NOTE:   (1)	The library just wraps around its 'workhorse' AWK script!
 ##----------------------------------------------------------------------------
@@ -30,6 +31,26 @@
 conf_awk=@pkgdatadir@/conf.awk
 conf_api=old
 readonly conf_awk
+
+##----------------------------------------------------------------------------
+##  conf_meta(META [ARG ...])	Perform META operation (with ARGs)
+##----------------------------------------------------------------------------
+conf_meta () {
+    case $1-$2 in
+	get-apis)
+	    cat <<EOF
+0:,meta,init,exec,has,get,set,unset,getenv,
+1:,meta,init,exec,has,get,put,getenv,
+EOF
+	    ;;
+	get-api|get-awk)
+	    eval 'echo "$conf_'"$2"'"'
+	    ;;
+	*)
+	    return 2
+	    ;;
+    esac
+}
 
 ##----------------------------------------------------------------------------
 ##  conf_init(API)		Select (default) old or new API

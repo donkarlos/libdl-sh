@@ -20,14 +20,15 @@
 .\# AUTHOR(S):	ks	Karl Schmitz <ks@computerlabor.org>
 .\#
 .\# WRITTEN BY:	ks	2014-06-09
-.\# CHANGED BY:
+.\# CHANGED BY:	ks	2015-04-25	Implement meta operations.
 .\#
 .\# NOTE: (1)	Please adjust below date whenever revising the manual page.
 .\#		vvvvvv
-.TH libconf 3SH 2014-06-09 "@PACKAGE_TARNAME@ @PACKAGE_VERSION@" "Shell Programming"
+.TH libconf 3SH 2015-04-25 "@PACKAGE_TARNAME@ @PACKAGE_VERSION@" "Shell Programming"
 
 .SH NAME
-conf_has, conf_get, conf_put, conf_getenv \- Process configuration files
+conf_has, conf_get, conf_put, conf_getenv, conf_meta
+\- Process configuration files
 
 .SH SYNOPSIS (OLD API)
 \fBdl_load conf\fP
@@ -54,6 +55,8 @@ conf_has, conf_get, conf_put, conf_getenv \- Process configuration files
 \fBconf_put\fP \fIITEM\fP[=\fIVALUE\fP] \fICFPN\fP ...
 .br
 \fBconf_getenv\fP \fIVARIABLE\fP \fIITEM\fP[=\fIVALUE\fP] \fICFPN\fP ...
+.br
+\fBconf_meta\fP \fIMETA\fP [\fIARG\fP ...]
 
 .SH DESCRIPTION
 The configuration file processing library \fBlibconf.sh\fP allows applications
@@ -131,6 +134,37 @@ does the latter.
 Unless (environment) \fIVARIABLE\fP is set, behave like \fBconf_get\fP.
 Otherwise, write ${\fIVARIABLE\fP} to standard output, so that it essentially
 overrides \fIITEM\fP's configured value.
+
+.TP
+\fBconf_meta\fP \fIMETA\fP [\fIARG\fP ...]
+Perform one of \fBlibconf.sh\fP's meta operations. These allow to inquire or
+modify certain library internals in a controlled manner. Currently, the
+following meta operations are implemented:
+.RS 4
+.TP 4
+\fBget api\fP
+Inquire current API version and write it to standard output.
+
+.TP
+\fBget apis\fP
+Inquire available API versions and write them to standard output. Each API
+version is represented by a line of two colon-separated fields: \fIVERSION\fP
+and \fISIGNATURE\fP, where the latter is a denormalized (i.e., with leading
+and trailing separator) comma-separated list of function names with the
+\fBconf_\fP prefix stripped.
+
+Thus, if you want to know which API versions of \fBlibconf.sh\fP provide
+\fBconf_put()\fP, you'd invoke:
+
+.in +4
+\fBconf_meta get apis | sed '/,put,/!d;s/:.*$//'\fP
+.in -4
+
+.TP
+\fBget awk\fP
+Inquire absolute pathname of 'workhorse' AWK script and write it to standard
+output.
+.RE
 
 .SH SEE ALSO
 .BR dl_load (3sh),
