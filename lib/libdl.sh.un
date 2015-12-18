@@ -69,7 +69,7 @@ dl_init () {
 ##  dl_which(LIB)		Locate LIBrary on library search path
 ##----------------------------------------------------------------------------
 dl_which () {
-    local ifs lib=$1 item
+    local ifs lib="$1" item
 
     ifs=$IFS; IFS=:; set shiftee `sed '
 	s/^/:/;s/$/:/;:1		## Let empty items explicitly refer
@@ -127,7 +127,7 @@ dl_atexit () {
 ##  dl_exit([STATUS=$?])	Terminate program with STATUS
 ##----------------------------------------------------------------------------
 dl_exit () {
-    local status=${1-$?}		## Fetch exit status ($dl_atexits re-
+    local status="${1-$?}"		## Fetch exit status ($dl_atexits re-
 					## fers to it!), unregister exit trap,
     trap '' 0; eval "$dl_atexits"	## and invoke exit-time hooks.
 }
