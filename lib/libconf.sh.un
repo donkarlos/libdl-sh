@@ -87,7 +87,7 @@ EOF
 	    return 2
 	    ;;
 	new:*)
-	    local item=$1; shift
+	    local item="$1"; shift
 
 	    "$conf_awk" ${1+"$@"} - <<EOF
 has $item
@@ -112,7 +112,7 @@ EOF
 	    return 2
 	    ;;
 	new:*)
-	    local item=$1; shift
+	    local item="$1"; shift
 
 	    "$conf_awk" ${1+"$@"} - <<EOF
 get $item
@@ -147,7 +147,7 @@ conf_put () {
 	    return 2
 	    ;;
 	new:*)
-	    local item=$1; shift
+	    local item="$1"; shift
 
 	    "$conf_awk" ${1+"$@"} - <<EOF
 put $item
