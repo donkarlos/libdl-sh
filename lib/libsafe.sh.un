@@ -74,7 +74,7 @@ safe_mkdir () {
 ##  safe_chdir(DPN)		Safely change directory
 ##----------------------------------------------------------------------------
 safe_chdir () {
-    local d=`pwd`; cd "$1" && undo_push cd "$d" '2>/dev/null'
+    local d="`pwd`"; cd "$1" && undo_push cd "$d" '2>/dev/null'
 }
 
 ##----------------------------------------------------------------------------
@@ -173,7 +173,7 @@ safe_lock () {
 ##  safe_wait(PN [SECONDS=30])	Try locking PN within SECONDS seconds
 ##----------------------------------------------------------------------------
 safe_wait () {
-    local seconds=${2-30}
+    local seconds="${2-30}"
 
     until safe_lock "$1"; do		## Until we lock map file do...
 	test -d "$1~lock" || return 1	## Cond. indic. failure to lock at all.
