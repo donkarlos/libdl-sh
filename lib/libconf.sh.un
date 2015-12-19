@@ -76,8 +76,8 @@ conf_exec () {
 }
 
 ##----------------------------------------------------------------------------
-##  conf_has(CFPN ITEM)							[OLD]
-##  conf_has(ITEM[=VALUE] CFPN ...)					[NEW]
+##  conf_has(CFPN ITEM)						[API 0]
+##  conf_has(ITEM[=VALUE] CFPN ...)				[API 1]
 ##				(Some) Configuration file CFPN has ITEM?
 ##----------------------------------------------------------------------------
 conf_has () {
@@ -101,8 +101,8 @@ EOF
 }
 
 ##----------------------------------------------------------------------------
-##  conf_get(CFPN ITEM [VALUE])						[OLD]
-##  conf_get(ITEM[=VALUE] CFPN ...)					[NEW]
+##  conf_get(CFPN ITEM [VALUE])					[API 0]
+##  conf_get(ITEM[=VALUE] CFPN ...)				[API 1]
 ##				Get ITEM from (some) CFPN (or VALUE)
 ##----------------------------------------------------------------------------
 conf_get () {
@@ -126,7 +126,7 @@ EOF
 }
 
 ##----------------------------------------------------------------------------
-##  conf_set(CFPN ITEM VALUE)	Set ITEM to VALUE in CFPN		[OLD]
+##  conf_set(CFPN ITEM VALUE)	Set ITEM to VALUE in CFPN	[API 0]
 ##----------------------------------------------------------------------------
 conf_set () {
     case $conf_api:$# in
@@ -142,7 +142,7 @@ EOF
 }
 
 ##----------------------------------------------------------------------------
-##  conf_put(ITEM[=VALUE] CFPN ...)					[NEW]
+##  conf_put(ITEM[=VALUE] CFPN ...)				[API 1]
 ##				Unset ITEM/Set ITEM to VALUE in last CFPN
 ##----------------------------------------------------------------------------
 conf_put () {
@@ -161,24 +161,24 @@ EOF
 }
 
 ##----------------------------------------------------------------------------
-##  conf_unset(CFPN ITEM)	Unset ITEM in CFPN			[OLD]
+##  conf_unset(CFPN ITEM)	Unset ITEM in CFPN		[API 0]
 ##----------------------------------------------------------------------------
 conf_unset () {
     case $conf_api:$# in
-	old:2)
+	0:2)
 	    "$conf_awk" "$1" - <<EOF
 put $2
 EOF
 	    ;;
-	old:*|new:*)
+	0:*|1:*)
 	    return 2
 	    ;;
     esac
 }
 
 ##----------------------------------------------------------------------------
-##  conf_getenv(VARIABLE CFPN ITEM [VALUE])				[OLD]
-##  conf_getenv(VARIABLE ITEM[=VALUE] CFPN ...)				[NEW]
+##  conf_getenv(VARIABLE CFPN ITEM [VALUE])			[API 0]
+##  conf_getenv(VARIABLE ITEM[=VALUE] CFPN ...)			[API 1]
 ##				Get ITEM from VARIABLE or CFPN (or VALUE)
 ##----------------------------------------------------------------------------
 conf_getenv () {
