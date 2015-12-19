@@ -23,13 +23,14 @@
 ##  WRITTEN BY:	ks	2013-02-14
 ##  CHANGED BY:	ks	2013-03-18	Introduce new multi-file API.
 ##		ks	2015-04-25	Implement meta operations.
+##		ks	2015-12-18	Use numeric API versions.
 ##
 ##  NOTE:   (1)	The library just wraps around its 'workhorse' AWK script!
 ##----------------------------------------------------------------------------
 ##  Global variables:
 #-----------------------------------------------------------------------------
+conf_api=0				## Default API version.
 conf_awk=@pkgdatadir@/conf.awk
-conf_api=old
 readonly conf_awk
 
 ##----------------------------------------------------------------------------
@@ -57,13 +58,13 @@ EOF
 }
 
 ##----------------------------------------------------------------------------
-##  conf_init(API)		Select (default) old or new API
+##  conf_init(API)		Select API version 0 (default) or 1
 ##----------------------------------------------------------------------------
 conf_init () {
     case $1 in
-	old|new)
-	    conf_api=$1	;;
-	*)  return 1	;;
+	old)	conf_meta set api 0	;;
+	new)	conf_meta set api 1	;;
+	*)	conf_meta set api "$1"	;;
     esac
 }
 
@@ -82,15 +83,15 @@ conf_exec () {
 ##----------------------------------------------------------------------------
 conf_has () {
     case $conf_api:$# in
-	old:2)
+	0:2)
 	    "$conf_awk" "$1" - <<EOF
 has $2
 EOF
 	    ;;
-	old:*|new:0)
+	0:*|1:0)
 	    return 2
 	    ;;
-	new:*)
+	1:*)
 	    local item="$1"; shift
 
 	    "$conf_awk" ${1+"$@"} - <<EOF
@@ -107,15 +108,15 @@ EOF
 ##----------------------------------------------------------------------------
 conf_get () {
     case $conf_api:$# in
-	old:[23])
+	0:[23])
 	    "$conf_awk" "$1" - <<EOF
 get $2${3+=$3}
 EOF
 	    ;;
-	old:*|new:0)
+	0:*|1:0)
 	    return 2
 	    ;;
-	new:*)
+	1:*)
 	    local item="$1"; shift
 
 	    "$conf_awk" ${1+"$@"} - <<EOF
@@ -130,12 +131,12 @@ EOF
 ##----------------------------------------------------------------------------
 conf_set () {
     case $conf_api:$# in
-	old:3)
+	0:3)
 	    "$conf_awk" "$1" - <<EOF
 put $2=$3
 EOF
 	    ;;
-	old:*|new:*)
+	0:*|1:*)
 	    return 2
 	    ;;
     esac
@@ -147,10 +148,10 @@ EOF
 ##----------------------------------------------------------------------------
 conf_put () {
     case $conf_api:$# in
-	old:*|new:0)
+	0:*|1:0)
 	    return 2
 	    ;;
-	new:*)
+	1:*)
 	    local item="$1"; shift
 
 	    "$conf_awk" ${1+"$@"} - <<EOF
