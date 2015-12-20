@@ -135,11 +135,11 @@ following meta operations are implemented:
 Inquire available API versions and write them to standard output. Each API
 version is represented by a line of two colon-separated fields: \fIVERSION\fP
 and \fISIGNATURE\fP, where the latter is a denormalized (i.e., with leading
-and trailing separator) comma-separated list of function names with the
-\fBconf_\fP prefix stripped.
+and trailing separator) comma-separated list of function names with the prefix
+\fBconf_\fP removed.
 
 Thus, if you want to know which API versions of \fBlibconf.sh\fP provide
-\fBconf_put()\fP, you'd invoke:
+\fBconf_put\fP(3sh), you'd invoke:
 
 .in +4
 \fBconf_meta get apis | sed '/,put,/!d;s/:.*$//'\fP
