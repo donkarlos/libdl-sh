@@ -35,7 +35,7 @@ conf_has, conf_get, conf_put, conf_getenv, conf_meta
 
 \fBconf_has\fP \fICFPN\fP \fIITEM\fP
 .br
-\fBconf_get\fB \fICFPN\fP \fIITEM\fP [\fIVALUE\fP]
+\fBconf_get\fP \fICFPN\fP \fIITEM\fP [\fIVALUE\fP]
 .br
 \fBconf_set\fP \fICFPN\fP \fIITEM\fP \fIVALUE\fP
 .br
@@ -48,13 +48,13 @@ conf_has, conf_get, conf_put, conf_getenv, conf_meta
 .br
 \fBconf_init new\fP
 
-\fBconf_has\fP \fIITEM\fP[=\fIVALUE\fP] \fICFPN\fP ...
+\fBconf_has\fP \fIITEM\fP[\fB=\fP\fIVALUE\fP] \fICFPN\fP ...
 .br
-\fBconf_get\fP \fIITEM\fP[=\fIVALUE\fP] \fICFPN\fP ...
+\fBconf_get\fP \fIITEM\fP[\fB=\fP\fIVALUE\fP] \fICFPN\fP ...
 .br
-\fBconf_put\fP \fIITEM\fP[=\fIVALUE\fP] \fICFPN\fP ...
+\fBconf_put\fP \fIITEM\fP[\fB=\fP\fIVALUE\fP] \fICFPN\fP ...
 .br
-\fBconf_getenv\fP \fIVARIABLE\fP \fIITEM\fP[=\fIVALUE\fP] \fICFPN\fP ...
+\fBconf_getenv\fP \fIVARIABLE\fP \fIITEM\fP[\fB=\fP\fIVALUE\fP] \fICFPN\fP ...
 .br
 \fBconf_meta\fP \fIMETA\fP [\fIARG\fP ...]
 
