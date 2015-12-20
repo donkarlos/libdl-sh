@@ -84,19 +84,6 @@ The following paragraphs describe API 1. For a description of API 0 and other
 deprecated functions, see section \fBDEPRECATED FUNCTIONS\fP.
 
 .TP 4
-\fBconf_init\fP \fIAPI\fP
-Choose between \fBold\fP or \fBnew\fP API (see \fBAPIs\fP).
-
-Note that applications wanting to use the new API must invoke
-
-.in +4
-\fBconf_init new\fP
-.in -4
-
-(e.g., in their registered load-time hook) before invoking any of the
-following functions.
-
-.TP
 \fBconf_has\fP \fIITEM\fP[=\fIVALUE\fP] \fICFPN\fP ...
 Check if \fIITEM\fP exists in stacked configuration space created by file(s)
 \fICFPN\fP. Return status \fB0\fP if it does or \fB1\fP otherwise.
@@ -181,6 +168,12 @@ The following paragraphs describe the deprecated functions (and how they ought
 to be migrated to API 1).
 
 .TP 4
+\fBconf_init\fP \fINAME\fP|\fIVERSION\fP
+Select API by \fINAME\fP or \fIVERSION\fP, where \fINAME\fP is either
+\fBold\fP (API 0) or \fBnew\fP (API 1), and \fIVERSION\fP is any API version
+accepted by \fBconf_meta set api\fP.
+
+.TP
 \fBconf_has\fP \fICFPN\fP \fIITEM\fP
 With API 1, becomes:
 \fBconf_has\fP \fIITEM\fP \fICFPN\fP
