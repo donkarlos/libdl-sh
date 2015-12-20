@@ -80,8 +80,8 @@ to maintain persistent configuration in files with a format similar to that of
 \fBgit-config\fP(1) by getting, setting, or unsetting configuration items.
 
 .SH FUNCTIONS
-The following paragraphs describe the new API. For a description of the old
-API, see section \fBOBSOLETE FUNCTIONS\fP.
+The following paragraphs describe API 1. For a description of API 0 and other
+deprecated functions, see section \fBDEPRECATED FUNCTIONS\fP.
 
 .TP 4
 \fBconf_init\fP \fIAPI\fP
@@ -172,6 +172,38 @@ library and can (successfully) only be done once.
 Inquire absolute pathname of 'workhorse' AWK script and write it to standard
 output.
 .RE
+
+.SH DEPRECATED FUNCTIONS
+Release 0.3.5 deprecates \fBlibconf.sh\fP API 0 and \fBconf_init\fP(3sh).
+Both will be withdrawn by release 0.4.
+
+The following paragraphs describe the deprecated functions (and how they ought
+to be migrated to API 1).
+
+.TP 4
+\fBconf_has\fP \fICFPN\fP \fIITEM\fP
+With API 1, becomes:
+\fBconf_has\fP \fIITEM\fP \fICFPN\fP
+
+.TP
+\fBconf_get\fP \fICFPN\fP \fIITEM\fP [\fIVALUE\fP]
+With API 1, becomes:
+\fBconf_get\fP \fIITEM\fP[\fB=\fP\fIVALUE\fP] \fICFPN\fP
+
+.TP
+\fBconf_set\fP \fICFPN\fP \fIITEM\fP \fIVALUE\fP
+With API 1, becomes:
+\fBconf_put\fP \fIITEM\fP\fB=\fP\fIVALUE\fP \fICFPN\fP
+
+.TP
+\fBconf_unset\fP \fICFPN\fP \fIITEM\fP
+With API 1, becomes:
+\fBconf_put\fP \fIITEM\fP \fICFPN\fP
+
+.TP
+\fBconf_getenv\fP \fIVARIABLE\fP \fICFPN\fP \fIITEM\fP [\fIVALUE\fP]
+With API 1, becomes:
+\fBconf_getenv\fP \fIVARIABLE\fP \fIITEM\fP[\fB=\fP\fIVALUE\fP] \fICFPN\fP
 
 .SH SEE ALSO
 .BR dl_load (3sh),
