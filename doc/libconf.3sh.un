@@ -84,19 +84,19 @@ The following paragraphs describe API 1. For a description of API 0 and other
 deprecated functions, see section \fBDEPRECATED FUNCTIONS\fP.
 
 .TP 4
-\fBconf_has\fP \fIITEM\fP[=\fIVALUE\fP] \fICFPN\fP ...
+\fBconf_has\fP \fIITEM\fP[\fB=\fP\fIVALUE\fP] \fICFPN\fP ...
 Check if \fIITEM\fP exists in stacked configuration space created by file(s)
 \fICFPN\fP. Return status \fB0\fP if it does or \fB1\fP otherwise.
 
 .TP
-\fBconf_get\fP \fIITEM\fP[=\fIVALUE\fP] \fICFPN\fP ...
+\fBconf_get\fP \fIITEM\fP[\fB=\fP\fIVALUE\fP] \fICFPN\fP ...
 Get value of \fIITEM\fP in stacked configuration space created by file(s)
 \fICFPN\fP (or supply \fIVALUE\fP when given), write it to standard output,
 and return status \fB0\fP. If no value was found or supplied, return status
 \fB1\fP.
 
 .TP
-\fBconf_put\fP \fIITEM\fP[=\fIVALUE\fP] \fICFPN\fP ...
+\fBconf_put\fP \fIITEM\fP[\fB=\fP\fIVALUE\fP] \fICFPN\fP ...
 If \fIVALUE\fP is given, assign it to \fIITEM\fP (existing or created) in
 the topmost file \fICFPN\fP of stacked configuration space, and update that
 file if necessary. Otherwise, remove \fIITEM\fP from the topmost file
@@ -119,7 +119,7 @@ does the first, whereas
 does the latter.
 
 .TP
-\fBconf_getenv\fP \fIVARIABLE\fP \fIITEM\fP[=\fIVALUE\fP] \fICFPN\fP ...
+\fBconf_getenv\fP \fIVARIABLE\fP \fIITEM\fP[\fB=\fP\fIVALUE\fP] \fICFPN\fP ...
 Unless (environment) \fIVARIABLE\fP is set, behave like \fBconf_get\fP.
 Otherwise, write ${\fIVARIABLE\fP} to standard output, so that it essentially
 overrides \fIITEM\fP's configured value.
