@@ -48,8 +48,8 @@ unify selection of library APIs by means of numeric versions instead of
 arbitrary names. Consequently, \fBlibconf.sh\fP's old and new API have been
 renamed to API 0 and 1, respectively.
 
-.SH SYNOPSIS (OLD API)
-\fBdl_load conf\fP
+.SH SYNOPSIS (API 0)
+\fBdl_load conf\fP [\fB&& conf_meta set api 0\fP]
 
 \fBconf_has\fP \fICFPN\fP \fIITEM\fP
 .br
@@ -61,10 +61,8 @@ renamed to API 0 and 1, respectively.
 .br
 \fBconf_getenv\fP \fIVARIABLE\fP \fICFPN\fP \fIITEM\fP [\fIVALUE\fP]
 
-.SH SYNOPSIS (NEW API)
-\fBdl_load conf\fP
-.br
-\fBconf_init new\fP
+.SH SYNOPSIS (API 1)
+\fBdl_load conf && conf_meta set api 1\fP
 
 \fBconf_has\fP \fIITEM\fP[\fB=\fP\fIVALUE\fP] \fICFPN\fP ...
 .br
@@ -163,6 +161,11 @@ Thus, if you want to know which API versions of \fBlibconf.sh\fP provide
 .TP
 \fBget api\fP
 Inquire selected API version and write it to standard output.
+
+.TP
+\fBset api\fP \fIVERSION\fP
+Select API \fIVERSION\fP. This should be done right after demand-loading this
+library and can (successfully) only be done once.
 
 .TP
 \fBget awk\fP
