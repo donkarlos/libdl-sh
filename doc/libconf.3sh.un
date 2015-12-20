@@ -21,10 +21,11 @@
 .\#
 .\# WRITTEN BY:	ks	2014-06-09
 .\# CHANGED BY:	ks	2015-04-25	Implement meta operations.
+.\#		ks	2015-12-18	Use numeric API versions.
 .\#
 .\# NOTE: (1)	Please adjust below date whenever revising the manual page.
 .\#		vvvvvv
-.TH libconf 3SH 2015-04-25 "@PACKAGE_TARNAME@ @PACKAGE_VERSION@" "Shell Programming"
+.TH libconf 3SH 2015-12-18 "@PACKAGE_TARNAME@ @PACKAGE_VERSION@" "Shell Programming"
 
 .SH NAME
 conf_has, conf_get, conf_put, conf_getenv, conf_meta
