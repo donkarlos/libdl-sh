@@ -47,7 +47,7 @@ dist_noinst_DATA	= LICENSE
 ##  Distribute and install manpages:
 ##----------------------------------------------------------------------------
 dist_man_MANS		= doc/dl_atload.3sh doc/dl_atexit.3sh		\
-			  doc/dl_exit.3sh doc/dl_init.3sh		\
+			  doc/dl_exit.3sh				\
 			  doc/dl_load.3sh doc/dl_meta.3sh		\
 			  doc/conf_get.3sh doc/conf_getenv.3sh		\
 			  doc/conf_has.3sh doc/conf_init.3sh		\
