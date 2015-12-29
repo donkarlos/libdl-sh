@@ -36,8 +36,9 @@ readonly BQ DQ SQ BS CS DS QB QE CR NL
 ##----------------------------------------------------------------------------
 ##  Global variables:
 ##----------------------------------------------------------------------------
+quote_api=0				## Define API version.
 quote_sh_sedex="s/$SQ/$SQ$BS$BS$SQ$SQ/g;s/^/$SQ/;s/$DS/$SQ/"
-readonly quote_sh_sedex
+readonly quote_api quote_sh_sedex
 
 ##----------------------------------------------------------------------------
 ##  quote_sh(STRING)		Quote STRING for sh(1)
