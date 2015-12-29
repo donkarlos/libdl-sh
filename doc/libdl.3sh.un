@@ -121,10 +121,10 @@ Inquire available API versions and write them to standard output. Each API
 version is represented by a line of two colon-separated fields: \fIVERSION\fP
 and \fISIGNATURE\fP, where the latter is a denormalized (i.e., with leading
 and trailing separator) comma-separated list of function names with the
-\fBdl_\fP prefix stripped.
+\fBdl_\fP prefix removed.
 
 Thus, if you want to know which API versions of \fBlibdl.sh\fP provide
-\fBdl_atload()\fP, you'd invoke:
+\fBdl_atload\fP(3sh), you'd invoke:
 
 .in +4
 \fBdl_meta get apis | sed '/,atload,/!d;s/:.*$//'\fP
