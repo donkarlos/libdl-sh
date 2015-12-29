@@ -52,7 +52,10 @@ dist_man_MANS		= doc/dl_atload.3sh doc/dl_atexit.3sh		\
 			  doc/dl_meta.3sh doc/dl_which.3sh		\
 			  doc/conf_get.3sh doc/conf_getenv.3sh		\
 			  doc/conf_has.3sh doc/conf_init.3sh		\
-			  doc/conf_meta.3sh doc/conf_put.3sh
+			  doc/conf_meta.3sh doc/conf_put.3sh		\
+			  doc/quote_command.3sh doc/quote_egrep.3sh	\
+			  doc/quote_grep.3sh doc/quote_meta.3sh		\
+			  doc/quote_sed.3sh doc/quote_sh.3sh
 
 ##----------------------------------------------------------------------------
 ##  Finish and install scripts, libraries, manpages, and package data:
