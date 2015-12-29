@@ -94,11 +94,20 @@ conf_init () {
 }
 
 ##----------------------------------------------------------------------------
-##  conf_exec(CFPN ...)		Process configuration file(s) CFPN by
+##  conf_exec(CFPN)						[API 0]
+##  conf_exec(CFPN ...)						[API 1]
+##				Process configuration file(s) CFPN by
 ##				executing commands from standard input
 ##----------------------------------------------------------------------------
 conf_exec () {
-    "$conf_awk" ${1+"$@"} -
+    case $conf_api:$# in
+	0:1|1:*)
+	    "$conf_awk" ${1+"$@"} -
+	    ;;
+	*)
+	    return 2
+	    ;;
+    esac
 }
 
 ##----------------------------------------------------------------------------
