@@ -57,7 +57,7 @@ search path by parsing its configuration, more libraries may be loaded by
 invoking \fBdl_load\fP.
 
 Applications having private library directories may augment the library search
-path by invoking \fBdl_init\fP before loading more libraries.
+path by invoking \fBdl_meta pre libpath\fP before loading more libraries.
 
 Applications and/or libraries may also register load-time hooks (i.e.,
 functions invoked after successfully loading a library) as well as exit-time
@@ -145,6 +145,16 @@ Thus, if you want to know which API versions of \fBlibdl.sh\fP provide
 .in +4
 \fBdl_meta get apis | sed '/,atload,/!d;s/:.*$//'\fP
 .in -4
+
+.TP
+\fBpre libpath\fP \fILIBPATH\fP
+Prepend \fILIBPATH\fP, a colon-separated list of library search path items
+(i.e., directories containing demand-loadable libraries) to the library search
+path (LSP) maintained by \fBlibdl.sh\fP.
+
+Applications may invoke \fBdl_meta pre libpath\fP to augment the library
+search path with private library directories. They should do so only once and
+before invoking \fBdl_load\fP to load more libraries.
 
 .TP
 \fBget libpath\fP
