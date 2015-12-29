@@ -164,6 +164,13 @@ Register an arbitrary session IDentifier.
 Inquire registered session identifier and write it to standard output.
 .RE
 
+.SH DEPRECATED FUNCTIONS
+Release 0.3.6 deprecates \fBdl_init\fP(3sh). It will be withdrawn by release
+0.4.
+
+The following paragraphs describe the deprecated functions (and how they ought
+to be migrated).
+
 .SH TRAPS
 In order to have "naïve" applications benefit from \fBlibdl.sh\fP's exit-time
 hook mechanism, the demand-loading library changes the exit trap with
