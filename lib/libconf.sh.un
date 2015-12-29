@@ -73,7 +73,7 @@ EOF
 	    eval 'echo "$conf_'"$2"'"'
 	    ;;
 	set-api)
-	    conf_meta get apis | grep "^$3:" >/dev/null 2>&1 || return 1
+	    conf_meta get apis api | fgrep -qxe "$3" || return 1
 	    eval 'conf_'"$2"'=$3; readonly conf_'"$2"
 	    ;;
 	*)
