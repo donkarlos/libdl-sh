@@ -155,7 +155,7 @@ to standard output.
 
 .TP
 \fBset session\fP \fIID\fP
-Register an arbitrary session IDentifier.
+Register an arbitrary session \fIID\fPentifier.
 
 .TP
 \fBget session\fP
