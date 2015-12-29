@@ -37,11 +37,36 @@ readonly conf_awk
 ##  conf_meta(META [ARG ...])	Perform META operation (with ARGs)
 ##----------------------------------------------------------------------------
 conf_meta () {
-    case $1-$2 in
-	get-apis)
-	    cat <<EOF
-0:,meta,init,exec,has,get,set,unset,getenv,
-1:,meta,init,exec,has,get,put,getenv,
+    local sx sxb='/^b:/!d;s///' sxf='/^f:/!d;s///'
+    local sx1='s/:.*$//' sx2='s/:/:conf_/' sx3='s/([^):(]*):/:/'
+
+    case $1-$2 in			## Which META operation?
+	get-apis)			## Inquire APIs...
+	    case ${3-brief} in		## Which format?
+		api)	sx="$sxb;$sx1"			;;
+		brief)	sx="$sxb"';s/:/:,/;s/$/,/'	;;
+		full)   sx="$sxf;$sx2${4+;$4}"		;;
+		list)	sx="$sxf;$sx2;$sx3${4+;$4}"	;;
+		*)	return 1			;;
+	    esac
+	    sed "$sx" <<EOF
+b:0:meta,init,exec,has,get,set,unset,getenv
+f:0:meta(META [ARG ...]):2-
+f:0:init(API):1
+f:0:exec(CFPN):1
+f:0:has(CFPN ITEM):2
+f:0:get(CFPN ITEM [VALUE]):2-3
+f:0:set(CFPN ITEM VALUE):3
+f:0:unset(CFPN ITEM):2
+f:0:getenv(VARIABLE CFPN ITEM [VALUE]):3-4
+b:1:meta,init,exec,has,get,put,getenv
+f:1:meta(META [ARG ...]):2-
+f:1:init(API):1
+f:1:exec(CFPN ...):1-
+f:1:has(ITEM[=VALUE] CFPN ...):2-
+f:1:get(ITEM[=VALUE] CFPN ...):2-
+f:1:put(ITEM[=VALUE] CFPN ...):2-
+f:1:getenv(VARIABLE ITEM[=VALUE] CFPN ...):3-
 EOF
 	    ;;
 	get-api|get-awk)
