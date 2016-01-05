@@ -31,6 +31,41 @@ undo_exit0=
 readonly undo_api
 
 ##----------------------------------------------------------------------------
+##  undo_meta(META [ARG ...])	Perform META operation (with ARGs)
+##----------------------------------------------------------------------------
+undo_meta () {
+    local sx sxb='/^b:/!d;s///' sxf='/^f:/!d;s///'
+    local sx1='s/:.*$//' sx2='s/:/:undo_/' sx3='s/([^):(]*):/:/'
+
+    case $1-$2 in			## Which META operation?
+	get-apis)			## Inquire APIs...
+	    case ${3-brief} in		## Which format?
+		api)	sx="$sxb;$sx1"			;;
+		brief)	sx="$sxb"';s/:/:,/;s/$/,/'	;;
+		full)   sx="$sxf;$sx2${4+;$4}"		;;
+		list)	sx="$sxf;$sx2;$sx3${4+;$4}"	;;
+		*)	return 1			;;
+	    esac
+	    sed "$sx" <<EOF
+b:$undo_api:meta,init,mark,push,pull,drop,keep
+f:$undo_api:meta(META [ARG ...]):2-
+f:$undo_api:init(TAG):1
+f:$undo_api:mark(MARK):1
+f:$undo_api:push([TAG] COMMAND [ARGUMENT|REDIRECTION ...]):1-
+f:$undo_api:pull(MARK [TAG] | TAG | [COUNT=1]):0-2
+f:$undo_api:drop(MARK [TAG] | TAG | [COUNT=1]):0-2
+f:$undo_api:keep(MARK [TAG] | TAG | [COUNT=1]):0-2
+EOF
+	    ;;
+	get-api)			## Inquire internal variable...
+	    eval 'echo "$undo_'"$2"'"'		;;
+	*)				## Anything else...
+	    return 2			## Indicate usage error!
+	    ;;
+    esac
+}
+
+##----------------------------------------------------------------------------
 ##  undo_init(TAG)		Set cleanups tag for successful exit
 ##----------------------------------------------------------------------------
 undo_init () {
