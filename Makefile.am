@@ -56,7 +56,11 @@ dist_man_MANS		= doc/dl_atload.3sh doc/dl_atexit.3sh		\
 			  doc/conf_meta.3sh doc/conf_put.3sh		\
 			  doc/quote_command.3sh doc/quote_egrep.3sh	\
 			  doc/quote_grep.3sh doc/quote_meta.3sh		\
-			  doc/quote_sed.3sh doc/quote_sh.3sh
+			  doc/quote_sed.3sh doc/quote_sh.3sh		\
+			  doc/undo_drop.3sh doc/undo_init.3sh		\
+			  doc/undo_keep.3sh doc/undo_mark.3sh		\
+			  doc/undo_meta.3sh doc/undo_pull.3sh		\
+			  doc/undo_push.3sh
 
 ##----------------------------------------------------------------------------
 ##  Finish and install scripts, libraries, manpages, and package data:
