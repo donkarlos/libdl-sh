@@ -1,0 +1,263 @@
+.\"								-*- nroff -*-
+.\" libundo.3sh			- libundo(3sh) manual page
+.\"
+.\" Copyright (C) 2015 Das Computerlabor (DCl-M)
+.\"
+.\" This library is free software; you can redistribute it and/or
+.\" modify it under the terms of the GNU Lesser General Public License
+.\" as published by the Free Software Foundation; either
+.\" version 2.1 of the License, or (at your option) any later version.
+.\"
+.\" This library is distributed in the hope that it will be useful,
+.\" but WITHOUT ANY WARRANTY; without even the implied warranty of
+.\" MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+.\" Lesser General Public License for more details.
+.\"
+.\" You should have received a copy of the GNU Lesser General Public License
+.\" along with this library; if not, write to the Free Software Founda-
+.\" tion, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
+.\"
+.\# AUTHOR(S):	ks	Karl Schmitz <ks@computerlabor.org>
+.\#
+.\# WRITTEN BY:	ks	2015-12-30
+.\# CHANGED BY:
+.\#
+.\# NOTE: (1)	Please adjust below date whenever revising the manual page.
+.\#		vvvvvv
+.TH libundo 3SH 2015-12-30 "@PACKAGE_TARNAME@ @PACKAGE_VERSION@" "Shell Programming"
+
+.SH NAME
+undo_init, undo_mark, undo_push, undo_drop, undo_keep, undo_pull, undo_meta
+\- Undo stack management
+
+.SH SYNOPSIS
+\fBdl_load undo\fP
+
+\fBundo_init\fP \fITAG\fP
+.br
+\fBundo_mark\fP \fIMARK\fP
+.br
+\fBundo_push\fP [\fITAG\fP] \fICOMMAND\fP [\fIARGUMENT\fP|\fIREDIRECTION\fP ...]
+.br
+\fBundo_drop\fP [\fICOUNT\fP=1]
+.br
+\fBundo_drop\fP \fITAG\fP
+.br
+\fBundo_drop\fP \fIMARK\fP
+.br
+\fBundo_drop\fP \fIMARK\fP \fITAG\fP
+.br
+\fBundo_keep\fP [\fICOUNT\fP=1]
+.br
+\fBundo_keep\fP \fITAG\fP
+.br
+\fBundo_keep\fP \fIMARK\fP
+.br
+\fBundo_keep\fP \fIMARK\fP \fITAG\fP
+.br
+\fBundo_pull\fP [\fICOUNT\fP=1]
+.br
+\fBundo_pull\fP \fITAG\fP
+.br
+\fBundo_pull\fP \fIMARK\fP
+.br
+\fBundo_pull\fP \fIMARK\fP \fITAG\fP
+.br
+\fBundo_meta\fP \fIMETA\fP [\fIARG\fP ...]
+
+.SH DESCRIPTION
+In general, the undo stack management library \fBlibundo.sh\fP allows
+applications and/or other libraries to maintain a stack of commands that undo
+an application's overall effects on failure. For more fine-grained control
+over the stack, applications and/or libraries may push marks or tagged
+commands onto the stack so that they may drop, pull (i.e., execute and drop),
+or keep selected parts of the stack.
+
+.SS Marks, tags, and cleanups
+Marks are pushed onto the stack instead of a (tagged) command, thus marking
+the bottom of a range of pushed commands. On the stack, they are represented
+by comment lines.
+
+Tags are pushed onto the stack together with a command, thus making it bear
+that tag. Applications may register a cleanup tag: On successful exits, only
+commands bearing the cleanup tag are pulled from the stack, allowing
+applications and/or libraries to push cleanups (i.e., commands bearing the
+cleanup tag whose purpose is to clean up (e.g., remove temporary files) after
+the application).
+
+To distinguish marks and tags from commands,
+.IP \(em 2
+\fIMARK\fPs begin with a double colon (\fB::\fP) followed by a non-empty
+string,
+.IP \(em
+\fITAG\fPs begin with a single colon (\fB:\fP) followed by a non-empty string,
+whereas
+.IP \(em
+\fICOMMAND\fPs may not begin with a colon at all.
+
+.SH FUNCTIONS
+.TP 4
+\fBundo_init\fP \fITAG\fP
+Register cleanup \fITAG\fP. When the application terminates with success
+(i.e., exit status 0), only commands bearing \fITAG\fP are pulled from the
+undo stack. See section \fBEXIT HOOKS\fP below for further details.
+
+.TP
+\fBundo_mark\fP \fIMARK\fP
+Push stack \fIMARK\fP onto the undo stack.
+
+.TP
+\fBundo_push\fP [\fITAG\fP] \fICOMMAND\fP [\fIARGUMENT\fP|\fIREDIRECTION\fP ...]
+Push (\fITAG\fPged) POSIX shell \fICOMMAND\fP (with its \fIARGUMENT\fPs and
+\fIREDIRECTION\fPs) onto the undo stack after quoting it with
+\fBquote_command\fP(3sh).
+
+.TP
+\fBundo_drop\fP [\fICOUNT\fP=1]
+In its first form, \fBundo_drop\fP drops the \fICOUNT\fP top commands from the 
+undo stack, where marks also count as commands.
+
+.TP
+\fBundo_drop\fP \fITAG\fP
+In its second form, \fBundo_drop\fP drops all commands bearing \fITAG\fP from
+the undo stack. Commands bearing no or another tag will be kept on the stack.
+
+.TP
+\fBundo_drop\fP \fIMARK\fP
+In its third form, \fBundo_drop\fP drops all commands up to and including the
+topmost instance of stack \fIMARK\fP from the undo stack, where other marks
+also count as commands.
+
+.TP
+\fBundo_drop\fP \fIMARK\fP \fITAG\fP
+In its fourth form, \fBundo_drop\fP drops all commands bearing \fITAG\fP which
+occur above the topmost instance of stack \fIMARK\fP from the undo stack. The
+stack \fIMARK\fP and any contents below will be kept on the stack.
+
+.TP
+\fBundo_keep\fP [\fICOUNT\fP=1]
+In its first form, \fBundo_keep\fP keeps the \fICOUNT\fP top commands on the 
+undo stack, where marks also count as commands. Thus, it is the exact opposite
+to \fBundo_drop\fP \fICOUNT\fP.
+
+.TP
+\fBundo_keep\fP \fITAG\fP
+In its second form, \fBundo_keep\fP keeps all commands bearing \fITAG\fP on
+the undo stack. Thus, it is the exact opposite to \fBundo_drop\fP \fITAG\fP.
+
+.TP
+\fBundo_keep\fP \fIMARK\fP
+In its third form, \fBundo_keep\fP keeps all commands up to and including the
+topmost instance of stack \fIMARK\fP on the undo stack, where other marks
+also count as commands. Thus, it is the exact opposite to \fBundo_drop\fP
+\fIMARK\fP.
+
+.TP
+\fBundo_keep\fP \fIMARK\fP \fITAG\fP
+In its fourth form, \fBundo_keep\fP keeps all commands bearing \fITAG\fP which
+occur above the topmost instance of stack \fIMARK\fP on the undo stack. The
+stack \fIMARK\fP and any contents below will be kept on the stack, too.
+
+.TP
+\fBundo_pull\fP [\fICOUNT\fP=1]
+In its first form, \fBundo_pull\fP executes and then drops the \fICOUNT\fP top
+commands from the undo stack, where marks also count as commands.
+
+.TP
+\fBundo_pull\fP \fITAG\fP
+In its second form, \fBundo_pull\fP executes and then drops all commands
+bearing \fITAG\fP from the undo stack. Commands bearing no or another tag will
+be kept on the stack.
+
+.TP
+\fBundo_pull\fP \fIMARK\fP
+In its third form, \fBundo_pull\fP executes and then drops all commands up to
+and including the topmost instance of stack \fIMARK\fP from the undo stack,
+where other marks also count as commands.
+
+.TP
+\fBundo_pull\fP \fIMARK\fP \fITAG\fP
+In its fourth form, \fBundo_pull\fP executes and then drops all commands
+bearing \fITAG\fP which occur above the topmost instance of stack \fIMARK\fP
+from the undo stack. The stack \fIMARK\fP and any contents below will be kept
+on the stack.
+
+.TP
+\fBundo_meta\fP \fIMETA\fP [\fIARG\fP ...]
+Perform one of \fBlibundo.sh\fP's meta operations. These allow to inquire
+certain library internals in a controlled manner. Currently, the following
+meta operations are implemented:
+.RS 4
+.TP 4
+\fBget apis\fP [\fIFORMAT\fP=brief [\fISEDEX\fP]]
+Inquire information about available API versions and write them to standard
+output. The information written depends on the output \fIFORMAT\fP:
+.RS 4
+.IP \(em 2
+\fBapi\fP represents each API version by a line containing \fIVERSION\fP,
+whereas
+.IP \(em
+\fBbrief\fP (the default and hitherto sole format) represents each API version
+by a line of two colon-separated fields: \fIVERSION\fP and \fINAMES\fP, where
+the latter is a denormalized (i.e., with leading and trailing separator)
+comma-separated list of function names with the prefix \fBundo_\fP removed.
+.IP \(em
+\fBfull\fP represents each function within each API version by a line of three
+colon-separated fields: \fIVERSION\fP, \fISIGNATURE\fP, and \fIARGCS\fP,
+where the second has the format \fINAME\fP\fB(\fP\fIARGS\fP\fB)\fP and the
+latter is a (possibly open) range of valid $# values.
+
+For example, for API 0, \fBundo_push\fP(3sh) and \fBundo_pull\fP(3sh) would
+be represented by the following two lines:
+
+.in +4
+\fB0:undo_push([TAG] COMMAND [ARGUMENT|REDIRECTION ...]):1-\fP
+.br
+\fB0:undo_pull(MARK [TAG] | TAG | [COUNT=1]):0-2\fP
+.in -4
+
+.IP \(em
+\fBlist\fP is similar to \fBfull\fP, except that \fB(\fP\fIARGS\fP\fB)\fP in
+the second field is omitted (i.e., just the function name is shown)
+.RE
+
+.RS 4
+For output formats \fBfull\fP and \fBlist\fP, the resulting output format may
+be further tailored by \fISEDEX\fP, a sequence of \fBsed\fP(1) commands. Thus,
+if you want to know which API versions (analogous to output format \fBapi\fP)
+of \fBlibundo.sh\fP provide \fBundo_mark\fP(3sh), you'd invoke:
+
+.in +4
+\fBundo_meta get apis list '/:undo_mark:/!d;s/:.*$//'\fP
+.in -4
+
+Finally, note that release 0.3.6 deprecates output format \fBbrief\fP. It will
+be withdrawn by release 0.4, with \fBapi\fP becoming the default output
+format.
+.RE
+
+.TP
+\fBget api\fP
+Inquire selected API version and write it to standard output.
+
+.SH EXIT HOOKS
+While loading, \fBlibundo.sh\fP invokes \fBdl_atexit\fP(3sh) to register its
+exit hook \fBundo_exit\fP(\fISTATUS\fP). Depending on exit status and cleanup
+tag, the exit hook does the following:
+.IP \(em 2
+When terminating with failure (i.e., non-zero \fISTATUS\fP), the whole undo
+stack is executed, thereby completely undoing the application's effects.
+.IP \(em
+When terminating with success (i.e., zero \fISTATUS\fP) and registered cleanup
+tag, all commands bearing the cleanup tag are executed, thereby undoing the
+application's side effects.
+.IP \(em
+Otherwise, nothing happens.
+
+.SH SEE ALSO
+.BR dl_load (3sh),
+.BR dl_atexit (3sh),
+.BR quote_command (3sh).
+
+.SH AUTHOR
+Karl Schmitz <@PACKAGE_BUGREPORT@>

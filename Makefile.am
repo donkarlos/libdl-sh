@@ -25,6 +25,7 @@
 ##		ks	2013-03-06	Rename package to `libdl-sh'.
 ##					Add libemit.sh.
 ##		ks	2015-12-29	Add libquote.3sh.
+##		ks	2015-12-30	Add libundo.3sh.
 ##
 ##  NOTE:   (1)	Update the build system with autoreconf(1).
 ##----------------------------------------------------------------------------
@@ -66,7 +67,7 @@ shlib_DATA		= lib/libdl.sh lib/libquote.sh lib/libundo.sh	\
 			  lib/libsafe.sh lib/libconf.sh lib/libemit.sh
 man_MANS		= doc/libdl-sh.1 doc/libdl-sh.conf.5		\
 			  doc/libdl.3sh doc/libconf.3sh			\
-			  doc/libquote.3sh
+			  doc/libquote.3sh doc/libundo.3sh
 sysconf_DATA		= etc/libdl-sh.conf
 pkgdata_DATA		= auto/autofinish.am auto/autofinish.m4
 
