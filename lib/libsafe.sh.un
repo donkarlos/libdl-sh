@@ -2,7 +2,7 @@
 #-----------------------------------------------------------------------------
 #   libsafe.sh			- Safe directory/file operations library
 #
-#   Copyright (C) 2013-2015 Das Computerlabor (DCl-M)
+#   Copyright (C) 2013-2016 Das Computerlabor (DCl-M)
 #
 #   This library is free software; you can redistribute it and/or
 #   modify it under the terms of the GNU Lesser General Public License
@@ -25,11 +25,13 @@
 ##----------------------------------------------------------------------------
 ##  Global variables:
 #-----------------------------------------------------------------------------
+safe_api=0				## Define API version.
 safe_tmpdir=
 safe_suffix=$$
 safe_tarid=0
 safe_locks=
 safe_exit0=
+readonly safe_api
 
 ##----------------------------------------------------------------------------
 ##  safe_init(TAG)		Set cleanups tag for successful exit
