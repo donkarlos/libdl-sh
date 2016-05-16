@@ -61,7 +61,13 @@ dist_man_MANS		= doc/dl_atload.3sh doc/dl_atexit.3sh		\
 			  doc/undo_drop.3sh doc/undo_init.3sh		\
 			  doc/undo_keep.3sh doc/undo_mark.3sh		\
 			  doc/undo_meta.3sh doc/undo_pull.3sh		\
-			  doc/undo_push.3sh
+			  doc/undo_push.3sh doc/safe_chdir.3sh		\
+			  doc/safe_init.3sh doc/safe_lock.3sh		\
+			  doc/safe_meta.3sh doc/safe_mkdir.3sh		\
+			  doc/safe_mktmpdir.3sh doc/safe_remove.3sh	\
+			  doc/safe_rename.3sh doc/safe_save.3sh		\
+			  doc/safe_touch.3sh doc/safe_umask.3sh		\
+			  doc/safe_wait.3sh
 
 ##----------------------------------------------------------------------------
 ##  Finish and install scripts, libraries, manpages, and package data:
