@@ -2,7 +2,7 @@
 #-----------------------------------------------------------------------------
 #   libundo.sh			- Undo stack management library
 #
-#   Copyright (C) 2013-2015 Das Computerlabor (DCl-M)
+#   Copyright (C) 2013-2016 Das Computerlabor (DCl-M)
 #
 #   This library is free software; you can redistribute it and/or
 #   modify it under the terms of the GNU Lesser General Public License
@@ -21,7 +21,8 @@
 ##  AUTHOR(S):	ks	Karl Schmitz <ks@computerlabor.org>
 ##
 ##  WRITTEN BY:	ks	2013-02-13
-##  CHANGED BY:
+##  CHANGED BY:	ks	2016-05-16	Work around dash(1)'s local semantics.
+##					Fix `undo_* MARK TAG' semantics.
 ##----------------------------------------------------------------------------
 ##  Global variables:
 #-----------------------------------------------------------------------------
@@ -89,10 +90,10 @@ undo_init () {
 ##		not modified at all!
 ##----------------------------------------------------------------------------
 undo_emit () {
-    local i mark range km d1 sedex
+    local i mark range sedex
 
     case $1 in				## Which mode?
-	drop)		;;		## Drop, i.e. don't invert deletes.
+	drop) i=	;;		## Drop, i.e. don't invert deletes.
 	keep) i='!'	;;		## Keep, i.e. invert deletes.
 	*)    return 2	;;		## None of the above!
     esac
@@ -100,29 +101,29 @@ undo_emit () {
     case $2 in				## Mark is next?
 	::?*)				## Yes, derive mark/range fragments.
 	    mark='/^#{'"$2"'::}#$/'; range="1,$mark"
-	    case $1 in			## Which mode?
-		keep) km="${mark}bp;" d1=';1d;:p';;
-					## Keep, i.e. keep mark but drop 1st.
-	    esac
 	    case $3 in			## Tag is next?
 		::*)	return 2		;;
 					## No, it's another mark!
-		:?*)	sedex="{;$km/#$3"'$/'"${i}d;}$d1";;
-					## Yes, (don't) drop tagged undos
-					## within marked range.
+		:?*)
+		    case $1 in
+			drop)
+			    sedex='{;'"$mark"'bp;/#'"$3$DS/$i"'d;1d;};:p'   ;;
+			keep)
+			    sedex='!d;'"$mark"'d;/#'"$3$DS/$i"'d'	    ;;
+		    esac			;;
 		?*)	return 2		;;
 					## No, it's not a tag!
-		*)	sedex="${i}d$d1"	;;
+		*)	sedex="$i"'d;1d'	;;
 	    esac			## No, (don't) drop marked range.
 	    ;;
 	::*)				## Tag is first?
 	    return 2			## It's a mark!
 	    ;;
 	:?*)
-	    sedex="/#$2"'$/'"${i}d"	## Yes, (don't) drop tagged undos.
-	    ;;
-	*)  sedex="1${2+,$2}${i}d"	## No, assume it's a count.
-	    ;;
+	    unset range; sedex="/#$2"'$/'"${i}d"
+	    ;;				## Yes, (don't) drop tagged undos.
+	*)  unset range; sedex="1${2+,$2}${i}d"
+	    ;;				## No, assume it's a count.
     esac
     sed "$range$sedex" 2>/dev/null <<EOF
 ${range+$NL}$undo_stack
