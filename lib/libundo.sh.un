@@ -22,6 +22,7 @@
 ##
 ##  WRITTEN BY:	ks	2013-02-13
 ##  CHANGED BY:	ks	2016-05-16	Work around dash(1)'s local semantics.
+##					Fix `undo_* MARK TAG' semantics.
 ##----------------------------------------------------------------------------
 ##  Global variables:
 #-----------------------------------------------------------------------------
@@ -52,7 +53,7 @@ undo_init () {
 ##		not modified at all!
 ##----------------------------------------------------------------------------
 undo_emit () {
-    local i mark range km d1 sedex
+    local i mark range sedex
 
     case $1 in				## Which mode?
 	drop) i=	;;		## Drop, i.e. don't invert deletes.
@@ -63,19 +64,19 @@ undo_emit () {
     case $2 in				## Mark is next?
 	::?*)				## Yes, derive mark/range fragments.
 	    mark='/^#{'"$2"'::}#$/'; range="1,$mark"
-	    case $1 in			## Which mode?
-		keep) km="${mark}bp;" d1=';1d;:p';;
-					## Keep, i.e. keep mark but drop 1st.
-	    esac
 	    case $3 in			## Tag is next?
 		::*)	return 2		;;
 					## No, it's another mark!
-		:?*)	sedex="{;$km/#$3"'$/'"${i}d;}$d1";;
-					## Yes, (don't) drop tagged undos
-					## within marked range.
+		:?*)
+		    case $1 in
+			drop)
+			    sedex='{;'"$mark"'bp;/#'"$3$DS/$i"'d;1d;};:p'   ;;
+			keep)
+			    sedex='!d;'"$mark"'d;/#'"$3$DS/$i"'d'	    ;;
+		    esac			;;
 		?*)	return 2		;;
 					## No, it's not a tag!
-		*)	sedex="${i}d$d1"	;;
+		*)	sedex="$i"'d;1d'	;;
 	    esac			## No, (don't) drop marked range.
 	    ;;
 	::*)				## Tag is first?
