@@ -114,19 +114,19 @@ Push (\fITAG\fPged) POSIX shell \fICOMMAND\fP (with its \fIARGUMENT\fPs and
 
 .TP
 \fBundo_drop\fP [\fICOUNT\fP=1]
-In its first form, \fBundo_drop\fP drops the \fICOUNT\fP top commands from the 
-undo stack, where marks also count as commands.
+In its 1st form, \fBundo_drop\fP drops the \fICOUNT\fP topmost commands from
+the undo stack (where marks also count as commands).
 
 .TP
 \fBundo_drop\fP \fITAG\fP
-In its second form, \fBundo_drop\fP drops all commands bearing \fITAG\fP from
-the undo stack. Commands bearing no or another tag will be kept on the stack.
+In its 2nd form, \fBundo_drop\fP drops all commands bearing \fITAG\fP from the
+undo stack. Commands bearing no or another tag are kept on the stack.
 
 .TP
 \fBundo_drop\fP \fIMARK\fP
-In its third form, \fBundo_drop\fP drops all commands up to and including the
-topmost instance of stack \fIMARK\fP from the undo stack, where other marks
-also count as commands.
+In its 3rd form, \fBundo_drop\fP drops all commands up to and including the
+topmost instance of stack \fIMARK\fP from the undo stack (where other marks
+also count as commands). Any contents below \fIMARK\fP are kept on the stack.
 
 .TP
 \fBundo_drop\fP \fIMARK\fP \fITAG\fP
@@ -136,21 +136,21 @@ of stack \fIMARK\fP bearing \fITAG\fP from the undo stack. The stack
 
 .TP
 \fBundo_keep\fP [\fICOUNT\fP=1]
-In its first form, \fBundo_keep\fP keeps the \fICOUNT\fP top commands on the 
-undo stack, where marks also count as commands. Thus, it is the exact opposite
+In its 1st form, \fBundo_keep\fP keeps the \fICOUNT\fP topmost commands on the
+undo stack (where marks also count as commands). Hence, it's the counterpart
 to \fBundo_drop\fP \fICOUNT\fP.
 
 .TP
 \fBundo_keep\fP \fITAG\fP
-In its second form, \fBundo_keep\fP keeps all commands bearing \fITAG\fP on
-the undo stack. Thus, it is the exact opposite to \fBundo_drop\fP \fITAG\fP.
+In its 2nd form, \fBundo_keep\fP keeps all commands bearing \fITAG\fP on the
+undo stack. Commands bearing no or another tag are dropped from the stack.
+Hence, it's the counterpart to \fBundo_drop\fP \fITAG\fP.
 
 .TP
 \fBundo_keep\fP \fIMARK\fP
-In its third form, \fBundo_keep\fP keeps all commands up to and including the
-topmost instance of stack \fIMARK\fP on the undo stack, where other marks
-also count as commands. Thus, it is the exact opposite to \fBundo_drop\fP
-\fIMARK\fP.
+In its 3rd form, \fBundo_keep\fP keeps all commands up to and including the
+topmost instance of stack \fIMARK\fP on the undo stack (where other marks also
+count as commands). Hence, its the counterpart to \fBundo_drop\fP \fIMARK\fP.
 
 .TP
 \fBundo_keep\fP \fIMARK\fP \fITAG\fP
@@ -161,20 +161,20 @@ counterpart to \fBundo_drop\fP \fIMARK\fP \fITAG\fP.
 
 .TP
 \fBundo_pull\fP [\fICOUNT\fP=1]
-In its first form, \fBundo_pull\fP executes and then drops the \fICOUNT\fP top
-commands from the undo stack, where marks also count as commands.
+In its 1st form, \fBundo_pull\fP executes and then drops the \fICOUNT\fP
+topmost commands from the undo stack (where marks also count as commands).
 
 .TP
 \fBundo_pull\fP \fITAG\fP
-In its second form, \fBundo_pull\fP executes and then drops all commands
-bearing \fITAG\fP from the undo stack. Commands bearing no or another tag will
-be kept on the stack.
+In its 2nd form, \fBundo_pull\fP executes and then drops all commands bearing
+\fITAG\fP from the undo stack. Commands bearing no or another tag are kept on
+the stack.
 
 .TP
 \fBundo_pull\fP \fIMARK\fP
-In its third form, \fBundo_pull\fP executes and then drops all commands up to
-and including the topmost instance of stack \fIMARK\fP from the undo stack,
-where other marks also count as commands.
+In its 3rd form, \fBundo_pull\fP executes and then drops all commands up to
+and including the topmost instance of stack \fIMARK\fP from the undo stack
+(where other marks also count as commands).
 
 .TP
 \fBundo_pull\fP \fIMARK\fP \fITAG\fP
