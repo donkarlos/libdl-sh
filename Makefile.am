@@ -1,7 +1,7 @@
 ##								-*-Makefile-*-
 ##  Makefile.am			- libdl-sh `Makefile.in' template
 ##
-##  Copyright (C) 2013-2015 Das Computerlabor (DCl-M)
+##  Copyright (C) 2013-2016 Das Computerlabor (DCl-M)
 ##
 ##  This library is free software; you can redistribute it and/or
 ##  modify it under the terms of the GNU Lesser General Public License
@@ -26,6 +26,7 @@
 ##					Add libemit.sh.
 ##		ks	2015-12-29	Add libquote.3sh.
 ##		ks	2015-12-30	Add libundo.3sh.
+##		ks	2016-05-16	Add libsafe.3sh.
 ##
 ##  NOTE:   (1)	Update the build system with autoreconf(1).
 ##----------------------------------------------------------------------------
@@ -71,7 +72,8 @@ shlib_DATA		= lib/libdl.sh lib/libquote.sh lib/libundo.sh	\
 			  lib/libsafe.sh lib/libconf.sh lib/libemit.sh
 man_MANS		= doc/libdl-sh.1 doc/libdl-sh.conf.5		\
 			  doc/libdl.3sh doc/libconf.3sh			\
-			  doc/libquote.3sh doc/libundo.3sh
+			  doc/libquote.3sh doc/libundo.3sh		\
+			  doc/libsafe.3sh
 sysconf_DATA		= etc/libdl-sh.conf
 pkgdata_DATA		= auto/autofinish.am auto/autofinish.m4
 
