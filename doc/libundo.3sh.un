@@ -1,7 +1,7 @@
 .\"								-*- nroff -*-
 .\" libundo.3sh			- libundo(3sh) manual page
 .\"
-.\" Copyright (C) 2015 Das Computerlabor (DCl-M)
+.\" Copyright (C) 2015-2016 Das Computerlabor (DCl-M)
 .\"
 .\" This library is free software; you can redistribute it and/or
 .\" modify it under the terms of the GNU Lesser General Public License
@@ -20,11 +20,11 @@
 .\# AUTHOR(S):	ks	Karl Schmitz <ks@computerlabor.org>
 .\#
 .\# WRITTEN BY:	ks	2015-12-30
-.\# CHANGED BY:
+.\# CHANGED BY:	ks	2016-05-16	Catch up on merged 0.3.5.1 changes.
 .\#
 .\# NOTE: (1)	Please adjust below date whenever revising the manual page.
 .\#		vvvvvv
-.TH libundo 3SH 2015-12-30 "@PACKAGE_TARNAME@ @PACKAGE_VERSION@" "Shell Programming"
+.TH libundo 3SH 2016-05-16 "@PACKAGE_TARNAME@ @PACKAGE_VERSION@" "Shell Programming"
 
 .SH NAME
 undo_init, undo_mark, undo_push, undo_drop, undo_keep, undo_pull, undo_meta
@@ -130,9 +130,9 @@ also count as commands.
 
 .TP
 \fBundo_drop\fP \fIMARK\fP \fITAG\fP
-In its fourth form, \fBundo_drop\fP drops all commands bearing \fITAG\fP which
-occur above the topmost instance of stack \fIMARK\fP from the undo stack. The
-stack \fIMARK\fP and any contents below will be kept on the stack.
+In its 4th form, \fBundo_drop\fP drops all commands above the topmost instance
+of stack \fIMARK\fP bearing \fITAG\fP from the undo stack. The stack
+\fIMARK\fP itself and any contents below are kept on the stack.
 
 .TP
 \fBundo_keep\fP [\fICOUNT\fP=1]
@@ -154,9 +154,10 @@ also count as commands. Thus, it is the exact opposite to \fBundo_drop\fP
 
 .TP
 \fBundo_keep\fP \fIMARK\fP \fITAG\fP
-In its fourth form, \fBundo_keep\fP keeps all commands bearing \fITAG\fP which
-occur above the topmost instance of stack \fIMARK\fP on the undo stack. The
-stack \fIMARK\fP and any contents below will be kept on the stack, too.
+In its 4th form, \fBundo_keep\fP keeps all commands above the topmost instance
+of stack \fIMARK\fP bearing \fITAG\fP on the undo stack. The stack \fIMARK\fP
+itself and any contents below are dropped from the stack. Hence, it's the
+counterpart to \fBundo_drop\fP \fIMARK\fP \fITAG\fP.
 
 .TP
 \fBundo_pull\fP [\fICOUNT\fP=1]
@@ -177,10 +178,9 @@ where other marks also count as commands.
 
 .TP
 \fBundo_pull\fP \fIMARK\fP \fITAG\fP
-In its fourth form, \fBundo_pull\fP executes and then drops all commands
-bearing \fITAG\fP which occur above the topmost instance of stack \fIMARK\fP
-from the undo stack. The stack \fIMARK\fP and any contents below will be kept
-on the stack.
+In its 4th form, \fBundo_pull\fP executes and then drops all commands above
+the topmost instance of stack \fIMARK\fP bearing \fITAG\fP from the undo
+stack. The stack \fIMARK\fP and any contents below will be kept on the stack.
 
 .TP
 \fBundo_meta\fP \fIMETA\fP [\fIARG\fP ...]
