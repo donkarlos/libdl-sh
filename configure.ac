@@ -1,7 +1,7 @@
 dnl								-*-Autoconf-*-
 dnl configure.ac		- libdl-sh Autotools configuration
 dnl
-dnl Copyright (C) 2013-2015 Das Computerlabor (DCl-M)
+dnl Copyright (C) 2013-2016 Das Computerlabor (DCl-M)
 dnl
 dnl This library is free software; you can redistribute it and/or
 dnl modify it under the terms of the GNU Lesser General Public License
@@ -33,7 +33,7 @@ dnl
 dnl Initialization:
 dnl
 AC_INIT([Demand-loadable libraries for POSIX shell scripts],
-    [0.3.5], [ks+libdl-sh@computerlabor.org], [libdl-sh])
+    [0.3.5.1], [ks+libdl-sh@computerlabor.org], [libdl-sh])
 AC_PREREQ([2.61])
 AC_CONFIG_SRCDIR([bin/libdl-sh.un])
 AC_CONFIG_AUX_DIR([auto])
