@@ -21,7 +21,7 @@
 ##  AUTHOR(S):	ks	Karl Schmitz <ks@computerlabor.org>
 ##
 ##  WRITTEN BY:	ks	2013-02-14
-##  CHANGED BY:
+##  CHANGED BY:	ks	2016-05-19	Use meta prefix.
 ##----------------------------------------------------------------------------
 ##  Global variables:
 #-----------------------------------------------------------------------------
@@ -37,8 +37,9 @@ readonly safe_api
 ##  safe_meta(META [ARG ...])	Perform META operation (with ARGs)
 ##----------------------------------------------------------------------------
 safe_meta () {
+    local mp=safe_			## Set meta prefix.
     local sx sxb='/^b:/!d;s///' sxf='/^f:/!d;s///'
-    local sx1='s/:.*$//' sx2='s/:/:safe_/' sx3='s/([^):(]*):/:/'
+    local sx1='s/:.*$//' sx2='s/:/:'"$mp"'/' sx3='s/([^):(]*):/:/'
 
     case $1-$2 in			## Which META operation?
 	get-apis)			## Inquire APIs...
@@ -67,11 +68,10 @@ f:$safe_api:wait(PN [SECONDS=30]):1-2
 EOF
 	    ;;
 	get-api)			## Inquire internal variable...
-	    eval 'echo "$safe_'"$2"'"'		;;
+	    eval 'echo "$'"$mp$2"'"'	;;
 	*)				## Anything else...
-	    return 2			## Indicate usage error!
-	    ;;
-    esac
+	    return 2			;;
+    esac				## Indicate usage error!
 }
 
 ##----------------------------------------------------------------------------

@@ -2,7 +2,7 @@
 #-----------------------------------------------------------------------------
 #   libquote.sh			- String quoting library
 #
-#   Copyright (C) 2013-2015 Das Computerlabor (DCl-M)
+#   Copyright (C) 2013-2016 Das Computerlabor (DCl-M)
 #
 #   This library is free software; you can redistribute it and/or
 #   modify it under the terms of the GNU Lesser General Public License
@@ -21,7 +21,8 @@
 ##  AUTHOR(S):	ks	Karl Schmitz <ks@computerlabor.org>
 ##
 ##  WRITTEN BY:	ks	2013-02-13
-##  CHANGED BY:	ks	2015-12-29  Implement meta operations.
+##  CHANGED BY:	ks	2015-12-29	Implement meta operations.
+##		ks	2016-05-19	Use meta prefix.
 ##
 ##  NOTE:   (1)	To avoid cluttering code, this library is exempted from need-
 ##		ing namespace prefixes for its special character and portable
@@ -44,8 +45,9 @@ readonly quote_api quote_sh_sedex
 ##  quote_meta(META [ARG ...])	Perform META operation (with ARGs)
 ##----------------------------------------------------------------------------
 quote_meta () {
+    local mp=quote_			## Set meta prefix.
     local sx sxb='/^b:/!d;s///' sxf='/^f:/!d;s///'
-    local sx1='s/:.*$//' sx2='s/:/:quote_/' sx3='s/([^):(]*):/:/'
+    local sx1='s/:.*$//' sx2='s/:/:'"$mp"'/' sx3='s/([^):(]*):/:/'
 
     case $1-$2 in			## Which META operation?
 	get-apis)			## Inquire APIs...
@@ -67,11 +69,10 @@ f:$quote_api:sed(STRING [DELIMITER=/]):1-2
 EOF
 	    ;;
 	get-api)			## Inquire internal variable...
-	    eval 'echo "$quote_'"$2"'"'		;;
+	    eval 'echo "$'"$mp$2"'"'	;;
 	*)				## Anything else...
-	    return 2			## Indicate usage error!
-	    ;;
-    esac
+	    return 2			;;
+    esac				## Indicate usage error!
 }
 
 ##----------------------------------------------------------------------------

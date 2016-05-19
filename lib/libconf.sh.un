@@ -2,7 +2,7 @@
 #-----------------------------------------------------------------------------
 #   libconf.sh			- GIT-style config. file processing library
 #
-#   Copyright (C) 2013-2015 Das Computerlabor (DCl-M)
+#   Copyright (C) 2013-2016 Das Computerlabor (DCl-M)
 #
 #   This library is free software; you can redistribute it and/or
 #   modify it under the terms of the GNU Lesser General Public License
@@ -24,6 +24,7 @@
 ##  CHANGED BY:	ks	2013-03-18	Introduce new multi-file API.
 ##		ks	2015-04-25	Implement meta operations.
 ##		ks	2015-12-18	Use numeric API versions.
+##		ks	2016-05-19	Use meta prefix.
 ##
 ##  NOTE:   (1)	The library just wraps around its 'workhorse' AWK script!
 ##----------------------------------------------------------------------------
@@ -37,8 +38,9 @@ readonly conf_awk
 ##  conf_meta(META [ARG ...])	Perform META operation (with ARGs)
 ##----------------------------------------------------------------------------
 conf_meta () {
+    local mp=conf_			## Set meta prefix.
     local sx sxb='/^b:/!d;s///' sxf='/^f:/!d;s///'
-    local sx1='s/:.*$//' sx2='s/:/:conf_/' sx3='s/([^):(]*):/:/'
+    local sx1='s/:.*$//' sx2='s/:/:'"$mp"'/' sx3='s/([^):(]*):/:/'
 
     case $1-$2 in			## Which META operation?
 	get-apis)			## Inquire APIs...
@@ -69,17 +71,14 @@ f:1:put(ITEM[=VALUE] CFPN ...):2-
 f:1:getenv(VARIABLE ITEM[=VALUE] CFPN ...):3-
 EOF
 	    ;;
-	get-api|get-awk)
-	    eval 'echo "$conf_'"$2"'"'
-	    ;;
-	set-api)
+	get-api|get-awk)		## Inquire internal variable...
+	    eval 'echo "$'"$mp$2"'"'		;;
+	set-api)			## Set and freeze API...
 	    conf_meta get apis api | fgrep -qxe "$3" || return 1
-	    eval 'conf_'"$2"'=$3; readonly conf_'"$2"
-	    ;;
-	*)
-	    return 2
-	    ;;
-    esac
+	    eval "$mp$2"'=$3; readonly '"$mp$2"	;;
+	*)				## Anything else...
+	    return 2				;;
+    esac				## Indicate usage error!
 }
 
 ##----------------------------------------------------------------------------

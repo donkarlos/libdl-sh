@@ -2,7 +2,7 @@
 #-----------------------------------------------------------------------------
 #   libdl.sh			- Demand-loading library
 #
-#   Copyright (C) 2013-2015 Das Computerlabor (DCl-M)
+#   Copyright (C) 2013-2016 Das Computerlabor (DCl-M)
 #
 #   This library is free software; you can redistribute it and/or
 #   modify it under the terms of the GNU Lesser General Public License
@@ -23,6 +23,7 @@
 ##  WRITTEN BY:	ks	2013-02-12
 ##  CHANGED BY:	ks	2015-04-23	Implement meta operations.
 ##					Lay session concept foundation.
+##		ks	2016-05-19	Use meta prefix.
 ##----------------------------------------------------------------------------
 ##  Global variables:
 #-----------------------------------------------------------------------------
@@ -39,8 +40,9 @@ readonly dl_api
 ##  dl_meta(META [ARG ...])	Perform META operation (with ARGs)
 ##----------------------------------------------------------------------------
 dl_meta () {
+    local mp=dl_			## Set meta prefix.
     local sx sxb='/^b:/!d;s///' sxf='/^f:/!d;s///'
-    local sx1='s/:.*$//' sx2='s/:/:dl_/' sx3='s/([^):(]*):/:/'
+    local sx1='s/:.*$//' sx2='s/:/:'"$mp"'/' sx3='s/([^):(]*):/:/'
 
     case $1-$2 in			## Which META operation?
 	get-apis)			## Inquire APIs...
@@ -63,15 +65,14 @@ EOF
 	    ;;
 	get-api|get-libpath|get-atloads|get-atexits|get-session|get-loaded)
 					## Inquire internal variable...
-	    eval 'echo "$dl_'"$2"'"'		;;
+	    eval 'echo "$'"$mp$2"'"'		;;
 	pre-libpath)			## Prepend to library search path...
-	    eval 'dl_'"$2"'=${3+$3:}$dl_'"$2"	;;
+	    eval "$mp$2"'=${3+$3:}$'"$mp$2"	;;
 	set-session)			## Set session ID...
-	    eval 'dl_'"$2"'=$3'			;;
+	    eval "$mp$2"'=$3'			;;
 	*)				## Anything else...
-	    return 2			## Indicate usage error!
-	    ;;
-    esac
+	    return 2				;;
+    esac				## Indicate usage error!
 }
 
 ##----------------------------------------------------------------------------
