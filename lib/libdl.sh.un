@@ -36,13 +36,12 @@ dl_re_ident='[_'"$dl_cs_alpha"'][_'"$dl_cs_alnum"']*'
 
 dl_api=1				## Define API version.
 dl_libpath=`libdl-sh path` || exit 127
-dl_session=
 dl_loaded=:dl:
 dl_needed=
 dl_atexits='exit $status'
 readonly dl_cs_upper dl_cs_lower dl_cs_digit dl_cs_alpha dl_cs_alnum	\
 	 dl_re_ident dl_api
-unset dl_atloads			## Discard spurious environment.
+unset dl_atloads dl_session		## Discard spurious environment.
 
 ##----------------------------------------------------------------------------
 ##  dl_meta(META [ARG ...])	Perform META operation (with ARGs)
