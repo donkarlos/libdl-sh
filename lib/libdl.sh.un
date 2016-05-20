@@ -35,7 +35,7 @@ dl_cs_alnum=$dl_cs_alpha$dl_cs_digit	## RE recognizing sh(1) identifiers.
 dl_re_ident='[_'"$dl_cs_alpha"'][_'"$dl_cs_alnum"']*'
 
 dl_api=1				## Define API version.
-dl_libpath=`@bindir@/libdl-sh path` || exit 127
+dl_libpath=`libdl-sh path` || exit 127
 dl_atloads=:
 dl_atexits='exit $status'
 dl_session=
