@@ -1,7 +1,7 @@
 .\"								-*- nroff -*-
 .\" libdl-sh.1			- libdl-sh(1) manual page
 .\"
-.\" Copyright (C) 2013-2015 Das Computerlabor (DCl-M)
+.\" Copyright (C) 2013-2016 Das Computerlabor (DCl-M)
 .\"
 .\" This library is free software; you can redistribute it and/or
 .\" modify it under the terms of the GNU Lesser General Public License
@@ -21,10 +21,12 @@
 .\#
 .\# WRITTEN BY:	ks	2013-02-18
 .\# CHANGED BY:	ks	2013-03-06	Rename configuration files.
+.\#		ks	2016-05-19	State that 'libdl-sh path' emits a
+.\#					tail-denormalized LSP.
 .\#
 .\# NOTE: (1)	Please adjust below date whenever revising the manual page.
 .\#		vvvvvv
-.TH LIBDL-SH 1 2013-08-17 "@PACKAGE_TARNAME@ @PACKAGE_VERSION@" "Shell Programming"
+.TH LIBDL-SH 1 2016-05-19 "@PACKAGE_TARNAME@ @PACKAGE_VERSION@" "Shell Programming"
 
 .SH NAME
 libdl-sh \- POSIX shell library demand-loading helper
@@ -62,10 +64,13 @@ and demand-loads further libraries with
 .TP
 .BR path
 Parse the demand-loading configuration and write the resulting,
-colon-separated library search path to standard output. The system-wide
-configuration is obtained from files \fB@sysconfdir@/libdl-sh.conf\fP and
+colon-separated library search path (LSP) in \fItail-denormalized\fP fashion
+(i.e., either empty or with trailing separator) to standard output.
+
+The system-wide configuration is obtained from files
+\fB@sysconfdir@/libdl-sh.conf\fP and
 \fB@sysconfdir@/libdl-sh.conf.d/\fP*\fB.conf\fP, where the latter are intended
-for adding package-specific search path items.
+for adding package-specific LSP items.
 
 Any user may extend the library search path by creating a user-specific
 configuration file \fB$HOME/.libdl-sh.conf\fP, which is parsed before the

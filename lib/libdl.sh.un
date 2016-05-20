@@ -123,7 +123,7 @@ dl_load () {
     local lib needed path
 
     case $dl_needed in
-	'') path=$PATH; PATH=$dl_libpath${PATH+:$PATH}	;;
+	'') path=$PATH; PATH=$dl_libpath$PATH	;;
     esac				## Augment path when necessary.
     for lib in ${1+"$@"}; do		## Foreach demanded library do...
 	case $dl_loaded$dl_needed in	## Is it already loaded or needed?
