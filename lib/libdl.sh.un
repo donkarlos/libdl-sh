@@ -36,10 +36,10 @@ dl_re_ident='[_'"$dl_cs_alpha"'][_'"$dl_cs_alnum"']*'
 
 dl_api=1				## Define API version.
 dl_libpath=`libdl-sh path` || exit 127
-dl_atexits='exit $status'
 dl_session=
 dl_loaded=:dl:
 dl_needed=
+dl_atexits='exit $status'
 readonly dl_cs_upper dl_cs_lower dl_cs_digit dl_cs_alpha dl_cs_alnum	\
 	 dl_re_ident dl_api
 unset dl_atloads			## Discard spurious environment.
@@ -152,14 +152,15 @@ dl_load () {
 ##----------------------------------------------------------------------------
 dl_atexit () {
     expr "${1:-.}${1:+_$1}" : '^'"$dl_re_ident"'$' >/dev/null &&
-	dl_atexits="$1"' "$status"; '"$dl_atexits"
+	dl_atexits="$1"' $status; '"$dl_atexits"
 }
 
 ##----------------------------------------------------------------------------
 ##  dl_exit([STATUS=$?])	Terminate program with STATUS
 ##----------------------------------------------------------------------------
 dl_exit () {
-    local status="${1-$?}"		## Fetch exit status ($dl_atexits re-
+    local status=`expr 0 + "${1-$?}" 2>/dev/null` || status=2
+					## Fetch exit status ($dl_atexits re-
 					## fers to it!), unregister exit trap,
     trap '' 0; eval "$dl_atexits"	## and invoke exit-time hooks.
 }
