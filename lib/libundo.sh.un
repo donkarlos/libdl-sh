@@ -61,10 +61,14 @@ f:$undo_api:keep(MARK [TAG] | TAG | [COUNT=1]):0-2
 EOF
 	    ;;
 	get-api)			## Inquire internal variable...
-	    eval 'echo "$'"$mp$2"'"'	;;
-	*)				## Anything else...
-	    return 2			;;
-    esac				## Indicate usage error!
+	    eval 'case ${'"$mp$2"'+=} in
+		=)  echo "$'"$mp$2"'"	;;
+		*)  return 1		;;
+	    esac'
+	    ;;
+	*)  return 2			## Anything else...
+	    ;;				## Indicate misusage!
+    esac
 }
 
 ##----------------------------------------------------------------------------

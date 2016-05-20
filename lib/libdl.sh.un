@@ -73,14 +73,19 @@ EOF
 	    ;;
 	get-api|get-libpath|get-atloads|get-atexits|get-session|get-loaded)
 					## Inquire internal variable...
-	    eval 'echo "$'"$mp$2"'"'		;;
+	    eval 'case ${'"$mp$2"'+=} in
+		=)  echo "$'"$mp$2"'"	;;
+		*)  return 1		;;
+	    esac'
+	    ;;
 	pre-libpath)			## Prepend to library search path...
 	    eval "$mp$2"'=${3+$3:}$'"$mp$2"	;;
 	set-session)			## Set session ID...
-	    eval "$mp$2"'=$3'			;;
-	*)				## Anything else...
-	    return 2				;;
-    esac				## Indicate usage error!
+	    eval "$mp$2"'=$3'
+	    ;;
+	*)  return 2			## Anything else...
+	    ;;				## Indicate misusage!
+    esac
 }
 
 ##----------------------------------------------------------------------------

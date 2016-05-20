@@ -72,13 +72,18 @@ f:1:getenv(VARIABLE ITEM[=VALUE] CFPN ...):3-
 EOF
 	    ;;
 	get-api|get-awk)		## Inquire internal variable...
-	    eval 'echo "$'"$mp$2"'"'		;;
+	    eval 'case ${'"$mp$2"'+=} in
+		=)  echo "$'"$mp$2"'"	;;
+		*)  return 1		;;
+	    esac'
+	    ;;
 	set-api)			## Set and freeze API...
 	    conf_meta get apis api | fgrep -qxe "$3" || return 1
-	    eval "$mp$2"'=$3; readonly '"$mp$2"	;;
-	*)				## Anything else...
-	    return 2				;;
-    esac				## Indicate usage error!
+	    eval "$mp$2"'=$3; readonly '"$mp$2"
+	    ;;
+	*)  return 2			## Anything else...
+	    ;;				## Indicate misusage!
+    esac
 }
 
 ##----------------------------------------------------------------------------
