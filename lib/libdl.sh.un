@@ -79,7 +79,14 @@ EOF
 	    esac'
 	    ;;
 	pre-libpath)			## Prepend to library search path...
-	    eval "$mp$2"'=${3+$3:}$'"$mp$2"	;;
+	    local n ifs; case ${3+=} in	## One or more path items given?
+		=)  n=$2; shift 2	## Yes, prepend them the LSP in tail-
+		    ifs=$IFS; IFS=:; eval "$mp$n"'="$*:$'"$mp$n"'"'; IFS=$ifs
+		    ;;			## denormalized fashion.
+		*)  return 2		## No, indicate misusage!
+		    ;;
+	    esac
+	    ;;
 	set-session)			## Set session ID...
 	    eval "$mp$2"'=$3'
 	    ;;

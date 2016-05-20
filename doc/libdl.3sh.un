@@ -1,7 +1,7 @@
 .\"								-*- nroff -*-
 .\" libdl.3sh			- libdl(3sh) manual page
 .\"
-.\" Copyright (C) 2013-2015 Das Computerlabor (DCl-M)
+.\" Copyright (C) 2013-2016 Das Computerlabor (DCl-M)
 .\"
 .\" This library is free software; you can redistribute it and/or
 .\" modify it under the terms of the GNU Lesser General Public License
@@ -25,7 +25,7 @@
 .\#
 .\# NOTE: (1)	Please adjust below date whenever revising the manual page.
 .\#		vvvvvv
-.TH LIBDL 3SH 2015-12-29 "@PACKAGE_TARNAME@ @PACKAGE_VERSION@" "Shell Programming"
+.TH LIBDL 3SH 2016-05-20 "@PACKAGE_TARNAME@ @PACKAGE_VERSION@" "Shell Programming"
 
 .SH NAME
 dl_atload, dl_load, dl_atexit, dl_exit, dl_which, dl_meta
@@ -168,7 +168,7 @@ format.
 Inquire current API version and write it to standard output.
 
 .TP
-\fBpre libpath\fP \fILIBPATH\fP
+\fBpre libpath\fP \fILIBPATH\fP ...
 Prepend \fILIBPATH\fP, a colon-separated list of library search path items
 (i.e., directories containing demand-loadable libraries) to the library search
 path (LSP) maintained by \fBlibdl.sh\fP.
