@@ -23,9 +23,11 @@
 #   WRITTEN BY:	ks	2013-03-09
 #   CHANGED BY:	ks	2013-08-17	Strip comments in finalized manpages.
 #		ks	2016-05-19	Drop legacy block comment stripping.
+#					Properly strip indented '##'-style
+#					block comments.
 #-----------------------------------------------------------------------------
 1{;/^#![^#]*##/d;}
 /^##/d
-/[ 	][ 	]*##$/{;s///;/^$/d;}
-/[ 	][ 	]*## .*$/{;s///;/^$/d;}
+/[ 	][ 	]*##-*$/{;s///;/^$/d;}
+/[ 	][ 	]*##[ 	].*$/{;s///;/^$/d;}
 /^\.\\#/d
