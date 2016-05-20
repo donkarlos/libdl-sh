@@ -39,11 +39,11 @@ readonly conf_awk
 ##----------------------------------------------------------------------------
 conf_meta () {
     local mp=conf_			## Set meta prefix.
-    local sx sxb='/^b:/!d;s///' sxf='/^f:/!d;s///'
-    local sx1='s/:.*$//' sx2='s/:/:'"$mp"'/' sx3='s/([^):(]*):/:/'
 
     case $1-$2 in			## Which META operation?
 	get-apis)			## Inquire APIs...
+	    local sx sxb='/^b:/!d;s///' sxf='/^f:/!d;s///'		\
+		  sx3='s/([^):(]*):/:/' sx1='s/:.*$//' sx2='s/:/:'"$mp"'/'
 	    case ${3-brief} in		## Which format?
 		api)	sx="$sxb;$sx1"			;;
 		brief)	sx="$sxb"';s/:/:,/;s/$/,/'	;;
