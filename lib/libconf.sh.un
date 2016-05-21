@@ -54,7 +54,6 @@ conf_meta () {
 	    sed "$sx" <<EOF
 a:0
 f:0:meta(META [ARG ...]):2-
-f:0:init(API):1
 f:0:exec(CFPN):1
 f:0:has(CFPN ITEM):2
 f:0:get(CFPN ITEM [VALUE]):2-3
@@ -63,7 +62,6 @@ f:0:unset(CFPN ITEM):2
 f:0:getenv(VARIABLE CFPN ITEM [VALUE]):3-4
 a:1
 f:1:meta(META [ARG ...]):2-
-f:1:init(API):1
 f:1:exec(CFPN ...):1-
 f:1:has(ITEM[=VALUE] CFPN ...):2-
 f:1:get(ITEM[=VALUE] CFPN ...):2-
@@ -83,17 +81,6 @@ EOF
 	    ;;
 	*)  return 2			## Anything else...
 	    ;;				## Indicate misusage!
-    esac
-}
-
-##----------------------------------------------------------------------------
-##  conf_init(API)		Select API version 0 (default) or 1
-##----------------------------------------------------------------------------
-conf_init () {
-    case $1 in
-	old)	conf_meta set api 0	;;
-	new)	conf_meta set api 1	;;
-	*)	conf_meta set api "$1"	;;
     esac
 }
 

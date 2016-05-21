@@ -23,7 +23,7 @@
 .\# CHANGED BY:	ks	2015-04-25	Implement meta operations.
 .\#		ks	2015-12-18	Use numeric API versions.
 .\#		ks	2016-05-21	Withdraw 'conf_meta get apis' brief
-.\#					format.
+.\#					format and conf_init().
 .\#
 .\# NOTE: (1)	Please adjust below date whenever revising the manual page.
 .\#		vvvvvv
@@ -40,16 +40,6 @@ files at once. This necessitated radical changes (most of them pertaining to
 parameter order) to the library's API, lest applications be able to specify
 multiple pathnames. Moreover, the functionality of \fBconf_set\fP(3sh) and
 \fBconf_unset\fP(3sh) has been merged into \fBconf_put\fP(3sh).
-
-In order to stay compatible to applications using the old (pre-0.3) API,
-\fBlibconf.sh\fP implements both the old and the new API as well as
-\fBconf_init\fP(3sh), a mechanism to initially select the library's API,
-while prompting developers to migrate applications to the new API soon.
-
-Release 0.3.5 introduced the concept of library meta operations, mainly to
-unify selection of library APIs by means of numeric versions instead of
-arbitrary names. Consequently, \fBlibconf.sh\fP's old and new API have been
-renamed to API 0 and 1, respectively.
 
 .SH SYNOPSIS (API 0)
 \fBdl_load conf\fP [\fB&& conf_meta set api 0\fP]
@@ -188,19 +178,13 @@ output.
 .RE
 
 .SH DEPRECATED FUNCTIONS
-Release 0.3.5 deprecates \fBlibconf.sh\fP API 0 and \fBconf_init\fP(3sh).
-Both will be withdrawn by release 0.4.
+Release 0.3.5 deprecates \fBlibconf.sh\fP API 0.
+It will be withdrawn by release 0.4.
 
 The following paragraphs describe the deprecated functions (and how they ought
 to be migrated to API 1).
 
 .TP 4
-\fBconf_init\fP \fINAME\fP|\fIVERSION\fP
-Select API by \fINAME\fP or \fIVERSION\fP, where \fINAME\fP is either
-\fBold\fP (API 0) or \fBnew\fP (API 1), and \fIVERSION\fP is any API version
-accepted by \fBconf_meta set api\fP.
-
-.TP
 \fBconf_has\fP \fICFPN\fP \fIITEM\fP
 With API 1, becomes:
 \fBconf_has\fP \fIITEM\fP \fICFPN\fP
