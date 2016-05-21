@@ -42,17 +42,17 @@ conf_meta () {
 
     case $1-$2 in			## Which META operation?
 	get-apis)			## Inquire APIs...
-	    local sx sxb='/^b:/!d;s///' sxf='/^f:/!d;s///'		\
-		  sx3='s/([^):(]*):/:/' sx1='s/:.*$//' sx2='s/:/:'"$mp"'/'
-	    case ${3-brief} in		## Which format?
-		api)	sx="$sxb;$sx1"			;;
-		brief)	sx="$sxb"';s/:/:,/;s/$/,/'	;;
-		full)   sx="$sxf;$sx2${4+;$4}"		;;
-		list)	sx="$sxf;$sx2;$sx3${4+;$4}"	;;
-		*)	return 1			;;
+	    local fa='/^a:/!d;s///'	ff='/^f:/!d;s///'		\
+		  da=';s/([^):(]*):/:/'	p2=';s/:/:'"$mp"'/'		\
+		  sx
+	    case ${3-api} in		## Which format?
+		api)	sx="$fa"		;;
+		full)   sx="$ff$p2${4+;$4}"	;;
+		list)	sx="$ff$p2$da${4+;$4}"	;;
+		*)	return 1		;;
 	    esac
 	    sed "$sx" <<EOF
-b:0:meta,init,exec,has,get,set,unset,getenv
+a:0
 f:0:meta(META [ARG ...]):2-
 f:0:init(API):1
 f:0:exec(CFPN):1
@@ -61,7 +61,7 @@ f:0:get(CFPN ITEM [VALUE]):2-3
 f:0:set(CFPN ITEM VALUE):3
 f:0:unset(CFPN ITEM):2
 f:0:getenv(VARIABLE CFPN ITEM [VALUE]):3-4
-b:1:meta,init,exec,has,get,put,getenv
+a:1
 f:1:meta(META [ARG ...]):2-
 f:1:init(API):1
 f:1:exec(CFPN ...):1-
