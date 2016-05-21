@@ -20,11 +20,12 @@
 .\# AUTHOR(S):	ks	Karl Schmitz <ks@computerlabor.org>
 .\#
 .\# WRITTEN BY:	ks	2016-05-16
-.\# CHANGED BY:
+.\# CHANGED BY:	ks	2016-05-21	Withdraw 'safe_meta get apis' brief
+.\#					format.
 .\#
 .\# NOTE: (1)	Please adjust below date whenever revising the manual page.
 .\#		vvvvvv
-.TH libsafe 3SH 2016-05-16 "@PACKAGE_TARNAME@ @PACKAGE_VERSION@" "Shell Programming"
+.TH libsafe 3SH 2016-05-21 "@PACKAGE_TARNAME@ @PACKAGE_VERSION@" "Shell Programming"
 
 .SH NAME
 safe_init, safe_mktmpdir, safe_mkdir, safe_chdir, safe_touch, safe_save,
@@ -141,18 +142,14 @@ certain library internals in a controlled manner. Currently, the following
 meta operations are implemented:
 .RS 4
 .TP 4
-\fBget apis\fP [\fIFORMAT\fP=brief [\fISEDEX\fP]]
+\fBget apis\fP [\fIFORMAT\fP=api [\fISEDEX\fP]]
 Inquire information about available API versions and write them to standard
 output. The information written depends on the output \fIFORMAT\fP:
 .RS 4
 .IP \(em 2
-\fBapi\fP represents each API version by a line containing \fIVERSION\fP,
-whereas
-.IP \(em
-\fBbrief\fP (the default and hitherto sole format) represents each API version
-by a line of two colon-separated fields: \fIVERSION\fP and \fINAMES\fP, where
-the latter is a denormalized (i.e., with leading and trailing separator)
-comma-separated list of function names with the prefix \fBsafe_\fP removed.
+\fBapi\fP (the default format) represents each API version by a line
+containing \fIVERSION\fP.
+
 .IP \(em
 \fBfull\fP represents each function within each API version by a line of three
 colon-separated fields: \fIVERSION\fP, \fISIGNATURE\fP, and \fIARGCS\fP,
@@ -182,10 +179,6 @@ of \fBlibsafe.sh\fP provide \fBsafe_wait\fP(3sh), you'd invoke:
 .in +4
 \fBsafe_meta get apis list '/:safe_wait:/!d;s/:.*$//'\fP
 .in -4
-
-Finally, note that release 0.3.6 deprecates output format \fBbrief\fP. It will
-be withdrawn by release 0.4, with \fBapi\fP becoming the default output
-format.
 .RE
 
 .TP

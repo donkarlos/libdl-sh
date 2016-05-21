@@ -41,17 +41,17 @@ safe_meta () {
 
     case $1-$2 in			## Which META operation?
 	get-apis)			## Inquire APIs...
-	    local sx sxb='/^b:/!d;s///' sxf='/^f:/!d;s///'		\
-		  sx3='s/([^):(]*):/:/' sx1='s/:.*$//' sx2='s/:/:'"$mp"'/'
-	    case ${3-brief} in		## Which format?
-		api)	sx="$sxb;$sx1"			;;
-		brief)	sx="$sxb"';s/:/:,/;s/$/,/'	;;
-		full)   sx="$sxf;$sx2${4+;$4}"		;;
-		list)	sx="$sxf;$sx2;$sx3${4+;$4}"	;;
-		*)	return 1			;;
+	    local fa='/^a:/!d;s///'	ff='/^f:/!d;s///'		\
+		  da=';s/([^):(]*):/:/'	p2=';s/:/:'"$mp"'/'		\
+		  sx
+	    case ${3-api} in		## Which format?
+		api)	sx="$fa"		;;
+		full)   sx="$ff$p2${4+;$4}"	;;
+		list)	sx="$ff$p2$da${4+;$4}"	;;
+		*)	return 1		;;
 	    esac
 	    sed "$sx" <<EOF
-b:$safe_api:meta,init,mktmpdir,mkdir,chdir,touch,save,rename,remove,umask,unlock,lock,wait
+a:$safe_api
 f:$safe_api:meta(META [ARG ...]):2-
 f:$safe_api:init(TAG):1
 f:$safe_api:mktmpdir(&DPN [DRN]):1-2
