@@ -20,13 +20,7 @@ dnl
 dnl AUTHOR(S):	ks	Karl Schmitz <ks@computerlabor.org>
 dnl
 dnl WRITTEN BY:	ks	2013-02-12
-dnl CHANGED BY:	ks	2013-02-13	Add libquote.sh and libundo.sh.
-dnl		ks	2013-02-14	Add libsafe.sh and libconf.sh.
-dnl		ks	2013-03-06	Rename package to `libdl-sh'.
-dnl					Add libemit.sh.
-dnl		ks	2015-12-29	Add libquote.3sh.
-dnl		ks	2015-12-30	Add libundo.3sh.
-dnl		ks	2016-05-16	Add libsafe.3sh.
+dnl CHANGED BY:	ks	2013-03-06	Rename package to `libdl-sh'.
 dnl		ks	2016-05-20	Add stub.
 dnl
 dnl NOTE:   (1)	Update the build system with autoreconf(1).

@@ -20,13 +20,7 @@
 ##  AUTHOR(S):	ks	Karl Schmitz <ks@computerlabor.org>
 ##
 ##  WRITTEN BY:	ks	2013-02-12
-##  CHANGED BY:	ks	2013-02-13	Add libquote.sh and libundo.sh.
-##		ks	2013-02-14	Add libsafe.sh and libconf.sh.
-##		ks	2013-03-06	Rename package to `libdl-sh'.
-##					Add libemit.sh.
-##		ks	2015-12-29	Add libquote.3sh.
-##		ks	2015-12-30	Add libundo.3sh.
-##		ks	2016-05-16	Add libsafe.3sh.
+##  CHANGED BY:	ks	2013-03-06	Rename package to `libdl-sh'.
 ##		ks	2016-05-20	Add stub.
 ##
 ##  NOTE:   (1)	Update the build system with autoreconf(1).
