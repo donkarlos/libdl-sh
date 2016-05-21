@@ -23,7 +23,7 @@
 .\# CHANGED BY:	ks	2015-04-23	Implement meta operations.
 .\#					Lay session concept foundation.
 .\#		ks	2016-05-21	Withdraw 'dl_meta get apis' brief
-.\#					format.
+.\#					format and dl_init().
 .\#
 .\# NOTE: (1)	Please adjust below date whenever revising the manual page.
 .\#		vvvvvv
@@ -188,18 +188,6 @@ Register an arbitrary session \fIID\fPentifier.
 \fBget session\fP
 Inquire registered session identifier and write it to standard output.
 .RE
-
-.SH DEPRECATED FUNCTIONS
-Release 0.3.6 deprecates \fBdl_init\fP(3sh). It will be withdrawn by release
-0.4.
-
-The following paragraphs describe the deprecated functions (and how they ought
-to be migrated).
-
-.TP 4
-\fBdl_init\fP \fILIBPATH\fP
-Becomes:
-\fBdl_meta pre libpath\fP \fILIBPATH\fP
 
 .SH TRAPS
 In order to have "naïve" applications benefit from \fBlibdl.sh\fP's exit-time
