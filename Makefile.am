@@ -27,14 +27,16 @@
 ##		ks	2015-12-29	Add libquote.3sh.
 ##		ks	2015-12-30	Add libundo.3sh.
 ##		ks	2016-05-16	Add libsafe.3sh.
+##		ks	2016-05-20	Add stub.
 ##
 ##  NOTE:   (1)	Update the build system with autoreconf(1).
 ##----------------------------------------------------------------------------
 ##  Initialization:
 ##----------------------------------------------------------------------------
 ACLOCAL_AMFLAGS		= -I auto
-
 include $(top_srcdir)/auto/autofinish.am
+
+STUB			= $(SHELL) $(srcdir)/bin/stub top_srcdir=$(top_srcdir)
 
 ##----------------------------------------------------------------------------
 ##  Extra primaries:
@@ -45,6 +47,11 @@ shlibdir		= @libdir@/sh
 ##  Distribute license:
 ##----------------------------------------------------------------------------
 dist_noinst_DATA	= LICENSE
+
+##----------------------------------------------------------------------------
+##  Finish scripts:
+##----------------------------------------------------------------------------
+noinst_SCRIPTS		= bin/stub
 
 ##----------------------------------------------------------------------------
 ##  Distribute and install manpages:

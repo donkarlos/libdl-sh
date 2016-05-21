@@ -1,0 +1,124 @@
+#! /bin/sh
+#-----------------------------------------------------------------------------
+#   stub			- @PACKAGE_TARNAME@ test stub
+#
+#   Copyright (C) 2016 Das Computerlabor (DCl-M)
+#
+#   This library is free software; you can redistribute it and/or
+#   modify it under the terms of the GNU Lesser General Public License
+#   as published by the Free Software Foundation; either
+#   version 2.1 of the License, or (at your option) any later version.
+#
+#   This library is distributed in the hope that it will be useful,
+#   but WITHOUT ANY WARRANTY; without even the implied warranty of
+#   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+#   Lesser General Public License for more details.
+#
+#   You should have received a copy of the GNU Lesser General Public License
+#   along with this library; if not, write to the Free Software Founda-
+#   tion, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
+##
+##  AUTHOR(S):	ks	Karl Schmitz <ks@computerlabor.org>
+##
+##  WRITTEN BY:	ks	2016-05-20
+##  CHANGED BY:
+##----------------------------------------------------------------------------
+##  Global variables (most of them will be unset later):
+#-----------------------------------------------------------------------------
+cs_upper=ABCDEFGHIJKLMNOPQRSTUVWXYZ	## Define locale-independent character
+cs_lower=abcdefghijklmnopqrstuvwxyz	## sets for upper-/lower-case letters,
+cs_digit=0123456789			## decimal digits, letters and alpha-
+cs_alpha=$cs_upper$cs_lower		## numerics as well as an unanchored
+cs_alnum=$cs_alpha$cs_digit		## RE recognizing sh(1) identifiers.
+re_ident='[_'"$cs_alpha"'][_'"$cs_alnum"']*'
+
+##----------------------------------------------------------------------------
+##  stub_exit(STATUS)		Stub's exit-time hook
+##
+##  NOTE:   (1)	Invoked either by preliminary exit trap or by dl_exit().
+##----------------------------------------------------------------------------
+stub_exit() {
+    chmod -x "$stub_libdl_sh"		## Restore built libdl-sh's per-
+}					## missions.
+
+##----------------------------------------------------------------------------
+##  Main program:
+##----------------------------------------------------------------------------
+LC_ALL=C; export LC_ALL			## Avoid locale insanities.
+command=`basename "$0"`			## Determine command name.
+
+unset stub_set stub_top_srcdir stub_bindir stub_libdir; BS=\\ SQ=\'
+while test $# -gt 0; do			## Process NAME=VALUE parameters...
+    case $1 in
+	*=*)
+	    eval "`sed '
+		/^exit=/be
+		/^set=/be
+		/^libdl_sh=/be
+		/^\('"$re_ident"'\)=/!be
+		s/'"$SQ"'/&'"$BS$BS"'&&/g
+		s/=/ v='"$SQ"'/;s/$/'"$SQ"'/;s/^/n=/;q;:e
+		s/^.*$/test/;q
+	    ' <<EOF
+$1
+EOF`"	    || {
+		echo "$command: $1: Invalid assignment!" >&2
+		exit 2
+	    }
+	    stub_set="${stub_set+$stub_set }$n"
+	    eval 'stub_'"$n"'=$v'; shift;;
+	--) shift; break		;;
+	*)  break			;;
+    esac
+done
+unset cs_upper cs_lower cs_digit cs_alpha cs_alnum re_ident BS SQ n v
+
+case ${stub_top_srcdir+=}:${stub_bindir+=}:${stub_libdir+=} in
+					## Derive bindir and/or libdir from
+    =::)				## top_srcdir if necessary...
+	stub_bindir=${stub_top_srcdir}/bin
+	stub_libdir=${stub_top_srcdir}/lib
+	stub_set="${stub_set+$stub_set }bindir libdir"
+	;;
+    =::=)
+	stub_bindir=${stub_top_srcdir}/bin
+	stub_set="${stub_set+$stub_set }bindir"
+	;;
+    =:=:)
+	stub_libdir=${stub_top_srcdir}/lib
+	stub_set="${stub_set+$stub_set }libdir"
+	;;
+esac
+
+case ${stub_bindir+=} in		## 'bindir=...' given?
+    =)					## Yes...
+	stub_libdl_sh=$stub_bindir/libdl-sh
+	readonly stub_libdl_sh		## Define built libdl-sh's pathname.
+	if test -f "$stub_libdl_sh".un; then
+					## Inside libdl-sh's source tree?
+	    trap 'stub_exit $?; trap "" 0; exit 127' 0
+					## Yes, register preliminary exit trap
+	    chmod +x "$stub_libdl_sh"	## and make built libdl-sh executable.
+	    PATH=${stub_bindir}:$PATH; export PATH
+	    . "${stub_libdir?}"/libdl.sh || exit 127
+					## Emulate 'eval "`libdl-sh load`"'.
+	    dl_atexit stub_exit		## Register exit-time hook.
+	else
+	    eval "`libdl-sh load`"	## No, prepare library demand-loading
+	fi				## with installed libdl-sh package.
+	;;
+    *)					## No...
+	eval "`libdl-sh load`"		## Prepare library demand-loading
+	;;				## with installed libdl-sh package.
+esac
+
+case ${stub_libdir+=} in		## 'libdir=...' given?
+    =)	dl_meta pre libpath "$stub_libdir"
+					## Yes, make other built libraries
+	;;				## available to dl_load().
+esac
+unset `echo set $stub_set | sed 's/^/ /;s/ / stub_/g'`
+
+test $# -eq 0 || {
+    command=$1; shift; . "$command"
+}

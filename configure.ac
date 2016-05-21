@@ -27,6 +27,7 @@ dnl					Add libemit.sh.
 dnl		ks	2015-12-29	Add libquote.3sh.
 dnl		ks	2015-12-30	Add libundo.3sh.
 dnl		ks	2016-05-16	Add libsafe.3sh.
+dnl		ks	2016-05-20	Add stub.
 dnl
 dnl NOTE:   (1)	Update the build system with autoreconf(1).
 dnl	    (2)	AM_INIT_AUTOMAKE() already invokes AC_ARG_PROGRAM, AC_PROG_-
@@ -46,7 +47,7 @@ dnl
 dnl Generate output files:
 dnl
 AF_FINISH_FILES([
-    bin/libdl-sh
+    bin/libdl-sh bin/stub
     doc/libdl-sh.1 doc/libdl-sh.conf.5 doc/libdl.3sh doc/libconf.3sh
     doc/libquote.3sh doc/libundo.3sh doc/libsafe.3sh
     etc/libdl-sh.conf
