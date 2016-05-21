@@ -25,6 +25,7 @@
 ##		ks	2015-04-25	Implement meta operations.
 ##		ks	2015-12-18	Use numeric API versions.
 ##		ks	2016-05-19	Use meta prefix.
+##		ks      2016-05-21	Withdraw API version 0.
 ##
 ##  NOTE:   (1)	The library just wraps around its 'workhorse' AWK script!
 ##----------------------------------------------------------------------------
@@ -51,14 +52,6 @@ conf_meta () {
 		*)	return 1		;;
 	    esac
 	    sed "$sx" <<EOF
-a:0
-f:0:meta(META [ARG ...]):2-
-f:0:exec(CFPN):1
-f:0:has(CFPN ITEM):2
-f:0:get(CFPN ITEM [VALUE]):2-3
-f:0:set(CFPN ITEM VALUE):3
-f:0:unset(CFPN ITEM):2
-f:0:getenv(VARIABLE CFPN ITEM [VALUE]):3-4
 a:1
 f:1:meta(META [ARG ...]):2-
 f:1:exec(CFPN ...):1-
@@ -105,7 +98,6 @@ EOF
 }
 
 ##----------------------------------------------------------------------------
-##  conf_exec(CFPN)						[API 0]
 ##  conf_exec(CFPN ...)						[API 1]
 ##				Process configuration file(s) CFPN by
 ##				executing commands from standard input
@@ -115,17 +107,16 @@ conf_exec () {
 	-:*)
 	    conf_warn
 	    ;;
-	0:1|1:*)
-	    "$conf_awk" ${1+"$@"} -
-	    ;;
-	*)
+	1:0)
 	    return 2
+	    ;;
+	1:*)
+	    "$conf_awk" ${1+"$@"} -
 	    ;;
     esac
 }
 
 ##----------------------------------------------------------------------------
-##  conf_has(CFPN ITEM)						[API 0]
 ##  conf_has(ITEM[=VALUE] CFPN ...)				[API 1]
 ##				(Some) Configuration file CFPN has ITEM?
 ##----------------------------------------------------------------------------
@@ -134,12 +125,7 @@ conf_has () {
 	-:*)
 	    conf_warn
 	    ;;
-	0:2)
-	    "$conf_awk" "$1" - <<EOF
-has $2
-EOF
-	    ;;
-	0:*|1:0)
+	1:[01])
 	    return 2
 	    ;;
 	1:*)
@@ -153,7 +139,6 @@ EOF
 }
 
 ##----------------------------------------------------------------------------
-##  conf_get(CFPN ITEM [VALUE])					[API 0]
 ##  conf_get(ITEM[=VALUE] CFPN ...)				[API 1]
 ##				Get ITEM from (some) CFPN (or VALUE)
 ##----------------------------------------------------------------------------
@@ -162,12 +147,7 @@ conf_get () {
 	-:*)
 	    conf_warn
 	    ;;
-	0:[23])
-	    "$conf_awk" "$1" - <<EOF
-get $2${3+=$3}
-EOF
-	    ;;
-	0:*|1:0)
+	1:[01])
 	    return 2
 	    ;;
 	1:*)
@@ -181,25 +161,6 @@ EOF
 }
 
 ##----------------------------------------------------------------------------
-##  conf_set(CFPN ITEM VALUE)	Set ITEM to VALUE in CFPN	[API 0]
-##----------------------------------------------------------------------------
-conf_set () {
-    case ${conf_api--}:$# in
-	-:*)
-	    conf_warn
-	    ;;
-	0:3)
-	    "$conf_awk" "$1" - <<EOF
-put $2=$3
-EOF
-	    ;;
-	0:*|1:*)
-	    return 2
-	    ;;
-    esac
-}
-
-##----------------------------------------------------------------------------
 ##  conf_put(ITEM[=VALUE] CFPN ...)				[API 1]
 ##				Unset ITEM/Set ITEM to VALUE in last CFPN
 ##----------------------------------------------------------------------------
@@ -208,7 +169,7 @@ conf_put () {
 	-:*)
 	    conf_warn
 	    ;;
-	0:*|1:0)
+	1:[01])
 	    return 2
 	    ;;
 	1:*)
@@ -222,26 +183,6 @@ EOF
 }
 
 ##----------------------------------------------------------------------------
-##  conf_unset(CFPN ITEM)	Unset ITEM in CFPN		[API 0]
-##----------------------------------------------------------------------------
-conf_unset () {
-    case ${conf_api--}:$# in
-	-:*)
-	    conf_warn
-	    ;;
-	0:2)
-	    "$conf_awk" "$1" - <<EOF
-put $2
-EOF
-	    ;;
-	0:*|1:*)
-	    return 2
-	    ;;
-    esac
-}
-
-##----------------------------------------------------------------------------
-##  conf_getenv(VARIABLE CFPN ITEM [VALUE])			[API 0]
 ##  conf_getenv(VARIABLE ITEM[=VALUE] CFPN ...)			[API 1]
 ##				Get ITEM from VARIABLE or CFPN (or VALUE)
 ##----------------------------------------------------------------------------
