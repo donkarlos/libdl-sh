@@ -2,7 +2,7 @@
 #-----------------------------------------------------------------------------
 #   libemit.sh			- Message emission library
 #
-#   Copyright (C) 2013-2015 Das Computerlabor (DCl-M)
+#   Copyright (C) 2013-2016 Das Computerlabor (DCl-M)
 #
 #   This library is free software; you can redistribute it and/or
 #   modify it under the terms of the GNU Lesser General Public License
@@ -21,11 +21,49 @@
 ##  AUTHOR(S):	ks	Karl Schmitz <ks@computerlabor.org>
 ##
 ##  WRITTEN BY:	ks	2013-02-12
-##  CHANGED BY:
+##  CHANGED BY:	ks	2016-05-21	Implement meta operations.
 ##----------------------------------------------------------------------------
 ##  Global variables:
 #-----------------------------------------------------------------------------
+emit_api=0				## Define API version.
 emit_heads=:
+readonly emit_api
+
+##----------------------------------------------------------------------------
+##  emit_meta(META [ARG ...])	Perform META operation (with ARGs)
+##----------------------------------------------------------------------------
+emit_meta () {
+    local mp=emit_			## Set meta prefix.
+
+    case $1-$2 in			## Which META operation?
+	get-apis)			## Inquire APIs...
+	    local sx sxb='/^b:/!d;s///' sxf='/^f:/!d;s///'		\
+		  sx3='s/([^):(]*):/:/' sx1='s/:.*$//' sx2='s/:/:'"$mp"'/'
+	    case ${3-brief} in		## Which format?
+		api)	sx="$sxb;$sx1"			;;
+		brief)	sx="$sxb"';s/:/:,/;s/$/,/'	;;
+		full)   sx="$sxf;$sx2${4+;$4}"		;;
+		list)	sx="$sxf;$sx2;$sx3${4+;$4}"	;;
+		*)	return 1			;;
+	    esac
+	    sed "$sx" <<EOF
+b:$emit_api:meta,set_head,get_head,
+f:$emit_api:meta(META [ARG ...]):2-
+f:$emit_api:set_head(LEVEL HEAD):2
+f:$emit_api:get_head(LEVEL):1
+f:$emit_api:(LEVEL MESSAGE ...):2
+EOF
+	    ;;
+	get-api)			## Inquire internal variable...
+	    eval 'case ${'"$mp$2"'+=} in
+		=)  echo "$'"$mp$2"'"	;;
+		*)  return 1		;;
+	    esac'
+	    ;;
+	*)  return 2			## Anything else...
+	    ;;				## Indicate misusage!
+    esac
+}
 
 ##----------------------------------------------------------------------------
 ##  emit_set_head(LEVEL HEAD)	Set LEVEL's emit head to HEAD
