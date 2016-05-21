@@ -41,8 +41,14 @@ parameter order) to the library's API, lest applications be able to specify
 multiple pathnames. Moreover, the functionality of \fBconf_set\fP(3sh) and
 \fBconf_unset\fP(3sh) has been merged into \fBconf_put\fP(3sh).
 
+Please note that starting with release 0.4, the application \fImust\fP select
+an API version with \fBconf_meta set api\fP \fIVERSION\fP. Unless it hadn't
+done so, the moment it tries to process configuration files it'll be aborted
+(with a warning message shown) under the presumption that it still tries to
+use withdrawn API version 0. You have been warned!
+
 .SH SYNOPSIS (API 0)
-\fBdl_load conf\fP [\fB&& conf_meta set api 0\fP]
+\fBdl_load conf && conf_meta set api 0\fP
 
 \fBconf_has\fP \fICFPN\fP \fIITEM\fP
 .br

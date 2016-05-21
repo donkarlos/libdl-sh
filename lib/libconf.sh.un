@@ -30,9 +30,8 @@
 ##----------------------------------------------------------------------------
 ##  Global variables:
 #-----------------------------------------------------------------------------
-conf_api=0				## Default API version.
 conf_awk=@pkgdatadir@/conf.awk
-readonly conf_awk
+readonly conf_awk; unset conf_api
 
 ##----------------------------------------------------------------------------
 ##  conf_meta(META [ARG ...])	Perform META operation (with ARGs)
@@ -85,13 +84,37 @@ EOF
 }
 
 ##----------------------------------------------------------------------------
+##  conf_warn()			Warn user that so far, no API version had been
+##				selected, and abort application to prevent
+##				serious damage to configuration files.
+##----------------------------------------------------------------------------
+conf_warn () {
+    local sq=\'
+
+    cat >&2 <<EOF
+CAUTION! You${sq}re running an application that tries to use libconf.sh
+	 without having selected an API version. I presume the application
+	 still wants to use withdrawn API version 0. To prevent serious
+	 damage to the application's configuration files, the application
+	 will be aborted now!
+
+	 To work around this issue, I suggest you downgrade package @PACKAGE_TARNAME@
+	 to version 0.3.6.
+EOF
+    exit 3
+}
+
+##----------------------------------------------------------------------------
 ##  conf_exec(CFPN)						[API 0]
 ##  conf_exec(CFPN ...)						[API 1]
 ##				Process configuration file(s) CFPN by
 ##				executing commands from standard input
 ##----------------------------------------------------------------------------
 conf_exec () {
-    case $conf_api:$# in
+    case ${conf_api--}:$# in
+	-:*)
+	    conf_warn
+	    ;;
 	0:1|1:*)
 	    "$conf_awk" ${1+"$@"} -
 	    ;;
@@ -107,7 +130,10 @@ conf_exec () {
 ##				(Some) Configuration file CFPN has ITEM?
 ##----------------------------------------------------------------------------
 conf_has () {
-    case $conf_api:$# in
+    case ${conf_api--}:$# in
+	-:*)
+	    conf_warn
+	    ;;
 	0:2)
 	    "$conf_awk" "$1" - <<EOF
 has $2
@@ -132,7 +158,10 @@ EOF
 ##				Get ITEM from (some) CFPN (or VALUE)
 ##----------------------------------------------------------------------------
 conf_get () {
-    case $conf_api:$# in
+    case ${conf_api--}:$# in
+	-:*)
+	    conf_warn
+	    ;;
 	0:[23])
 	    "$conf_awk" "$1" - <<EOF
 get $2${3+=$3}
@@ -155,7 +184,10 @@ EOF
 ##  conf_set(CFPN ITEM VALUE)	Set ITEM to VALUE in CFPN	[API 0]
 ##----------------------------------------------------------------------------
 conf_set () {
-    case $conf_api:$# in
+    case ${conf_api--}:$# in
+	-:*)
+	    conf_warn
+	    ;;
 	0:3)
 	    "$conf_awk" "$1" - <<EOF
 put $2=$3
@@ -172,7 +204,10 @@ EOF
 ##				Unset ITEM/Set ITEM to VALUE in last CFPN
 ##----------------------------------------------------------------------------
 conf_put () {
-    case $conf_api:$# in
+    case ${conf_api--}:$# in
+	-:*)
+	    conf_warn
+	    ;;
 	0:*|1:0)
 	    return 2
 	    ;;
@@ -190,7 +225,10 @@ EOF
 ##  conf_unset(CFPN ITEM)	Unset ITEM in CFPN		[API 0]
 ##----------------------------------------------------------------------------
 conf_unset () {
-    case $conf_api:$# in
+    case ${conf_api--}:$# in
+	-:*)
+	    conf_warn
+	    ;;
 	0:2)
 	    "$conf_awk" "$1" - <<EOF
 put $2
