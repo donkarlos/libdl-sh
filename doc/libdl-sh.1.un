@@ -26,7 +26,7 @@
 .\#
 .\# NOTE: (1)	Please adjust below date whenever revising the manual page.
 .\#		vvvvvv
-.TH LIBDL-SH 1 2016-05-19 "@PACKAGE_TARNAME@ @PACKAGE_VERSION@" "Shell Programming"
+.TH LIBDL-SH 1 2016-05-22 "@PACKAGE_TARNAME@ @PACKAGE_VERSION@" "Shell Programming"
 
 .SH NAME
 libdl-sh \- POSIX shell library demand-loading helper
@@ -49,17 +49,27 @@ the application.
 Write a shell statement to standard output which, when executed, loads (i.e.,
 sources) the demand-loading library \fBlibdl.sh\fP (see \fBFILES\fP below) or
 exits the application with status \fB127\fP (like a binary executable that
-fails to load a shared library would). Thus, an application executes
+fails to load a shared library would). Thus, an application invokes
 
 .in +4
 \fBeval "`libdl-sh load`"\fP
 .in -4
 
 to load the demand-loading library, (optionally) prepends application-specific
-library search path items with
-.BR dl_init (3sh),
-and demand-loads further libraries with
+library search path (LSP) items by invoking
+
+.in +4
+\fBdl_meta pre libpath\fP \fILIBPATH\fP
+.in -4
+
+(see
+.BR dl_meta (3sh)
+for details) and demand-loads further libraries with
 .BR dl_load (3sh).
+
+If \fBLIBDL_SH_LIBRARY_PATH\fP is exported (see \fBENVIRONMENT\fP below),
+\fBlibdl-sh load\fP uses it to search \fBlibdl.sh\fP in alternate directories
+before loading \fB@shlibdir@/libdl.sh\fP.
 
 .TP
 .BR path
@@ -89,6 +99,14 @@ The action's purpose is helping other packages which provide
 demand-loadable POSIX shell libraries integrating with the demand-loading
 mechanism. It's not used internally by @PACKAGE_TARNAME@.
 
+.SH ENVIRONMENT
+Action \fBload\fP respects the following environment variables:
+.TP
+\fBLIBDL_SH_LIBRARY_PATH\fP
+A colon-separated list of directories in which to search \fBlibdl.sh\fP  at
+runtime before the installed demand-loading library \fB@shlibdir@/libdl.sh\fP
+is loaded.
+
 .SH FILES
 .TP
 \fB@shlibdir@/libdl.sh\fP, \fB@bindir@/libdl-sh\fP
@@ -99,7 +117,7 @@ The user-specific and system-wide demand-loading configuration files defining
 the library search path.
 
 .SH SEE ALSO
-.BR dl_init (3sh),
+.BR dl_meta (3sh),
 .BR dl_load (3sh),
 .BR libdl-sh.conf (5).
 

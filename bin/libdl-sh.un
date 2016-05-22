@@ -54,11 +54,22 @@ include () {
 ##----------------------------------------------------------------------------
 case $1 in				## Which action?
     load)				## Emit command to load libdl.sh...
-	echo '. @shlibdir@/libdl.sh || exit 127'
+	BS=\\ SQ=\'; for item in `
+	    ifs=$IFS; IFS=:; echo $LIBDL_SH_LIBRARY_PATH @shlibdir@; IFS=$ifs
+	`				## Foreach item on the preliminary
+	do				## library search path (LSP) do...
+	    libdl=$item/libdl.sh; test -f "$libdl" && sed '
+		s/'"$SQ"'/&'"$BS$BS"'&&/g
+		s/^/. '"$SQ"'/;s/$/'"$SQ"' || exit 127/
+	    ' <<EOF && exit 0
+$libdl
+EOF
+	done; echo 'exit 127'
 	;;
     path)				## Emit library search path (LSP)...
 	libpath=			## Start with empty LSP.
 	for item in `
+	    ifs=$IFS; IFS=:; echo $LIBDL_SH_LIBRARY_PATH; IFS=$ifs
 	    include ${HOME:+"$HOME"/.libdl-sh.conf} @sysconfdir@/libdl-sh.conf
 	`				## Foreach item in user's and system-
 	do				## wide configuration do...
