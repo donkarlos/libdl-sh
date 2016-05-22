@@ -21,22 +21,13 @@
 ##  AUTHOR(S):	ks	Karl Schmitz <ks@computerlabor.org>
 ##
 ##  WRITTEN BY:	ks	2016-05-20
-##  CHANGED BY:
-##----------------------------------------------------------------------------
-##  Global variables (most of them will be unset later):
-#-----------------------------------------------------------------------------
-cs_upper=ABCDEFGHIJKLMNOPQRSTUVWXYZ	## Define locale-independent character
-cs_lower=abcdefghijklmnopqrstuvwxyz	## sets for upper-/lower-case letters,
-cs_digit=0123456789			## decimal digits, letters and alpha-
-cs_alpha=$cs_upper$cs_lower		## numerics as well as an unanchored
-cs_alnum=$cs_alpha$cs_digit		## RE recognizing sh(1) identifiers.
-re_ident='[_'"$cs_alpha"'][_'"$cs_alnum"']*'
-
+##  CHANGED BY:	ks	2016-05-22	Simplify 'NAME=VALUE' parameter pro-
+##					cessing.
 ##----------------------------------------------------------------------------
 ##  stub_exit(STATUS)		Stub's exit-time hook
 ##
 ##  NOTE:   (1)	Invoked either by preliminary exit trap or by dl_exit().
-##----------------------------------------------------------------------------
+#-----------------------------------------------------------------------------
 stub_exit() {
     chmod -x "$stub_libdl_sh"		## Restore built libdl-sh's per-
 }					## missions.
@@ -47,47 +38,32 @@ stub_exit() {
 LC_ALL=C; export LC_ALL			## Avoid locale insanities.
 command=`basename "$0"`			## Determine command name.
 
-unset stub_set stub_top_srcdir stub_bindir stub_libdir; BS=\\ SQ=\'
-while test $# -gt 0; do			## Process NAME=VALUE parameters...
+unset stub_top_srcdir stub_bindir stub_libdir
+while test $# -gt 0; do			## Process 'NAME=VALUE' parameters...
     case $1 in
-	*=*)
-	    eval "`sed '
-		/^exit=/be
-		/^set=/be
-		/^libdl_sh=/be
-		/^\('"$re_ident"'\)=/!be
-		s/'"$SQ"'/&'"$BS$BS"'&&/g
-		s/=/ v='"$SQ"'/;s/$/'"$SQ"'/;s/^/n=/;q;:e
-		s/^.*$/test/;q
-	    ' <<EOF
-$1
-EOF`"	    || {
-		echo "$command: $1: Invalid assignment!" >&2
-		exit 2
-	    }
-	    stub_set="${stub_set+$stub_set }$n"
+	top_srcdir=*|bindir=*|libdir=*)
+	    n=`expr "$1" : '^\([^=]*\)=.*$'`
+	    v=`expr "$1" : '^[^=]*=\(.*\)$'`
 	    eval 'stub_'"$n"'=$v'; shift;;
+	*=*)
+	    echo "$command: $1: Ignored assignment." >&2
+	    shift			;;
 	--) shift; break		;;
 	*)  break			;;
     esac
 done
-unset cs_upper cs_lower cs_digit cs_alpha cs_alnum re_ident BS SQ n v
+unset n v
 
-case ${stub_top_srcdir+=}:${stub_bindir+=}:${stub_libdir+=} in
-					## Derive bindir and/or libdir from
-    =::)				## top_srcdir if necessary...
-	stub_bindir=${stub_top_srcdir}/bin
-	stub_libdir=${stub_top_srcdir}/lib
-	stub_set="${stub_set+$stub_set }bindir libdir"
-	;;
-    =::=)
-	stub_bindir=${stub_top_srcdir}/bin
-	stub_set="${stub_set+$stub_set }bindir"
-	;;
-    =:=:)
-	stub_libdir=${stub_top_srcdir}/lib
-	stub_set="${stub_set+$stub_set }libdir"
-	;;
+case ${stub_top_srcdir+=}:${stub_libdir+=} in
+					## Derive $libdir from $top_srcdir?
+    =:)	stub_libdir=${stub_top_srcdir}/lib;;
+					## Yes, do so.
+esac
+
+case ${stub_top_srcdir+=}:${stub_bindir+=} in
+					## Derive $bindir from $top_srcdir?
+    =:)	stub_bindir=${stub_top_srcdir}/bin;;
+					## Yes, do so.
 esac
 
 case ${stub_bindir+=} in		## 'bindir=...' given?
@@ -117,7 +93,7 @@ case ${stub_libdir+=} in		## 'libdir=...' given?
 					## Yes, make other built libraries
 	;;				## available to dl_load().
 esac
-unset `echo set $stub_set | sed 's/^/ /;s/ / stub_/g'`
+unset stub_top_srcdir stub_bindir stub_libdir
 
 test $# -eq 0 || {
     command=$1; shift; . "$command"
