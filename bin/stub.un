@@ -73,19 +73,18 @@ case ${bindir+=} in			## $bindir finally set?
 	if test -f "$stub_libdl_sh".un; then
 					## Inside libdl-sh's source tree?
 	    trap 'stub_exit $?; trap "" 0; exit 127' 0
-					## Yes, register preliminary exit trap
-	    chmod +x "$stub_libdl_sh"	## and make built libdl-sh executable.
-	    PATH=${bindir}:$PATH; export PATH
-	    . "${libdir?}"/libdl.sh || exit 127
-					## Emulate 'eval "`libdl-sh load`"'.
-	    dl_atexit stub_exit		## Register exit-time hook.
-	else
-	    eval "`libdl-sh load`"	## No, prepare library demand-loading
-	fi				## with installed libdl-sh package.
+					## Yes, register preliminary exit
+	    chmod +x "$stub_libdl_sh"	## trap, make built libdl-sh execut-
+					## able, and augment PATH.
+	    PATH=$bindir:$PATH; export PATH
+	fi
+
+	eval "`libdl-sh load`"		## Prepare library demand loading.
+	dl_atexit stub_exit		## Register exit-time hook.
 	;;
     *)					## No...
-	eval "`libdl-sh load`"		## Prepare library demand-loading
-	;;				## with installed libdl-sh package.
+	eval "`libdl-sh load`"		## Prepare library demand-loading.
+	;;
 esac
 unset top_srcdir bindir libdir
 
