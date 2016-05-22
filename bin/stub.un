@@ -57,6 +57,11 @@ case ${top_srcdir+=}:${libdir+=} in	## Derive $libdir from $top_srcdir?
     =:)	libdir=${top_srcdir}/lib;;	## Yes, do so.
 esac
 
+case ${libdir+=} in			## $libdir finally set?
+    =)	LIBDL_SH_LIBRARY_PATH="$libdir"; export LIBDL_SH_LIBRARY_PATH
+	;;				## Yes, export it as LIBDL_SH_LIBRA-
+esac					## RY_PATH.
+
 case ${top_srcdir+=}:${bindir+=} in	## Derive $bindir from $top_srcdir?
     =:)	bindir=${top_srcdir}/bin;;	## Yes, do so.
 esac
@@ -81,11 +86,6 @@ case ${bindir+=} in			## $bindir finally set?
     *)					## No...
 	eval "`libdl-sh load`"		## Prepare library demand-loading
 	;;				## with installed libdl-sh package.
-esac
-
-case ${libdir+=} in			## 'libdir=...' given?
-    =)	dl_meta pre libpath "$libdir"	## Yes, make other built libraries
-	;;				## available to dl_load().
 esac
 unset top_srcdir bindir libdir
 
