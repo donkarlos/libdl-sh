@@ -38,45 +38,40 @@ stub_exit() {
 LC_ALL=C; export LC_ALL			## Avoid locale insanities.
 command=`basename "$0"`			## Determine command name.
 
-unset stub_top_srcdir stub_bindir stub_libdir
+unset top_srcdir bindir libdir		## Shield from spurious environment.
 while test $# -gt 0; do			## Process 'NAME=VALUE' parameters...
     case $1 in
 	top_srcdir=*|bindir=*|libdir=*)
 	    n=`expr "$1" : '^\([^=]*\)=.*$'`
 	    v=`expr "$1" : '^[^=]*=\(.*\)$'`
-	    eval 'stub_'"$n"'=$v'; shift;;
+	    eval "$n"'=$v'; shift	;;
 	*=*)
 	    echo "$command: $1: Ignored assignment." >&2
 	    shift			;;
 	--) shift; break		;;
 	*)  break			;;
     esac
-done
-unset n v
+done; unset n v				## Discard auxiliary variables.
 
-case ${stub_top_srcdir+=}:${stub_libdir+=} in
-					## Derive $libdir from $top_srcdir?
-    =:)	stub_libdir=${stub_top_srcdir}/lib;;
-					## Yes, do so.
+case ${top_srcdir+=}:${libdir+=} in	## Derive $libdir from $top_srcdir?
+    =:)	libdir=${top_srcdir}/lib;;	## Yes, do so.
 esac
 
-case ${stub_top_srcdir+=}:${stub_bindir+=} in
-					## Derive $bindir from $top_srcdir?
-    =:)	stub_bindir=${stub_top_srcdir}/bin;;
-					## Yes, do so.
+case ${top_srcdir+=}:${bindir+=} in	## Derive $bindir from $top_srcdir?
+    =:)	bindir=${top_srcdir}/bin;;	## Yes, do so.
 esac
 
-case ${stub_bindir+=} in		## 'bindir=...' given?
+case ${bindir+=} in			## $bindir finally set?
     =)					## Yes...
-	stub_libdl_sh=$stub_bindir/libdl-sh
+	stub_libdl_sh=$bindir/libdl-sh
 	readonly stub_libdl_sh		## Define built libdl-sh's pathname.
 	if test -f "$stub_libdl_sh".un; then
 					## Inside libdl-sh's source tree?
 	    trap 'stub_exit $?; trap "" 0; exit 127' 0
 					## Yes, register preliminary exit trap
 	    chmod +x "$stub_libdl_sh"	## and make built libdl-sh executable.
-	    PATH=${stub_bindir}:$PATH; export PATH
-	    . "${stub_libdir?}"/libdl.sh || exit 127
+	    PATH=${bindir}:$PATH; export PATH
+	    . "${libdir?}"/libdl.sh || exit 127
 					## Emulate 'eval "`libdl-sh load`"'.
 	    dl_atexit stub_exit		## Register exit-time hook.
 	else
@@ -88,12 +83,11 @@ case ${stub_bindir+=} in		## 'bindir=...' given?
 	;;				## with installed libdl-sh package.
 esac
 
-case ${stub_libdir+=} in		## 'libdir=...' given?
-    =)	dl_meta pre libpath "$stub_libdir"
-					## Yes, make other built libraries
+case ${libdir+=} in			## 'libdir=...' given?
+    =)	dl_meta pre libpath "$libdir"	## Yes, make other built libraries
 	;;				## available to dl_load().
 esac
-unset stub_top_srcdir stub_bindir stub_libdir
+unset top_srcdir bindir libdir
 
 test $# -eq 0 || {
     command=$1; shift; . "$command"
