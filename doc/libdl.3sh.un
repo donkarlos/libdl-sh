@@ -24,10 +24,11 @@
 .\#					Lay session concept foundation.
 .\#		ks	2016-05-21	Withdraw 'dl_meta get apis' brief
 .\#					format and dl_init().
+.\#		ks      2016-05-23	Add service function dl_warn().
 .\#
 .\# NOTE: (1)	Please adjust below date whenever revising the manual page.
 .\#		vvvvvv
-.TH LIBDL 3SH 2016-05-21 "@PACKAGE_TARNAME@ @PACKAGE_VERSION@" "Shell Programming"
+.TH LIBDL 3SH 2016-05-23 "@PACKAGE_TARNAME@ @PACKAGE_VERSION@" "Shell Programming"
 
 .SH NAME
 dl_atload, dl_load, dl_atexit, dl_exit, dl_which, dl_meta
@@ -232,6 +233,11 @@ State that API version \fIWAPI\fP (the withdrawing API) withdrew the function
 represented by \fIINVO\fP (see \fBrel-req-set-api\fP above), but that you
 instead may stay with API version  \fICAPI\fP (the latest compatible API)
 for now.
+
+.TP
+\fBrel-wdr-meta\fB \fILIB\fP \fIARGS\fP \fIWREL\fP \fICREL\fP
+State that release \fIWREL\fP withdrew the meta operation represented by
+\fIARGS\fP (format: \fB[\fP$#\fB]\fP$*) and give the usual downgrade hint.
 .RE
 
 .SH TRAPS

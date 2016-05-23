@@ -45,12 +45,20 @@ conf_meta() {
 	get-apis)			## Inquire APIs...
 	    local fa='/^a:/!d;s///'	ff='/^f:/!d;s///'		\
 		  da=';s/([^):(]*):/:/'	p2=';s/:/:'"$mp"'/'		\
-		  sx
-	    case ${3-api} in		## Which format?
-		api)	sx="$fa"		;;
-		full)   sx="$ff$p2${4+;$4}"	;;
-		list)	sx="$ff$p2$da${4+;$4}"	;;
-		*)	return 1		;;
+		  sx format
+	    case ${conf_api-0} in
+		0)  format=${3-brief}	;;
+		*)  format=${3-api}	;;
+	    esac
+	    case ${conf_api-0}:$format in
+					## Which format?
+		0:brief)
+		    dl_warn rel-wdr-meta conf "[$#]$1 $2 $format" 0.4 0.3.6
+		    return 1			;;
+		*:api)	sx="$fa"		;;
+		*:full)	sx="$ff$p2${4+;$4}"	;;
+		*:list)	sx="$ff$p2$da${4+;$4}"	;;
+		*:*)	return 1		;;
 	    esac
 	    sed "$sx" <<EOF
 a:1

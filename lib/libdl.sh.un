@@ -24,6 +24,7 @@
 ##  CHANGED BY:	ks	2015-04-23	Implement meta operations.
 ##					Lay session concept foundation.
 ##		ks	2016-05-19	Use meta prefix.
+##		ks      2016-05-23	Add service function dl_warn().
 ##----------------------------------------------------------------------------
 ##  Global variables:
 #-----------------------------------------------------------------------------
@@ -132,6 +133,15 @@ $2_$3; WARNING:
 Function withdrawn from API version $4 of lib$2.sh.
 See lib$2(3SH) for suggestions on how to migrate your application or
 stay with (probably deprecated) API version $5 for the time being.
+EOF
+	    ;;
+	rel-wdr-meta)			## Release withdrew meta operation...
+					## (LIB ARGS WREL CREL)
+	    cat >&2 <<EOF
+$2_meta($3); WARNING:
+Meta operation withdrawn since release $4.
+See lib$2(3SH) for suggestions on how to migrate your application or
+downgrade package @PACKAGE_TARNAME@ to release $5.
 EOF
 	    ;;
 	*)				## Catch-all...
