@@ -63,6 +63,7 @@ dl_meta() {
 	    sed "$sx" <<EOF
 a:$dl_api
 f:$dl_api:meta(META [ARG ...]):2-
+f:$dl_api:warn(WHAT [ARG ...]):1-
 f:$dl_api:which(LIB):1
 f:$dl_api:atload(HOOK):1
 f:$dl_api:load(LIB ...):1-
@@ -92,6 +93,18 @@ EOF
 	*)  return 2			## Anything else...
 	    ;;				## Indicate misusage!
     esac
+}
+
+##----------------------------------------------------------------------------
+##  dl_warn(WHAT [ARG ...])	Warn about deprecated and/or withdrawn
+##				features
+##----------------------------------------------------------------------------
+dl_warn() {
+    case $1 in				## Warn user about WHAT?
+	*)				## Catch-all...
+	    echo "$*; OOPS!" >&2
+	    ;;
+    esac; return 1
 }
 
 ##----------------------------------------------------------------------------

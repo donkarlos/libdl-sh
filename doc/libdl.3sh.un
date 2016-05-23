@@ -189,6 +189,15 @@ Register an arbitrary session \fIID\fPentifier.
 Inquire registered session identifier and write it to standard output.
 .RE
 
+.SH SERVICE FUNCTIONS
+The following functions are intended as a service to other demand-loadable
+libraries. They shouldn't be invoked directly from applications.
+.TP 4
+\fBdl_warn\fP \fIWHAT\fP [\fIARG\fP ...]
+Warn about deprecated and/or withdrawn features by writing an appropriate
+message to standard error output and returning status \fB1\fP (unless noted
+otherwise).
+
 .SH TRAPS
 In order to have "naïve" applications benefit from \fBlibdl.sh\fP's exit-time
 hook mechanism, the demand-loading library changes the exit trap with
