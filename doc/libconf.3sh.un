@@ -113,6 +113,7 @@ following meta operations are implemented:
 Inquire information about available API versions and write them to standard
 output. The information written depends on the output \fIFORMAT\fP:
 .RS 4
+.IP \(em 2
 \fBapi\fP (the default format) represents each API version by a line
 containing \fIVERSION\fP.
 
