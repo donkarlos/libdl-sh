@@ -36,7 +36,7 @@ readonly safe_api
 ##----------------------------------------------------------------------------
 ##  safe_meta(META [ARG ...])	Perform META operation (with ARGs)
 ##----------------------------------------------------------------------------
-safe_meta () {
+safe_meta() {
     local mp=safe_			## Set meta prefix.
 
     case $1-$2 in			## Which META operation?
@@ -81,14 +81,14 @@ EOF
 ##----------------------------------------------------------------------------
 ##  safe_init(TAG)		Set cleanups tag for successful exit
 ##----------------------------------------------------------------------------
-safe_init () {
+safe_init() {
     undo_init "$1" && safe_exit0=$1
 }
 
 ##----------------------------------------------------------------------------
 ##  safe_mktmpdir(&DPN [DRN])	Safely make temporary directory
 ##----------------------------------------------------------------------------
-safe_mktmpdir () {
+safe_mktmpdir() {
     test -n "$safe_tmpdir" || {		## Temporary directory made?
 	safe_tmpdir=`mktemp -d` || return 1
 					## No, try to make it once and for all.
@@ -106,7 +106,7 @@ safe_mktmpdir () {
 ##----------------------------------------------------------------------------
 ##  safe_mkdir(DPN ...)		Safely make directories
 ##----------------------------------------------------------------------------
-safe_mkdir () {
+safe_mkdir() {
     local dpn
 
     for dpn in ${1+"$@"}; do		## Foreach directory do...
@@ -120,14 +120,14 @@ safe_mkdir () {
 ##----------------------------------------------------------------------------
 ##  safe_chdir(DPN)		Safely change directory
 ##----------------------------------------------------------------------------
-safe_chdir () {
+safe_chdir() {
     local d="`pwd`"; cd "$1" && undo_push cd "$d" '2>/dev/null'
 }
 
 ##----------------------------------------------------------------------------
 ##  safe_touch(FPN ...)		Safely touch file(s) into existence
 ##----------------------------------------------------------------------------
-safe_touch () {
+safe_touch() {
     local fpn
 
     for fpn in ${1+"$@"}; do		## Foreach file do...
@@ -141,7 +141,7 @@ safe_touch () {
 ##----------------------------------------------------------------------------
 ##  safe_save(FPN)		Safely save existing file
 ##----------------------------------------------------------------------------
-safe_save () {
+safe_save() {
     test -f "$1~B$safe_suffix" || {	## File has already been saved?
 	cp -p "$1" "$1~B$safe_suffix" && {
 	    undo_push $safe_exit0 'rm -f' "$1~B$safe_suffix"
@@ -153,7 +153,7 @@ safe_save () {
 ##----------------------------------------------------------------------------
 ##  safe_rename(OLDPN NEWPN)	Safely rename file
 ##----------------------------------------------------------------------------
-safe_rename () {
+safe_rename() {
     test -e "$1" || return 1
     test -e "$2" && return 1
     mv "$1" "$2" && undo_push mv "$2" "$1"
@@ -162,7 +162,7 @@ safe_rename () {
 ##----------------------------------------------------------------------------
 ##  safe_remove(PN ...)		Safely remove directory tree(s)/file(s)
 ##----------------------------------------------------------------------------
-safe_remove () {
+safe_remove() {
     local tmpdn tarpn pn
 
     safe_mktmpdir tmpdn safe && {	## Make temporary directory.
@@ -185,7 +185,7 @@ safe_remove () {
 ##  safe_umask(UMASK COMMAND [ARGUMENT ...])
 ##				Invoke COMMAND with umask UMASK
 ##----------------------------------------------------------------------------
-safe_umask () {
+safe_umask() {
     local umask=`umask` status		## Save umask.
 
     umask $1; shift			## Adjust umask.
@@ -198,7 +198,7 @@ safe_umask () {
 ##----------------------------------------------------------------------------
 ##  safe_unlock(PN)		Safely unlock directory or file PN
 ##----------------------------------------------------------------------------
-safe_unlock () {
+safe_unlock() {
     echo "$safe_locks" | fgrep -qxe "$1" && rmdir "$1~lock" && {
 	safe_locks="`echo "$safe_locks" | fgrep -vxe "$1"`" || :
     }
@@ -207,7 +207,7 @@ safe_unlock () {
 ##----------------------------------------------------------------------------
 ##  safe_lock(PN)		Safely try locking directory or file PN
 ##----------------------------------------------------------------------------
-safe_lock () {
+safe_lock() {
     echo "$safe_locks" | fgrep -qxe "$1" || {
 	safe_mkdir "`dirname "$1"`" &&
 	    safe_umask 277 mkdir "$1~lock" 2>/dev/null &&
@@ -219,7 +219,7 @@ safe_lock () {
 ##----------------------------------------------------------------------------
 ##  safe_wait(PN [SECONDS=30])	Try locking PN within SECONDS seconds
 ##----------------------------------------------------------------------------
-safe_wait () {
+safe_wait() {
     local seconds="${2-30}"
 
     until safe_lock "$1"; do		## Until we lock map file do...

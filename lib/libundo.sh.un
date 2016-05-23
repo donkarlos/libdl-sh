@@ -35,7 +35,7 @@ readonly undo_api
 ##----------------------------------------------------------------------------
 ##  undo_meta(META [ARG ...])	Perform META operation (with ARGs)
 ##----------------------------------------------------------------------------
-undo_meta () {
+undo_meta() {
     local mp=undo_			## Set meta prefix.
 
     case $1-$2 in			## Which META operation?
@@ -74,7 +74,7 @@ EOF
 ##----------------------------------------------------------------------------
 ##  undo_init(TAG)		Set cleanups tag for successful exit
 ##----------------------------------------------------------------------------
-undo_init () {
+undo_init() {
     case $1 in				## Cleanups tag is first?
 	::*)	return 2	;;	## No, it's a mark!
 	:?*)	undo_exit0=$1	;;	## Yes, set cleanups tag.
@@ -94,7 +94,7 @@ undo_init () {
 ##		Otherwise, the undo stack might be accidentally cleared or
 ##		not modified at all!
 ##----------------------------------------------------------------------------
-undo_emit () {
+undo_emit() {
     local i mark range sedex
 
     case $1 in				## Which mode?
@@ -142,7 +142,7 @@ EOF
 ##		occupy a whole line. Keep this in mind when pulling/dropping/
 ##		keeping undos by count!
 ##----------------------------------------------------------------------------
-undo_mark () {
+undo_mark() {
     case $1 in				## Mark is first?
 	::?*)	undo_stack="#{$1::}#$NL$undo_stack"	;;
 					## Push mark onto undo stack.
@@ -155,7 +155,7 @@ undo_mark () {
 ##				Push (TAGged) COMMAND (with quoted ARGUMENTs
 ##				and/or raw REDIRECTIONs) onto undo stack
 ##----------------------------------------------------------------------------
-undo_push () {
+undo_push() {
     local tag
 
     case $1 in				## Tag is first?
@@ -171,7 +171,7 @@ undo_push () {
 ##  undo_pull(TAG)		Pull TAGged undos, or
 ##  undo_pull([COUNT=1])	Pull COUNT undos from undo stack
 ##----------------------------------------------------------------------------
-undo_pull () {
+undo_pull() {
     eval "`undo_emit keep ${1+"$@"}`"
     undo_stack=`undo_emit drop ${1+"$@"}`
 				## Pull (i.e. apply and drop) selected undos
@@ -183,7 +183,7 @@ undo_pull () {
 ##  undo_drop(TAG)		Drop TAGged undos, or
 ##  undo_drop([COUNT=1])	Drop COUNT undos from undo stack
 ##----------------------------------------------------------------------------
-undo_drop () {
+undo_drop() {
     undo_stack=`undo_emit drop ${1+"$@"}`
 }					## Drop selected undos from stack.
 
@@ -193,7 +193,7 @@ undo_drop () {
 ##  undo_keep(TAG)		Keep TAGged undos, or
 ##  undo_keep([COUNT=1])	Keep COUNT undos on undo stack
 ##----------------------------------------------------------------------------
-undo_keep () {
+undo_keep() {
     undo_stack=`undo_emit keep ${1+"$@"}`
 }					## Keep selected undos on stack.
 
@@ -202,7 +202,7 @@ undo_keep () {
 ##
 ##  NOTE:   (1)	This function is registered as exit-time hook!
 ##----------------------------------------------------------------------------
-undo_exit () {
+undo_exit() {
     case ${1-1}$undo_exit0 in		## Exit with...
 	0)				## ...success and no cleanups tag?
 	    ;;				## What's done is done.

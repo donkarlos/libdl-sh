@@ -32,7 +32,7 @@ readonly emit_api
 ##----------------------------------------------------------------------------
 ##  emit_meta(META [ARG ...])	Perform META operation (with ARGs)
 ##----------------------------------------------------------------------------
-emit_meta () {
+emit_meta() {
     local mp=emit_			## Set meta prefix.
 
     case $1-$2 in			## Which META operation?
@@ -68,7 +68,7 @@ EOF
 ##----------------------------------------------------------------------------
 ##  emit_set_head(LEVEL HEAD)	Set LEVEL's emit head to HEAD
 ##----------------------------------------------------------------------------
-emit_set_head () {
+emit_set_head() {
     eval emit_head_$1=\$2
 
     case $emit_heads in
@@ -80,7 +80,7 @@ emit_set_head () {
 ##----------------------------------------------------------------------------
 ##  emit_get_head(LEVEL)	Get LEVEL's emit head
 ##----------------------------------------------------------------------------
-emit_get_head () {
+emit_get_head() {
     case $emit_heads in
 	*:$1:*)	eval echo \"\$emit_head_$1\"	;;
 	*)	return 1			;;
@@ -90,7 +90,7 @@ emit_get_head () {
 ##----------------------------------------------------------------------------
 ##  emit(LEVEL MESSAGE ...)	Emit message at LEVEL
 ##----------------------------------------------------------------------------
-emit () {
+emit() {
     local l="$1"; shift			## Fetch level.
 
     case $emit_heads in

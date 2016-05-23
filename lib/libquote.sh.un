@@ -44,7 +44,7 @@ readonly quote_api quote_sh_sedex
 ##----------------------------------------------------------------------------
 ##  quote_meta(META [ARG ...])	Perform META operation (with ARGs)
 ##----------------------------------------------------------------------------
-quote_meta () {
+quote_meta() {
     local mp=quote_			## Set meta prefix.
 
     case $1-$2 in			## Which META operation?
@@ -82,7 +82,7 @@ EOF
 ##----------------------------------------------------------------------------
 ##  quote_sh(STRING)		Quote STRING for sh(1)
 ##----------------------------------------------------------------------------
-quote_sh () {
+quote_sh() {
     case $BASH in
 	?*) echo \'${1//\'/\'\\\'\'}\'
 	    ;;
@@ -97,7 +97,7 @@ EOF
 ##  quote_command(COMMAND [ARGUMENT|REDIRECTION ...])
 ##				Quote sh(1) command
 ##----------------------------------------------------------------------------
-quote_command () {
+quote_command() {
     local cmd="$1" arg; shift		## Fetch command.
 
     case $BASH in			## Append each redirection/argument...
@@ -121,7 +121,7 @@ EOF`"							;;
 ##----------------------------------------------------------------------------
 ##  quote_grep(STRING)		Quote STRING for grep(1)
 ##----------------------------------------------------------------------------
-quote_grep () {
+quote_grep() {
     sed 's/\([]^\.*$[]\)/\\\1/g' <<EOF
 $1
 EOF
@@ -130,7 +130,7 @@ EOF
 ##----------------------------------------------------------------------------
 ##  quote_egrep(STRING)		Quote STRING for egrep(1)
 ##----------------------------------------------------------------------------
-quote_egrep () {
+quote_egrep() {
     sed 's/\([]^\.(|)?*+{}$[]\)/\\\1/g' <<EOF
 $1
 EOF
@@ -140,7 +140,7 @@ EOF
 ##  quote_sed(STRING [DELIMITER=/])
 ##				Quote STRING for sed(1)
 ##----------------------------------------------------------------------------
-quote_sed () {
+quote_sed() {
     sed 's/\([]'"${2-/}"'^\.*$[]\)/\\\1/g' <<EOF
 $1
 EOF

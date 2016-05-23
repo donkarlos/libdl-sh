@@ -46,7 +46,7 @@ unset dl_atloads dl_session		## Discard spurious environment.
 ##----------------------------------------------------------------------------
 ##  dl_meta(META [ARG ...])	Perform META operation (with ARGs)
 ##----------------------------------------------------------------------------
-dl_meta () {
+dl_meta() {
     local mp=dl_			## Set meta prefix.
 
     case $1-$2 in			## Which META operation?
@@ -97,7 +97,7 @@ EOF
 ##----------------------------------------------------------------------------
 ##  dl_which(LIB)		Locate LIBrary on library search path
 ##----------------------------------------------------------------------------
-dl_which () {
+dl_which() {
     local ifs lib="$1" item
 
     ifs=$IFS; IFS=:; set shiftee `sed '
@@ -115,7 +115,7 @@ EOF`; shift; IFS=$ifs			## Split combined library search path.
 ##----------------------------------------------------------------------------
 ##  dl_atload(HOOK)		Register load-time hook
 ##----------------------------------------------------------------------------
-dl_atload () {
+dl_atload() {
     expr "${1:-.}${1:+_$1}" : '^'"$dl_re_ident"'$' >/dev/null &&
 	dl_atloads="$1"' "$lib"'"${dl_atloads+ && $dl_atloads}"
 }
@@ -123,7 +123,7 @@ dl_atload () {
 ##----------------------------------------------------------------------------
 ##  dl_load(LIB ...)		Load demanded libraries
 ##----------------------------------------------------------------------------
-dl_load () {
+dl_load() {
     local lib needed path
 
     case $dl_needed in
@@ -149,7 +149,7 @@ dl_load () {
 ##----------------------------------------------------------------------------
 ##  dl_atexit(HOOK)		Register exit-time hook
 ##----------------------------------------------------------------------------
-dl_atexit () {
+dl_atexit() {
     expr "${1:-.}${1:+_$1}" : '^'"$dl_re_ident"'$' >/dev/null &&
 	dl_atexits="$1"' $status; '"$dl_atexits"
 }
@@ -157,7 +157,7 @@ dl_atexit () {
 ##----------------------------------------------------------------------------
 ##  dl_exit([STATUS=$?])	Terminate program with STATUS
 ##----------------------------------------------------------------------------
-dl_exit () {
+dl_exit() {
     local status=`expr 0 + "${1-$?}" 2>/dev/null` || status=2
 					## Fetch exit status ($dl_atexits re-
 					## fers to it!), unregister exit trap,

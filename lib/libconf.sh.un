@@ -37,7 +37,7 @@ readonly conf_awk; unset conf_api
 ##----------------------------------------------------------------------------
 ##  conf_meta(META [ARG ...])	Perform META operation (with ARGs)
 ##----------------------------------------------------------------------------
-conf_meta () {
+conf_meta() {
     local mp=conf_			## Set meta prefix.
 
     case $1-$2 in			## Which META operation?
@@ -81,7 +81,7 @@ EOF
 ##				selected, and abort application to prevent
 ##				serious damage to configuration files.
 ##----------------------------------------------------------------------------
-conf_warn () {
+conf_warn() {
     local sq=\'
 
     cat >&2 <<EOF
@@ -102,7 +102,7 @@ EOF
 ##				Process configuration file(s) CFPN by
 ##				executing commands from standard input
 ##----------------------------------------------------------------------------
-conf_exec () {
+conf_exec() {
     case ${conf_api--}:$# in
 	-:*)
 	    conf_warn
@@ -120,7 +120,7 @@ conf_exec () {
 ##  conf_has(ITEM[=VALUE] CFPN ...)				[API 1]
 ##				(Some) Configuration file CFPN has ITEM?
 ##----------------------------------------------------------------------------
-conf_has () {
+conf_has() {
     case ${conf_api--}:$# in
 	-:*)
 	    conf_warn
@@ -142,7 +142,7 @@ EOF
 ##  conf_get(ITEM[=VALUE] CFPN ...)				[API 1]
 ##				Get ITEM from (some) CFPN (or VALUE)
 ##----------------------------------------------------------------------------
-conf_get () {
+conf_get() {
     case ${conf_api--}:$# in
 	-:*)
 	    conf_warn
@@ -164,7 +164,7 @@ EOF
 ##  conf_put(ITEM[=VALUE] CFPN ...)				[API 1]
 ##				Unset ITEM/Set ITEM to VALUE in last CFPN
 ##----------------------------------------------------------------------------
-conf_put () {
+conf_put() {
     case ${conf_api--}:$# in
 	-:*)
 	    conf_warn
@@ -186,7 +186,7 @@ EOF
 ##  conf_getenv(VARIABLE ITEM[=VALUE] CFPN ...)			[API 1]
 ##				Get ITEM from VARIABLE or CFPN (or VALUE)
 ##----------------------------------------------------------------------------
-conf_getenv () {
+conf_getenv() {
     eval 'case ${'"$1"'+set} in
 	set)	echo "$'"$1"'"		    ;;
 	*)	shift; conf_get ${1+"$@"}   ;;
