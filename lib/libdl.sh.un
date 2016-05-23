@@ -101,6 +101,20 @@ EOF
 ##----------------------------------------------------------------------------
 dl_warn() {
     case $1 in				## Warn user about WHAT?
+	rel-req-set-api)		## Release requires set API version...
+					## (LIB INVO WREL CREL)
+	    cat >&2 <<EOF
+$2_$3; CAUTION!
+Function invoked without API version of lib$2.sh being selected before,
+which is required since release $4. I presume the application still wants
+to use a withdrawn API version. To prevent serious damage, the application
+is terminated now!
+
+Downgrade package @PACKAGE_TARNAME@ to release $5 to make the application
+work again.
+EOF
+	    exit 127
+	    ;;
 	*)				## Catch-all...
 	    echo "$*; OOPS!" >&2
 	    ;;

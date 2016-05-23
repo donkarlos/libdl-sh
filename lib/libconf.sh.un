@@ -77,27 +77,6 @@ EOF
 }
 
 ##----------------------------------------------------------------------------
-##  conf_warn()			Warn user that so far, no API version had been
-##				selected, and abort application to prevent
-##				serious damage to configuration files.
-##----------------------------------------------------------------------------
-conf_warn() {
-    local sq=\'
-
-    cat >&2 <<EOF
-CAUTION! You${sq}re running an application that tries to use libconf.sh
-	 without having selected an API version. I presume the application
-	 still wants to use withdrawn API version 0. To prevent serious
-	 damage to the application's configuration files, the application
-	 will be aborted now!
-
-	 To work around this issue, I suggest you downgrade package @PACKAGE_TARNAME@
-	 to version 0.3.6.
-EOF
-    exit 3
-}
-
-##----------------------------------------------------------------------------
 ##  conf_exec(CFPN ...)						[API 1]
 ##				Process configuration file(s) CFPN by
 ##				executing commands from standard input
@@ -105,7 +84,7 @@ EOF
 conf_exec() {
     case ${conf_api--}:$# in
 	-:*)
-	    conf_warn
+	    dl_warn rel-req-set-api conf "put([$#]$*)" 0.4 0.3.6
 	    ;;
 	1:0)
 	    return 2
@@ -123,7 +102,7 @@ conf_exec() {
 conf_has() {
     case ${conf_api--}:$# in
 	-:*)
-	    conf_warn
+	    dl_warn rel-req-set-api conf "has([$#]$*)" 0.4 0.3.6
 	    ;;
 	1:[01])
 	    return 2
@@ -145,7 +124,7 @@ EOF
 conf_get() {
     case ${conf_api--}:$# in
 	-:*)
-	    conf_warn
+	    dl_warn rel-req-set-api conf "get([$#]$*)" 0.4 0.3.6
 	    ;;
 	1:[01])
 	    return 2
@@ -167,7 +146,7 @@ EOF
 conf_put() {
     case ${conf_api--}:$# in
 	-:*)
-	    conf_warn
+	    dl_warn rel-req-set-api conf "put([$#]$*)" 0.4 0.3.6
 	    ;;
 	1:[01])
 	    return 2

@@ -196,7 +196,28 @@ libraries. They shouldn't be invoked directly from applications.
 \fBdl_warn\fP \fIWHAT\fP [\fIARG\fP ...]
 Warn about deprecated and/or withdrawn features by writing an appropriate
 message to standard error output and returning status \fB1\fP (unless noted
-otherwise).
+otherwise). Currently, \fIWHAT\fP may be one of the following (shown with
+parameters needed to construct the message):
+.RS 4
+.TP 4
+\fBrel-req-set-api\fP \fILIB\fP \fIINVO\fP \fIWREL\fP \fICREL\fP
+State that since release \fIWREL\fP (the withdrawing release), \fILIB\fPrary
+requires applications to select an API version
+(e.g., with \fILIB\fP\fB_meta set api\fP \fIVERSION\fP) and that the
+application will be terminated because it hadn't done so yet. Also state
+that package \fB@PACKAGE_TARNAME@\fP may be downgraded to release \fICREL\fP
+(the latest compatible release) to stay compatible with the application, then
+exit the application with status \fB127\fP.
+
+The parameter \fIINVO\fP should have format
+
+.in +4
+\fIFUNC\fP\fB([\fP$#\fB]\fP$*\fB)\fP
+.in -4
+
+to indicate which \fIFUNC\fPtion (without \fILIB\fP\fB_\fP prefix) invocation
+raised the warning.
+.RE
 
 .SH TRAPS
 In order to have "naïve" applications benefit from \fBlibdl.sh\fP's exit-time
