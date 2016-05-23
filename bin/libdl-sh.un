@@ -27,7 +27,7 @@
 ##  include(CONF ...)		Parse demand-loading configuration file(s)
 ##				into list of library search path items
 #-----------------------------------------------------------------------------
-include () {
+include() {
     local line
 
     sed '
@@ -70,7 +70,9 @@ EOF
 	libpath=			## Start with empty LSP.
 	for item in `
 	    ifs=$IFS; IFS=:; echo $LIBDL_SH_LIBRARY_PATH; IFS=$ifs
-	    include ${HOME:+"$HOME"/.libdl-sh.conf} @sysconfdir@/libdl-sh.conf
+	    include ${LIBDL_SH_CONF+"$LIBDL_SH_CONF"}			\
+		    ${HOME:+"$HOME"/.libdl-sh.conf}			\
+		    @sysconfdir@/libdl-sh.conf
 	`				## Foreach item in user's and system-
 	do				## wide configuration do...
 	    test -d "$item" && case :$libpath in

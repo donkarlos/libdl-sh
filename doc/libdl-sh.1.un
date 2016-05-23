@@ -89,7 +89,8 @@ configuration files is described in
 .BR libdl-sh.conf (5).
 
 The action's primary purpose is initializing the demand-loading library's
-search path. Of course, you may also use it to verify your configuration.
+search path (LSP). Of course, you may also use it to verify your
+configuration.
 
 .TP
 .BR echo " \fINAME\fP ..."
@@ -100,12 +101,20 @@ demand-loadable POSIX shell libraries integrating with the demand-loading
 mechanism. It's not used internally by @PACKAGE_TARNAME@.
 
 .SH ENVIRONMENT
-Action \fBload\fP respects the following environment variables:
+Actions \fBload\fP and \fBpath\fP respect the following environment variables:
 .TP
 \fBLIBDL_SH_LIBRARY_PATH\fP
-A colon-separated list of directories in which to search \fBlibdl.sh\fP  at
-runtime before the installed demand-loading library \fB@shlibdir@/libdl.sh\fP
-is loaded.
+A colon-separated list of directories in which to search demand-loadable shell
+(or \fBlibdl.sh\fP in particular) at runtime before directories
+in \fBlibdl-sh\fP's configuration files are searched (action
+\fBpath\fP, see \fBFILES\fP below) or the installed demand-loading library
+\fB@shlibdir@/libdl.sh\fP is loaded (action \fBload\fP).
+
+.TP
+\fBLIBDL_SH_CONF\fP
+The pathname of a \fBlibdl-sh.conf\fP(5)-style demand-loading configuration
+file parsed into LSP items before the user-specific and system-wide
+configuration files (action \fBpath\fP, see \fBFILES\fP below) are read.
 
 .SH FILES
 .TP
