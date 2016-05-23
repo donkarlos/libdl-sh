@@ -24,10 +24,11 @@
 .\#		ks	2015-12-18	Use numeric API versions.
 .\#		ks	2016-05-21	Withdraw 'conf_meta get apis' brief
 .\#					format and conf_init().
+.\#		ks	2016-05-23	Deprecate conf_getenv().
 .\#
 .\# NOTE: (1)	Please adjust below date whenever revising the manual page.
 .\#		vvvvvv
-.TH libconf 3SH 2016-05-21 "@PACKAGE_TARNAME@ @PACKAGE_VERSION@" "Shell Programming"
+.TH libconf 3SH 2016-05-23 "@PACKAGE_TARNAME@ @PACKAGE_VERSION@" "Shell Programming"
 
 .SH NAME
 conf_has, conf_get, conf_put, conf_getenv, conf_meta
@@ -47,7 +48,7 @@ done so, the moment it tries to process configuration files it'll be aborted
 (with a warning message shown) under the presumption that it still tries to
 use withdrawn API version 0. You have been warned!
 
-.SH SYNOPSIS (API 1)
+.SH SYNOPSIS (APIs 1-2)
 \fBdl_load conf && conf_meta set api 1\fP
 
 \fBconf_has\fP \fIITEM\fP[\fB=\fP\fIVALUE\fP] \fICFPN\fP ...
@@ -55,8 +56,6 @@ use withdrawn API version 0. You have been warned!
 \fBconf_get\fP \fIITEM\fP[\fB=\fP\fIVALUE\fP] \fICFPN\fP ...
 .br
 \fBconf_put\fP \fIITEM\fP[\fB=\fP\fIVALUE\fP] \fICFPN\fP ...
-.br
-\fBconf_getenv\fP \fIVARIABLE\fP \fIITEM\fP[\fB=\fP\fIVALUE\fP] \fICFPN\fP ...
 .br
 \fBconf_meta\fP \fIMETA\fP [\fIARG\fP ...]
 
@@ -66,7 +65,7 @@ to maintain persistent configuration in files with a format similar to that of
 \fBgit-config\fP(1) by getting, setting, or unsetting configuration items.
 
 .SH FUNCTIONS
-The following paragraphs describe (the currently sole) API version 1.
+The following paragraphs describe API versions 1 and 2.
 
 .TP 4
 \fBconf_has\fP \fIITEM\fP[\fB=\fP\fIVALUE\fP] \fICFPN\fP ...
@@ -104,12 +103,6 @@ does the first, whereas
 does the latter.
 
 .TP
-\fBconf_getenv\fP \fIVARIABLE\fP \fIITEM\fP[\fB=\fP\fIVALUE\fP] \fICFPN\fP ...
-Unless (environment) \fIVARIABLE\fP is set, behave like \fBconf_get\fP.
-Otherwise, write ${\fIVARIABLE\fP} to standard output, so that it essentially
-overrides \fIITEM\fP's configured value.
-
-.TP
 \fBconf_meta\fP \fIMETA\fP [\fIARG\fP ...]
 Perform one of \fBlibconf.sh\fP's meta operations. These allow to inquire or
 modify certain library internals in a controlled manner. Currently, the
@@ -129,12 +122,10 @@ colon-separated fields: \fIVERSION\fP, \fISIGNATURE\fP, and \fIARGCS\fP,
 where the second has the format \fINAME\fP\fB(\fP\fIARGS\fP\fB)\fP and the
 latter is a (possibly open) range of valid $# values.
 
-For example, for APIs 0 and 1, \fBconf_get\fP(3sh) would be represented by the
-following two lines:
+For example, for API version 1, \fBconf_get\fP(3sh) would be represented by
+the following line:
 
 .in +4
-\fB0:conf_get(CFPN ITEM [VALUE]):2-3\fP
-.br
 \fB1:conf_get(ITEM[=VALUE] CFPN ...):2-\fP
 .in -4
 
@@ -147,16 +138,17 @@ the second field is omitted (i.e., just the function name is shown)
 For output formats \fBfull\fP and \fBlist\fP, the resulting output format may
 be further tailored by \fISEDEX\fP, a sequence of \fBsed\fP(1) commands. Thus,
 if you want to know which API versions (analogous to output format \fBapi\fP)
-of \fBlibconf.sh\fP provide \fBconf_put\fP(3sh), you'd invoke:
+of \fBlibconf.sh\fP provide \fBconf_getenv\fP(3sh), you'd invoke:
 
 .in +4
-\fBconf_meta get apis list '/:conf_put:/!d;s/:.*$//'\fP
+\fBconf_meta get apis list '/:conf_getenv:/!d;s/:.*$//'\fP
 .in -4
 .RE
 
 .TP
 \fBget api\fP
-Inquire selected API version and write it to standard output.
+Inquire selected API version and write it to standard output or return status
+\fB1\fP if the API version hadn't been selected yet.
 
 .TP
 \fBset api\fP \fIVERSION\fP
@@ -168,6 +160,36 @@ library and can (successfully) only be done once.
 Inquire absolute pathname of 'workhorse' AWK script and write it to standard
 output.
 .RE
+
+.SH DEPRECATED FUNCTIONS
+Release 0.4 deprecates function \fBconf_getenv\fP(3sh). It will be withdrawn
+by release 0.5.
+
+The following paragraphs describe the deprecated functions (and how they ought
+to be migrated to API version 2).
+.TP 4
+\fBconf_getenv\fP \fIVARIABLE\fP \fIITEM\fP[\fB=\fP\fIVALUE\fP] \fICFPN\fP ...
+Unless (environment) \fIVARIABLE\fP is set, behave like \fBconf_get\fP.
+Otherwise, write ${\fIVARIABLE\fP} to standard output, so that it essentially
+overrides \fIITEM\fP's configured value. In general, simply replaced by
+
+.in +4
+\fBecho "${\fP\fIVARIABLE\fP\fB-`conf_get\fP \fIITEM\fP[\fB=\fP\fIVALUE\fP] \fICFPN\fP ...\fB`}"\fP
+.in -4
+
+but variable assignments like, e.g.
+
+.in +4
+\fBfoo=`conf_getenv bar\fP \fIITEM\fP[\fB=\fP\fIVALUE\fP] \fICFPN\fP ...\fB`\fP
+.in -4
+
+had better be replaced by
+
+.in +4
+\fBfoo=${bar-`conf_get\fP \fIITEM\fP[\fB=\fP\fIVALUE\fP] \fICFPN\fP ...\fB`}\fP
+.in -4
+
+(though you \fIcould\fP use the 1st variant with escaped backquotes!).
 
 .SH SEE ALSO
 .BR dl_load (3sh),

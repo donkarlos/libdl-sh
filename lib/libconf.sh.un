@@ -25,7 +25,8 @@
 ##		ks	2015-04-25	Implement meta operations.
 ##		ks	2015-12-18	Use numeric API versions.
 ##		ks	2016-05-19	Use meta prefix.
-##		ks      2016-05-21	Withdraw API version 0.
+##		ks	2016-05-21	Withdraw API version 0.
+##		ks	2016-05-23	Deprecate conf_getenv().
 ##
 ##  NOTE:   (1)	The library just wraps around its 'workhorse' AWK script!
 ##----------------------------------------------------------------------------
@@ -59,6 +60,12 @@ f:1:has(ITEM[=VALUE] CFPN ...):2-
 f:1:get(ITEM[=VALUE] CFPN ...):2-
 f:1:put(ITEM[=VALUE] CFPN ...):2-
 f:1:getenv(VARIABLE ITEM[=VALUE] CFPN ...):3-
+a:2
+f:2:meta(META [ARG ...]):2-
+f:2:exec(CFPN ...):1-
+f:2:has(ITEM[=VALUE] CFPN ...):2-
+f:2:get(ITEM[=VALUE] CFPN ...):2-
+f:2:put(ITEM[=VALUE] CFPN ...):2-
 EOF
 	    ;;
 	get-api|get-awk)		## Inquire internal variable...
@@ -77,7 +84,7 @@ EOF
 }
 
 ##----------------------------------------------------------------------------
-##  conf_exec(CFPN ...)						[API 1]
+##  conf_exec(CFPN ...)						[API 1-2]
 ##				Process configuration file(s) CFPN by
 ##				executing commands from standard input
 ##----------------------------------------------------------------------------
@@ -86,17 +93,17 @@ conf_exec() {
 	-:*)
 	    dl_warn rel-req-set-api conf "put([$#]$*)" 0.4 0.3.6
 	    ;;
-	1:0)
+	*:0)
 	    return 2
 	    ;;
-	1:*)
+	*:*)
 	    "$conf_awk" ${1+"$@"} -
 	    ;;
     esac
 }
 
 ##----------------------------------------------------------------------------
-##  conf_has(ITEM[=VALUE] CFPN ...)				[API 1]
+##  conf_has(ITEM[=VALUE] CFPN ...)				[API 1-2]
 ##				(Some) Configuration file CFPN has ITEM?
 ##----------------------------------------------------------------------------
 conf_has() {
@@ -104,10 +111,10 @@ conf_has() {
 	-:*)
 	    dl_warn rel-req-set-api conf "has([$#]$*)" 0.4 0.3.6
 	    ;;
-	1:[01])
+	*:0|*:1)
 	    return 2
 	    ;;
-	1:*)
+	*:*)
 	    local item="$1"; shift
 
 	    "$conf_awk" ${1+"$@"} - <<EOF
@@ -118,7 +125,7 @@ EOF
 }
 
 ##----------------------------------------------------------------------------
-##  conf_get(ITEM[=VALUE] CFPN ...)				[API 1]
+##  conf_get(ITEM[=VALUE] CFPN ...)				[API 1-2]
 ##				Get ITEM from (some) CFPN (or VALUE)
 ##----------------------------------------------------------------------------
 conf_get() {
@@ -126,10 +133,10 @@ conf_get() {
 	-:*)
 	    dl_warn rel-req-set-api conf "get([$#]$*)" 0.4 0.3.6
 	    ;;
-	1:[01])
+	*:0|*:1)
 	    return 2
 	    ;;
-	1:*)
+	*:*)
 	    local item="$1"; shift
 
 	    "$conf_awk" ${1+"$@"} - <<EOF
@@ -140,7 +147,7 @@ EOF
 }
 
 ##----------------------------------------------------------------------------
-##  conf_put(ITEM[=VALUE] CFPN ...)				[API 1]
+##  conf_put(ITEM[=VALUE] CFPN ...)				[API 1-2]
 ##				Unset ITEM/Set ITEM to VALUE in last CFPN
 ##----------------------------------------------------------------------------
 conf_put() {
@@ -148,10 +155,10 @@ conf_put() {
 	-:*)
 	    dl_warn rel-req-set-api conf "put([$#]$*)" 0.4 0.3.6
 	    ;;
-	1:[01])
+	*:0|*:1)
 	    return 2
 	    ;;
-	1:*)
+	*:*)
 	    local item="$1"; shift
 
 	    "$conf_awk" ${1+"$@"} - <<EOF
@@ -166,6 +173,11 @@ EOF
 ##				Get ITEM from VARIABLE or CFPN (or VALUE)
 ##----------------------------------------------------------------------------
 conf_getenv() {
+    case ${conf_api--} in
+	1)  dl_warn rel-dpr-func conf "getenv([$#]$*)" 0.4 0.5 0.3.6	;;
+	2)  dl_warn api-wdr-func conf "getenv([$#]$*)" 2 1		;;
+    esac || return 1
+
     eval 'case ${'"$1"'+set} in
 	set)	echo "$'"$1"'"		    ;;
 	*)	shift; conf_get ${1+"$@"}   ;;

@@ -115,6 +115,25 @@ work again.
 EOF
 	    exit 127
 	    ;;
+	rel-dpr-func)			## Release deprecated function...
+					## (LIB INVO DREL WREL CREL)
+	    cat >&2 <<EOF
+$2_$3; WARNING:
+Function deprecated since release $4, to be withdrawn by release $5.
+See lib$2(3SH) for suggestions on how to migrate your application or
+downgrade package @PACKAGE_TARNAME@ to release $6.
+EOF
+	    return 0
+	    ;;
+	api-wdr-func)			## API version withdrew function...
+					## (LIB INVO WAPI CAPI)
+	    cat >&2 <<EOF
+$2_$3; WARNING:
+Function withdrawn from API version $4 of lib$2.sh.
+See lib$2(3SH) for suggestions on how to migrate your application or
+stay with (probably deprecated) API version $5 for the time being.
+EOF
+	    ;;
 	*)				## Catch-all...
 	    echo "$*; OOPS!" >&2
 	    ;;
