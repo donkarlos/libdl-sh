@@ -24,6 +24,7 @@
 ##  CHANGED BY:	ks	2015-12-29	Implement meta operations.
 ##		ks	2016-05-19	Use meta prefix.
 ##		ks	2016-05-24	Add 'meta get package/version'.
+##					Use 'meta get apis' separator ';'.
 ##
 ##  NOTE:   (1)	To avoid cluttering code, this library is exempted from need-
 ##		ing namespace prefixes for its special character and portable
@@ -52,9 +53,9 @@ quote_meta() {
 
     case $1-$2 in			## Which META operation?
 	get-apis)			## Inquire APIs...
-	    local fa='/^a:/!d;s///'	ff='/^f:/!d;s///'		\
-		  da=';s/([^):(]*):/:/'	p2=';s/:/:'"$mp"'/'		\
-		  sx
+	    local sx ms=\;
+	    local fa='/^a'"$ms"'/!d;s///'   ff='/^f'"$ms"'/!d;s///'	\
+		  da=';s/([^)'"$ms"'(]*)//' p2=';s/'"$ms"'/&'"$mp"'/'
 	    case ${3-api} in		## Which format?
 		api)	sx="$fa"		;;
 		full)   sx="$ff$p2${4+;$4}"	;;
@@ -62,13 +63,13 @@ quote_meta() {
 		*)	return 1		;;
 	    esac
 	    sed "$sx" <<EOF
-a:$quote_api
-f:$quote_api:meta(META [ARG ...]):2-
-f:$quote_api:sh(STRING):1
-f:$quote_api:command(COMMAND [ARGUMENT|REDIRECTION ...]):1-
-f:$quote_api:grep(STRING):1
-f:$quote_api:egrep(STRING):1
-f:$quote_api:sed(STRING [DELIMITER=/]):1-2
+a${ms}$quote_api
+f${ms}$quote_api${ms}meta(META [ARG ...])${ms}2-
+f${ms}$quote_api${ms}sh(STRING)${ms}1
+f${ms}$quote_api${ms}command(COMMAND [ARGUMENT|REDIRECTION ...])${ms}1-
+f${ms}$quote_api${ms}grep(STRING)${ms}1
+f${ms}$quote_api${ms}egrep(STRING)${ms}1
+f${ms}$quote_api${ms}sed(STRING [DELIMITER=/])${ms}1-2
 EOF
 	    ;;
 	get-package|get-version|get-api)
