@@ -83,7 +83,7 @@ EOF
 	    esac'
 	    ;;
 	set-api)			## Set and freeze API...
-	    conf_meta get apis api | fgrep -qxe "$3" || return 1
+	    ${mp}meta get apis api | fgrep -qxe "$3" || return 1
 	    eval "$mp$2"'=$3; readonly '"$mp$2"
 	    ;;
 	*)  return 2			## Anything else...
@@ -92,8 +92,7 @@ EOF
 }
 
 ##----------------------------------------------------------------------------
-##  conf_exec(CFPN ...)						[API 1-2]
-##				Process configuration file(s) CFPN by
+##  conf_exec(CFPN ...)		Process configuration file(s) CFPN by
 ##				executing commands from standard input
 ##----------------------------------------------------------------------------
 conf_exec() {
@@ -111,7 +110,7 @@ conf_exec() {
 }
 
 ##----------------------------------------------------------------------------
-##  conf_has(ITEM[=VALUE] CFPN ...)				[API 1-2]
+##  conf_has(ITEM[=VALUE] CFPN ...)
 ##				(Some) Configuration file CFPN has ITEM?
 ##----------------------------------------------------------------------------
 conf_has() {
@@ -133,7 +132,7 @@ EOF
 }
 
 ##----------------------------------------------------------------------------
-##  conf_get(ITEM[=VALUE] CFPN ...)				[API 1-2]
+##  conf_get(ITEM[=VALUE] CFPN ...)
 ##				Get ITEM from (some) CFPN (or VALUE)
 ##----------------------------------------------------------------------------
 conf_get() {
@@ -155,7 +154,7 @@ EOF
 }
 
 ##----------------------------------------------------------------------------
-##  conf_put(ITEM[=VALUE] CFPN ...)				[API 1-2]
+##  conf_put(ITEM[=VALUE] CFPN ...)
 ##				Unset ITEM/Set ITEM to VALUE in last CFPN
 ##----------------------------------------------------------------------------
 conf_put() {

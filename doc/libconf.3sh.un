@@ -31,8 +31,7 @@
 .TH libconf 3SH 2016-05-23 "@PACKAGE_TARNAME@ @PACKAGE_VERSION@" "Shell Programming"
 
 .SH NAME
-conf_has, conf_get, conf_put, conf_getenv, conf_meta
-\- Process configuration files
+conf_has, conf_get, conf_put, conf_meta \- Process configuration files
 
 .SH API VERSIONS
 Release 0.3 introduced stacked configuraton space, allowing applications to
