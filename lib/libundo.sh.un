@@ -24,13 +24,13 @@
 ##  CHANGED BY:	ks	2016-05-16	Work around dash(1)'s local semantics.
 ##					Fix `undo_* MARK TAG' semantics.
 ##		ks	2016-05-19	Use meta prefix.
+##		ks	2016-05-24	Deprecate undo_keep().
 ##----------------------------------------------------------------------------
 ##  Global variables:
 #-----------------------------------------------------------------------------
-undo_api=0				## Define API version.
+undo_api=1				## Define API version.
 undo_stack=
 undo_exit0=
-readonly undo_api
 
 ##----------------------------------------------------------------------------
 ##  undo_meta(META [ARG ...])	Perform META operation (with ARGs)
@@ -50,14 +50,21 @@ undo_meta() {
 		*)	return 1		;;
 	    esac
 	    sed "$sx" <<EOF
-a:$undo_api
-f:$undo_api:meta(META [ARG ...]):2-
-f:$undo_api:init(TAG):1
-f:$undo_api:mark(MARK):1
-f:$undo_api:push([TAG] COMMAND [ARGUMENT|REDIRECTION ...]):1-
-f:$undo_api:pull(MARK [TAG] | TAG | [COUNT=1]):0-2
-f:$undo_api:drop(MARK [TAG] | TAG | [COUNT=1]):0-2
-f:$undo_api:keep(MARK [TAG] | TAG | [COUNT=1]):0-2
+a:0
+f:0:meta(META [ARG ...]):2-
+f:0:init(TAG):1
+f:0:mark(MARK):1
+f:0:push([TAG] COMMAND [ARGUMENT|REDIRECTION ...]):1-
+f:0:pull(MARK [TAG] | TAG | [COUNT=1]):0-2
+f:0:drop(MARK [TAG] | TAG | [COUNT=1]):0-2
+f:0:keep(MARK [TAG] | TAG | [COUNT=1]):0-2
+a:1
+f:1:meta(META [ARG ...]):2-
+f:1:init(TAG):1
+f:1:mark(MARK):1
+f:1:push([TAG] COMMAND [ARGUMENT|REDIRECTION ...]):1-
+f:1:pull(MARK [TAG] | TAG | [COUNT=1]):0-2
+f:1:drop(MARK [TAG] | TAG | [COUNT=1]):0-2
 EOF
 	    ;;
 	get-api)			## Inquire internal variable...
@@ -65,6 +72,10 @@ EOF
 		=)  echo "$'"$mp$2"'"	;;
 		*)  return 1		;;
 	    esac'
+	    ;;
+	set-api)			## Set and freeze API...
+	    ${mp}meta get apis api | fgrep -qxe "$3" || return 1
+	    eval "$mp$2"'=$3; readonly '"$mp$2"
 	    ;;
 	*)  return 2			## Anything else...
 	    ;;				## Indicate misusage!
@@ -194,6 +205,11 @@ undo_drop() {
 ##  undo_keep([COUNT=1])	Keep COUNT undos on undo stack
 ##----------------------------------------------------------------------------
 undo_keep() {
+    case ${undo_api--} in
+	0)  dl_warn rel-dpr-func undo "keep([$#]$*)" 0.4 0.5 0.3.6	;;
+	1)  dl_warn api-wdr-func undo "keep([$#]$*)" 1 0		;;
+    esac || return 1
+
     undo_stack=`undo_emit keep ${1+"$@"}`
 }					## Keep selected undos on stack.
 
