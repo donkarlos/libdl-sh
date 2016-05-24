@@ -23,6 +23,7 @@
 ##  WRITTEN BY:	ks	2013-02-14
 ##  CHANGED BY:	ks	2016-05-19	Use meta prefix.
 ##		ks	2016-05-24	Add 'meta get package/version'.
+##					Use 'meta get apis' separator ';'.
 ##----------------------------------------------------------------------------
 ##  Global variables:
 #-----------------------------------------------------------------------------
@@ -44,9 +45,9 @@ safe_meta() {
 
     case $1-$2 in			## Which META operation?
 	get-apis)			## Inquire APIs...
-	    local fa='/^a:/!d;s///'	ff='/^f:/!d;s///'		\
-		  da=';s/([^):(]*):/:/'	p2=';s/:/:'"$mp"'/'		\
-		  sx
+	    local sx ms=\;
+	    local fa='/^a'"$ms"'/!d;s///'   ff='/^f'"$ms"'/!d;s///'	\
+		  da=';s/([^)'"$ms"'(]*)//' p2=';s/'"$ms"'/&'"$mp"'/'
 	    case ${3-api} in		## Which format?
 		api)	sx="$fa"		;;
 		full)   sx="$ff$p2${4+;$4}"	;;
@@ -54,20 +55,20 @@ safe_meta() {
 		*)	return 1		;;
 	    esac
 	    sed "$sx" <<EOF
-a:$safe_api
-f:$safe_api:meta(META [ARG ...]):2-
-f:$safe_api:init(TAG):1
-f:$safe_api:mktmpdir(&DPN [DRN]):1-2
-f:$safe_api:mkdir(DPN ...):1-
-f:$safe_api:chdir(DPN):1
-f:$safe_api:touch(FPN ...):1-
-f:$safe_api:save(FPN):1
-f:$safe_api:rename(OLDPN NEWPN):2
-f:$safe_api:remove(PN ...):1-
-f:$safe_api:umask(UMASK COMMAND [ARGUMENT ...]):2-
-f:$safe_api:unlock(PN):1
-f:$safe_api:lock(PN):1
-f:$safe_api:wait(PN [SECONDS=30]):1-2
+a${ms}$safe_api
+f${ms}$safe_api${ms}meta(META [ARG ...])${ms}2-
+f${ms}$safe_api${ms}init(TAG)${ms}1
+f${ms}$safe_api${ms}mktmpdir(&DPN [DRN])${ms}1-2
+f${ms}$safe_api${ms}mkdir(DPN ...)${ms}1-
+f${ms}$safe_api${ms}chdir(DPN)${ms}1
+f${ms}$safe_api${ms}touch(FPN ...)${ms}1-
+f${ms}$safe_api${ms}save(FPN)${ms}1
+f${ms}$safe_api${ms}rename(OLDPN NEWPN)${ms}2
+f${ms}$safe_api${ms}remove(PN ...)${ms}1-
+f${ms}$safe_api${ms}umask(UMASK COMMAND [ARGUMENT ...])${ms}2-
+f${ms}$safe_api${ms}unlock(PN)${ms}1
+f${ms}$safe_api${ms}lock(PN)${ms}1
+f${ms}$safe_api${ms}wait(PN [SECONDS=30])${ms}1-2
 EOF
 	    ;;
 	get-package|get-version|get-api)
