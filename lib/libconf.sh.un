@@ -27,13 +27,16 @@
 ##		ks	2016-05-19	Use meta prefix.
 ##		ks	2016-05-21	Withdraw API version 0.
 ##		ks	2016-05-23	Deprecate conf_getenv().
+##		ks	2016-05-24	Add 'meta get package/version'.
 ##
 ##  NOTE:   (1)	The library just wraps around its 'workhorse' AWK script!
 ##----------------------------------------------------------------------------
 ##  Global variables:
 #-----------------------------------------------------------------------------
+conf_package='@PACKAGE_TARNAME@'	## Define source package name/version.
+conf_version='@PACKAGE_VERSION@'
 conf_awk=@pkgdatadir@/conf.awk
-readonly conf_awk; unset conf_api
+readonly conf_package conf_version conf_awk; unset conf_api
 
 ##----------------------------------------------------------------------------
 ##  conf_meta(META [ARG ...])	Perform META operation (with ARGs)
@@ -76,7 +79,8 @@ f:2:get(ITEM[=VALUE] CFPN ...):2-
 f:2:put(ITEM[=VALUE] CFPN ...):2-
 EOF
 	    ;;
-	get-api|get-awk)		## Inquire internal variable...
+	get-package|get-version|get-api|get-awk)
+					## Inquire internal variable...
 	    eval 'case ${'"$mp$2"'+=} in
 		=)  echo "$'"$mp$2"'"	;;
 		*)  return 1		;;

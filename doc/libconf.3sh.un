@@ -25,10 +25,11 @@
 .\#		ks	2016-05-21	Withdraw 'conf_meta get apis' brief
 .\#					format and conf_init().
 .\#		ks	2016-05-23	Deprecate conf_getenv().
+.\#		ks	2016-05-24	Add 'meta get package/version'.
 .\#
 .\# NOTE: (1)	Please adjust below date whenever revising the manual page.
 .\#		vvvvvv
-.TH libconf 3SH 2016-05-23 "@PACKAGE_TARNAME@ @PACKAGE_VERSION@" "Shell Programming"
+.TH libconf 3SH 2016-05-24 "@PACKAGE_TARNAME@ @PACKAGE_VERSION@" "Shell Programming"
 
 .SH NAME
 conf_has, conf_get, conf_put, conf_meta \- Process configuration files
@@ -108,6 +109,17 @@ modify certain library internals in a controlled manner. Currently, the
 following meta operations are implemented:
 .RS 4
 .TP 4
+\fBget package\fP|\fBversion\fP|\fBapi\fP
+Inquire library's source package name (\fB@PACKAGE_TARNAME@\fP), version
+(\fB@PACKAGE_VERSION@\fP), or selected API version and write it to standard
+output.
+
+.TP
+\fBset api\fP \fIVERSION\fP
+Select API \fIVERSION\fP. This should be done right after demand-loading this
+library and can (successfully) only be done once.
+
+.TP
 \fBget apis\fP [\fIFORMAT\fP=api [\fISEDEX\fP]]
 Inquire information about available API versions and write them to standard
 output. The information written depends on the output \fIFORMAT\fP:
@@ -144,16 +156,6 @@ of \fBlibconf.sh\fP provide \fBconf_getenv\fP(3sh), you'd invoke:
 \fBconf_meta get apis list '/:conf_getenv:/!d;s/:.*$//'\fP
 .in -4
 .RE
-
-.TP
-\fBget api\fP
-Inquire selected API version and write it to standard output or return status
-\fB1\fP if the API version hadn't been selected yet.
-
-.TP
-\fBset api\fP \fIVERSION\fP
-Select API \fIVERSION\fP. This should be done right after demand-loading this
-library and can (successfully) only be done once.
 
 .TP
 \fBget awk\fP
