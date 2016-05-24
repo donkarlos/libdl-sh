@@ -26,6 +26,7 @@
 ##		ks	2016-05-19	Use meta prefix.
 ##		ks	2016-05-23	Add service function dl_warn().
 ##		ks	2016-05-24	Add 'meta get package/version'.
+##					Use 'meta get apis' separator ';'.
 ##----------------------------------------------------------------------------
 ##  Global variables:
 #-----------------------------------------------------------------------------
@@ -54,9 +55,9 @@ dl_meta() {
 
     case $1-$2 in			## Which META operation?
 	get-apis)			## Inquire APIs...
-	    local fa='/^a:/!d;s///'	ff='/^f:/!d;s///'		\
-		  da=';s/([^):(]*):/:/'	p2=';s/:/:'"$mp"'/'		\
-		  sx
+	    local sx ms=\;
+	    local fa='/^a'"$ms"'/!d;s///'   ff='/^f'"$ms"'/!d;s///'	\
+		  da=';s/([^)'"$ms"'(]*)//' p2=';s/'"$ms"'/&'"$mp"'/'
 	    case ${3-api} in		## Which format?
 		api)	sx="$fa"		;;
 		full)   sx="$ff$p2${4+;$4}"	;;
@@ -64,14 +65,14 @@ dl_meta() {
 		*)	return 1		;;
 	    esac
 	    sed "$sx" <<EOF
-a:$dl_api
-f:$dl_api:meta(META [ARG ...]):2-
-f:$dl_api:warn(WHAT [ARG ...]):1-
-f:$dl_api:which(LIB):1
-f:$dl_api:atload(HOOK):1
-f:$dl_api:load(LIB ...):1-
-f:$dl_api:atexit(HOOK):1
-f:$dl_api:exit([STATUS=\$?]):0-1
+a${ms}$dl_api
+f${ms}$dl_api${ms}meta(META [ARG ...])${ms}2-
+f${ms}$dl_api${ms}warn(WHAT [ARG ...])${ms}1-
+f${ms}$dl_api${ms}which(LIB)${ms}1
+f${ms}$dl_api${ms}atload(HOOK)${ms}1
+f${ms}$dl_api${ms}load(LIB ...)${ms}1-
+f${ms}$dl_api${ms}atexit(HOOK)${ms}1
+f${ms}$dl_api${ms}exit([STATUS=\$?])${ms}0-1
 EOF
 	    ;;
 	get-package|get-version|get-api|get-libpath|get-session|get-loaded)
