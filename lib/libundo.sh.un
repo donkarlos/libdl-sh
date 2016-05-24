@@ -26,6 +26,7 @@
 ##		ks	2016-05-19	Use meta prefix.
 ##		ks	2016-05-24	Deprecate undo_keep().
 ##					Add 'meta get package/version'.
+##					Use 'meta get apis' separator ';'.
 ##----------------------------------------------------------------------------
 ##  Global variables:
 #-----------------------------------------------------------------------------
@@ -44,9 +45,9 @@ undo_meta() {
 
     case $1-$2 in			## Which META operation?
 	get-apis)			## Inquire APIs...
-	    local fa='/^a:/!d;s///'	ff='/^f:/!d;s///'		\
-		  da=';s/([^):(]*):/:/'	p2=';s/:/:'"$mp"'/'		\
-		  sx
+	    local sx ms=\;
+	    local fa='/^a'"$ms"'/!d;s///'   ff='/^f'"$ms"'/!d;s///'	\
+		  da=';s/([^)'"$ms"'(]*)//' p2=';s/'"$ms"'/&'"$mp"'/'
 	    case ${3-api} in		## Which format?
 		api)	sx="$fa"		;;
 		full)   sx="$ff$p2${4+;$4}"	;;
@@ -54,21 +55,21 @@ undo_meta() {
 		*)	return 1		;;
 	    esac
 	    sed "$sx" <<EOF
-a:0
-f:0:meta(META [ARG ...]):2-
-f:0:init(TAG):1
-f:0:mark(MARK):1
-f:0:push([TAG] COMMAND [ARGUMENT|REDIRECTION ...]):1-
-f:0:pull(MARK [TAG] | TAG | [COUNT=1]):0-2
-f:0:drop(MARK [TAG] | TAG | [COUNT=1]):0-2
-f:0:keep(MARK [TAG] | TAG | [COUNT=1]):0-2
-a:1
-f:1:meta(META [ARG ...]):2-
-f:1:init(TAG):1
-f:1:mark(MARK):1
-f:1:push([TAG] COMMAND [ARGUMENT|REDIRECTION ...]):1-
-f:1:pull(MARK [TAG] | TAG | [COUNT=1]):0-2
-f:1:drop(MARK [TAG] | TAG | [COUNT=1]):0-2
+a${ms}0
+f${ms}0${ms}meta(META [ARG ...])${ms}2-
+f${ms}0${ms}init(TAG)${ms}1
+f${ms}0${ms}mark(MARK)${ms}1
+f${ms}0${ms}push([TAG] COMMAND [ARGUMENT|REDIRECTION ...])${ms}1-
+f${ms}0${ms}pull(MARK [TAG] | TAG | [COUNT=1])${ms}0-2
+f${ms}0${ms}drop(MARK [TAG] | TAG | [COUNT=1])${ms}0-2
+f${ms}0${ms}keep(MARK [TAG] | TAG | [COUNT=1])${ms}0-2
+a${ms}1
+f${ms}1${ms}meta(META [ARG ...])${ms}2-
+f${ms}1${ms}init(TAG)${ms}1
+f${ms}1${ms}mark(MARK)${ms}1
+f${ms}1${ms}push([TAG] COMMAND [ARGUMENT|REDIRECTION ...])${ms}1-
+f${ms}1${ms}pull(MARK [TAG] | TAG | [COUNT=1])${ms}0-2
+f${ms}1${ms}drop(MARK [TAG] | TAG | [COUNT=1])${ms}0-2
 EOF
 	    ;;
 	get-package|get-version|get-api)

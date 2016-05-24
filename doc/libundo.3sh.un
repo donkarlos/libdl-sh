@@ -25,6 +25,7 @@
 .\#					format.
 .\#		ks	2016-05-24	Deprecate undo_keep().
 .\#					Add 'meta get package/version'.
+.\#					Use 'meta get apis' separator ';'.
 .\#
 .\# NOTE: (1)	Please adjust below date whenever revising the manual page.
 .\#		vvvvvv
@@ -181,17 +182,17 @@ containing \fIVERSION\fP.
 
 .IP \(em
 \fBfull\fP represents each function within each API version by a line of three
-colon-separated fields: \fIVERSION\fP, \fISIGNATURE\fP, and \fIARGCS\fP,
+semicolon-separated fields: \fIVERSION\fP, \fISIGNATURE\fP, and \fIARGCS\fP,
 where the second has the format \fINAME\fP\fB(\fP\fIARGS\fP\fB)\fP and the
 latter is a (possibly open) range of valid $# values.
 
-For example, for API 0, \fBundo_push\fP(3sh) and \fBundo_pull\fP(3sh) would
+For example, for API 1, \fBundo_push\fP(3sh) and \fBundo_pull\fP(3sh) would
 be represented by the following two lines:
 
 .in +4
-\fB0:undo_push([TAG] COMMAND [ARGUMENT|REDIRECTION ...]):1-\fP
+\fB1;undo_push([TAG] COMMAND [ARGUMENT|REDIRECTION ...]);1-\fP
 .br
-\fB0:undo_pull(MARK [TAG] | TAG | [COUNT=1]):0-2\fP
+\fB1;undo_pull(MARK [TAG] | TAG | [COUNT=1]);0-2\fP
 .in -4
 
 .IP \(em
@@ -206,7 +207,7 @@ if you want to know which API versions (analogous to output format \fBapi\fP)
 of \fBlibundo.sh\fP provide \fBundo_mark\fP(3sh), you'd invoke:
 
 .in +4
-\fBundo_meta get apis list '/:undo_mark:/!d;s/:.*$//'\fP
+\fBundo_meta get apis list '/;undo_mark;/!d;s/;.*$//'\fP
 .in -4
 .RE
 
