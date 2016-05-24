@@ -25,12 +25,16 @@
 ##					Fix `undo_* MARK TAG' semantics.
 ##		ks	2016-05-19	Use meta prefix.
 ##		ks	2016-05-24	Deprecate undo_keep().
+##					Add 'meta get package/version'.
 ##----------------------------------------------------------------------------
 ##  Global variables:
 #-----------------------------------------------------------------------------
+undo_package='@PACKAGE_TARNAME@'	## Define source package name/version.
+undo_version='@PACKAGE_VERSION@'
 undo_api=1				## Define API version.
 undo_stack=
 undo_exit0=
+readonly undo_package undo_version
 
 ##----------------------------------------------------------------------------
 ##  undo_meta(META [ARG ...])	Perform META operation (with ARGs)
@@ -67,7 +71,8 @@ f:1:pull(MARK [TAG] | TAG | [COUNT=1]):0-2
 f:1:drop(MARK [TAG] | TAG | [COUNT=1]):0-2
 EOF
 	    ;;
-	get-api)			## Inquire internal variable...
+	get-package|get-version|get-api)
+					## Inquire internal variable...
 	    eval 'case ${'"$mp$2"'+=} in
 		=)  echo "$'"$mp$2"'"	;;
 		*)  return 1		;;
