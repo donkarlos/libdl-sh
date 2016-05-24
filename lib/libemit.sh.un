@@ -22,12 +22,15 @@
 ##
 ##  WRITTEN BY:	ks	2013-02-12
 ##  CHANGED BY:	ks	2016-05-21	Implement meta operations.
+##		ks	2016-05-24	Add 'meta get package/version'.
 ##----------------------------------------------------------------------------
 ##  Global variables:
 #-----------------------------------------------------------------------------
+emit_package='@PACKAGE_TARNAME@'	## Define source package name/version.
+emit_version='@PACKAGE_VERSION@'
 emit_api=0				## Define API version.
 emit_heads=:
-readonly emit_api
+readonly emit_package emit_version emit_api
 
 ##----------------------------------------------------------------------------
 ##  emit_meta(META [ARG ...])	Perform META operation (with ARGs)
@@ -54,7 +57,8 @@ f:$emit_api:get_head(LEVEL):1
 f:$emit_api:(LEVEL MESSAGE ...):2
 EOF
 	    ;;
-	get-api)			## Inquire internal variable...
+	get-package|get-version|get-api)
+					## Inquire internal variable...
 	    eval 'case ${'"$mp$2"'+=} in
 		=)  echo "$'"$mp$2"'"	;;
 		*)  return 1		;;
