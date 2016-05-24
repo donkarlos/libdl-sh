@@ -28,6 +28,7 @@
 ##		ks	2016-05-21	Withdraw API version 0.
 ##		ks	2016-05-23	Deprecate conf_getenv().
 ##		ks	2016-05-24	Add 'meta get package/version'.
+##					Use 'meta get apis' separator ';'.
 ##
 ##  NOTE:   (1)	The library just wraps around its 'workhorse' AWK script!
 ##----------------------------------------------------------------------------
@@ -46,37 +47,36 @@ conf_meta() {
 
     case $1-$2 in			## Which META operation?
 	get-apis)			## Inquire APIs...
-	    local fa='/^a:/!d;s///'	ff='/^f:/!d;s///'		\
-		  da=';s/([^):(]*):/:/'	p2=';s/:/:'"$mp"'/'		\
-		  sx format
+	    local sx ms mf
 	    case ${conf_api-0} in
-		0)  format=${3-brief}	;;
-		*)  format=${3-api}	;;
+		0)  ms=:  mf=${3-brief}	;;
+		*)  ms=\; mf=${3-api}	;;
 	    esac
-	    case ${conf_api-0}:$format in
-					## Which format?
+	    local fa='/^a'"$ms"'/!d;s///'   ff='/^f'"$ms"'/!d;s///'	\
+		  da=';s/([^)'"$ms"'(]*)//' p2=';s/'"$ms"'/&'"$mp"'/'
+	    case ${conf_api-0}:$mf in	## Which format?
 		0:brief)
-		    dl_warn rel-wdr-meta conf "[$#]$1 $2 $format" 0.4 0.3.6
-		    return 1			;;
+			dl_warn rel-wdr-meta conf "[$#]$1 $2 $mf" 0.4 0.3.6
+			return 1		;;
 		*:api)	sx="$fa"		;;
 		*:full)	sx="$ff$p2${4+;$4}"	;;
 		*:list)	sx="$ff$p2$da${4+;$4}"	;;
 		*:*)	return 1		;;
 	    esac
 	    sed "$sx" <<EOF
-a:1
-f:1:meta(META [ARG ...]):2-
-f:1:exec(CFPN ...):1-
-f:1:has(ITEM[=VALUE] CFPN ...):2-
-f:1:get(ITEM[=VALUE] CFPN ...):2-
-f:1:put(ITEM[=VALUE] CFPN ...):2-
-f:1:getenv(VARIABLE ITEM[=VALUE] CFPN ...):3-
-a:2
-f:2:meta(META [ARG ...]):2-
-f:2:exec(CFPN ...):1-
-f:2:has(ITEM[=VALUE] CFPN ...):2-
-f:2:get(ITEM[=VALUE] CFPN ...):2-
-f:2:put(ITEM[=VALUE] CFPN ...):2-
+a${ms}1
+f${ms}1${ms}meta(META [ARG ...])${ms}2-
+f${ms}1${ms}exec(CFPN ...)${ms}1-
+f${ms}1${ms}has(ITEM[=VALUE] CFPN ...)${ms}2-
+f${ms}1${ms}get(ITEM[=VALUE] CFPN ...)${ms}2-
+f${ms}1${ms}put(ITEM[=VALUE] CFPN ...)${ms}2-
+f${ms}1${ms}getenv(VARIABLE ITEM[=VALUE] CFPN ...)${ms}3-
+a${ms}2
+f${ms}2${ms}meta(META [ARG ...])${ms}2-
+f${ms}2${ms}exec(CFPN ...)${ms}1-
+f${ms}2${ms}has(ITEM[=VALUE] CFPN ...)${ms}2-
+f${ms}2${ms}get(ITEM[=VALUE] CFPN ...)${ms}2-
+f${ms}2${ms}put(ITEM[=VALUE] CFPN ...)${ms}2-
 EOF
 	    ;;
 	get-package|get-version|get-api|get-awk)

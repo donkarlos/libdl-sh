@@ -26,6 +26,7 @@
 .\#					format and conf_init().
 .\#		ks	2016-05-23	Deprecate conf_getenv().
 .\#		ks	2016-05-24	Add 'meta get package/version'.
+.\#					Use 'meta get apis' separator ';'.
 .\#
 .\# NOTE: (1)	Please adjust below date whenever revising the manual page.
 .\#		vvvvvv
@@ -130,7 +131,7 @@ containing \fIVERSION\fP.
 
 .IP \(em
 \fBfull\fP represents each function within each API version by a line of three
-colon-separated fields: \fIVERSION\fP, \fISIGNATURE\fP, and \fIARGCS\fP,
+semicolon-separated fields: \fIVERSION\fP, \fISIGNATURE\fP, and \fIARGCS\fP,
 where the second has the format \fINAME\fP\fB(\fP\fIARGS\fP\fB)\fP and the
 latter is a (possibly open) range of valid $# values.
 
@@ -138,7 +139,7 @@ For example, for API version 1, \fBconf_get\fP(3sh) would be represented by
 the following line:
 
 .in +4
-\fB1:conf_get(ITEM[=VALUE] CFPN ...):2-\fP
+\fB1;conf_get(ITEM[=VALUE] CFPN ...);2-\fP
 .in -4
 
 .IP \(em
@@ -153,7 +154,7 @@ if you want to know which API versions (analogous to output format \fBapi\fP)
 of \fBlibconf.sh\fP provide \fBconf_getenv\fP(3sh), you'd invoke:
 
 .in +4
-\fBconf_meta get apis list '/:conf_getenv:/!d;s/:.*$//'\fP
+\fBconf_meta get apis list '/;conf_getenv;/!d;s/;.*$//'\fP
 .in -4
 .RE
 
