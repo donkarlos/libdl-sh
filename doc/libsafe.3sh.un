@@ -22,10 +22,11 @@
 .\# WRITTEN BY:	ks	2016-05-16
 .\# CHANGED BY:	ks	2016-05-21	Withdraw 'safe_meta get apis' brief
 .\#					format.
+.\#		ks	2016-05-24	Add 'meta get package/version'.
 .\#
 .\# NOTE: (1)	Please adjust below date whenever revising the manual page.
 .\#		vvvvvv
-.TH libsafe 3SH 2016-05-21 "@PACKAGE_TARNAME@ @PACKAGE_VERSION@" "Shell Programming"
+.TH libsafe 3SH 2016-05-24 "@PACKAGE_TARNAME@ @PACKAGE_VERSION@" "Shell Programming"
 
 .SH NAME
 safe_init, safe_mktmpdir, safe_mkdir, safe_chdir, safe_touch, safe_save,
@@ -142,6 +143,12 @@ certain library internals in a controlled manner. Currently, the following
 meta operations are implemented:
 .RS 4
 .TP 4
+\fBget package\fP|\fBversion\fP|\fBapi\fP
+Inquire library's source package name (\fB@PACKAGE_TARNAME@\fP), version
+(\fB@PACKAGE_VERSION@\fP), or selected API version and write it to standard
+output.
+
+.TP
 \fBget apis\fP [\fIFORMAT\fP=api [\fISEDEX\fP]]
 Inquire information about available API versions and write them to standard
 output. The information written depends on the output \fIFORMAT\fP:
@@ -180,10 +187,6 @@ of \fBlibsafe.sh\fP provide \fBsafe_wait\fP(3sh), you'd invoke:
 \fBsafe_meta get apis list '/:safe_wait:/!d;s/:.*$//'\fP
 .in -4
 .RE
-
-.TP
-\fBget api\fP
-Inquire selected API version and write it to standard output.
 
 .SH SEE ALSO
 .BR dl_load (3sh),

@@ -22,16 +22,19 @@
 ##
 ##  WRITTEN BY:	ks	2013-02-14
 ##  CHANGED BY:	ks	2016-05-19	Use meta prefix.
+##		ks	2016-05-24	Add 'meta get package/version'.
 ##----------------------------------------------------------------------------
 ##  Global variables:
 #-----------------------------------------------------------------------------
+safe_package='@PACKAGE_TARNAME@'	## Define source package name/version.
+safe_version='@PACKAGE_VERSION@'
 safe_api=0				## Define API version.
 safe_tmpdir=
 safe_suffix=$$
 safe_tarid=0
 safe_locks=
 safe_exit0=
-readonly safe_api
+readonly safe_package safe_version safe_api
 
 ##----------------------------------------------------------------------------
 ##  safe_meta(META [ARG ...])	Perform META operation (with ARGs)
@@ -67,7 +70,8 @@ f:$safe_api:lock(PN):1
 f:$safe_api:wait(PN [SECONDS=30]):1-2
 EOF
 	    ;;
-	get-api)			## Inquire internal variable...
+	get-package|get-version|get-api)
+					## Inquire internal variable...
 	    eval 'case ${'"$mp$2"'+=} in
 		=)  echo "$'"$mp$2"'"	;;
 		*)  return 1		;;
