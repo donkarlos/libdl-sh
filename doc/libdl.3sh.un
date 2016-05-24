@@ -25,10 +25,11 @@
 .\#		ks	2016-05-21	Withdraw 'dl_meta get apis' brief
 .\#					format and dl_init().
 .\#		ks      2016-05-23	Add service function dl_warn().
+.\#		ks	2016-05-24	Add 'meta get package/version'.
 .\#
 .\# NOTE: (1)	Please adjust below date whenever revising the manual page.
 .\#		vvvvvv
-.TH LIBDL 3SH 2016-05-23 "@PACKAGE_TARNAME@ @PACKAGE_VERSION@" "Shell Programming"
+.TH LIBDL 3SH 2016-05-24 "@PACKAGE_TARNAME@ @PACKAGE_VERSION@" "Shell Programming"
 
 .SH NAME
 dl_atload, dl_load, dl_atexit, dl_exit, dl_which, dl_meta
@@ -119,6 +120,12 @@ modify certain library internals in a controlled manner. Currently, the
 following meta operations are implemented:
 .RS 4
 .TP 4
+\fBget package\fP|\fBversion\fP|\fBapi\fP
+Inquire library's source package name (\fB@PACKAGE_TARNAME@\fP), version
+(\fB@PACKAGE_VERSION@\fP), or selected API version and write it to standard
+output.
+
+.TP
 \fBget apis\fP [\fIFORMAT\fP=api [\fISEDEX\fP]]
 Inquire information about available API versions and write them to standard
 output. The information written depends on the output \fIFORMAT\fP:
@@ -157,10 +164,6 @@ of \fBlibdl.sh\fP provide \fBdl_atload\fP(3sh), you'd invoke:
 \fBdl_meta get apis list '/:dl_atload:/!d;s/:.*$//'\fP
 .in -4
 .RE
-
-.TP
-\fBget api\fP
-Inquire current API version and write it to standard output.
 
 .TP
 \fBpre libpath\fP \fILIBPATH\fP ...
