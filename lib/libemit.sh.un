@@ -23,6 +23,7 @@
 ##  WRITTEN BY:	ks	2013-02-12
 ##  CHANGED BY:	ks	2016-05-21	Implement meta operations.
 ##		ks	2016-05-24	Add 'meta get package/version'.
+##					Use 'meta get apis' separator ';'.
 ##----------------------------------------------------------------------------
 ##  Global variables:
 #-----------------------------------------------------------------------------
@@ -40,9 +41,9 @@ emit_meta() {
 
     case $1-$2 in			## Which META operation?
 	get-apis)			## Inquire APIs...
-	    local fa='/^a:/!d;s///'	ff='/^f:/!d;s///'		\
-		  da=';s/([^):(]*):/:/'	p2=';s/:/:'"$mp"'/'		\
-		  sx
+	    local sx ms=\;
+	    local fa='/^a'"$ms"'/!d;s///'   ff='/^f'"$ms"'/!d;s///'	\
+		  da=';s/([^)'"$ms"'(]*)//' p2=';s/'"$ms"'/&'"$mp"'/'
 	    case ${3-api} in		## Which format?
 		api)	sx="$fa"		;;
 		full)   sx="$ff$p2${4+;$4}"	;;
@@ -50,11 +51,11 @@ emit_meta() {
 		*)	return 1		;;
 	    esac
 	    sed "$sx" <<EOF
-a:$emit_api
-f:$emit_api:meta(META [ARG ...]):2-
-f:$emit_api:set_head(LEVEL HEAD):2
-f:$emit_api:get_head(LEVEL):1
-f:$emit_api:(LEVEL MESSAGE ...):2
+a${ms}$emit_api
+f${ms}$emit_api${ms}meta(META [ARG ...])${ms}2-
+f${ms}$emit_api${ms}set_head(LEVEL HEAD)${ms}2
+f${ms}$emit_api${ms}get_head(LEVEL)${ms}1
+f${ms}$emit_api${ms}(LEVEL MESSAGE ...)${ms}2
 EOF
 	    ;;
 	get-package|get-version|get-api)
