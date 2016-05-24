@@ -1,31 +1,28 @@
-##								-*-Autoconf-*-
-##  autofinish.m4		- Build-time finishing macro
-##
-##  Copyright (C) 2013-2015 Das Computerlabor (DCl-M)
-##
-##  This library is free software; you can redistribute it and/or
-##  modify it under the terms of the GNU Lesser General Public License
-##  as published by the Free Software Foundation; either
-##  version 2.1 of the License, or (at your option) any later version.
-##
-##  This library is distributed in the hope that it will be useful,
-##  but WITHOUT ANY WARRANTY; without even the implied warranty of
-##  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-##  Lesser General Public License for more details.
-##
-##  You should have received a copy of the GNU Lesser General Public License
-##  along with this library; if not, write to the Free Software Founda-
-##  tion, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
-##
-##  AUTHOR(S):	ks	Karl Schmitz <ks@computerlabor.org>
-##
-##  WRITTEN BY:	ks	2013-02-12
-##  CHANGED BY:	ks	2013-03-09	Move script comment stripping to
-##					`auto/gensubst.sed'.
-##
-##  NOTE:   (1)	Never mind these mixed-style comments; this file is processed
-##		by aclocal(1) as well as m4(1).
-##----------------------------------------------------------------------------
+dnl								-*-Autoconf-*-
+dnl autofinish.m4		- Build-time finishing macro
+dnl
+dnl Copyright (C) 2013-2016 Das Computerlabor (DCl-M)
+dnl
+dnl This library is free software; you can redistribute it and/or
+dnl modify it under the terms of the GNU Lesser General Public License
+dnl as published by the Free Software Foundation; either
+dnl version 2.1 of the License, or (at your option) any later version.
+dnl
+dnl This library is distributed in the hope that it will be useful,
+dnl but WITHOUT ANY WARRANTY; without even the implied warranty of
+dnl MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+dnl Lesser General Public License for more details.
+dnl
+dnl You should have received a copy of the GNU Lesser General Public License
+dnl along with this library; if not, write to the Free Software Founda-
+dnl tion, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
+dnl
+dnl AUTHOR(S):	ks	Karl Schmitz <ks@computerlabor.org>
+dnl
+dnl WRITTEN BY:	ks	2013-02-12
+dnl CHANGED BY:	ks	2013-03-09	Move script comment stripping to
+dnl					`auto/gensubst.sed'.
+dnl		ks	2016-05-24	Use autoconf(1)-style comments only.
 dnl
 dnl AF_FINISH_FILES(FINISHED [,GENSUBST=gensubst])
 dnl				Trigger build-time finishing of @VARIABLE@
