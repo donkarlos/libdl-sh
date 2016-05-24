@@ -23,6 +23,7 @@
 ##  WRITTEN BY:	ks	2013-02-13
 ##  CHANGED BY:	ks	2015-12-29	Implement meta operations.
 ##		ks	2016-05-19	Use meta prefix.
+##		ks	2016-05-24	Add 'meta get package/version'.
 ##
 ##  NOTE:   (1)	To avoid cluttering code, this library is exempted from need-
 ##		ing namespace prefixes for its special character and portable
@@ -37,9 +38,11 @@ readonly BQ DQ SQ BS CS DS QB QE CR NL
 ##----------------------------------------------------------------------------
 ##  Global variables:
 ##----------------------------------------------------------------------------
+quote_package='@PACKAGE_TARNAME@'	## Define source package name/version.
+quote_version='@PACKAGE_VERSION@'
 quote_api=0				## Define API version.
 quote_sh_sedex="s/$SQ/$SQ$BS$BS$SQ$SQ/g;s/^/$SQ/;s/$DS/$SQ/"
-readonly quote_api quote_sh_sedex
+readonly quote_package quote_version quote_api quote_sh_sedex
 
 ##----------------------------------------------------------------------------
 ##  quote_meta(META [ARG ...])	Perform META operation (with ARGs)
@@ -68,7 +71,8 @@ f:$quote_api:egrep(STRING):1
 f:$quote_api:sed(STRING [DELIMITER=/]):1-2
 EOF
 	    ;;
-	get-api)			## Inquire internal variable...
+	get-package|get-version|get-api)
+					## Inquire internal variable...
 	    eval 'case ${'"$mp$2"'+=} in
 		=)  echo "$'"$mp$2"'"	;;
 		*)  return 1		;;
