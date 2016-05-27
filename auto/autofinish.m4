@@ -23,6 +23,7 @@ dnl WRITTEN BY:	ks	2013-02-12
 dnl CHANGED BY:	ks	2013-03-09	Move script comment stripping to
 dnl					`auto/gensubst.sed'.
 dnl		ks	2016-05-24	Use autoconf(1)-style comments only.
+dnl		ks	2016-05-25	Add cleaning rule.
 dnl
 dnl AF_FINISH_FILES(FINISHED [,GENSUBST=gensubst])
 dnl				Trigger build-time finishing of @VARIABLE@
@@ -46,8 +47,7 @@ AC_SUBST([FINISH], [`
 AC_CONFIG_COMMANDS([finishing], [sed '
     s/\$(EXTRA_DIST)/$(af__config_status_deps) &/g
     s/\$(CONFIG_STATUS_DEPENDENCIES)/$(af__config_status_deps) &/g
-    /^clean-am:/a\
-	-rm -f $(af__CLEAN_FILES)
+    /^clean-am:  */s/mostlyclean-am/clean-af &/
 ' Makefile >Makefile.new && mv Makefile.new Makefile || rm -f Makefile.new
 ])
 ])

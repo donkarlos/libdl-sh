@@ -1,7 +1,7 @@
 ##								-*-Makefile-*-
 ##  autofinish.am		- Build-time finishing rules
 ##
-##  Copyright (C) 2013-2015 Das Computerlabor (DCl-M)
+##  Copyright (C) 2013-2016 Das Computerlabor (DCl-M)
 ##
 ##  This library is free software; you can redistribute it and/or
 ##  modify it under the terms of the GNU Lesser General Public License
@@ -20,11 +20,14 @@
 ##  AUTHOR(S):	ks	Karl Schmitz <ks@computerlabor.org>
 ##
 ##  WRITTEN BY:	ks	2013-02-12
-##  CHANGED BY:
+##  CHANGED BY:	ks	2016-05-25	Add cleaning rule.
 ##----------------------------------------------------------------------------
-##  Dependencies:
+##  Cleaning rule:
 ##----------------------------------------------------------------------------
-$(af__CLEAN_FILES):	Makefile
+.PHONY:			clean-af
+
+clean-af:
+	-rm -f $(af__CLEAN_FILES)
 
 ##----------------------------------------------------------------------------
 ##  Suffix rules:
