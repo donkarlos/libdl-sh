@@ -38,11 +38,14 @@ cs_digit=0123456789			# numeric character sets.
 cs_alpha=$cs_upper$cs_lower
 cs_alnum=$cs_alpha$cs_digit
 
-re_ident="[_$cs_alpha][_$cs_alnum]*"
-re_tlead=@
+re_ident="[_$cs_alpha][_$cs_alnum]*"	# (Pre-)define REs for identifiers and
+re_tlead=@				# templates' lead/tail.
 re_ttail=@
-rs_slead='$('
-rs_stail=')'
+rs_slead='$('				# (Pre-)define RE substitutions for
+rs_stail=')'				# substitutions' lead/tail.
+
+ex_vn='_\('"$re_ident"'\)='		# Define expr(1) REs for splitting
+ex_vv='[^=]*=\(.*\)$'			# NAME=VALUE into NAME and VALUE.
 
 #-----------------------------------------------------------------------------
 #   Generate output variable:
@@ -51,6 +54,7 @@ if test $# -gt 0; then			# SUBSTitution given?
     subst=$1; shift			# Yes, fetch it.
     case $subst in			# Is it valid?
 	CONFIG_STATUS_DEPENDENCIES|FINISH)
+	    vns=-			# Yes, start with empty NAME list.
 	    ;;
 	*)  echo "$0 $subst: unknown SUBSTitution!" >&2
 	    subst=usage			# No, complain and finally show
@@ -60,6 +64,24 @@ else					# No substitution given.
     echo "$0: need SUBSTitution!" >&2
     subst=usage				# Complain and finally show usage.
 fi
+
+while test $# -gt 0; do
+    case $1 in
+	*=*)				# Looking at 'NAME=VALUE'?
+	    if vn=`expr "_$1" : "$ex_vn"`; then
+					# Yes, and NAME is an identifier?
+		vv=`expr "$1" : "$ex_vv"`
+		eval "_$vn"'=$vv'; vns=$vns$vn-
+					# Yes, get VALUE and set variable.
+	    else
+		echo "$0 $subst $1: malformed NAME=VALUE!" >&2
+		subst=usage; break	# No, complain and finally show
+	    fi				# usage.
+	    ;;
+	*)  break			# No, assume it's an UNFINISHED.
+	    ;;
+    esac; shift
+done
 
 case $subst in				# Which substitution?
     CONFIG_STATUS_DEPENDENCIES|FINISH)	# Needs 'UNFINISHED ...'...
@@ -106,7 +128,7 @@ case $subst in				# Which substitution?
 	fi
 	;;
     usage)
-	echo "Usage: $0 SUBST UNFINISHED ..." >&2
+	echo "Usage: $0 SUBST [NAME=VALUE ...] UNFINISHED ..." >&2
 	exit 2
 	;;
 esac
