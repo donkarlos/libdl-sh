@@ -49,10 +49,6 @@ rs_stail=')'
 #-----------------------------------------------------------------------------
 if test $# -ge 1; then			# SUBSTitution given?
     subst=$1; shift			# Yes, fetch it.
-    srcdir=`dirname "$0"`		# Auto-locate (top_)srcdir...
-    until test -f "$srcdir"/configure.ac; do
-	srcdir=`dirname "$srcdir"`
-    done
 else
     echo "Usage: $0 VARIABLE [UNFINISHED ...]" >&2
     exit 2
@@ -64,6 +60,10 @@ case $subst in				# Which substitution?
 	echo " $*" | sed 's| | '"$rs_top_srcdir"'/|g;s|^ ||'
 	;;
     FINISH)
+	srcdir=`dirname "$0"`		# Auto-locate (top_)srcdir...
+	until test -f "$srcdir"/configure.ac; do
+	    srcdir=`dirname "$srcdir"`
+	done
 	unfinished=`echo " $*" | sed 's| | '"$srcdir"'/|g;s|^ ||'`
 	templates="`sed '
 	    :1
