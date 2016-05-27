@@ -1,8 +1,8 @@
 #! /bin/sh
 #-----------------------------------------------------------------------------
-#   gensubst			- Generate output variables
+#   gensubst			- Generate substitutions
 #
-#   Copyright (C) 2013-2015 Das Computerlabor (DCl-M)
+#   Copyright (C) 2013-2016 Das Computerlabor (DCl-M)
 #
 #   This library is free software; you can redistribute it and/or
 #   modify it under the terms of the GNU Lesser General Public License
@@ -26,6 +26,7 @@
 #		ks	2013-04-17	Fix and optimize template extraction.
 #					Allow to tune the finishing mechanism
 #					with $(FINISH_ANTE/POST_SEDFLAGS).
+#		ks	2016-05-27	Rename $name to $subst.
 #-----------------------------------------------------------------------------
 #   Initialization:
 #-----------------------------------------------------------------------------
@@ -46,14 +47,14 @@ rs_suffix=')'
 #-----------------------------------------------------------------------------
 #   Generate output variable:
 #-----------------------------------------------------------------------------
-if test $# -ge 1; then			# Output variable given?
-    name=$1; shift			# Yes, fetch it.
+if test $# -ge 1; then			# SUBSTitution given?
+    subst=$1; shift			# Yes, fetch it.
     srcdir=`dirname "$0"`		# Auto-locate (top_)srcdir...
     until test -f "$srcdir"/configure.ac; do
 	srcdir=`dirname "$srcdir"`
     done
 
-    case $name in			# Which output variable?
+    case $subst in			# Which substitution?
 	CONFIG_STATUS_DEPENDENCIES)
 	    rs_top_srcdir="${rs_prefix}top_srcdir${rs_suffix}"
 	    echo " $*" | sed 's| | '"$rs_top_srcdir"'/|g;s|^ ||'
@@ -67,7 +68,7 @@ if test $# -ge 1; then			# Output variable given?
 		    h;s///;x;s/'"$re_suffix"'.*$//p;x
 		};b1
 	    ' $unfinished`" || {
-		echo "$0: Update AF_FINISH_FILES() invocation to generate $name!" >&2
+		echo "$0: Update AF_FINISH_FILES() invocation to generate $subst!" >&2
 		echo false
 		exit 2
 	    }
@@ -85,7 +86,7 @@ if test $# -ge 1; then			# Output variable given?
 	    fi
 	    ;;
 	*)
-	    echo "$0: Don't know how to generate $name!" >&2
+	    echo "$0: Don't know how to generate $subst!" >&2
 	    exit 1
 	    ;;
     esac
