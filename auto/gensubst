@@ -32,15 +32,15 @@
 #-----------------------------------------------------------------------------
 LC_ALL=C; export LC_ALL			# Avoid locale insanities.
 
-cr_upper=ABCDEFGHIJKLMNOPQRSTUVWXYZ	# Define basic character ranges for
-cr_lower=abcdefghijklmnopqrstuvwxyz	# upper-/lowercase letters and
-cr_digit=0123456789			# decimal digits.
-cr_alpha=$cr_upper$cr_lower		# Combine character ranges for
-cr_alnum=$cr_alpha$cr_digit		# letters and alphanumerics.
+cs_upper=ABCDEFGHIJKLMNOPQRSTUVWXYZ	# Construct upper/lower-case letter,
+cs_lower=abcdefghijklmnopqrstuvwxyz	# decimal digit, letter, and alpha-
+cs_digit=0123456789			# numeric character sets.
+cs_alpha=$cs_upper$cs_lower
+cs_alnum=$cs_alpha$cs_digit
 
 re_prefix=@
 re_suffix=@
-re_variable="[_$cr_alpha][_$cr_alnum]*"
+re_variable="[_$cs_alpha][_$cs_alnum]*"
 rs_prefix='$('
 rs_suffix=')'
 
