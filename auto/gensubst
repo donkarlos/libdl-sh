@@ -47,11 +47,18 @@ rs_stail=')'
 #-----------------------------------------------------------------------------
 #   Generate output variable:
 #-----------------------------------------------------------------------------
-if test $# -ge 1; then			# SUBSTitution given?
+if test $# -gt 0; then			# SUBSTitution given?
     subst=$1; shift			# Yes, fetch it.
-else
-    echo "Usage: $0 VARIABLE [UNFINISHED ...]" >&2
-    exit 2
+    case $subst in			# Is it valid?
+	CONFIG_STATUS_DEPENDENCIES|FINISH)
+	    ;;
+	*)  echo "$0 $subst: unknown SUBSTitution!" >&2
+	    subst=usage			# No, complain and finally show
+	    ;;				# usage.
+    esac
+else					# No substitution given.
+    echo "$0: need SUBSTitution!" >&2
+    subst=usage				# Complain and finally show usage.
 fi
 
 case $subst in				# Which substitution?
@@ -72,7 +79,7 @@ case $subst in				# Which substitution?
 		h;s///;x;s/'"$re_ttail"'.*$//p;x
 	    };b1
 	' $unfinished`" || {
-	    echo "$0: Update AF_FINISH_FILES() invocation to generate $subst!" >&2
+	    echo "$0 $subst: Update AF_FINISH_FILES() invocation!" >&2
 	    echo false
 	    exit 2
 	}
@@ -85,12 +92,12 @@ case $subst in				# Which substitution?
 		x;s|\n|;|g;s|^;||;s|^|sed '"$rs_ante"'|;s|$|'"$rs_post"'|
 	    '
 	else
-	    echo "$0: No templates found. Do you still need me?" >&2
+	    echo "$0 $subst: No templates found. Do you still need me?" >&2
 	    echo cat
 	fi
 	;;
-    *)
-	echo "$0: Don't know how to generate $subst!" >&2
-	exit 1
+    usage)
+	echo "Usage: $0 SUBST [UNFINISHED ...]" >&2
+	exit 2
 	;;
 esac
