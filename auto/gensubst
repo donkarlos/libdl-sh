@@ -27,6 +27,9 @@
 #					Allow to tune the finishing mechanism
 #					with $(FINISH_ANTE/POST_SEDFLAGS).
 #		ks	2016-05-27	Add 'pathname' substitution.
+#					Use "pathname prefix='$(srcdir)/'"
+#					substitution instead of 'CONFIG_STA-
+#					TUS_DEPENDENCIES' substitution.
 #-----------------------------------------------------------------------------
 #   Initialization:
 #-----------------------------------------------------------------------------
@@ -58,7 +61,7 @@ sx_quote_rs='s/[\&/]/'"$BS$BS"'&/g'	# Define sed(1) script for quoting
 if test $# -gt 0; then			# SUBSTitution given?
     subst=$1; shift			# Yes, fetch it.
     case $subst in			# Is it valid?
-	pathname|CONFIG_STATUS_DEPENDENCIES|FINISH)
+	pathname|FINISH)
 	    vns=-			# Yes, start with empty NAME list.
 	    ;;
 	*)  echo "$0 $subst: unknown SUBSTitution!" >&2
@@ -89,7 +92,7 @@ while test $# -gt 0; do
 done
 
 case $subst in				# Which substitution?
-    CONFIG_STATUS_DEPENDENCIES|FINISH)	# Needs 'UNFINISHED ...'...
+    FINISH)				# Needs 'UNFINISHED ...'...
 	test $# -gt 0 || {
 	    echo "$0 $subst: need UNFINISHEDs!" >&2
 	    subst=usage
@@ -130,10 +133,6 @@ EOF`;				sx="$sx"'s/$/ /;s/ /'"$rs"' /g;s/ $//'"$NL"
 		esac
 		;;
 	esac
-	;;
-    CONFIG_STATUS_DEPENDENCIES)
-	rs_top_srcdir="${rs_slead}top_srcdir${rs_stail}"
-	echo " $*" | sed 's| | '"$rs_top_srcdir"'/|g;s|^ ||'
 	;;
     FINISH)
 	srcdir=`dirname "$0"`		# Auto-locate (top_)srcdir...

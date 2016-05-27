@@ -30,6 +30,9 @@ dnl					Rename ${af__unfinished} to ${af_un-
 dnl					finished}.
 dnl					Rename ${af__gensubst} to ${af_gen-
 dnl					subst}.
+dnl					Use "pathname prefix='$(srcdir)/'"
+dnl					substitution instead of 'CONFIG_STA-
+dnl					TUS_DEPENDENCIES' substitution.
 dnl
 dnl AF_FINISH_FILES(FINISHED [,GENSUBST=gensubst])
 dnl				Trigger build-time finishing of @VARIABLE@
@@ -42,9 +45,9 @@ dnl
 AC_DEFUN([AF_FINISH_FILES], [
 AC_SUBST([af_finished], 'm4_normalize([$1])')
 m4_ifval([$2], [af_gensubst=$2], [af_gensubst=gensubst])
-af_unfinished=`echo $af_finished | sed 's|$| |;s| |.un |g;s| $||'`
+af_unfinished=`$srcdir/$af_gensubst pathname suffix=.un $af_finished`
 AC_SUBST([af__config_status_deps], [`
-    $srcdir/$af_gensubst CONFIG_STATUS_DEPENDENCIES \
+    $srcdir/$af_gensubst pathname prefix='$(srcdir)/' \
 	$af_gensubst $af_gensubst.sed $af_unfinished
 `])
 AC_SUBST([FINISH], [`
