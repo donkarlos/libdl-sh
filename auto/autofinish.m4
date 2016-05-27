@@ -24,6 +24,8 @@ dnl CHANGED BY:	ks	2013-03-09	Move script comment stripping to
 dnl					`auto/gensubst.sed'.
 dnl		ks	2016-05-24	Use autoconf(1)-style comments only.
 dnl		ks	2016-05-25	Add cleaning rule.
+dnl		ks	2016-05-27	Rename $(af__CLEAN_FILES) to $(af_fi-
+dnl					nished).
 dnl
 dnl AF_FINISH_FILES(FINISHED [,GENSUBST=gensubst])
 dnl				Trigger build-time finishing of @VARIABLE@
@@ -34,8 +36,8 @@ dnl
 dnl NOTE:   (1)	All pathnames passed must be relative to $(top_srcdir)!
 dnl
 AC_DEFUN([AF_FINISH_FILES], [
-AC_SUBST([af__CLEAN_FILES], 'm4_normalize([$1])')
-af__unfinished=`echo $af__CLEAN_FILES | sed 's|$| |;s| |.un |g;s| $||'`
+AC_SUBST([af_finished], 'm4_normalize([$1])')
+af__unfinished=`echo $af_finished | sed 's|$| |;s| |.un |g;s| $||'`
 m4_ifval([$2], [af__gensubst=$2], [af__gensubst=gensubst])
 AC_SUBST([af__config_status_deps], [`
     ${srcdir}/${af__gensubst} CONFIG_STATUS_DEPENDENCIES \
