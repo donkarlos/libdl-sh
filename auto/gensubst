@@ -38,11 +38,11 @@ cs_digit=0123456789			# numeric character sets.
 cs_alpha=$cs_upper$cs_lower
 cs_alnum=$cs_alpha$cs_digit
 
-re_prefix=@
-re_suffix=@
-re_variable="[_$cs_alpha][_$cs_alnum]*"
-rs_prefix='$('
-rs_suffix=')'
+re_ident="[_$cs_alpha][_$cs_alnum]*"
+re_tlead=@
+re_ttail=@
+rs_slead='$('
+rs_stail=')'
 
 #-----------------------------------------------------------------------------
 #   Generate output variable:
@@ -56,16 +56,16 @@ if test $# -ge 1; then			# SUBSTitution given?
 
     case $subst in			# Which substitution?
 	CONFIG_STATUS_DEPENDENCIES)
-	    rs_top_srcdir="${rs_prefix}top_srcdir${rs_suffix}"
+	    rs_top_srcdir="${rs_slead}top_srcdir${rs_stail}"
 	    echo " $*" | sed 's| | '"$rs_top_srcdir"'/|g;s|^ ||'
 	    ;;
 	FINISH)
 	    unfinished=`echo " $*" | sed 's| | '"$srcdir"'/|g;s|^ ||'`
 	    templates="`sed '
 		:1
-		/^[^'"$re_prefix"']*'"$re_prefix"'/!d;s///
-		/^'"$re_variable$re_suffix"'/{
-		    h;s///;x;s/'"$re_suffix"'.*$//p;x
+		/^[^'"$re_tlead"']*'"$re_tlead"'/!d;s///
+		/^'"$re_ident$re_ttail"'/{
+		    h;s///;x;s/'"$re_ttail"'.*$//p;x
 		};b1
 	    ' $unfinished`" || {
 		echo "$0: Update AF_FINISH_FILES() invocation to generate $subst!" >&2
@@ -73,10 +73,10 @@ if test $# -ge 1; then			# SUBSTitution given?
 		exit 2
 	    }
 	    if test -n "$templates"; then
-		rs_ante="${rs_prefix}FINISH_ANTE_SEDFLAGS${rs_suffix} -f $0.sed -e '"
-		rs_post="' ${rs_prefix}FINISH_POST_SEDFLAGS${rs_suffix}"
+		rs_ante="${rs_slead}FINISH_ANTE_SEDFLAGS${rs_stail} -f $0.sed -e '"
+		rs_post="' ${rs_slead}FINISH_POST_SEDFLAGS${rs_stail}"
 		echo "$templates" | sort | uniq | sed '
-		    s/^\(.*\)$/s|'"$re_prefix"'\1'"$re_suffix"'|'"$rs_prefix"'\1'"$rs_suffix"'|g/
+		    s/^\(.*\)$/s|'"$re_tlead"'\1'"$re_ttail"'|'"$rs_slead"'\1'"$rs_stail"'|g/
 		    H;$!d
 		    x;s|\n|;|g;s|^;||;s|^|sed '"$rs_ante"'|;s|$|'"$rs_post"'|
 		'
