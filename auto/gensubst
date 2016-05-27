@@ -62,6 +62,15 @@ else					# No substitution given.
 fi
 
 case $subst in				# Which substitution?
+    CONFIG_STATUS_DEPENDENCIES|FINISH)	# Needs 'UNFINISHED ...'...
+	test $# -gt 0 || {
+	    echo "$0 $subst: need UNFINISHEDs!" >&2
+	    subst=usage
+	}
+	;;
+esac
+
+case $subst in				# Which substitution?
     CONFIG_STATUS_DEPENDENCIES)
 	rs_top_srcdir="${rs_slead}top_srcdir${rs_stail}"
 	echo " $*" | sed 's| | '"$rs_top_srcdir"'/|g;s|^ ||'
@@ -97,7 +106,7 @@ case $subst in				# Which substitution?
 	fi
 	;;
     usage)
-	echo "Usage: $0 SUBST [UNFINISHED ...]" >&2
+	echo "Usage: $0 SUBST UNFINISHED ..." >&2
 	exit 2
 	;;
 esac
