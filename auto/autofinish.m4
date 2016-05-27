@@ -28,6 +28,8 @@ dnl		ks	2016-05-27	Rename $(af__CLEAN_FILES) to $(af_fi-
 dnl					nished).
 dnl					Rename ${af__unfinished} to ${af_un-
 dnl					finished}.
+dnl					Rename ${af__gensubst} to ${af_gen-
+dnl					subst}.
 dnl
 dnl AF_FINISH_FILES(FINISHED [,GENSUBST=gensubst])
 dnl				Trigger build-time finishing of @VARIABLE@
@@ -39,14 +41,14 @@ dnl NOTE:   (1)	All pathnames passed must be relative to $(top_srcdir)!
 dnl
 AC_DEFUN([AF_FINISH_FILES], [
 AC_SUBST([af_finished], 'm4_normalize([$1])')
+m4_ifval([$2], [af_gensubst=$2], [af_gensubst=gensubst])
 af_unfinished=`echo $af_finished | sed 's|$| |;s| |.un |g;s| $||'`
-m4_ifval([$2], [af__gensubst=$2], [af__gensubst=gensubst])
 AC_SUBST([af__config_status_deps], [`
-    ${srcdir}/${af__gensubst} CONFIG_STATUS_DEPENDENCIES \
-	${af__gensubst} ${af__gensubst}.sed ${af_unfinished}
+    $srcdir/$af_gensubst CONFIG_STATUS_DEPENDENCIES \
+	$af_gensubst $af_gensubst.sed $af_unfinished
 `])
 AC_SUBST([FINISH], [`
-    $srcdir/$af__gensubst FINISH $af_unfinished
+    $srcdir/$af_gensubst FINISH $af_unfinished
 `])
 AC_CONFIG_COMMANDS([finishing], [sed '
     s/\$(EXTRA_DIST)/$(af__config_status_deps) &/g
