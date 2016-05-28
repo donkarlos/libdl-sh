@@ -31,6 +31,8 @@
 #					substitution instead of 'CONFIG_STA-
 #					TUS_DEPENDENCIES' substitution.
 #		ks	2016-05-28	Divide processing into phases.
+#					Split 'pathname' substitution in two
+#					phases.
 #-----------------------------------------------------------------------------
 #   Initialization:
 #-----------------------------------------------------------------------------
@@ -105,10 +107,10 @@ case $subst in				# Which substitution?
 esac
 
 #-----------------------------------------------------------------------------
-#   Phase 3: Generate substitution
+#   Phase 3: Apply 'prefix=PREFIX' and/or 'suffix=SUFFIX' to UNFINISHEDs
 #-----------------------------------------------------------------------------
 case $subst in				# Which substitution?
-    pathname)				# 'pathname'...
+    pathname)				# Needs prefix/suffix applied...
 	case $# in			# UNFINISHEDs specified?
 	    0)	;;			# No, we're already done.
 	    *)  sx=			# Yes, start with empty sed(1) script.
@@ -134,12 +136,21 @@ EOF`;				sx="$sx"'s/$/ /;s/ /'"$rs"' /g;s/ $//'"$NL"
 			esac		# UNFINISHEDs will (also) be suffixed.
 			;;
 		esac
-		case "$sx" in		# Prefix and/or suffix UNFINISHEDs.
-		    ?*)	echo $* | sed "$sx"	;;
-		    *)	echo $*			;;
+		case $sx in		# Prefix and/or suffix UNFINISHEDs?
+		    ?*)	set shiftee `echo $* | sed "$sx"`; shift
+			;;		# Yes, rewrite UNFINISHEDs.
 		esac
 		;;
 	esac
+	;;
+esac
+
+#-----------------------------------------------------------------------------
+#   Phase 4: Generate substitution
+#-----------------------------------------------------------------------------
+case $subst in				# Which substitution?
+    pathname)				# 'pathname'...
+	echo ${1+"$@"}			# Emit rewritten UNFINISHEDs.
 	;;
     FINISH)
 	srcdir=`dirname "$0"`		# Auto-locate (top_)srcdir...
