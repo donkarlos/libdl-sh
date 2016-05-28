@@ -30,6 +30,7 @@
 #					Use "pathname prefix='$(srcdir)/'"
 #					substitution instead of 'CONFIG_STA-
 #					TUS_DEPENDENCIES' substitution.
+#		ks	2016-05-28	Divide processing into phases.
 #-----------------------------------------------------------------------------
 #   Initialization:
 #-----------------------------------------------------------------------------
@@ -56,9 +57,9 @@ sx_quote_rs='s/[\&/]/'"$BS$BS"'&/g'	# Define sed(1) script for quoting
 					# RE substitutions.
 
 #-----------------------------------------------------------------------------
-#   Generate substitution:
+#   Phase 1: Check if SUBSTitution is specified and valid
 #-----------------------------------------------------------------------------
-if test $# -gt 0; then			# SUBSTitution given?
+if test $# -gt 0; then			# SUBSTitution specified?
     subst=$1; shift			# Yes, fetch it.
     case $subst in			# Is it valid?
 	pathname|FINISH)
@@ -73,6 +74,9 @@ else					# No substitution given.
     subst=usage				# Complain and finally show usage.
 fi
 
+#-----------------------------------------------------------------------------
+#   Phase 2: Process 'NAME=VALUE' parameters
+#-----------------------------------------------------------------------------
 while test $# -gt 0; do
     case $1 in
 	*=*)				# Looking at 'NAME=VALUE'?
@@ -100,6 +104,9 @@ case $subst in				# Which substitution?
 	;;
 esac
 
+#-----------------------------------------------------------------------------
+#   Phase 3: Generate substitution
+#-----------------------------------------------------------------------------
 case $subst in				# Which substitution?
     pathname)				# 'pathname'...
 	case $# in			# UNFINISHEDs specified?
