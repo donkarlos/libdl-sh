@@ -33,6 +33,7 @@
 #		ks	2016-05-28	Divide processing into phases.
 #					Split 'pathname' substitution in two
 #					phases.
+#					Apply phase 3 to 'FINISH' subst.
 #-----------------------------------------------------------------------------
 #   Initialization:
 #-----------------------------------------------------------------------------
@@ -97,20 +98,11 @@ while test $# -gt 0; do
     esac; shift
 done
 
-case $subst in				# Which substitution?
-    FINISH)				# Needs 'UNFINISHED ...'...
-	test $# -gt 0 || {
-	    echo "$0 $subst: need UNFINISHEDs!" >&2
-	    subst=usage
-	}
-	;;
-esac
-
 #-----------------------------------------------------------------------------
 #   Phase 3: Apply 'prefix=PREFIX' and/or 'suffix=SUFFIX' to UNFINISHEDs
 #-----------------------------------------------------------------------------
 case $subst in				# Which substitution?
-    pathname)				# Needs prefix/suffix applied...
+    pathname|FINISH)			# Needs prefix/suffix applied...
 	case $# in			# UNFINISHEDs specified?
 	    0)	;;			# No, we're already done.
 	    *)  sx='s/$/ /;'		# Yes, start out sed(1) script.
@@ -153,18 +145,13 @@ case $subst in				# Which substitution?
 	echo ${1+"$@"}			# Emit rewritten UNFINISHEDs.
 	;;
     FINISH)
-	srcdir=`dirname "$0"`		# Auto-locate (top_)srcdir...
-	until test -f "$srcdir"/configure.ac; do
-	    srcdir=`dirname "$srcdir"`
-	done
-	unfinished=`echo " $*" | sed 's| | '"$srcdir"'/|g;s|^ ||'`
 	templates="`sed '
 	    :1
 	    /^[^'"$re_tlead"']*'"$re_tlead"'/!d;s///
 	    /^'"$re_ident$re_ttail"'/{
 		h;s///;x;s/'"$re_ttail"'.*$//p;x
 	    };b1
-	' $unfinished`" || {
+	' /dev/null ${1+"$@"}`" || {
 	    echo "$0 $subst: Update AF_FINISH_FILES() invocation!" >&2
 	    echo false
 	    exit 2

@@ -51,7 +51,8 @@ AC_SUBST([af__config_status_deps], [`
 	$af_gensubst $af_gensubst.sed $af_unfinished
 `])
 AC_SUBST([FINISH], [`
-    $srcdir/$af_gensubst FINISH $af_unfinished
+    $srcdir/$af_gensubst FINISH prefix=$srcdir/ suffix=.un		\
+	$af_finished
 `])
 AC_CONFIG_COMMANDS([finishing], [sed '
     s/\$(EXTRA_DIST)/$(af__config_status_deps) &/g
