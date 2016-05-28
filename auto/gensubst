@@ -114,6 +114,16 @@ case $subst in				# Which substitution?
 	case $# in			# UNFINISHEDs specified?
 	    0)	;;			# No, we're already done.
 	    *)  sx=			# Yes, start with empty sed(1) script.
+		case $vns in		# 'suffix=SUFFIX' specified?
+		    *-suffix-*)		# Yes, does it apply?
+			case $_suffix in
+			    ?*)	rs=`sed "$sx_quote_rs" <<EOF
+$_suffix
+EOF`;				sx="$sx"'s/$/ /;s/ /'"$rs"' /g;s/ $//'"$NL"
+				;;	# Yes, augment sed(1) script so that
+			esac		# UNFINISHEDs will (also) be suffixed.
+			;;
+		esac
 		case $vns in		# 'prefix=PREFIX' specified?
 		    *-prefix-*)		# Yes, does it apply?
 			case $_prefix in
@@ -124,16 +134,6 @@ $_prefix
 EOF`;				sx="$sx"'s/^/ /;s/ / '"$rs"'/g;s/^ //'"$NL"
 				;;	# Yes, augment sed(1) script so that
 			esac		# UNFINISHEDs will be prefixed.
-			;;
-		esac
-		case $vns in		# 'suffix=SUFFIX' specified?
-		    *-suffix-*)		# Yes, does it apply?
-			case $_suffix in
-			    ?*)	rs=`sed "$sx_quote_rs" <<EOF
-$_suffix
-EOF`;				sx="$sx"'s/$/ /;s/ /'"$rs"' /g;s/ $//'"$NL"
-				;;	# Yes, augment sed(1) script so that
-			esac		# UNFINISHEDs will (also) be suffixed.
 			;;
 		esac
 		case $sx in		# Prefix and/or suffix UNFINISHEDs?
