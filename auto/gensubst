@@ -34,6 +34,7 @@
 #					Split 'pathname' substitution in two
 #					phases.
 #					Apply phase 3 to 'FINISH' subst.
+#					Add 'templates' substitution.
 #-----------------------------------------------------------------------------
 #   Initialization:
 #-----------------------------------------------------------------------------
@@ -65,7 +66,7 @@ sx_quote_rs='s/[\&/]/'"$BS$BS"'&/g'	# Define sed(1) script for quoting
 if test $# -gt 0; then			# SUBSTitution specified?
     subst=$1; shift			# Yes, fetch it.
     case $subst in			# Is it valid?
-	pathname|FINISH)
+	pathname|templates|FINISH)
 	    vns=-			# Yes, start with empty NAME list.
 	    ;;
 	*)  echo "$0 $subst: unknown SUBSTitution!" >&2
@@ -101,8 +102,8 @@ done
 #-----------------------------------------------------------------------------
 #   Phase 3: Apply 'prefix=PREFIX' and/or 'suffix=SUFFIX' to UNFINISHEDs
 #-----------------------------------------------------------------------------
-case $subst in				# Which substitution?
-    pathname|FINISH)			# Needs prefix/suffix applied...
+case $subst in				# Phase applies to SUBSTitution?
+    pathname|templates|FINISH)		# Yes...
 	case $# in			# UNFINISHEDs specified?
 	    0)	;;			# No, we're already done.
 	    *)  sx='s/$/ /;'		# Yes, start out sed(1) script.
@@ -138,12 +139,38 @@ EOF`;				sx="$sx"'s/ / '"$rs"'/g;'
 esac
 
 #-----------------------------------------------------------------------------
-#   Phase 4: Generate substitution
+#   Phase 4: Extract templates
+#-----------------------------------------------------------------------------
+case $subst in				# Phase applies to SUBSTitution?
+    templates)				# Yes...
+	set shiftee `{
+	    sed '
+		:1
+		/'"$re_tlead$re_ident$re_ttail"'/!d;h
+		s/\('"$re_tlead$re_ident"'\)'"$re_ttail"'.*$/\1/
+		s/^.*'"$re_tlead"'\('"$re_ident"'\)$/\1/p;g
+		s/'"$re_tlead$re_ident$re_ttail"'//;b1
+	    ' ${1+"$@"} </dev/null 2>&0 ||
+		echo "$0 $subst: Update your AF_FINISH_FILES() invocation!" >&2
+	} | sort | uniq`; shift		# Extract names of templates occuring
+					# in UNFINISHEDs, unify them, and re-
+					# place UNFINISHEDs with template
+					# names.
+	case $# in			# UNFINISHEDs contained templates?
+	    0)	echo "$0 $subst: No templates found. Do you still need me?" >&2
+		exit 0			# No, show warning and exit with suc-
+		;;			# cess (as no more phases apply).
+	esac
+	;;
+esac
+
+#-----------------------------------------------------------------------------
+#   Phase 5: Generate substitution
 #-----------------------------------------------------------------------------
 case $subst in				# Which substitution?
-    pathname)				# 'pathname'...
-	echo ${1+"$@"}			# Emit rewritten UNFINISHEDs.
-	;;
+    pathname|templates)			# 'pathname'/'templates'...
+	echo ${1+"$@"}			# Emit result (i.e., rewritten UNFINI-
+	;;				# SHEDs or extracted template names.
     FINISH)
 	templates="`sed '
 	    :1
