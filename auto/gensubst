@@ -27,19 +27,15 @@
 #					Allow to tune the finishing mechanism
 #					with $(FINISH_ANTE/POST_SEDFLAGS).
 #		ks	2016-05-27	Add 'pathname' substitution.
-#					Use "pathname prefix='$(srcdir)/'"
-#					substitution instead of 'CONFIG_STA-
-#					TUS_DEPENDENCIES' substitution.
 #		ks	2016-05-28	Divide processing into phases.
 #					Split 'pathname' substitution in two
 #					phases.
-#					Apply phase 3 to 'FINISH' subst.
 #					Add 'templates' substitution.
 #		ks	2016-05-29	Add 'quote-re' and 'quote-rs' substi-
 #					tutions.
-#					Fix RE/RS quoting in 'FINISH' subst.
 #					Fix RE quoting in phase 4.
 #					Add 'FINISH_SEDFLAGS' substitution.
+#					Drop 'FINISH' substitution.
 #-----------------------------------------------------------------------------
 #   Initialization:
 #-----------------------------------------------------------------------------
@@ -71,7 +67,7 @@ sx_quote_rs='s/[\&/]/'"$BS$BS"'&/g'	# Define sed(1) script for quoting
 if test $# -gt 0; then			# SUBSTitution specified?
     subst=$1; shift			# Yes, fetch it.
     case $subst in			# Is it valid?
-	quote-re|quote-rs|pathname|templates|FINISH_SEDFLAGS|FINISH)
+	quote-re|quote-rs|pathname|templates|FINISH_SEDFLAGS)
 	    vns=-			# Yes, start with empty NAME list.
 	    ;;
 	*)  echo "$0 $subst: unknown SUBSTitution!" >&2
@@ -108,8 +104,7 @@ done
 #   Phase 3: Apply 'prefix=PREFIX' and/or 'suffix=SUFFIX' to UNFINISHEDs
 #-----------------------------------------------------------------------------
 case $subst in				# Phase applies to SUBSTitution?
-    pathname|templates|FINISH_SEDFLAGS|FINISH)
-					# Yes...
+    pathname|templates|FINISH_SEDFLAGS)	# Yes...
 	case $# in			# UNFINISHEDs specified?
 	    0)	;;			# No, we're already done.
 	    *)  sx='s/$/ /;'		# Yes, start out sed(1) script.
@@ -202,43 +197,6 @@ EOF
 	    s/;$/'"$SQ $rs_shead"'FINISH_POST_SEDFLAGS'"$rs_sfoot"'/
 	    s/^/'"$rs_shead"'FINISH_ANTE_SEDFLAGS'"$rs_sfoot"' -f '"$rs_0_sed"' -e '"$SQ"'/
 	'
-	;;
-    FINISH)
-	re_thead=`"$0" quote-re "$thead"`
-	re_tfoot=`"$0" quote-re "$tfoot"`
-					# RE-quote templates' head and foot.
-	templates="`sed '
-	    :1
-	    /^[^'"$re_thead"']*'"$re_thead"'/!d;s///
-	    /^'"$re_ident$re_tfoot"'/{
-		h;s///;x;s/'"$re_tfoot"'.*$//p;x
-	    };b1
-	' /dev/null ${1+"$@"}`" || {
-	    echo "$0 $subst: Update AF_FINISH_FILES() invocation!" >&2
-	    echo false
-	    exit 2
-	}
-	if test -n "$templates"; then
-	    rs_thead=`"$0" quote-rs "$re_thead" '|'`
-	    rs_tfoot=`"$0" quote-rs "$re_tfoot" '|'`
-					# RS-quote templates' RE-quoted head
-					# and foot.
-	    rs_shead=`"$0" quote-rs "$shead" '|'`
-	    rs_sfoot=`"$0" quote-rs "$sfoot" '|'`
-	    rs_0_sed=`"$0" quote-rs "$0.sed" '|'`
-					# RS-quote substitutions' head/foot
-					# as well as gensubst.sed's pathname.
-	    rs_ante="${rs_shead}FINISH_ANTE_SEDFLAGS${rs_sfoot} -f $rs_0_sed -e $SQ"
-	    rs_post="$SQ ${rs_shead}FINISH_POST_SEDFLAGS${rs_sfoot}"
-	    echo "$templates" | sort | uniq | sed '
-		s/^\(.*\)$/s|'"$rs_thead"'\1'"$rs_tfoot"'|'"$rs_shead"'\1'"$rs_sfoot"'|g/
-		H;$!d
-		x;s|\n|;|g;s|^;||;s|^|sed '"$rs_ante"'|;s|$|'"$rs_post"'|
-	    '
-	else
-	    echo "$0 $subst: No templates found. Do you still need me?" >&2
-	    echo cat
-	fi
 	;;
     usage)
 	echo "Usage: $0 SUBST [NAME=VALUE ...] UNFINISHED ..." >&2
