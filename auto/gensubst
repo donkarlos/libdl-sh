@@ -38,6 +38,7 @@
 #		ks	2016-05-29	Add 'quote-re' and 'quote-rs' substi-
 #					tutions.
 #					Fix RE/RS quoting in 'FINISH' subst.
+#					Fix RE quoting in phase 4.
 #-----------------------------------------------------------------------------
 #   Initialization:
 #-----------------------------------------------------------------------------
@@ -146,13 +147,16 @@ esac
 #-----------------------------------------------------------------------------
 case $subst in				# Phase applies to SUBSTitution?
     templates)				# Yes...
+	re_thead=`"$0" quote-re "$thead"`
+	re_tfoot=`"$0" quote-re "$tfoot"`
+					# RE-quote templates' head and foot.
 	set shiftee `{
 	    sed '
 		:1
-		/'"$re_tlead$re_ident$re_ttail"'/!d;h
-		s/\('"$re_tlead$re_ident"'\)'"$re_ttail"'.*$/\1/
-		s/^.*'"$re_tlead"'\('"$re_ident"'\)$/\1/p;g
-		s/'"$re_tlead$re_ident$re_ttail"'//;b1
+		/'"$re_thead$re_ident$re_tfoot"'/!d;h
+		s/\('"$re_thead$re_ident"'\)'"$re_tfoot"'.*$/\1/
+		s/^.*'"$re_thead"'\('"$re_ident"'\)$/\1/p;g
+		s/'"$re_thead$re_ident$re_tfoot"'//;b1
 	    ' ${1+"$@"} </dev/null 2>&0 ||
 		echo "$0 $subst: Update your AF_FINISH_FILES() invocation!" >&2
 	} | sort | uniq`; shift		# Extract names of templates occuring
