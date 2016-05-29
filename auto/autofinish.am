@@ -23,6 +23,7 @@
 ##  CHANGED BY:	ks	2016-05-25	Add cleaning rule.
 ##		ks	2016-05-27	Rename $(af__CLEAN_FILES) to $(af_fi-
 ##					nished).
+##		ks	2016-05-29	Use 'FINISH_SEDFLAGS' substitution.
 ##----------------------------------------------------------------------------
 ##  Cleaning rule:
 ##----------------------------------------------------------------------------
@@ -38,5 +39,5 @@ SUFFIXES		= .un
 
 .un:
 	@$(MKDIR_P) `dirname $@` && rm -f $@
-	$(FINISH) $< >$@
+	$(FINISH) $(FINISH_SEDFLAGS) $< >$@
 
