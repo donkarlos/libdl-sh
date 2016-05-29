@@ -35,6 +35,9 @@ dnl					substitution instead of 'CONFIG_STA-
 dnl					TUS_DEPENDENCIES' substitution.
 dnl		ks	2016-05-29	Use 'FINISH_SEDFLAGS' substitution.
 dnl					Turn ${af_gensubst} into output var.
+dnl					Split $(af__config_status_deps) into
+dnl					$(af_makefile_deps) and $(af_unfini-
+dnl					shed).
 dnl
 dnl AF_FINISH_FILES(FINISHED [,GENSUBST=gensubst])
 dnl				Trigger build-time finishing of @VARIABLE@
@@ -48,10 +51,13 @@ AC_DEFUN([AF_FINISH_FILES], [
 AC_SUBST([af_finished], 'm4_normalize([$1])')
 m4_ifval([$2], [af_gensubst=$2], [af_gensubst=gensubst])
 AC_SUBST([af_gensubst])
-af_unfinished=`$srcdir/$af_gensubst pathname suffix=.un $af_finished`
-AC_SUBST([af__config_status_deps], [`
-    $srcdir/$af_gensubst pathname prefix='$(srcdir)/' \
-	$af_gensubst $af_gensubst.sed $af_unfinished
+AC_SUBST([af_makefile_deps], [`
+    $srcdir/$af_gensubst pathname prefix='$(srcdir)/'			\
+	$af_gensubst $af_gensubst.sed
+`])
+AC_SUBST([af_unfinished], [`
+    $srcdir/$af_gensubst pathname prefix='$(srcdir)/' suffix=.un	\
+	$af_finished
 `])
 AC_SUBST([FINISH], [sed])
 AC_SUBST([FINISH_SEDFLAGS], [`
@@ -59,8 +65,8 @@ AC_SUBST([FINISH_SEDFLAGS], [`
 	$af_finished
 `])
 AC_CONFIG_COMMANDS([finishing], [sed '
-    s/\$(EXTRA_DIST)/$(af__config_status_deps) &/g
-    s/\$(CONFIG_STATUS_DEPENDENCIES)/$(af__config_status_deps) &/g
+    /\$(EXTRA_DIST)/s//$(af_makefile_deps) $(af_unfinished) &/g
+    /\$(CONFIG_STATUS_DEPENDENCIES)/s//$(af_makefile_deps) $(af_unfinished) &/g
     /^clean-am:  */s/mostlyclean-am/clean-af &/
 ' Makefile >Makefile.new && mv Makefile.new Makefile || rm -f Makefile.new
 ])
