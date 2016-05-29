@@ -35,6 +35,8 @@
 #					phases.
 #					Apply phase 3 to 'FINISH' subst.
 #					Add 'templates' substitution.
+#		ks	2016-05-29	Add 'quote-re' and 'quote-rs' substi-
+#					tutions.
 #-----------------------------------------------------------------------------
 #   Initialization:
 #-----------------------------------------------------------------------------
@@ -66,7 +68,7 @@ sx_quote_rs='s/[\&/]/'"$BS$BS"'&/g'	# Define sed(1) script for quoting
 if test $# -gt 0; then			# SUBSTitution specified?
     subst=$1; shift			# Yes, fetch it.
     case $subst in			# Is it valid?
-	pathname|templates|FINISH)
+	quote-re|quote-rs|pathname|templates|FINISH)
 	    vns=-			# Yes, start with empty NAME list.
 	    ;;
 	*)  echo "$0 $subst: unknown SUBSTitution!" >&2
@@ -168,6 +170,16 @@ esac
 #   Phase 5: Generate substitution
 #-----------------------------------------------------------------------------
 case $subst in				# Which substitution?
+    quote-re)
+	sed '/^$/d;s/[]'"${2-/}"'^\.*$[]/'"$BS$BS"'&/g' <<EOF
+$1
+EOF
+	;;
+    quote-rs)
+	sed '/^$/d;s/[\&'"${2-/}"']/'"$BS$BS"'&/g' <<EOF
+$1
+EOF
+	;;
     pathname|templates)			# 'pathname'/'templates'...
 	echo ${1+"$@"}			# Emit result (i.e., rewritten UNFINI-
 	;;				# SHEDs or extracted template names.
