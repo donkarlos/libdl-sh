@@ -67,7 +67,7 @@ AC_SUBST([FINISH_SEDFLAGS], [`
     $srcdir/$af_gensubst FINISH_SEDFLAGS prefix="${srcdir}/" suffix=.un	\
 	$af_finished
 `])
-AC_CONFIG_COMMANDS([finishing], [sed '
+AC_CONFIG_COMMANDS([autofinish], [sed '
     /\$(EXTRA_DIST)/s//$(af_dist_files) &/
     /\$(CONFIG_STATUS_DEPENDENCIES)/s//$(af_dist_files) &/g
     /^clean-am:  */s/mostlyclean-am/clean-af &/
