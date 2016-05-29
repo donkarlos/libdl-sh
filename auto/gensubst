@@ -37,6 +37,7 @@
 #					Add 'templates' substitution.
 #		ks	2016-05-29	Add 'quote-re' and 'quote-rs' substi-
 #					tutions.
+#					Fix RE/RS quoting in 'FINISH' subst.
 #-----------------------------------------------------------------------------
 #   Initialization:
 #-----------------------------------------------------------------------------
@@ -48,11 +49,11 @@ cs_digit=0123456789			# numeric character sets.
 cs_alpha=$cs_upper$cs_lower
 cs_alnum=$cs_alpha$cs_digit
 
-re_ident="[_$cs_alpha][_$cs_alnum]*"	# (Pre-)define REs for identifiers and
-re_tlead=@				# templates' lead/tail.
-re_ttail=@
-rs_slead='$('				# (Pre-)define RE substitutions for
-rs_stail=')'				# substitutions' lead/tail.
+re_ident="[_$cs_alpha][_$cs_alnum]*"	# Define RE for IDENTifiers.
+thead=@					# (Pre-)define templates' (literal)
+tfoot=@					# head and foot.
+shead='$('				# (Pre-)define substitutions' (lite-
+sfoot=')'				# ral) head and foot.
 
 ex_vn='_\('"$re_ident"'\)='		# Define expr(1) REs for splitting
 ex_vv='[^=]*=\(.*\)$'			# NAME=VALUE into NAME and VALUE.
@@ -184,11 +185,14 @@ EOF
 	echo ${1+"$@"}			# Emit result (i.e., rewritten UNFINI-
 	;;				# SHEDs or extracted template names.
     FINISH)
+	re_thead=`"$0" quote-re "$thead"`
+	re_tfoot=`"$0" quote-re "$tfoot"`
+					# RE-quote templates' head and foot.
 	templates="`sed '
 	    :1
-	    /^[^'"$re_tlead"']*'"$re_tlead"'/!d;s///
-	    /^'"$re_ident$re_ttail"'/{
-		h;s///;x;s/'"$re_ttail"'.*$//p;x
+	    /^[^'"$re_thead"']*'"$re_thead"'/!d;s///
+	    /^'"$re_ident$re_tfoot"'/{
+		h;s///;x;s/'"$re_tfoot"'.*$//p;x
 	    };b1
 	' /dev/null ${1+"$@"}`" || {
 	    echo "$0 $subst: Update AF_FINISH_FILES() invocation!" >&2
@@ -196,10 +200,19 @@ EOF
 	    exit 2
 	}
 	if test -n "$templates"; then
-	    rs_ante="${rs_slead}FINISH_ANTE_SEDFLAGS${rs_stail} -f $0.sed -e '"
-	    rs_post="' ${rs_slead}FINISH_POST_SEDFLAGS${rs_stail}"
+	    rs_thead=`"$0" quote-rs "$re_thead" '|'`
+	    rs_tfoot=`"$0" quote-rs "$re_tfoot" '|'`
+					# RS-quote templates' RE-quoted head
+					# and foot.
+	    rs_shead=`"$0" quote-rs "$shead" '|'`
+	    rs_sfoot=`"$0" quote-rs "$sfoot" '|'`
+	    rs_0_sed=`"$0" quote-rs "$0.sed" '|'`
+					# RS-quote substitutions' head/foot
+					# as well as gensubst.sed's pathname.
+	    rs_ante="${rs_shead}FINISH_ANTE_SEDFLAGS${rs_sfoot} -f $rs_0_sed -e $SQ"
+	    rs_post="$SQ ${rs_shead}FINISH_POST_SEDFLAGS${rs_sfoot}"
 	    echo "$templates" | sort | uniq | sed '
-		s/^\(.*\)$/s|'"$re_tlead"'\1'"$re_ttail"'|'"$rs_slead"'\1'"$rs_stail"'|g/
+		s/^\(.*\)$/s|'"$rs_thead"'\1'"$rs_tfoot"'|'"$rs_shead"'\1'"$rs_sfoot"'|g/
 		H;$!d
 		x;s|\n|;|g;s|^;||;s|^|sed '"$rs_ante"'|;s|$|'"$rs_post"'|
 	    '
