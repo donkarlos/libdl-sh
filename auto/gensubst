@@ -39,6 +39,7 @@
 #					tutions.
 #					Fix RE/RS quoting in 'FINISH' subst.
 #					Fix RE quoting in phase 4.
+#					Add 'FINISH_SEDFLAGS' substitution.
 #-----------------------------------------------------------------------------
 #   Initialization:
 #-----------------------------------------------------------------------------
@@ -70,7 +71,7 @@ sx_quote_rs='s/[\&/]/'"$BS$BS"'&/g'	# Define sed(1) script for quoting
 if test $# -gt 0; then			# SUBSTitution specified?
     subst=$1; shift			# Yes, fetch it.
     case $subst in			# Is it valid?
-	quote-re|quote-rs|pathname|templates|FINISH)
+	quote-re|quote-rs|pathname|templates|FINISH_SEDFLAGS|FINISH)
 	    vns=-			# Yes, start with empty NAME list.
 	    ;;
 	*)  echo "$0 $subst: unknown SUBSTitution!" >&2
@@ -107,7 +108,8 @@ done
 #   Phase 3: Apply 'prefix=PREFIX' and/or 'suffix=SUFFIX' to UNFINISHEDs
 #-----------------------------------------------------------------------------
 case $subst in				# Phase applies to SUBSTitution?
-    pathname|templates|FINISH)		# Yes...
+    pathname|templates|FINISH_SEDFLAGS|FINISH)
+					# Yes...
 	case $# in			# UNFINISHEDs specified?
 	    0)	;;			# No, we're already done.
 	    *)  sx='s/$/ /;'		# Yes, start out sed(1) script.
@@ -146,7 +148,7 @@ esac
 #   Phase 4: Extract templates
 #-----------------------------------------------------------------------------
 case $subst in				# Phase applies to SUBSTitution?
-    templates)				# Yes...
+    templates|FINISH_SEDFLAGS)		# Yes...
 	re_thead=`"$0" quote-re "$thead"`
 	re_tfoot=`"$0" quote-re "$tfoot"`
 					# RE-quote templates' head and foot.
@@ -188,6 +190,19 @@ EOF
     pathname|templates)			# 'pathname'/'templates'...
 	echo ${1+"$@"}			# Emit result (i.e., rewritten UNFINI-
 	;;				# SHEDs or extracted template names.
+    FINISH_SEDFLAGS)			# 'FINISH_SEDFLAGS'
+	rs_thead=`"$0" quote-rs "$re_thead" '|'`
+	rs_tfoot=`"$0" quote-rs "$re_tfoot" '|'`
+	rs_shead=`"$0" quote-rs "$shead" '|'`
+	rs_sfoot=`"$0" quote-rs "$sfoot" '|'`
+	rs_0_sed=`"$0" quote-rs "$0.sed"`
+	echo ${1+"$@"} | sed '
+	    s/$/ /
+	    s/\([^ ][^ ]*\) /s|'"$rs_thead"'\1'"$rs_tfoot"'|'"$rs_shead"'\1'"$rs_sfoot"'|g;/g
+	    s/;$/'"$SQ $rs_shead"'FINISH_POST_SEDFLAGS'"$rs_sfoot"'/
+	    s/^/'"$rs_shead"'FINISH_ANTE_SEDFLAGS'"$rs_sfoot"' -f '"$rs_0_sed"' -e '"$SQ"'/
+	'
+	;;
     FINISH)
 	re_thead=`"$0" quote-re "$thead"`
 	re_tfoot=`"$0" quote-re "$tfoot"`
