@@ -38,6 +38,8 @@ dnl					Turn ${af_gensubst} into output var.
 dnl					Split $(af__config_status_deps) into
 dnl					$(af_makefile_deps) and $(af_unfini-
 dnl					shed).
+dnl					Join $(af_makefile_deps) and $(af_un-
+dnl					finished) into $(af_dist_files).
 dnl
 dnl AF_FINISH_FILES(FINISHED [,GENSUBST=gensubst])
 dnl				Trigger build-time finishing of @VARIABLE@
@@ -59,14 +61,15 @@ AC_SUBST([af_unfinished], [`
     $srcdir/$af_gensubst pathname prefix='$(srcdir)/' suffix=.un	\
 	$af_finished
 `])
+AC_SUBST([af_dist_files], ['$(af_makefile_deps) $(af_unfinished)'])
 AC_SUBST([FINISH], [sed])
 AC_SUBST([FINISH_SEDFLAGS], [`
     $srcdir/$af_gensubst FINISH_SEDFLAGS prefix="${srcdir}/" suffix=.un	\
 	$af_finished
 `])
 AC_CONFIG_COMMANDS([finishing], [sed '
-    /\$(EXTRA_DIST)/s//$(af_makefile_deps) $(af_unfinished) &/g
-    /\$(CONFIG_STATUS_DEPENDENCIES)/s//$(af_makefile_deps) $(af_unfinished) &/g
+    /\$(EXTRA_DIST)/s//$(af_dist_files) &/
+    /\$(CONFIG_STATUS_DEPENDENCIES)/s//$(af_dist_files) &/g
     /^clean-am:  */s/mostlyclean-am/clean-af &/
 ' Makefile >Makefile.new && mv Makefile.new Makefile || rm -f Makefile.new
 ])
