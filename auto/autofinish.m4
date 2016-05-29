@@ -34,6 +34,7 @@ dnl					Use "pathname prefix='$(srcdir)/'"
 dnl					substitution instead of 'CONFIG_STA-
 dnl					TUS_DEPENDENCIES' substitution.
 dnl		ks	2016-05-29	Use 'FINISH_SEDFLAGS' substitution.
+dnl					Turn ${af_gensubst} into output var.
 dnl
 dnl AF_FINISH_FILES(FINISHED [,GENSUBST=gensubst])
 dnl				Trigger build-time finishing of @VARIABLE@
@@ -46,6 +47,7 @@ dnl
 AC_DEFUN([AF_FINISH_FILES], [
 AC_SUBST([af_finished], 'm4_normalize([$1])')
 m4_ifval([$2], [af_gensubst=$2], [af_gensubst=gensubst])
+AC_SUBST([af_gensubst])
 af_unfinished=`$srcdir/$af_gensubst pathname suffix=.un $af_finished`
 AC_SUBST([af__config_status_deps], [`
     $srcdir/$af_gensubst pathname prefix='$(srcdir)/' \
