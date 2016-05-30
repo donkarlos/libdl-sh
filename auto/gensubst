@@ -38,6 +38,7 @@
 #					Drop 'FINISH' substitution.
 #		ks	2016-05-30	Eliminate direct RS quoting.
 #					Add 'get' substitution.
+#					Add (universal) 'quote' substitution.
 #-----------------------------------------------------------------------------
 #   Initialization:
 #-----------------------------------------------------------------------------
@@ -67,7 +68,7 @@ BS=\\ SQ=\' NL='
 if test $# -gt 0; then			# SUBSTitution specified?
     subst=$1; shift			# Yes, fetch it.
     case $subst in			# Is it valid?
-	get|quote-re|quote-rs|pathname|templates|FINISH_SEDFLAGS)
+	get|quote-re|quote-rs|quote|pathname|templates|FINISH_SEDFLAGS)
 	    vns=-			# Yes, start with empty NAME list.
 	    ;;
 	*)  echo "$0 $subst: unknown SUBSTitution!" >&2
@@ -184,6 +185,35 @@ EOF
 	sed '/^$/d;s/[\&'"${2-/}"']/'"$BS$BS"'&/g' <<EOF
 $1
 EOF
+	;;
+    quote)				# 'quote' STRING ...
+	case $#/${1-} in		# STRING specified?
+	    [01]/)			# None/empty...
+		;;			# We're done.
+	    1/?*)			# Non-empty, no (OP,DELIMITER) pair...
+		echo "$1"		# Emit STRING literally.
+		;;
+	    *)				# Non-empty, (OP,DELIMITER) pairs...
+		qs=$1; set shiftee ${1+"$@"}
+					# Initialize result and let following
+					# 'shift 2' succeed.
+		while shift 2; do	# Foreach OP/DELIMITER pair do...
+		    case $#/$1 in
+			[12]/r[es])     # Last valid pair?
+			    "$0" quote-$1 "$qs" "${2-/}"
+			    break	# Emit (OP,DELIMITER)-quoted result.
+			    ;;
+			[12]/*)		# Last pair?
+			    echo "$qs"	# Emit result.
+			    break
+			    ;;
+			*/r[es])	# Valid pair?
+			    qs=`"$0" quote-$1 "$qs" "${2-/}"`
+			    ;;		# (OP,DELIMITER)-quote result.
+		    esac
+		done
+		;;
+	esac
 	;;
     pathname|templates)			# 'pathname'/'templates'...
 	echo ${1+"$@"}			# Emit result (i.e., rewritten UNFINI-
