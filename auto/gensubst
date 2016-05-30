@@ -37,6 +37,7 @@
 #					Add 'FINISH_SEDFLAGS' substitution.
 #					Drop 'FINISH' substitution.
 #		ks	2016-05-30	Eliminate direct RS quoting.
+#					Add 'get' substitution.
 #-----------------------------------------------------------------------------
 #   Initialization:
 #-----------------------------------------------------------------------------
@@ -66,7 +67,7 @@ BS=\\ SQ=\' NL='
 if test $# -gt 0; then			# SUBSTitution specified?
     subst=$1; shift			# Yes, fetch it.
     case $subst in			# Is it valid?
-	quote-re|quote-rs|pathname|templates|FINISH_SEDFLAGS)
+	get|quote-re|quote-rs|pathname|templates|FINISH_SEDFLAGS)
 	    vns=-			# Yes, start with empty NAME list.
 	    ;;
 	*)  echo "$0 $subst: unknown SUBSTitution!" >&2
@@ -169,6 +170,11 @@ esac
 #   Phase 5: Generate substitution
 #-----------------------------------------------------------------------------
 case $subst in				# Which substitution?
+    get)				# 'get' NAME [VALUE]
+	sed '/^'"$1"' *= */!d;s///;q' Makefile - <<EOF 2>/dev/null
+$1=$2
+EOF
+	;;
     quote-re)
 	sed '/^$/d;s/[]'"${2-/}"'^\.*$[]/'"$BS$BS"'&/g' <<EOF
 $1
