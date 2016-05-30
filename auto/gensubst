@@ -36,6 +36,7 @@
 #					Fix RE quoting in phase 4.
 #					Add 'FINISH_SEDFLAGS' substitution.
 #					Drop 'FINISH' substitution.
+#		ks	2016-05-30	Eliminate direct RS quoting.
 #-----------------------------------------------------------------------------
 #   Initialization:
 #-----------------------------------------------------------------------------
@@ -58,8 +59,6 @@ ex_vv='[^=]*=\(.*\)$'			# NAME=VALUE into NAME and VALUE.
 
 BS=\\ SQ=\' NL='
 '
-sx_quote_rs='s/[\&/]/'"$BS$BS"'&/g'	# Define sed(1) script for quoting
-					# RE substitutions.
 
 #-----------------------------------------------------------------------------
 #   Phase 1: Check if SUBSTitution is specified and valid
@@ -111,9 +110,8 @@ case $subst in				# Phase applies to SUBSTitution?
 		case $vns in		# 'suffix=SUFFIX' specified?
 		    *-suffix-*)		# Yes, does it apply?
 			case $_suffix in
-			    ?*)	rs=`sed "$sx_quote_rs" <<EOF
-$_suffix
-EOF`;				sx="$sx"'s/ /'"$rs"' /g;'
+			    ?*)	rs=`"$0" quote-rs "$_suffix"`
+				sx="$sx"'s/ /'"$rs"' /g;'
 				;;	# Yes, augment sed(1) script so that
 			esac		# UNFINISHEDs will (also) be suffixed.
 			;;
@@ -122,9 +120,8 @@ EOF`;				sx="$sx"'s/ /'"$rs"' /g;'
 		case $vns in		# 'prefix=PREFIX' specified?
 		    *-prefix-*)		# Yes, does it apply?
 			case $_prefix in
-			    ?*)	rs=`sed "$sx_quote_rs" <<EOF
-$_prefix
-EOF`;				sx="$sx"'s/ / '"$rs"'/g;'
+			    ?*)	rs=`"$0" quote-rs "$_prefix"`
+				sx="$sx"'s/ / '"$rs"'/g;'
 				;;	# Yes, augment sed(1) script so that
 			esac		# UNFINISHEDs will be prefixed.
 			;;
