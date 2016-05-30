@@ -39,6 +39,8 @@
 #		ks	2016-05-30	Eliminate direct RS quoting.
 #					Add 'get' substitution.
 #					Add (universal) 'quote' substitution.
+#					Use that to fix RE/RS quoting in
+#					'FINISH_SEDFLAGS' substitution.
 #-----------------------------------------------------------------------------
 #   Initialization:
 #-----------------------------------------------------------------------------
@@ -218,19 +220,25 @@ EOF
     pathname|templates)			# 'pathname'/'templates'...
 	echo ${1+"$@"}			# Emit result (i.e., rewritten UNFINI-
 	;;				# SHEDs or extracted template names.
-    FINISH_SEDFLAGS)			# 'FINISH_SEDFLAGS'
-	rs_thead=`"$0" quote-rs "$re_thead" '|'`
-	rs_tfoot=`"$0" quote-rs "$re_tfoot" '|'`
-	rs_shead=`"$0" quote-rs "$shead" '|'`
-	rs_sfoot=`"$0" quote-rs "$sfoot" '|'`
+    FINISH_SEDFLAGS)			# 'FINISH_SEDFLAGS'...
+	rs_thead=`"$0" quote "$thead" re '|' rs`
+	rs_tfoot=`"$0" quote "$tfoot" re '|' rs`
+					# (RS,/)-quote (RE,|)-quoted template
+					# head and foot.
+	rs_shead=`"$0" quote "$shead" rs '|' rs`
+	rs_sfoot=`"$0" quote "$sfoot" rs '|' rs`
+					# (RS,/)-quote (RS,|)-quoted substitu-
+					# tion head and foot.
 	rs_0_sed=`"$0" quote-rs "$0.sed"`
+					# (RS,/)-quote
+					# "$(srcdir)/$(af_gensubst).sed".
 	echo ${1+"$@"} | sed '
 	    s/$/ /
 	    s/\([^ ][^ ]*\) /s|'"$rs_thead"'\1'"$rs_tfoot"'|'"$rs_shead"'\1'"$rs_sfoot"'|g;/g
 	    s/;$/'"$SQ $rs_shead"'FINISH_POST_SEDFLAGS'"$rs_sfoot"'/
 	    s/^/'"$rs_shead"'FINISH_ANTE_SEDFLAGS'"$rs_sfoot"' -f '"$rs_0_sed"' -e '"$SQ"'/
-	'
-	;;
+	'				# Construct and emit result from quo-
+	;;				# ted parts.
     usage)
 	echo "Usage: $0 SUBST [NAME=VALUE ...] UNFINISHED ..." >&2
 	exit 2
