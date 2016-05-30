@@ -45,6 +45,8 @@ dnl					Utilize temporary directory provided
 dnl					by ./config.status.
 dnl					Tack 'clean-af' dependency to cleaning
 dnl					rules depending on 'clean-am'.
+dnl					Also update $(FINISH_SEDFLAGS) in
+dnl					AC_CONFIG_COMMANDS().
 dnl
 dnl AF_FINISH_FILES(FINISHED [,GENSUBST=gensubst])
 dnl				Trigger build-time finishing of @VARIABLE@
@@ -72,7 +74,27 @@ AC_SUBST([FINISH_SEDFLAGS], [`
     $srcdir/$af_gensubst FINISH_SEDFLAGS prefix="${srcdir}/" suffix=.un	\
 	$af_finished
 `])
-AC_CONFIG_COMMANDS([autofinish], [sed '
+
+AC_CONFIG_COMMANDS([autofinish], [
+af_gensubst=`sed '/^af_gensubst *= */!d;s///;q' Makefile - <<EOF 2>/dev/null
+af_gensubst=gensubst
+EOF`
+if test -f "$srcdir/$af_gensubst"; then
+    af_finished=`
+	$srcdir/$af_gensubst get af_finished
+    `
+    af_finish_sedflags=`
+	$srcdir/$af_gensubst FINISH_SEDFLAGS				\
+	    prefix="${srcdir}/" suffix=.un $af_finished
+    `
+    af_sx_finish_sedflags='/^\(FINISH_SEDFLAGS *= *\).*$/s//\1'"`
+	$srcdir/$af_gensubst quote-rs "$af_finish_sedflags"
+    `"'/'
+else
+    af_sx_finish_sedflags=
+fi
+sed '
+    '"$af_sx_finish_sedflags"'
     /\$(EXTRA_DIST)/s//$(af_dist_files) &/
     /^Makefile:/s/$/ $(af_dist_files)/
     /\$(am__depfiles_maybe)/s//autofinish &/
