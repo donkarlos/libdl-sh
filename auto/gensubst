@@ -180,11 +180,13 @@ EOF
 					# Get NAME's value from 1st assignment
 					# in top-level Makefile (or supply de-
 	;;				# fault VALUE instead).
-    quote-re)
+    quote-re)				# 'quote-re' STRING [DELIMITER=/]
 	sed '/^$/d;s/[]'"${2-/}"'^\.*$[]/'"$BS$BS"'&/g' <<EOF
 $1
 EOF
-	;;
+					# (RE,DELIMITER)-quote STRING (i.e.,
+					# quote for use as match in sed(1)
+	;;				# 's///' command with DELIMITER).
     quote-rs)
 	sed '/^$/d;s/[\&'"${2-/}"']/'"$BS$BS"'&/g' <<EOF
 $1
