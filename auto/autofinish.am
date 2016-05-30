@@ -24,6 +24,7 @@
 ##		ks	2016-05-27	Rename $(af__CLEAN_FILES) to $(af_fi-
 ##					nished).
 ##		ks	2016-05-29	Use 'FINISH_SEDFLAGS' substitution.
+##		ks	2016-05-30	Fix build dependencies.
 ##----------------------------------------------------------------------------
 ##  Cleaning rule:
 ##----------------------------------------------------------------------------
@@ -36,6 +37,8 @@ clean-af:
 ##  Suffix rules:
 ##----------------------------------------------------------------------------
 SUFFIXES		= .un
+
+$(af_finished):		Makefile
 
 .un:
 	@$(MKDIR_P) `dirname $@` && rm -f $@

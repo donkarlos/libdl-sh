@@ -40,6 +40,7 @@ dnl					$(af_makefile_deps) and $(af_unfini-
 dnl					shed).
 dnl					Join $(af_makefile_deps) and $(af_un-
 dnl					finished) into $(af_dist_files).
+dnl		ks	2016-05-30	Fix build dependencies.
 dnl
 dnl AF_FINISH_FILES(FINISHED [,GENSUBST=gensubst])
 dnl				Trigger build-time finishing of @VARIABLE@
@@ -69,7 +70,8 @@ AC_SUBST([FINISH_SEDFLAGS], [`
 `])
 AC_CONFIG_COMMANDS([autofinish], [sed '
     /\$(EXTRA_DIST)/s//$(af_dist_files) &/
-    /\$(CONFIG_STATUS_DEPENDENCIES)/s//$(af_dist_files) &/g
+    /^Makefile:/s/$/ $(af_dist_files)/
+    /\$(am__depfiles_maybe)/s//autofinish &/
     /^clean-am:  */s/mostlyclean-am/clean-af &/
 ' Makefile >Makefile.new && mv Makefile.new Makefile || rm -f Makefile.new
 ])
