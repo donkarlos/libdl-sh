@@ -173,11 +173,13 @@ esac
 #   Phase 5: Generate substitution
 #-----------------------------------------------------------------------------
 case $subst in				# Which substitution?
-    get)				# 'get' NAME [VALUE]
+    get)				# 'get' NAME [VALUE]...
 	sed '/^'"$1"' *= */!d;s///;q' Makefile - <<EOF 2>/dev/null
 $1=$2
 EOF
-	;;
+					# Get NAME's value from 1st assignment
+					# in top-level Makefile (or supply de-
+	;;				# fault VALUE instead).
     quote-re)
 	sed '/^$/d;s/[]'"${2-/}"'^\.*$[]/'"$BS$BS"'&/g' <<EOF
 $1
