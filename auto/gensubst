@@ -187,11 +187,13 @@ EOF
 					# (RE,DELIMITER)-quote STRING (i.e.,
 					# quote for use as match in sed(1)
 	;;				# 's///' command with DELIMITER).
-    quote-rs)
+    quote-rs)				# 'quote-rs' STRING [DELIMITER=/]
 	sed '/^$/d;s/[\&'"${2-/}"']/'"$BS$BS"'&/g' <<EOF
 $1
 EOF
-	;;
+					# (RS,DELIMITER)-quote STRING (i.e.,
+					# quote for use as subst. in sed(1)
+	;;				# 's///' command with DELIMITER).
     quote)				# 'quote' STRING ...
 	case $#/${1-} in		# STRING specified?
 	    [01]/)			# None/empty...
