@@ -41,10 +41,10 @@ dnl					shed).
 dnl					Join $(af_makefile_deps) and $(af_un-
 dnl					finished) into $(af_dist_files).
 dnl		ks	2016-05-30	Fix build dependencies.
-dnl					Tack 'clean-af' dependency to 'clean:'
-dnl					rule.
 dnl					Utilize temporary directory provided
 dnl					by ./config.status.
+dnl					Tack 'clean-af' dependency to cleaning
+dnl					rules depending on 'clean-am'.
 dnl
 dnl AF_FINISH_FILES(FINISHED [,GENSUBST=gensubst])
 dnl				Trigger build-time finishing of @VARIABLE@
@@ -76,7 +76,7 @@ AC_CONFIG_COMMANDS([autofinish], [sed '
     /\$(EXTRA_DIST)/s//$(af_dist_files) &/
     /^Makefile:/s/$/ $(af_dist_files)/
     /\$(am__depfiles_maybe)/s//autofinish &/
-    /^clean: */s//&clean-af /
+    /^@<:@^: @:>@*clean@<:@^: @:>@*:\(  *@<:@^ @:>@@<:@^ @:>@*\)*  *clean-am/s//& clean-af/
 ' Makefile >$tmp/af_Makefile && mv $tmp/af_Makefile Makefile
 ])
 ])
