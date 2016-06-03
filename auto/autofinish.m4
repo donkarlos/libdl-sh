@@ -47,6 +47,7 @@ dnl					Tack 'clean-af' dependency to cleaning
 dnl					rules depending on 'clean-am'.
 dnl					Also update $(FINISH_SEDFLAGS) in
 dnl					AC_CONFIG_COMMANDS().
+dnl		ks	2016-06-03	Delay ${af_unfinished} pre-/suffixing.
 dnl
 dnl AF_FINISH_FILES(FINISHED [,GENSUBST=gensubst])
 dnl				Trigger build-time finishing of @VARIABLE@
@@ -58,28 +59,30 @@ dnl NOTE:   (1)	All pathnames passed must be relative to $(top_srcdir)!
 dnl
 AC_DEFUN([AF_FINISH_FILES], [
 AC_SUBST([af_finished], 'm4_normalize([$1])')
+af_unfinished="$af_finished"
 m4_ifval([$2], [af_gensubst=$2], [af_gensubst=gensubst])
 AC_SUBST([af_gensubst])
 AC_SUBST([af_makefile_deps], [`
     $srcdir/$af_gensubst pathname prefix='$(srcdir)/'			\
 	$af_gensubst $af_gensubst.sed
 `])
-AC_SUBST([af_unfinished], [`
-    $srcdir/$af_gensubst pathname prefix='$(srcdir)/' suffix=.un	\
-	$af_finished
-`])
 AC_SUBST([af_dist_files], ['$(af_makefile_deps) $(af_unfinished)'])
 AC_SUBST([FINISH], [sed])
 AC_SUBST([FINISH_SEDFLAGS], [`
     $srcdir/$af_gensubst FINISH_SEDFLAGS prefix="${srcdir}/" suffix=.un	\
-	$af_finished
+	$af_unfinished
+`])
+AC_SUBST([af_unfinished], [`
+    $srcdir/$af_gensubst pathname prefix='$(srcdir)/' suffix=.un	\
+	$af_unfinished
 `])
 
 AC_CONFIG_COMMANDS([autofinish], [
+af_unfinished="$af_finished"
 if test -f "$srcdir/$af_gensubst"; then
     af_finish_sedflags=`
 	$srcdir/$af_gensubst FINISH_SEDFLAGS				\
-	    prefix="${srcdir}/" suffix=.un $af_finished
+	    prefix="${srcdir}/" suffix=.un $af_unfinished
     `
     af_sx_finish_sedflags='/^\(FINISH_SEDFLAGS *= *\).*$/s//\1'"`
 	$srcdir/$af_gensubst quote-rs "$af_finish_sedflags"
