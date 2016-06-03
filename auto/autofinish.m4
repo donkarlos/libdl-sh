@@ -76,13 +76,7 @@ AC_SUBST([FINISH_SEDFLAGS], [`
 `])
 
 AC_CONFIG_COMMANDS([autofinish], [
-af_gensubst=`sed '/^af_gensubst *= */!d;s///;q' Makefile - <<EOF 2>/dev/null
-af_gensubst=gensubst
-EOF`
 if test -f "$srcdir/$af_gensubst"; then
-    af_finished=`
-	$srcdir/$af_gensubst get af_finished
-    `
     af_finish_sedflags=`
 	$srcdir/$af_gensubst FINISH_SEDFLAGS				\
 	    prefix="${srcdir}/" suffix=.un $af_finished
@@ -100,5 +94,8 @@ sed '
     /\$(am__depfiles_maybe)/s//autofinish &/
     /^@<:@^: @:>@*clean@<:@^: @:>@*:\(  *@<:@^ @:>@@<:@^ @:>@*\)*  *clean-am/s//& clean-af/
 ' Makefile >$tmp/af_Makefile && mv $tmp/af_Makefile Makefile
+], [
+af_finished="$af_finished"
+af_gensubst=$af_gensubst
 ])
 ])
