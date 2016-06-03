@@ -22,13 +22,14 @@
 ##  WRITTEN BY:	ks	2013-02-12
 ##  CHANGED BY:	ks	2013-03-06	Rename package to `libdl-sh'.
 ##		ks	2016-05-20	Add stub.
-##		ks      2016-05-24	Remove conf_init.3sh.
+##		ks	2016-05-24	Remove conf_init.3sh.
+##		ks	2016-06-03	Use AC_CONFIG_MACRO_DIRS() to tell
+##					aclocal(1) where to find stuff.
 ##
 ##  NOTE:   (1)	Update the build system with autoreconf(1).
 ##----------------------------------------------------------------------------
 ##  Initialization:
 ##----------------------------------------------------------------------------
-ACLOCAL_AMFLAGS		= -I auto
 include $(top_srcdir)/auto/autofinish.am
 
 STUB			= $(SHELL) $(srcdir)/bin/stub top_srcdir=$(top_srcdir)
