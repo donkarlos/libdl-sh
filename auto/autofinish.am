@@ -25,6 +25,10 @@
 ##					nished).
 ##		ks	2016-05-29	Use 'FINISH_SEDFLAGS' substitution.
 ##		ks	2016-05-30	Fix build dependencies.
+##		ks	2016-06-06	Turn suffix rule into pattern rule.
+##
+##  NOTE:   (1)	Only include this in the top-level Makefile.am!
+##		Otherwise, the pattern rule won't work.
 ##----------------------------------------------------------------------------
 ##  Cleaning rule:
 ##----------------------------------------------------------------------------
@@ -34,13 +38,9 @@ clean-af:
 	-rm -f $(af_finished)
 
 ##----------------------------------------------------------------------------
-##  Suffix rules:
+##  Pattern rule:
 ##----------------------------------------------------------------------------
-SUFFIXES		= .un
-
-$(af_finished):		Makefile
-
-.un:
+%:			%.un Makefile
 	@$(MKDIR_P) `dirname $@` && rm -f $@
 	$(FINISH) $(FINISH_SEDFLAGS) $< >$@
 
