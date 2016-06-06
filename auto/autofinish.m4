@@ -48,20 +48,28 @@ dnl					rules depending on 'clean-am'.
 dnl					Also update $(FINISH_SEDFLAGS) in
 dnl					AC_CONFIG_COMMANDS().
 dnl		ks	2016-06-03	Delay ${af_unfinished} pre-/suffixing.
+dnl		ks	2016-06-06	Introduce AF_INIT().
 dnl
-dnl AF_FINISH_FILES(FINISHED [,GENSUBST=gensubst])
-dnl				Trigger build-time finishing of @VARIABLE@
-dnl				placeholders in FINISHED by letting GENSUBST
-dnl				generate output variables CONFIG_STATUS_DEPEN-
-dnl				DENCIES and FINISH
+dnl AF_INIT([GENSUBST=gensubst])
+dnl				Initialize build-time finishing of @VARIABLE@
+dnl				placeholders in unfinished files
 dnl
-dnl NOTE:   (1)	All pathnames passed must be relative to $(top_srcdir)!
+AC_DEFUN([AF_INIT], [
+m4_ifval([$1], [af_gensubst=$1], [af_gensubst=gensubst])
+AC_SUBST([af_gensubst])
+af_pre=`echo "$af_gensubst" | sed 's|@<:@^/@:>@@<:@^/@:>@*$||'`
+AC_SUBST([af_pre])
+])
+
+dnl
+dnl AF_FINISH_FILES(FINISHED)	Trigger build-time finishing of @VARIABLE@
+dnl				placeholders in FINISHED
+dnl
+dnl NOTE:   (1)	All pathnames passed are relative to $(top_builddir)!
 dnl
 AC_DEFUN([AF_FINISH_FILES], [
 AC_SUBST([af_finished], 'm4_normalize([$1])')
 af_unfinished="$af_finished"
-m4_ifval([$2], [af_gensubst=$2], [af_gensubst=gensubst])
-AC_SUBST([af_gensubst])
 AC_SUBST([af_makefile_deps], [`
     $srcdir/$af_gensubst pathname prefix='$(srcdir)/'			\
 	$af_gensubst $af_gensubst.sed
