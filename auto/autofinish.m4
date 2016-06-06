@@ -60,8 +60,8 @@ m4_ifval([$1], [af_gensubst=$1], [af_gensubst=gensubst])
 AC_SUBST([af_pre], [`echo "$af_gensubst" | sed 's|@<:@^/@:>@@<:@^/@:>@*$||'`])
 AC_SUBST([af_distclean_files], ['$(CONFIG_SH)'])
 AC_SUBST([af_makefile_deps], ['$(srcdir)/'"$af_gensubst"'.sed'])
-AC_SUBST([af_config_sh], [${af_pre}config.sh])
-AC_CONFIG_FILES([$af_config_sh])
+AC_SUBST([af_dist_files], ['$(srcdir)/$(CONFIG_SH).in'])
+AC_CONFIG_FILES([${af_pre}config.sh])
 ])
 
 dnl
@@ -72,7 +72,6 @@ dnl NOTE:   (1)	All pathnames passed are relative to $(top_builddir)!
 dnl
 AC_DEFUN([AF_FINISH_FILES], [
 AC_SUBST([af_finished], 'm4_normalize([$1])')
-AC_SUBST([af_dist_files], ['$(top_srcdir)/'"$af_config_sh"'.in $(af_makefile_deps) $(af_unfinished)'])
 af_unfinished="$af_finished"
 
 af_makefile_deps='$(srcdir)/'"$af_gensubst $af_makefile_deps"
@@ -86,6 +85,7 @@ AC_SUBST([af_unfinished], [`
     $srcdir/$af_gensubst pathname prefix='$(srcdir)/' suffix=.un	\
 	$af_unfinished
 `])
+af_dist_files="$af_dist_files"' $(af_makefile_deps) $(af_unfinished)'
 
 AC_CONFIG_COMMANDS([autofinish], [
 af_unfinished="$af_finished"
