@@ -58,7 +58,8 @@ dnl
 AC_DEFUN([AF_INIT], [
 m4_ifval([$1], [af_gensubst=$1], [af_gensubst=gensubst])
 AC_SUBST([af_pre], [`echo "$af_gensubst" | sed 's|@<:@^/@:>@@<:@^/@:>@*$||'`])
-af_config_sh=${af_pre}config.sh
+AC_SUBST([af_distclean_files], ['$(CONFIG_SH)'])
+AC_SUBST([af_config_sh], [${af_pre}config.sh])
 AC_CONFIG_FILES([$af_config_sh])
 ])
 
@@ -74,7 +75,6 @@ AC_SUBST([af_makefile_deps], [`
     $srcdir/$af_gensubst pathname prefix='$(srcdir)/'			\
 	$af_gensubst $af_gensubst.sed
 `])
-AC_SUBST([af_distclean_files], ['$(CONFIG_SH)'])
 AC_SUBST([af_dist_files], ['$(top_srcdir)/'"$af_config_sh"'.in $(af_makefile_deps) $(af_unfinished)'])
 af_unfinished="$af_finished"
 
