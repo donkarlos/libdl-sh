@@ -22,6 +22,7 @@
 #   WRITTEN BY:	ks	2013-02-12
 #   CHANGED BY:	ks	2013-03-06	Rename package to `libdl-sh'.
 #		ks	2016-05-20	Add bin/stub.
+#		ks	2016-06-06	Add auto/config.sh.
 #
 #   NOTE:   (1)	Exclude patterns for tools beyond the actual build tools have
 #		been left out intentionally! Such patterns are better kept in
@@ -41,6 +42,7 @@ Makefile.in
 #   configure(1) results:
 #-----------------------------------------------------------------------------
 /config.*
+/auto/config.sh
 Makefile
 
 #-----------------------------------------------------------------------------

@@ -25,6 +25,7 @@
 ##		ks	2016-05-24	Remove conf_init.3sh.
 ##		ks	2016-06-03	Use AC_CONFIG_MACRO_DIRS() to tell
 ##					aclocal(1) where to find stuff.
+##		ks	2016-06-06	Add config.sh.in.
 ##
 ##  NOTE:   (1)	Update the build system with autoreconf(1).
 ##----------------------------------------------------------------------------
@@ -32,6 +33,7 @@
 ##----------------------------------------------------------------------------
 include $(top_srcdir)/auto/autofinish.am
 
+CONFIG_SH		= $(af_pre)config.sh
 STUB			= $(SHELL) $(srcdir)/bin/stub top_srcdir=$(top_srcdir)
 
 ##----------------------------------------------------------------------------

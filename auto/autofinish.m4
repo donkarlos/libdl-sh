@@ -49,6 +49,7 @@ dnl					Also update $(FINISH_SEDFLAGS) in
 dnl					AC_CONFIG_COMMANDS().
 dnl		ks	2016-06-03	Delay ${af_unfinished} pre-/suffixing.
 dnl		ks	2016-06-06	Introduce AF_INIT().
+dnl					Add config.sh.in.
 dnl
 dnl AF_INIT([GENSUBST=gensubst])
 dnl				Initialize build-time finishing of @VARIABLE@
@@ -56,9 +57,9 @@ dnl				placeholders in unfinished files
 dnl
 AC_DEFUN([AF_INIT], [
 m4_ifval([$1], [af_gensubst=$1], [af_gensubst=gensubst])
-AC_SUBST([af_gensubst])
-af_pre=`echo "$af_gensubst" | sed 's|@<:@^/@:>@@<:@^/@:>@*$||'`
-AC_SUBST([af_pre])
+AC_SUBST([af_pre], [`echo "$af_gensubst" | sed 's|@<:@^/@:>@@<:@^/@:>@*$||'`])
+af_config_sh=${af_pre}config.sh
+AC_CONFIG_FILES([$af_config_sh])
 ])
 
 dnl
@@ -69,12 +70,14 @@ dnl NOTE:   (1)	All pathnames passed are relative to $(top_builddir)!
 dnl
 AC_DEFUN([AF_FINISH_FILES], [
 AC_SUBST([af_finished], 'm4_normalize([$1])')
-af_unfinished="$af_finished"
 AC_SUBST([af_makefile_deps], [`
     $srcdir/$af_gensubst pathname prefix='$(srcdir)/'			\
 	$af_gensubst $af_gensubst.sed
 `])
-AC_SUBST([af_dist_files], ['$(af_makefile_deps) $(af_unfinished)'])
+AC_SUBST([af_distclean_files], ['$(CONFIG_SH)'])
+AC_SUBST([af_dist_files], ['$(top_srcdir)/'"$af_config_sh"'.in $(af_makefile_deps) $(af_unfinished)'])
+af_unfinished="$af_finished"
+
 AC_SUBST([FINISH], [sed])
 AC_SUBST([FINISH_SEDFLAGS], [`
     $srcdir/$af_gensubst FINISH_SEDFLAGS prefix="${srcdir}/" suffix=.un	\
@@ -104,6 +107,7 @@ sed '
     /^Makefile:/s/$/ $(af_dist_files)/
     /\$(am__depfiles_maybe)/s//autofinish &/
     /^@<:@^: @:>@*clean@<:@^: @:>@*:\(  *@<:@^ @:>@@<:@^ @:>@*\)*  *clean-am/s//& clean-af/
+    /\$(am__CONFIG_DISTCLEAN_FILES)/s//& $(af_distclean_files)/
 ' Makefile >$tmp/af_Makefile && mv $tmp/af_Makefile Makefile
 ], [
 af_finished="$af_finished"
