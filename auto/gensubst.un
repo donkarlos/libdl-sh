@@ -47,10 +47,27 @@
 ##  Initialization:
 #-----------------------------------------------------------------------------
 LC_ALL=C; export LC_ALL			## Avoid locale insanities.
-case $0 in
-    *.un)   gensubst_sed=`expr "_$0" : '_\(.*\)\.un$'`.sed	;;
-    *)	    gensubst_sed=$0.sed					;;
+case $0 in				## Bootstrapping ourselves?
+    *.un)				## Yes...
+	bootstrap=y af_pre= ex=		## Try to reconstruct @af_pre@...
+	until test -f "${af_pre}config.sh"; do
+	    ex='[^/][^/]*/'"$ex"
+	    af_pre=`expr "./$0" : '.*/\('"$ex"'\)[^/][^/]*$'` || {
+		echo "$0: config.sh: not found!" >&2; exit 1
+	    }
+	done
+	srcdir=`expr "_$0" : '_\(.*\)/'"$af_pre"'[^/][^/]*$'` || srcdir=.
+	;;
+    *)	bootstrap=n af_pre=@af_pre@	## No...
+	test -f "${af_pre}config.sh" || {
+	    echo "$0: ${af_pre}config.sh: not found!" >&2; exit 1
+	}
+	srcdir=@srcdir@
+	;;
 esac
+
+. ./${af_pre}config.sh || exit 1	## Source configuration.
+gensubst_sed=$srcdir/${af_pre}gensubst.sed
 
 cs_upper=ABCDEFGHIJKLMNOPQRSTUVWXYZ	## Construct upper/lower-case letter,
 cs_lower=abcdefghijklmnopqrstuvwxyz	## decimal digit, letter, and alpha-
@@ -140,7 +157,7 @@ case $subst in				## Phase applies to SUBSTitution?
 		sx="$sx"'s/\( \.\.\/\(\.\.\/\)*\([^/ ][^/ ]*\/\)*\)[^./ ][^/ ]*\/\.\.\//\1/;t2'"$NL"
 		sx="$sx"'s/\( \.\.\/\(\.\.\/\)*\([^/ ][^/ ]*\/\)*\)\.[^./ ][^/ ]*\/\.\.\//\1/;t2'"$NL"
 		sx="$sx"'s/^ //'
-		set shiftee `echo $* | sed "$sx"`; shift
+		set shiftee `echo $* | $SED "$sx"`; shift
 		;;			## Yes, rewrite UNFINISHEDs.
 	esac
 	;;
@@ -155,7 +172,7 @@ case $subst in				## Phase applies to SUBSTitution?
 	re_tfoot=`$0 quote-re "$tfoot"`
 					## RE-quote templates' head and foot.
 	set shiftee `{
-	    sed '
+	    $SED '
 		:1
 		/'"$re_thead$re_ident$re_tfoot"'/!d;h
 		s/\('"$re_thead$re_ident"'\)'"$re_tfoot"'.*$/\1/
@@ -180,21 +197,21 @@ esac
 ##----------------------------------------------------------------------------
 case $subst in				## Which substitution?
     get)				## 'get' NAME [VALUE]...
-	sed '/^'"$1"' *= */!d;s///;/^$/d;q' Makefile - <<EOF 2>/dev/null
+	$SED '/^'"$1"' *= */!d;s///;/^$/d;q' Makefile - <<EOF 2>/dev/null
 $1=$2
 EOF
 					## Get NAME's value from 1st assign-
 					## ment in top-level Makefile (or sup-
 	;;				## ply default VALUE instead).
     quote-re)				## 'quote-re' STRING [DELIMITER=/]
-	sed '/^$/d;s/[]'"${2-/}"'^\.*$[]/'"$BS$BS"'&/g' <<EOF
+	$SED '/^$/d;s/[]'"${2-/}"'^\.*$[]/'"$BS$BS"'&/g' <<EOF
 $1
 EOF
 					## (RE,DELIMITER)-quote STRING (i.e.,
 					## quote for use as match in sed(1)
 	;;				## 's///' command with DELIMITER).
     quote-rs)				## 'quote-rs' STRING [DELIMITER=/]
-	sed '/^$/d;s/[\&'"${2-/}"']/'"$BS$BS"'&/g' <<EOF
+	$SED '/^$/d;s/[\&'"${2-/}"']/'"$BS$BS"'&/g' <<EOF
 $1
 EOF
 					## (RS,DELIMITER)-quote STRING (i.e.,
@@ -244,7 +261,7 @@ EOF
 	rs_0_sed=`$0 quote-rs "$gensubst_sed"`
 					## (RS,/)-quote
 					## "$(srcdir)/$(af_gensubst).sed".
-	echo ${1+"$@"} | sed '
+	echo ${1+"$@"} | $SED '
 	    s/$/ /
 	    s/\([^ ][^ ]*\) /s|'"$rs_thead"'\1'"$rs_tfoot"'|'"$rs_shead"'\1'"$rs_sfoot"'|g;/g
 	    s/;$/'"$SQ $rs_shead"'FINISH_POST_SEDFLAGS'"$rs_sfoot"'/

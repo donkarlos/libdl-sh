@@ -51,6 +51,7 @@ dnl		ks	2016-06-03	Delay ${af_unfinished} pre-/suffixing.
 dnl		ks	2016-06-06	Introduce AF_INIT().
 dnl					Add config.sh.in.
 dnl		ks	2016-06-07	Bootstrap gensubst.
+dnl					Invoke AC_PROG_SED.
 dnl
 dnl AF_INIT([GENSUBST=gensubst])
 dnl				Initialize build-time finishing of @VARIABLE@
@@ -73,6 +74,7 @@ AS_IF([test -f "$srcdir/$af_gensubst.un"], [
     AC_MSG_ERROR([$af_gensubst not found!])
 ])
 
+AC_REQUIRE([AC_PROG_SED])
 AC_CONFIG_FILES([${af_pre}config.sh])
 ])
 
@@ -88,7 +90,7 @@ af_unfinished="$af_finished"
 AS_CASE([$GENSUBST],
     [*.un], [af_unfinished="$af_gensubst $af_unfinished"])
 
-AC_SUBST([FINISH], [sed])
+AC_SUBST([FINISH], [$SED])
 AC_SUBST([FINISH_SEDFLAGS], [`
     $GENSUBST FINISH_SEDFLAGS						\
 	prefix="${srcdir}/" suffix=.un $af_unfinished
@@ -122,7 +124,7 @@ af_sx_finish_sedflags='/^\(FINISH_SEDFLAGS *= *\).*$/s//\1'"`
     $GENSUBST quote-rs "$af_finish_sedflags"
 `"'/'
 
-sed '
+$SED '
     '"$af_sx_finish_sedflags"'
     /\$(EXTRA_DIST)/s//$(af_dist_files) &/
     /^Makefile:/s/$/ $(af_dist_files)/
@@ -131,6 +133,7 @@ sed '
     /\$(am__CONFIG_DISTCLEAN_FILES)/s//& $(af_distclean_files)/
 ' Makefile >$tmp/af_Makefile && mv $tmp/af_Makefile Makefile
 ], [
+SED=$SED
 af_finished="$af_finished"
 af_gensubst=$af_gensubst
 ])
