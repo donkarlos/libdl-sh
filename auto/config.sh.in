@@ -21,9 +21,10 @@
 #.  AUTHOR(S):	ks	Karl Schmitz <ks@computerlabor.org>
 #
 #   WRITTEN BY:	ks	2016-06-06
-#   CHANGED BY:
+#   CHANGED BY:	ks	2016-06-07	Bootstrap gensubst.
 #-----------------------------------------------------------------------------
 eval "`sed 's/[ 	]*//;s/\$(srcdir)/${srcdir}/' <<\EOF
     MKDIR_P='@MKDIR_P@'			## AM_INIT_AUTOMAKE()
     AWK='@AWK@'
+    GENSUBST=@GENSUBST@			## AF_FINISH_FILES()
 EOF`"

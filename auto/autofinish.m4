@@ -50,6 +50,7 @@ dnl					AC_CONFIG_COMMANDS().
 dnl		ks	2016-06-03	Delay ${af_unfinished} pre-/suffixing.
 dnl		ks	2016-06-06	Introduce AF_INIT().
 dnl					Add config.sh.in.
+dnl		ks	2016-06-07	Bootstrap gensubst.
 dnl
 dnl AF_INIT([GENSUBST=gensubst])
 dnl				Initialize build-time finishing of @VARIABLE@
@@ -61,6 +62,17 @@ AC_SUBST([af_pre], [`echo "$af_gensubst" | sed 's|@<:@^/@:>@@<:@^/@:>@*$||'`])
 AC_SUBST([af_distclean_files], ['$(CONFIG_SH)'])
 AC_SUBST([af_makefile_deps], ['$(srcdir)/'"$af_gensubst"'.sed'])
 AC_SUBST([af_dist_files], ['$(srcdir)/$(CONFIG_SH).in'])
+
+AS_IF([test -f "$srcdir/$af_gensubst.un"], [
+    af_distclean_files='$(GENSUBST) '"$af_distclean_files"
+    GENSUBST=$srcdir/$af_gensubst.un
+], [test -f "$srcdir/$af_gensubst"], [
+    af_makefile_deps='$(GENSUBST) '"$af_makefile_deps"
+    GENSUBST=$srcdir/$af_gensubst
+], [
+    AC_MSG_ERROR([$af_gensubst not found!])
+])
+
 AC_CONFIG_FILES([${af_pre}config.sh])
 ])
 
@@ -73,33 +85,43 @@ dnl
 AC_DEFUN([AF_FINISH_FILES], [
 AC_SUBST([af_finished], 'm4_normalize([$1])')
 af_unfinished="$af_finished"
-
-af_makefile_deps='$(srcdir)/'"$af_gensubst $af_makefile_deps"
+AS_CASE([$GENSUBST],
+    [*.un], [af_unfinished="$af_gensubst $af_unfinished"])
 
 AC_SUBST([FINISH], [sed])
 AC_SUBST([FINISH_SEDFLAGS], [`
-    $srcdir/$af_gensubst FINISH_SEDFLAGS prefix="${srcdir}/" suffix=.un	\
-	$af_unfinished
+    $GENSUBST FINISH_SEDFLAGS						\
+	prefix="${srcdir}/" suffix=.un $af_unfinished
 `])
 AC_SUBST([af_unfinished], [`
-    $srcdir/$af_gensubst pathname prefix='$(srcdir)/' suffix=.un	\
-	$af_unfinished
+    $GENSUBST pathname							\
+	prefix='$(srcdir)/' suffix=.un $af_unfinished
 `])
 af_dist_files="$af_dist_files"' $(af_makefile_deps) $(af_unfinished)'
 
+AS_CASE([$GENSUBST],
+    [*.un], [GENSUBST=$af_gensubst],
+	    [GENSUBST='$(srcdir)/'"$af_gensubst"])
+AC_SUBST([GENSUBST])
+
 AC_CONFIG_COMMANDS([autofinish], [
 af_unfinished="$af_finished"
-if test -f "$srcdir/$af_gensubst"; then
-    af_finish_sedflags=`
-	$srcdir/$af_gensubst FINISH_SEDFLAGS				\
-	    prefix="${srcdir}/" suffix=.un $af_unfinished
-    `
-    af_sx_finish_sedflags='/^\(FINISH_SEDFLAGS *= *\).*$/s//\1'"`
-	$srcdir/$af_gensubst quote-rs "$af_finish_sedflags"
-    `"'/'
-else
-    af_sx_finish_sedflags=
-fi
+
+AS_IF([test -f "$srcdir/$af_gensubst.un"], [
+    af_unfinished="$af_gensubst $af_unfinished"
+    GENSUBST=$srcdir/$af_gensubst.un
+], [
+    GENSUBST=$srcdir/$af_gensubst
+])
+
+af_finish_sedflags=`
+    $GENSUBST FINISH_SEDFLAGS						\
+	prefix="${srcdir}/" suffix=.un $af_unfinished
+`
+af_sx_finish_sedflags='/^\(FINISH_SEDFLAGS *= *\).*$/s//\1'"`
+    $GENSUBST quote-rs "$af_finish_sedflags"
+`"'/'
+
 sed '
     '"$af_sx_finish_sedflags"'
     /\$(EXTRA_DIST)/s//$(af_dist_files) &/

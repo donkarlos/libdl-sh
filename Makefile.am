@@ -26,6 +26,7 @@
 ##		ks	2016-06-03	Use AC_CONFIG_MACRO_DIRS() to tell
 ##					aclocal(1) where to find stuff.
 ##		ks	2016-06-06	Add config.sh.in.
+##		ks	2016-06-07	Bootstrap gensubst.
 ##
 ##  NOTE:   (1)	Update the build system with autoreconf(1).
 ##----------------------------------------------------------------------------
@@ -34,6 +35,7 @@
 include $(top_srcdir)/auto/autofinish.am
 
 CONFIG_SH		= $(af_pre)config.sh
+GENSUBST_UN		= $(srcdir)/$(GENSUBST).un
 STUB			= $(SHELL) $(srcdir)/bin/stub top_srcdir=$(top_srcdir)
 
 ##----------------------------------------------------------------------------
@@ -49,6 +51,12 @@ dist_noinst_DATA	= LICENSE
 ##----------------------------------------------------------------------------
 ##  Finish scripts:
 ##----------------------------------------------------------------------------
+$(GENSUBST):		$(GENSUBST).un Makefile $(CONFIG_SH)
+	@echo "Bootstrap $@ from $(GENSUBST_UN) with $(FINISH)..."
+	@$(MKDIR_P) `dirname $@` && rm -f $@
+	$(FINISH) $(FINISH_SEDFLAGS) $(GENSUBST_UN) >$@
+	@chmod a+x $@
+
 noinst_SCRIPTS		= bin/stub
 
 ##----------------------------------------------------------------------------
