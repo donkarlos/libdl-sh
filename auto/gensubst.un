@@ -44,6 +44,7 @@
 ##					Make empty 'get' result disappear.
 ##		ks	2016-06-07	Bootstrap gensubst.
 ##					Add multi-line support to 'get' subst.
+##					Make template head and foot tunable.
 ##----------------------------------------------------------------------------
 ##  Initialization:
 #-----------------------------------------------------------------------------
@@ -169,9 +170,14 @@ esac
 ##----------------------------------------------------------------------------
 case $subst in				## Phase applies to SUBSTitution?
     templates|FINISH_SEDFLAGS)		## Yes...
-	re_thead=`$0 quote-re "$thead"`
+	case $vns in			## 'template=TEMPLATE' specified?
+	    *-template-*)		## Yes, extract templates' head/foot.
+		thead=`expr "_$_template" : '_\([^_'"$cs_alnum"']*\)'`
+		tfoot=`expr "_$_template" : '_[^_'"$cs_alnum"']*'"$re_ident"'\([^_'"$cs_alnum"']*\)$'`
+		;;
+	esac
+	re_thead=`$0 quote-re "$thead"`	## RE-quote templates' head and foot.
 	re_tfoot=`$0 quote-re "$tfoot"`
-					## RE-quote templates' head and foot.
 	set shiftee `{
 	    $SED '
 		:1
