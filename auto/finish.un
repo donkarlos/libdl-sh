@@ -1,0 +1,273 @@
+#! /bin/sh
+#-----------------------------------------------------------------------------
+#   finish			- Finish unfinished file(s)
+#
+#   Copyright (C) 2016 Das Computerlabor (DCl-M)
+#
+#   This library is free software; you can redistribute it and/or
+#   modify it under the terms of the GNU Lesser General Public License
+#   as published by the Free Software Foundation; either
+#   version 2.1 of the License, or (at your option) any later version.
+#
+#   This library is distributed in the hope that it will be useful,
+#   but WITHOUT ANY WARRANTY; without even the implied warranty of
+#   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+#   Lesser General Public License for more details.
+#
+#   You should have received a copy of the GNU Lesser General Public License
+#   along with this library; if not, write to the Free Software Founda-
+#   tion, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
+##
+##  AUTHOR(S):	ks	Karl Schmitz <ks@computerlabor.org>
+##
+##  WRITTEN BY:	ks	2016-06-07
+##  CHANGED BY:
+##----------------------------------------------------------------------------
+##  Initialization:
+#-----------------------------------------------------------------------------
+LC_ALL=C; export LC_ALL			## Avoid locale insanities.
+case $0 in				## Bootstrapping ourselves?
+    *.un)				## Yes...
+	bootstrap=y af_pre= ex=		## Try to reconstruct @af_pre@...
+	until test -f "${af_pre}config.sh"; do
+	    ex='[^/][^/]*/'"$ex"
+	    af_pre=`expr "./$0" : '.*/\('"$ex"'\)[^/][^/]*$'` || {
+		echo "$0: config.sh: not found!" >&2; exit 1
+	    }
+	done
+	srcdir=`expr "_$0" : '_\(.*\)/'"$af_pre"'[^/][^/]*$'` || srcdir=.
+	;;
+    *)	bootstrap=n af_pre=@af_pre@	## No...
+	test -f "${af_pre}config.sh" || {
+	    echo "$0: ${af_pre}config.sh: not found!" >&2; exit 1
+	}
+	srcdir=@srcdir@
+	;;
+esac
+
+. ./${af_pre}config.sh || exit 1	## Source configuration.
+case $bootstrap in
+    y)	GENSUBST=$srcdir/${af_pre}gensubst.un	;;
+esac
+
+onexit=:				## Register traps.
+trap 'es=$?; eval "$onexit" 2>/dev/null; trap '"$SQ$SQ"' 0; exit $es' 0
+trap 'echo "$0: killed" >&2; exit 1' 1 2 3 15
+
+##----------------------------------------------------------------------------
+##  Global variables:
+##----------------------------------------------------------------------------
+SQ=\' BS=\\ DS=\$ NL='
+'
+readonly SQ BS DS NL			## For proper (shell) quoting.
+
+cs_upper=ABCDEFGHIJKLMNOPQRSTUVWXYZ	## Construct upper/lower-case letter,
+cs_lower=abcdefghijklmnopqrstuvwxyz	## decimal digit, letter, and alpha-
+cs_digit=0123456789			## numeric character sets.
+cs_alpha=$cs_upper$cs_lower
+cs_alnum=$cs_alpha$cs_digit
+re_ident="[_$cs_alpha][_$cs_alnum]*"
+readonly SQ BS DS NL cs_upper cs_lower cs_digit cs_alpha cs_alnum re_ident
+
+ex_on='_\(..\)'
+ex_ov='_..\(.*\)$'
+ex_vn='\(_'"$re_ident"'\)='
+ex_vv='[^=]*=\(.*\)$'
+readonly ex_on ex_ov ex_vn ex_vv
+
+sx_file='
+    y/	'"$cs_upper"'/'" $cs_lower"'/;s/$/ /;s/   */ /g
+    s/^-a \/\([^/ ][^/ ]*\/\)*\([^/ ][^/ ]*\)\( -[^ ]*\)* script/-\2-script/
+    s/[^-'"$cs_lower$cs_digit"']/-/g;s/---*/-/g
+    s/-ascii\(-text-\)/\1/;s/-utf-8-unicode\(-text-\)/\1/
+    s/\(-text-\)with-very-long-lines-/\1/
+    s/-[gn]roff-/-troff-/;s/\(-troff-\)or-preprocessor-input-/\1/
+    s/\(-m4-\)macro-processor-/\1/
+    s/-posix\(-shell-\)/\1/
+'
+readonly sx_file
+
+##----------------------------------------------------------------------------
+##  Phase 1: Parse options
+##	-t			Write UNFINISHEDs' normalized file(1) types
+##				to standard output instead of finishing them.
+##	-s			Strip UNFINISHEDs while finishing them.
+##	-e [TAG]SEDSCRIPT	Augment applied sed(1) script with SEDSCRIPT.
+##	-f [TAG]SEDFILE		Augment applied sed(1) script with SEDFILE.
+##	-o OUTPUTFILE		Write finished result to OUTPUTFILE instead
+##				of standard output.
+##
+##      Valid TAGs are '-ante-', '-main-', and '-post-'.
+##----------------------------------------------------------------------------
+sx_ante= sx_main= sx_post=		## Start with empty ante, main, and
+					## post sed(1) script sections.
+action=finish-all			## Select default action.
+
+ons=					## No options seen so far.
+nos=st mos= aos=efo			## Define options that (n)ever/(m)ay-
+					## be/(a)lways take a value.
+while unset ov; do			## While processing options do...
+    case $#/$1 in			## Looking at...?
+	0/*)				## Nothing: we're done.
+	    break
+	    ;;
+	1/-[$aos])			## Known option requires value...
+	    echo "$0 $1: needs value!" >&2
+	    action=usage; break		## ...but lacks it: Too bad!
+	    ;;
+	*/-[$aos])			## Known option requires value that
+	    on=$1 ov=$2; shift		## follows: get name, fetch value.
+	    ;;
+	*/-[$mos$aos]?*)		## Known option takes value that's at-
+	    on=`expr "_$1" : "$ex_on"` ov=`expr "_$1" : "$ex_ov"`
+	    ;;				## tached: split into name and value.
+	*/-[$mos$nos])			## Known option takes no value:
+	    on=$1			## Get name, value had been unset.
+	    ;;
+	*/-[$nos]?*)			## Known option takes no value yet...
+	    on=`expr "_$1" : "$ex_on"` ov=`expr "_$1" : "$ex_ov"`
+	    shift; set shiftee "-$ov" ${1+"$@"}; unset ov
+					## ...has option(s) attached:
+	    ;;				## split into name and option(s).
+	*/--)				## "End of options" sentinel...
+	    shift; break		## Consume it and we're done.
+	    ;;
+	*/-?)				## Unknown option...
+	    on=$1
+	    echo "$0: $on: option unknown!" >&2
+	    action=usage; break		## Too bad!
+	    ;;
+	*/-??*)				## Unknown option with attachment...
+	    on=`expr "_$1" : "$ex_on"`
+	    echo "$0: $on: option unknown!" >&2
+	    action=usage; break		## Too bad!
+	    ;;
+	*)  break			## A non-option: we're done.
+	    ;;
+    esac
+
+    ons=$ons$on				## Update list of seen options.
+    case $on in				## Which option?
+	-e)				## '-e [TAG]SEDSCRIPT'...
+	    case $ov in			## SEDSCRIPT tagged?
+		-ante-*|-main-*|-post-*)
+		    sn=`expr "_$ov" : '_-\([^-]*\)-'`
+		    ov=`expr "_$ov" : '_-[^-]*-\(.*\)$'`
+		    ;;			## Yes, derive section and SEDSCRIPT.
+		*)  sn=main		## No, assume main section.
+		    ;;
+	    esac
+
+	    case $ov in			## Append SEDSCRIPT to section.
+		-*) echo "$0 $on $ov: no sed(1) script. (ignored)" >&2
+		    ;;
+		?*) eval 'sx_'"$sn"'="$sx_'"$sn"'$ov$NL"'
+		    ;;
+	    esac
+	    ;;
+	-f)				## '-f SEDFILE'...
+	    case $ov in			## SEDFILE tagged?
+		-ante-*|-main-*|-post-*)
+		    sn=`expr "_$ov" : '_-\([^-]*\)-'`
+		    ov=`expr "_$ov" : '_-[^-]*-\(.*\)$'`
+		    ;;			## Yes, derive section and SEDFILE.
+		*)  sn=main		## No, assume main section.
+		    ;;
+	    esac
+
+	    if ov="`$SED '/^[ 	]*#/d' "$ov" </dev/null 2>&0`"; then
+		eval 'sx_'"$sn"'="$sx_'"$sn"'$ov$NL"'
+	    else
+		echo "$0 $on $ov: not found. (ignored)" >&2
+	    fi				## App. SEDFILE's contents to section.
+	    ;;
+	-o) ofpn=$ov			## '-o OUTPUTFILE'...
+	    ;;				## Set output file.
+    esac; shift				## Proceed with next option.
+done; unset on ov sn
+
+case $ons in				## Select action based on options...
+    *-t*)   action=type-all	;;
+    *-o*)   action=finish-one	;;
+esac
+
+##----------------------------------------------------------------------------
+##  Phase 2: Check usage
+##----------------------------------------------------------------------------
+case $action in
+    finish-one)
+	test $# -eq 1 || action=usage
+	;;
+esac
+
+##----------------------------------------------------------------------------
+##  Phase 3: Emit/check input files' types
+##----------------------------------------------------------------------------
+for ifpn in ${1+"$@"}; do		## Foreach UNFINISHED do...
+    if test -f "$ifpn"; then
+	ifre=`$GENSUBST quote-re "$ifpn"`
+	ifty=`file "$ifpn" | $SED 's/^'"$ifre"': */-/'"$sx_file"`
+				## Get normalized file(1) type.
+    else
+	echo "$0: $ifpn: not found!" >&2
+	action=error; break
+    fi
+
+    case $action in			## Phase applies to action?
+	type-all)
+	    echo "$ifpn:$ifty"
+	    ;;
+	finish-*)
+	    case $ifty in
+		*-text-*)
+		    ;;
+		*)  echo "$0: $ifpn: not a text file!" >&2
+		    action=error; break
+		    ;;
+	    esac
+	    ;;
+    esac
+done
+
+##----------------------------------------------------------------------------
+##  Phase 4: Finish input file(s)
+##----------------------------------------------------------------------------
+case $action in
+    finish-all)
+	$SED "$sx_ante$sx_main$sx_post" ${1+"$@"} || action=error
+	;;
+    finish-one)
+	phase=4
+	pifpn=$ifpn
+	pofpn=$ofpn~$$.$phase
+
+	podpn=`dirname "$pofpn"`
+	until test -d "$podpn"; do
+	    onexit="$onexit$NL"'rmdir '"$podpn"
+	    mkdir "$podpn" || exit 1
+	    podpn=`dirname "$podpn"`
+	done
+
+	onexit="$onexit$NL"'rm -f '"$pofpn"
+	$SED "$sx_ante$sx_main$sx_post" "$pifpn" >$pofpn || exit 1
+
+	ofre=`$GENSUBST quote-re "$pofpn"`
+					## Quote $pofpn for use as RE.
+	ofty=`file "$pofpn" | $SED 's/^'"$ofre"': */-/'"$sx_file"`
+					## Get its normalized file(1) type.
+	case $ofty in
+	    *-script-text-executable-*)
+		chmod a+x "$pofpn" || exit 1
+		;;
+	esac
+
+	mv "$pofpn" "$ofpn" || exit 1
+	onexit=:
+	;;
+    error)
+	exit 1
+	;;
+    usage)
+	exit 2
+	;;
+esac

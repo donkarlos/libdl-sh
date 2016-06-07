@@ -23,10 +23,12 @@
 #   WRITTEN BY:	ks	2016-06-06
 #   CHANGED BY:	ks	2016-06-07	Bootstrap gensubst.
 #					Invoke AC_PROG_SED.
+#					Add finishing script.
 #-----------------------------------------------------------------------------
 eval "`@SED@ 's/[ 	]*//;s/\$(srcdir)/${srcdir}/' <<\EOF
     MKDIR_P='@MKDIR_P@'			## AM_INIT_AUTOMAKE()
     AWK='@AWK@'
     SED='@SED@'				## AC_PROG_SED
-    GENSUBST=@GENSUBST@			## AF_FINISH_FILES()
+    FINISH=@FINISH@			## AF_FINISH_FILES()
+    GENSUBST=@GENSUBST@
 EOF`"

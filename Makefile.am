@@ -27,6 +27,7 @@
 ##					aclocal(1) where to find stuff.
 ##		ks	2016-06-06	Add config.sh.in.
 ##		ks	2016-06-07	Bootstrap gensubst.
+##					Add finishing script.
 ##
 ##  NOTE:   (1)	Update the build system with autoreconf(1).
 ##----------------------------------------------------------------------------
@@ -35,6 +36,7 @@
 include $(top_srcdir)/auto/autofinish.am
 
 CONFIG_SH		= $(af_pre)config.sh
+FINISH_UN		= $(srcdir)/$(FINISH).un
 GENSUBST_UN		= $(srcdir)/$(GENSUBST).un
 STUB			= $(SHELL) $(srcdir)/bin/stub top_srcdir=$(top_srcdir)
 
@@ -51,10 +53,16 @@ dist_noinst_DATA	= LICENSE
 ##----------------------------------------------------------------------------
 ##  Finish scripts:
 ##----------------------------------------------------------------------------
-$(GENSUBST):		$(GENSUBST).un Makefile $(CONFIG_SH)
-	@echo "Bootstrap $@ from $(GENSUBST_UN) with $(FINISH)..."
+$(GENSUBST):		$(GENSUBST_UN) Makefile $(CONFIG_SH)
+	@echo "Bootstrap $@ from $(GENSUBST_UN) with $(FINISH_UN)..."
 	@$(MKDIR_P) `dirname $@` && rm -f $@
-	$(FINISH) $(FINISH_SEDFLAGS) $(GENSUBST_UN) >$@
+	$(FINISH_UN) $(FINISH_SEDFLAGS) $(GENSUBST_UN) >$@
+	@chmod a+x $@
+
+$(FINISH):		$(FINISH_UN) Makefile $(CONFIG_SH) $(GENSUBST)
+	@echo "Bootstrap $@ from $(FINISH_UN) with $(FINISH_UN)..."
+	@$(MKDIR_P) `dirname $@` && rm -f $@
+	$(FINISH_UN) $(FINISH_SEDFLAGS) $(FINISH_UN) >$@
 	@chmod a+x $@
 
 noinst_SCRIPTS		= bin/stub

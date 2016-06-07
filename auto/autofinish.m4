@@ -52,6 +52,7 @@ dnl		ks	2016-06-06	Introduce AF_INIT().
 dnl					Add config.sh.in.
 dnl		ks	2016-06-07	Bootstrap gensubst.
 dnl					Invoke AC_PROG_SED.
+dnl					Add finishing script.
 dnl
 dnl AF_INIT([GENSUBST=gensubst])
 dnl				Initialize build-time finishing of @VARIABLE@
@@ -75,6 +76,17 @@ AS_IF([test -f "$srcdir/$af_gensubst.un"], [
 ])
 
 AC_REQUIRE([AC_PROG_SED])
+af_finish=${af_pre}finish
+AS_IF([test -f "$srcdir/$af_finish.un"], [
+    af_distclean_files='$(FINISH) '"$af_distclean_files"
+    FINISH=$srcdir/$af_finish.un
+], [test -f "$srcdir/$af_finish"], [
+    af_makefile_deps='$(FINISH) '"$af_makefile_deps"
+    FINISH=$srcdir/$af_finish
+], [
+    FINISH=$SED
+])
+
 AC_CONFIG_FILES([${af_pre}config.sh])
 ])
 
@@ -89,8 +101,9 @@ AC_SUBST([af_finished], 'm4_normalize([$1])')
 af_unfinished="$af_finished"
 AS_CASE([$GENSUBST],
     [*.un], [af_unfinished="$af_gensubst $af_unfinished"])
+AS_CASE([$FINISH],
+    [*.un], [af_unfinished="$af_finish $af_unfinished"])
 
-AC_SUBST([FINISH], [$SED])
 AC_SUBST([FINISH_SEDFLAGS], [`
     $GENSUBST FINISH_SEDFLAGS						\
 	prefix="${srcdir}/" suffix=.un $af_unfinished
@@ -105,6 +118,12 @@ AS_CASE([$GENSUBST],
     [*.un], [GENSUBST=$af_gensubst],
 	    [GENSUBST='$(srcdir)/'"$af_gensubst"])
 AC_SUBST([GENSUBST])
+
+AS_CASE([$FINISH],
+    [$SED], [],
+    [*.un], [FINISH=$af_finish],
+	    [FINISH='$(srcdir)/'"$af_finish"])
+AC_SUBST([FINISH])
 
 AC_CONFIG_COMMANDS([autofinish], [
 af_unfinished="$af_finished"
