@@ -27,7 +27,7 @@
 ##					aclocal(1) where to find stuff.
 ##		ks	2016-06-06	Add config.sh.in.
 ##		ks	2016-06-07	Bootstrap gensubst.
-##					Add finishing script.
+##					Add and integrate finishing script.
 ##
 ##  NOTE:   (1)	Update the build system with autoreconf(1).
 ##----------------------------------------------------------------------------
@@ -55,15 +55,11 @@ dist_noinst_DATA	= LICENSE
 ##----------------------------------------------------------------------------
 $(GENSUBST):		$(GENSUBST_UN) Makefile $(CONFIG_SH)
 	@echo "Bootstrap $@ from $(GENSUBST_UN) with $(FINISH_UN)..."
-	@$(MKDIR_P) `dirname $@` && rm -f $@
-	$(FINISH_UN) $(FINISH_SEDFLAGS) $(GENSUBST_UN) >$@
-	@chmod a+x $@
+	$(FINISH_UN) $(FINISH_SEDFLAGS) -s -o $@ $(GENSUBST_UN)
 
 $(FINISH):		$(FINISH_UN) Makefile $(CONFIG_SH) $(GENSUBST)
 	@echo "Bootstrap $@ from $(FINISH_UN) with $(FINISH_UN)..."
-	@$(MKDIR_P) `dirname $@` && rm -f $@
-	$(FINISH_UN) $(FINISH_SEDFLAGS) $(FINISH_UN) >$@
-	@chmod a+x $@
+	$(FINISH_UN) $(FINISH_SEDFLAGS) -s -o $@ $(FINISH_UN)
 
 noinst_SCRIPTS		= bin/stub
 

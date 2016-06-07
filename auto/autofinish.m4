@@ -52,7 +52,7 @@ dnl		ks	2016-06-06	Introduce AF_INIT().
 dnl					Add config.sh.in.
 dnl		ks	2016-06-07	Bootstrap gensubst.
 dnl					Invoke AC_PROG_SED.
-dnl					Add finishing script.
+dnl					Add and integrate finishing script.
 dnl
 dnl AF_INIT([GENSUBST=gensubst])
 dnl				Initialize build-time finishing of @VARIABLE@
@@ -84,7 +84,7 @@ AS_IF([test -f "$srcdir/$af_finish.un"], [
     af_makefile_deps='$(FINISH) '"$af_makefile_deps"
     FINISH=$srcdir/$af_finish
 ], [
-    FINISH=$SED
+    AC_MSG_ERROR([$af_finish not found!])
 ])
 
 AC_CONFIG_FILES([${af_pre}config.sh])
@@ -120,7 +120,6 @@ AS_CASE([$GENSUBST],
 AC_SUBST([GENSUBST])
 
 AS_CASE([$FINISH],
-    [$SED], [],
     [*.un], [FINISH=$af_finish],
 	    [FINISH='$(srcdir)/'"$af_finish"])
 AC_SUBST([FINISH])
