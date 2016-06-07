@@ -23,18 +23,10 @@
 ##  WRITTEN BY:	ks	2016-05-20
 ##  CHANGED BY:	ks	2016-05-22	Simplify 'NAME=VALUE' parameter pro-
 ##					cessing.
-##----------------------------------------------------------------------------
-##  stub_exit(STATUS)		Stub's exit-time hook
-##
-##  NOTE:   (1)	Invoked either by preliminary exit trap or by dl_exit().
-#-----------------------------------------------------------------------------
-stub_exit() {
-    chmod -x "$stub_libdl_sh"		## Restore built libdl-sh's per-
-}					## missions.
-
+##		ks	2015-06-07	Drop "chmod +/-x" hack.
 ##----------------------------------------------------------------------------
 ##  Main program:
-##----------------------------------------------------------------------------
+#-----------------------------------------------------------------------------
 LC_ALL=C; export LC_ALL			## Avoid locale insanities.
 command=`basename "$0"`			## Determine command name.
 
@@ -72,10 +64,8 @@ case ${bindir+=} in			## $bindir finally set?
 	readonly stub_libdl_sh		## Define built libdl-sh's pathname.
 	if test -f "$stub_libdl_sh".un; then
 					## Inside libdl-sh's source tree?
-	    trap 'stub_exit $?; trap "" 0; exit 127' 0
-					## Yes, register preliminary exit
-	    chmod +x "$stub_libdl_sh"	## trap, make built libdl-sh execut-
-					## able, and augment PATH.
+	    trap 'exit 127' 0		## Yes, register preliminary exit
+					## trap and augment PATH.
 	    PATH=$bindir:$PATH; export PATH
 	fi
 

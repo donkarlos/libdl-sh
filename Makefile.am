@@ -38,7 +38,7 @@ include $(top_srcdir)/auto/autofinish.am
 CONFIG_SH		= $(af_pre)config.sh
 FINISH_UN		= $(srcdir)/$(FINISH).un
 GENSUBST_UN		= $(srcdir)/$(GENSUBST).un
-STUB			= $(SHELL) $(srcdir)/bin/stub top_srcdir=$(top_srcdir)
+STUB			= $(srcdir)/bin/stub top_srcdir=$(srcdir)
 
 ##----------------------------------------------------------------------------
 ##  Extra primaries:
