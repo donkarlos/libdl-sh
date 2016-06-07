@@ -43,6 +43,7 @@
 ##					'FINISH_SEDFLAGS' substitution.
 ##					Make empty 'get' result disappear.
 ##		ks	2016-06-07	Bootstrap gensubst.
+##					Add multi-line support to 'get' subst.
 ##----------------------------------------------------------------------------
 ##  Initialization:
 #-----------------------------------------------------------------------------
@@ -197,7 +198,10 @@ esac
 ##----------------------------------------------------------------------------
 case $subst in				## Which substitution?
     get)				## 'get' NAME [VALUE]...
-	$SED '/^'"$1"' *= */!d;s///;/^$/d;q' Makefile - <<EOF 2>/dev/null
+	$SED '
+	    /^'"$1"' *= */!d;s///;:1
+	    /\\$/!{;y/	/ /;s/   */ /g;s/ $//;/^$/d;q;};N;s/\\\'"$NL"'/ /;t1
+	' Makefile - <<EOF 2>/dev/null
 $1=$2
 EOF
 					## Get NAME's value from 1st assign-
