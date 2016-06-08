@@ -21,34 +21,27 @@
 ##  AUTHOR(S):	ks	Karl Schmitz <ks@computerlabor.org>
 ##
 ##  WRITTEN BY:	ks	2016-06-07
-##  CHANGED BY:
+##  CHANGED BY:	ks	2016-06-08	Get independent of config.sh.
 ##----------------------------------------------------------------------------
 ##  Initialization:
 #-----------------------------------------------------------------------------
 LC_ALL=C; export LC_ALL			## Avoid locale insanities.
-case $0 in				## Bootstrapping ourselves?
-    *.un)				## Yes...
-	bootstrap=y af_pre= ex=		## Try to reconstruct @af_pre@...
-	until test -f "${af_pre}config.sh"; do
-	    ex='[^/][^/]*/'"$ex"
-	    af_pre=`expr "./$0" : '.*/\('"$ex"'\)[^/][^/]*$'` || {
-		echo "$0: config.sh: not found!" >&2; exit 1
-	    }
-	done
-	srcdir=`expr "_$0" : '_\(.*\)/'"$af_pre"'[^/][^/]*$'` || srcdir=.
-	;;
-    *)	bootstrap=n af_pre=@af_pre@	## No...
-	test -f "${af_pre}config.sh" || {
-	    echo "$0: ${af_pre}config.sh: not found!" >&2; exit 1
-	}
-	srcdir=@srcdir@
-	;;
-esac
 
-. ./${af_pre}config.sh || exit 1	## Source configuration.
-case $bootstrap in
-    y)	GENSUBST=$srcdir/${af_pre}gensubst.un	;;
+SQ=\' BS=\\ NL='
+'					## Used for proper quoting.
+eval `sed '
+    s/='"$SQ"'@[^@'"$SQ"'=]*@'"$SQ"'//;s/\('"$SQ"'\)=.*$/\1/;s/$/;/
+' <<\EOF
+    SED='@SED@'=sed
+EOF`					## Expand required output variables.
+case $0 in				## Derive ${GENSUBST} from $0...
+    *.un)
+	sx='s/[^/][^/]*\(\.un\)$/gensubst\1/'	;;
+    *)	sx='s/[^/][^/]*$/gensubst/'		;;
 esac
+GENSUBST=`$SED "$sx" <<EOF
+$0
+EOF`
 
 onexit=:				## Register traps.
 trap 'es=$?; eval "$onexit" 2>/dev/null; trap '"$SQ$SQ"' 0; exit $es' 0
@@ -57,17 +50,13 @@ trap 'echo "$0: killed" >&2; exit 1' 1 2 3 15
 ##----------------------------------------------------------------------------
 ##  Global variables:
 ##----------------------------------------------------------------------------
-SQ=\' BS=\\ DS=\$ NL='
-'
-readonly SQ BS DS NL			## For proper (shell) quoting.
-
 cs_upper=ABCDEFGHIJKLMNOPQRSTUVWXYZ	## Construct upper/lower-case letter,
 cs_lower=abcdefghijklmnopqrstuvwxyz	## decimal digit, letter, and alpha-
 cs_digit=0123456789			## numeric character sets.
 cs_alpha=$cs_upper$cs_lower
 cs_alnum=$cs_alpha$cs_digit
 re_ident="[_$cs_alpha][_$cs_alnum]*"
-readonly SQ BS DS NL cs_upper cs_lower cs_digit cs_alpha cs_alnum re_ident
+readonly SQ BS NL cs_upper cs_lower cs_digit cs_alpha cs_alnum re_ident
 
 ex_on='_\(..\)'
 ex_ov='_..\(.*\)$'
