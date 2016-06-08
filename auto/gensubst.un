@@ -45,31 +45,20 @@
 ##		ks	2016-06-07	Bootstrap gensubst.
 ##					Add multi-line support to 'get' subst.
 ##					Make template head and foot tunable.
+##		ks	2016-06-08	Get independent of config.sh.
 ##----------------------------------------------------------------------------
 ##  Initialization:
 #-----------------------------------------------------------------------------
 LC_ALL=C; export LC_ALL			## Avoid locale insanities.
-case $0 in				## Bootstrapping ourselves?
-    *.un)				## Yes...
-	bootstrap=y af_pre= ex=		## Try to reconstruct @af_pre@...
-	until test -f "${af_pre}config.sh"; do
-	    ex='[^/][^/]*/'"$ex"
-	    af_pre=`expr "./$0" : '.*/\('"$ex"'\)[^/][^/]*$'` || {
-		echo "$0: config.sh: not found!" >&2; exit 1
-	    }
-	done
-	srcdir=`expr "_$0" : '_\(.*\)/'"$af_pre"'[^/][^/]*$'` || srcdir=.
-	;;
-    *)	bootstrap=n af_pre=@af_pre@	## No...
-	test -f "${af_pre}config.sh" || {
-	    echo "$0: ${af_pre}config.sh: not found!" >&2; exit 1
-	}
-	srcdir=@srcdir@
-	;;
-esac
 
-. ./${af_pre}config.sh || exit 1	## Source configuration.
-gensubst_sed=$srcdir/${af_pre}gensubst.sed
+BS=\\ SQ=\' NL='
+'					## Used for proper quoting.
+eval `sed '
+    s/='"$SQ"'@[^@'"$SQ"'=]*@'"$SQ"'//;s/\('"$SQ"'\)=.*$/\1/;s/$/;/
+' <<\EOF
+    SED='@SED@'=sed
+    srcdir='@srcdir@'=
+EOF`					## Expand required output variables.
 
 cs_upper=ABCDEFGHIJKLMNOPQRSTUVWXYZ	## Construct upper/lower-case letter,
 cs_lower=abcdefghijklmnopqrstuvwxyz	## decimal digit, letter, and alpha-
@@ -85,9 +74,6 @@ sfoot=')'				## ral) head and foot.
 
 ex_vn='_\('"$re_ident"'\)='		## Define expr(1) REs for splitting
 ex_vv='[^=]*=\(.*\)$'			## NAME=VALUE into NAME and VALUE.
-
-BS=\\ SQ=\' NL='
-'
 
 ##----------------------------------------------------------------------------
 ##  Phase 1: Check if SUBSTitution is specified and valid
@@ -268,14 +254,21 @@ EOF
 	rs_sfoot=`$0 quote "$sfoot" rs '|' rs`
 					## (RS,/)-quote (RS,|)-quoted substi-
 					## tution head and foot.
-	rs_0_sed=`$0 quote-rs "$gensubst_sed"`
-					## (RS,/)-quote
-					## "$(srcdir)/$(af_gensubst).sed".
+	gensubst_sed=`$SED 's/[^/][^/]*$/gensubst.sed/' <<EOF
+$0
+EOF`
+	test -f "$gensubst_sed" || if test -f "$srcdir/$gensubst_sed"; then
+	    gensubst_sed=$srcdir/$gensubst_sed
+	else
+	    echo "$0: $gensubst_sed: not found!" >&2; exit 1
+	fi				## Try to auto-locate gensubst.sed...
+	rs_gensubst_sed=`$0 quote-rs "$gensubst_sed"`
+					## ...and (RS,/)-quote its pathname.
 	echo ${1+"$@"} | $SED '
 	    s/$/ /
 	    s/\([^ ][^ ]*\) /s|'"$rs_thead"'\1'"$rs_tfoot"'|'"$rs_shead"'\1'"$rs_sfoot"'|g;/g
 	    s/;$/'"$SQ $rs_shead"'FINISH_POST_SEDFLAGS'"$rs_sfoot"'/
-	    s/^/'"$rs_shead"'FINISH_ANTE_SEDFLAGS'"$rs_sfoot"' -f '"$rs_0_sed"' -e '"$SQ"'/
+	    s/^/'"$rs_shead"'FINISH_ANTE_SEDFLAGS'"$rs_sfoot"' -f '"$rs_gensubst_sed"' -e '"$SQ"'/
 	'				## Construct and emit result from quo-
 	;;				## ted parts.
     usage)
