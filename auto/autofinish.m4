@@ -140,7 +140,7 @@ af_finish_sedflags=`
 	prefix="${srcdir}/" suffix=.un $af_unfinished
 `
 af_sx_finish_sedflags='/^\(FINISH_SEDFLAGS *= *\).*$/s//\1'"`
-    $GENSUBST quote-rs "$af_finish_sedflags"
+    $GENSUBST rs "$af_finish_sedflags"
 `"'/'
 
 $SED '

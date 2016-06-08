@@ -193,10 +193,10 @@ esac
 ##  Phase 3: Emit/check input files' types
 ##----------------------------------------------------------------------------
 for ifpn in ${1+"$@"}; do		## Foreach UNFINISHED do...
-    if test -f "$ifpn"; then
-	ifre=`$GENSUBST quote-re "$ifpn"`
+    if test -f "$ifpn"; then		## UNFINISHED exists?
+	ifre=`$GENSUBST re "$ifpn"`	## Yes, (RE,'/')-quote it and get...
 	ifty=`file "$ifpn" | $SED 's/^'"$ifre"': */-/'"$sx_file"`
-				## Get normalized file(1) type.
+					## ...its normalized file type.
     else
 	echo "$0: $ifpn: not found!" >&2
 	action=error; break
@@ -240,10 +240,9 @@ case $action in
 	onexit="$onexit$NL"'rm -f '"$pofpn"
 	$SED "$sx_ante$sx_main$sx_post" "$pifpn" >$pofpn || exit 1
 
-	ofre=`$GENSUBST quote-re "$pofpn"`
-					## Quote $pofpn for use as RE.
+	ofre=`$GENSUBST re "$pofpn"`	## (RE,'/')-quote phase output file...
 	ofty=`file "$pofpn" | $SED 's/^'"$ofre"': */-/'"$sx_file"`
-					## Get its normalized file(1) type.
+					## ...and get its norm. file type.
 	case $ofty in
 	    *-script-text-executable-*)
 		chmod a+x "$pofpn" || exit 1

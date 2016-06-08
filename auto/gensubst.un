@@ -31,8 +31,7 @@
 ##					Split 'pathname' substitution in two
 ##					phases.
 ##					Add 'templates' substitution.
-##		ks	2016-05-29	Add 'quote-re' and 'quote-rs' substi-
-##					tutions.
+##		ks	2016-05-29	Add 're' and 'rs' substitutions.
 ##					Fix RE quoting in phase 4.
 ##					Add 'FINISH_SEDFLAGS' substitution.
 ##					Drop 'FINISH' substitution.
@@ -81,7 +80,7 @@ ex_vv='[^=]*=\(.*\)$'			## NAME=VALUE into NAME and VALUE.
 if test $# -gt 0; then			## SUBSTitution specified?
     subst=$1; shift			## Yes, fetch it.
     case $subst in			## Is it valid?
-	get|quote-re|quote-rs|quote|pathname|templates|FINISH_SEDFLAGS)
+	get|re|rs|quote|pathname|templates|FINISH_SEDFLAGS)
 	    vns=-			## Yes, start with empty NAME list.
 	    ;;
 	*)  echo "$0 $subst: unknown SUBSTitution!" >&2
@@ -125,7 +124,7 @@ case $subst in				## Phase applies to SUBSTitution?
 		case $vns in		## 'suffix=SUFFIX' specified?
 		    *-suffix-*)		## Yes, does it apply?
 			case $_suffix in
-			    ?*)	rs=`$0 quote-rs "$_suffix"`
+			    ?*)	rs=`$0 rs "$_suffix"`
 				sx="$sx"'s/ /'"$rs"' /g;'
 				;;	## Yes, augment sed(1) script so that
 			esac		## UNFINISHEDs are suffixed.
@@ -135,7 +134,7 @@ case $subst in				## Phase applies to SUBSTitution?
 		case $vns in		## 'prefix=PREFIX' specified?
 		    *-prefix-*)		## Yes, does it apply?
 			case $_prefix in
-			    ?*)	rs=`$0 quote-rs "$_prefix"`
+			    ?*)	rs=`$0 rs "$_prefix"`
 				sx="$sx"'s/ / '"$rs"'/g;'
 				;;	## Yes, augment sed(1) script so that
 			esac		## UNFINISHEDs are prefixed.
@@ -162,8 +161,8 @@ case $subst in				## Phase applies to SUBSTitution?
 		tfoot=`expr "_$_template" : '_[^_'"$cs_alnum"']*'"$re_ident"'\([^_'"$cs_alnum"']*\)$'`
 		;;
 	esac
-	re_thead=`$0 quote-re "$thead"`	## RE-quote templates' head and foot.
-	re_tfoot=`$0 quote-re "$tfoot"`
+	re_thead=`$0 re "$thead"`	## RE-quote templates' head and foot.
+	re_tfoot=`$0 re "$tfoot"`
 	set shiftee `{
 	    $SED '
 		:1
@@ -199,14 +198,14 @@ EOF
 					## Get NAME's value from 1st assign-
 					## ment in top-level Makefile (or sup-
 	;;				## ply default VALUE instead).
-    quote-re)				## 'quote-re' STRING [DELIMITER=/]
+    re)					## 're' STRING [DELIMITER=/]...
 	$SED '/^$/d;s/[]'"${2-/}"'^\.*$[]/'"$BS$BS"'&/g' <<EOF
 $1
 EOF
 					## (RE,DELIMITER)-quote STRING (i.e.,
 					## quote for use as match in sed(1)
 	;;				## 's///' command with DELIMITER).
-    quote-rs)				## 'quote-rs' STRING [DELIMITER=/]
+    rs)					## 'rs' STRING [DELIMITER=/]...
 	$SED '/^$/d;s/[\&'"${2-/}"']/'"$BS$BS"'&/g' <<EOF
 $1
 EOF
@@ -215,7 +214,7 @@ EOF
 	;;				## 's///' command with DELIMITER).
     quote)				## 'quote' STRING ...
 	case $#/${1-} in		## STRING specified?
-	    [01]/)			## None/empty...
+	    [01]/)			## None or empty...
 		;;			## We're done.
 	    1/?*)			## Non-empty, no (OP,DELIMITER) pair...
 		echo "$1"		## Emit STRING literally.
@@ -227,7 +226,7 @@ EOF
 		while shift 2; do	## Foreach OP/DELIMITER pair do...
 		    case $#/$1 in
 			[12]/r[es])     # Last valid pair?
-			    $0 quote-$1 "$qs" "${2-/}"
+			    $0 $1 "$qs" "${2-/}"
 			    break	## Emit (OP,DELIMITER)-quoted result.
 			    ;;
 			[12]/*)		## Last pair?
@@ -235,7 +234,7 @@ EOF
 			    break
 			    ;;
 			*/r[es])	## Valid pair?
-			    qs=`$0 quote-$1 "$qs" "${2-/}"`
+			    qs=`$0 $1 "$qs" "${2-/}"`
 			    ;;		## (OP,DELIMITER)-quote result.
 		    esac
 		done
@@ -262,7 +261,7 @@ EOF`
 	else
 	    echo "$0: $gensubst_sed: not found!" >&2; exit 1
 	fi				## Try to auto-locate gensubst.sed...
-	rs_gensubst_sed=`$0 quote-rs "$gensubst_sed"`
+	rs_gensubst_sed=`$0 rs "$gensubst_sed"`
 					## ...and (RS,/)-quote its pathname.
 	echo ${1+"$@"} | $SED '
 	    s/$/ /
