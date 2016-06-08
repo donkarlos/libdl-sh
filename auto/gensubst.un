@@ -45,12 +45,13 @@
 ##					Add multi-line support to 'get' subst.
 ##					Make template head and foot tunable.
 ##		ks	2016-06-08	Get independent of config.sh.
+##					Add 'sh' substitution.
 ##----------------------------------------------------------------------------
 ##  Initialization:
 #-----------------------------------------------------------------------------
 LC_ALL=C; export LC_ALL			## Avoid locale insanities.
 
-BS=\\ SQ=\' NL='
+BQ=\` DQ=\" SQ=\' BS=\\ NL='
 '					## Used for proper quoting.
 eval `sed '
     s/='"$SQ"'@[^@'"$SQ"'=]*@'"$SQ"'//;s/\('"$SQ"'\)=.*$/\1/;s/$/;/
@@ -64,6 +65,7 @@ cs_lower=abcdefghijklmnopqrstuvwxyz	## decimal digit, letter, and alpha-
 cs_digit=0123456789			## numeric character sets.
 cs_alpha=$cs_upper$cs_lower
 cs_alnum=$cs_alpha$cs_digit
+cs_shell=']^?*~! 	${}()<|>&;#'"$BQ$DQ$SQ$BS"'['
 
 re_ident="[_$cs_alpha][_$cs_alnum]*"	## Define RE for IDENTifiers.
 thead=@					## (Pre-)define templates' (literal)
@@ -74,13 +76,15 @@ sfoot=')'				## ral) head and foot.
 ex_vn='_\('"$re_ident"'\)='		## Define expr(1) REs for splitting
 ex_vv='[^=]*=\(.*\)$'			## NAME=VALUE into NAME and VALUE.
 
+sx_quote_sh='s/'"$SQ"'/&'"$BS$BS"'&&/g;s/^/'"$SQ"'/;s/$/'"$SQ"'/'
+
 ##----------------------------------------------------------------------------
 ##  Phase 1: Check if SUBSTitution is specified and valid
 ##----------------------------------------------------------------------------
 if test $# -gt 0; then			## SUBSTitution specified?
     subst=$1; shift			## Yes, fetch it.
     case $subst in			## Is it valid?
-	get|re|rs|quote|pathname|templates|FINISH_SEDFLAGS)
+	get|re|rs|sh|quote|pathname|templates|FINISH_SEDFLAGS)
 	    vns=-			## Yes, start with empty NAME list.
 	    ;;
 	*)  echo "$0 $subst: unknown SUBSTitution!" >&2
@@ -212,6 +216,13 @@ EOF
 					## (RS,DELIMITER)-quote STRING (i.e.,
 					## quote for use as subst. in sed(1)
 	;;				## 's///' command with DELIMITER).
+    sh)					## 'sh' STRING...
+	sx=':1'"$NL"'$!{;N;b1'"$NL"'}'"$NL"'/^$/b2'"$NL"'/\'"$NL"'/b2'
+	sx="$sx$NL"'/['"$cs_shell"']/!b3'"$NL"':2'"$NL$sx_quote_sh$NL"':3'
+	$SED "$sx" <<EOF
+$1
+EOF
+	;;				## Intelligently (SH)-quote STRING.
     quote)				## 'quote' STRING ...
 	case $#/${1-} in		## STRING specified?
 	    [01]/)			## None or empty...
