@@ -134,6 +134,10 @@ AS_IF([test -f "$srcdir/$af_gensubst.un"], [
     GENSUBST=$srcdir/$af_gensubst
 ])
 
+AS_IF([test -f "$srcdir/$af_finish.un"], [
+    af_unfinished="$af_finish $af_unfinished"
+])
+
 af_finish_sedflags=`
     $GENSUBST FINISH_SEDFLAGS						\
 	prefix="${srcdir}/" suffix=.un $af_unfinished
@@ -154,5 +158,6 @@ $SED '
 SED=$SED
 af_finished="$af_finished"
 af_gensubst=$af_gensubst
+af_finish=$af_finish
 ])
 ])
