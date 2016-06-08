@@ -58,11 +58,9 @@ cs_alnum=$cs_alpha$cs_digit
 re_ident="[_$cs_alpha][_$cs_alnum]*"
 readonly SQ BS NL cs_upper cs_lower cs_digit cs_alpha cs_alnum re_ident
 
-ex_on='_\(..\)'
-ex_ov='_..\(.*\)$'
-ex_vn='\(_'"$re_ident"'\)='
-ex_vv='[^=]*=\(.*\)$'
-readonly ex_on ex_ov ex_vn ex_vv
+ex_on='_\(..\)'				## Define expr(1) REs for splitting
+ex_ov='_..\(.*\)$'			## options into name and value.
+readonly ex_on ex_ov
 
 sx_file='
     y/	'"$cs_upper"'/'" $cs_lower"'/;s/$/ /;s/   */ /g
@@ -73,8 +71,8 @@ sx_file='
     s/-[gn]roff-/-troff-/;s/\(-troff-\)or-preprocessor-input-/\1/
     s/\(-m4-\)macro-processor-/\1/
     s/-posix\(-shell-\)/\1/
-'
-readonly sx_file
+'					## Define sed(1) script for normaliz-
+readonly sx_file			## ing file(1) types.
 
 ##----------------------------------------------------------------------------
 ##  Phase 1: Parse options
@@ -183,10 +181,10 @@ esac
 ##----------------------------------------------------------------------------
 ##  Phase 2: Check usage
 ##----------------------------------------------------------------------------
-case $action in
-    finish-one)
-	test $# -eq 1 || action=usage
-	;;
+case $action in				## Which action?
+    finish-one)				## Finish one file...
+	test $# -eq 1 || action=usage	## Ensure that exactly one UNFINISHED
+	;;				## is given.
 esac
 
 ##----------------------------------------------------------------------------
@@ -199,20 +197,20 @@ for ifpn in ${1+"$@"}; do		## Foreach UNFINISHED do...
 					## ...its normalized file type.
     else
 	echo "$0: $ifpn: not found!" >&2
-	action=error; break
-    fi
+	action=error; break		## No, complain and skip remaining
+    fi					## UNFINISHEDs.
 
-    case $action in			## Phase applies to action?
-	type-all)
+    case $action in			## Which action?
+	type-all)			## Emit normalized file types...
 	    echo "$ifpn:$ifty"
 	    ;;
-	finish-*)
-	    case $ifty in
-		*-text-*)
+	finish-*)			## Finish UNFINISHEDs...
+	    case $ifty in		## UNFINISHED is a text file?
+		*-text-*)		## Yes.
 		    ;;
 		*)  echo "$0: $ifpn: not a text file!" >&2
-		    action=error; break
-		    ;;
+		    action=error; break	## No, complain and skip remaining
+		    ;;			## UNFINISHEDs.
 	    esac
 	    ;;
     esac
@@ -221,17 +219,17 @@ done
 ##----------------------------------------------------------------------------
 ##  Phase 4: Finish input file(s)
 ##----------------------------------------------------------------------------
-case $action in
-    finish-all)
+case $action in				## Which action?
+    finish-all)				## Finish UNFINISHEDs to stdout...
 	$SED "$sx_ante$sx_main$sx_post" ${1+"$@"} || action=error
 	;;
-    finish-one)
-	phase=4
-	pifpn=$ifpn
+    finish-one)				## Finish UNFINSHED to output file...
+	phase=4				## Setup phase as well as phase's in-
+	pifpn=$ifpn			## put and output file.
 	pofpn=$ofpn~$$.$phase
 
-	podpn=`dirname "$pofpn"`
-	until test -d "$podpn"; do
+	podpn=`dirname "$pofpn"`	## Try to make all intermediate direc-
+	until test -d "$podpn"; do      ## tories, collecting related undos.
 	    onexit="$onexit$NL"'rmdir '"$podpn"
 	    mkdir "$podpn" || exit 1
 	    podpn=`dirname "$podpn"`
@@ -243,14 +241,14 @@ case $action in
 	ofre=`$GENSUBST re "$pofpn"`	## (RE,'/')-quote phase output file...
 	ofty=`file "$pofpn" | $SED 's/^'"$ofre"': */-/'"$sx_file"`
 					## ...and get its norm. file type.
-	case $ofty in
-	    *-script-text-executable-*)
+	case $ofty in			## Output file is executable script?
+	    *-script-text-executable-*)	## Yes...
 		chmod a+x "$pofpn" || exit 1
-		;;
+		;;			## Grant execute permissions.
 	esac
 
-	mv "$pofpn" "$ofpn" || exit 1
-	onexit=:
+	mv "$pofpn" "$ofpn" || exit 1	## Move output file into place.
+	onexit=:			## Ditch collected undos.
 	;;
     error)
 	exit 1
