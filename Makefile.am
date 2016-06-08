@@ -25,7 +25,6 @@
 ##		ks	2016-05-24	Remove conf_init.3sh.
 ##		ks	2016-06-03	Use AC_CONFIG_MACRO_DIRS() to tell
 ##					aclocal(1) where to find stuff.
-##		ks	2016-06-06	Add config.sh.in.
 ##		ks	2016-06-07	Bootstrap gensubst.
 ##					Add and integrate finishing script.
 ##
@@ -35,7 +34,6 @@
 ##----------------------------------------------------------------------------
 include $(top_srcdir)/auto/autofinish.am
 
-CONFIG_SH		= $(af_pre)config.sh
 FINISH_UN		= $(srcdir)/$(FINISH).un
 GENSUBST_UN		= $(srcdir)/$(GENSUBST).un
 STUB			= $(srcdir)/bin/stub top_srcdir=$(srcdir)
@@ -53,11 +51,11 @@ dist_noinst_DATA	= LICENSE
 ##----------------------------------------------------------------------------
 ##  Finish scripts:
 ##----------------------------------------------------------------------------
-$(GENSUBST):		$(GENSUBST_UN) Makefile $(CONFIG_SH)
+$(GENSUBST):		$(GENSUBST_UN) Makefile
 	@echo "Bootstrap $@ from $(GENSUBST_UN) with $(FINISH_UN)..."
 	$(FINISH_UN) $(FINISH_SEDFLAGS) -s -o $@ $(GENSUBST_UN)
 
-$(FINISH):		$(FINISH_UN) Makefile $(CONFIG_SH) $(GENSUBST)
+$(FINISH):		$(FINISH_UN) Makefile $(GENSUBST)
 	@echo "Bootstrap $@ from $(FINISH_UN) with $(FINISH_UN)..."
 	$(FINISH_UN) $(FINISH_SEDFLAGS) -s -o $@ $(FINISH_UN)
 

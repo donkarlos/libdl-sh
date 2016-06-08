@@ -49,7 +49,6 @@ dnl					Also update $(FINISH_SEDFLAGS) in
 dnl					AC_CONFIG_COMMANDS().
 dnl		ks	2016-06-03	Delay ${af_unfinished} pre-/suffixing.
 dnl		ks	2016-06-06	Introduce AF_INIT().
-dnl					Add config.sh.in.
 dnl		ks	2016-06-07	Bootstrap gensubst.
 dnl					Invoke AC_PROG_SED.
 dnl					Add and integrate finishing script.
@@ -60,10 +59,10 @@ dnl				placeholders in unfinished files
 dnl
 AC_DEFUN([AF_INIT], [
 m4_ifval([$1], [af_gensubst=$1], [af_gensubst=gensubst])
-AC_SUBST([af_pre], [`echo "$af_gensubst" | sed 's|@<:@^/@:>@@<:@^/@:>@*$||'`])
-AC_SUBST([af_distclean_files], ['$(CONFIG_SH)'])
+af_pre=`echo "$af_gensubst" | sed 's|@<:@^/@:>@@<:@^/@:>@*$||'`
+AC_SUBST([af_distclean_files], [])
 AC_SUBST([af_makefile_deps], ['$(srcdir)/'"$af_gensubst"'.sed'])
-AC_SUBST([af_dist_files], ['$(srcdir)/$(CONFIG_SH).in'])
+AC_SUBST([af_dist_files], [])
 
 AS_IF([test -f "$srcdir/$af_gensubst.un"], [
     af_distclean_files='$(GENSUBST) '"$af_distclean_files"
@@ -86,8 +85,6 @@ AS_IF([test -f "$srcdir/$af_finish.un"], [
 ], [
     AC_MSG_ERROR([$af_finish not found!])
 ])
-
-AC_CONFIG_FILES([${af_pre}config.sh])
 ])
 
 dnl
