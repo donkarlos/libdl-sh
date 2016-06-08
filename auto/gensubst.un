@@ -227,25 +227,17 @@ EOF
 	case $#/${1-} in		## STRING specified?
 	    [01]/)			## None or empty...
 		;;			## We're done.
-	    1/?*)			## Non-empty, no (OP,DELIMITER) pair...
-		echo "$1"		## Emit STRING literally.
-		;;
-	    *)				## Non-empty, (OP,DELIMITER) pairs...
-		qs=$1; set shiftee ${1+"$@"}
-					## Initialize result and let following
-					## 'shift 2' succeed.
-		while shift 2; do	## Foreach OP/DELIMITER pair do...
-		    case $#/$1 in
-			[12]/r[es])     # Last valid pair?
-			    $0 $1 "$qs" "${2-/}"
-			    break	## Emit (OP,DELIMITER)-quoted result.
-			    ;;
-			[12]/*)		## Last pair?
-			    echo "$qs"	## Emit result.
-			    break
-			    ;;
-			*/r[es])	## Valid pair?
-			    qs=`$0 $1 "$qs" "${2-/}"`
+	    *)	qs=$1			## Non-empty: Initialize result.
+		while shift; do		## Foreach OP do...
+		    case $#/${1-} in	## Which OP?
+			0/)		## None left...
+			    echo "$qs"; break
+			    ;;		## Emit result.
+			1/r[es])		## RE/RS without DELIMITER...
+			    qs=`$0 $1 "$qs"`
+			    ;;		## (OP)-quote result.
+			*/r[es])	## RE/RS with DELIMITER...
+			    qs=`$0 $1 "$qs" "$2"`; shift
 			    ;;		## (OP,DELIMITER)-quote result.
 		    esac
 		done
