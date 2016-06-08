@@ -230,12 +230,12 @@ case $action in				## Which action?
 
 	podpn=`dirname "$pofpn"`	## Try to make all intermediate direc-
 	until test -d "$podpn"; do      ## tories, collecting related undos.
-	    onexit="$onexit$NL"'rmdir '"$podpn"
+	    onexit="$onexit${NL}rmdir `$GENSUBST sh "$podpn"`"
 	    mkdir "$podpn" || exit 1
 	    podpn=`dirname "$podpn"`
 	done
 
-	onexit="$onexit$NL"'rm -f '"$pofpn"
+	onexit="$onexit${NL}rm -f `$GENSUBST sh "$pofpn"`"
 	$SED "$sx_ante$sx_main$sx_post" "$pifpn" >$pofpn || exit 1
 
 	ofre=`$GENSUBST re "$pofpn"`	## (RE,'/')-quote phase output file...
