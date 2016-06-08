@@ -43,7 +43,7 @@ GENSUBST=`$SED "$sx" <<EOF
 $0
 EOF`
 
-onexit=:				## Register traps.
+onexit=					## Register traps.
 trap 'es=$?; eval "$onexit" 2>/dev/null; trap '"$SQ$SQ"' 0; exit $es' 0
 trap 'echo "$0: killed" >&2; exit 1' 1 2 3 15
 
@@ -235,7 +235,7 @@ case $action in				## Which action?
 	    podpn=`dirname "$podpn"`
 	done
 
-	onexit="$onexit${NL}rm -f `$GENSUBST sh "$pofpn"`"
+	onexit="rm -f `$GENSUBST sh "$pofpn"`$NL$onexit"
 	$SED "$sx_ante$sx_main$sx_post" "$pifpn" >$pofpn || exit 1
 
 	ofre=`$GENSUBST re "$pofpn"`	## (RE,'/')-quote phase output file...
@@ -248,7 +248,7 @@ case $action in				## Which action?
 	esac
 
 	mv "$pofpn" "$ofpn" || exit 1	## Move output file into place.
-	onexit=:			## Ditch collected undos.
+	onexit=				## Discard collected undos.
 	;;
     error)
 	exit 1
