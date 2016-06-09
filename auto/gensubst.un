@@ -46,6 +46,8 @@
 ##					Make template head and foot tunable.
 ##		ks	2016-06-08	Get independent of config.sh.
 ##					Add 'sh' substitution.
+##		ks	2016-06-09	Make makefile tunable.
+##					Unify quoting.
 ##----------------------------------------------------------------------------
 ##  Initialization:
 #-----------------------------------------------------------------------------
@@ -65,7 +67,6 @@ cs_lower=abcdefghijklmnopqrstuvwxyz	## decimal digit, letter, and alpha-
 cs_digit=0123456789			## numeric character sets.
 cs_alpha=$cs_upper$cs_lower
 cs_alnum=$cs_alpha$cs_digit
-cs_shell=']^?*~! 	${}()<|>&;#'"$BQ$DQ$SQ$BS"'['
 
 re_ident="[_$cs_alpha][_$cs_alnum]*"	## Define RE for IDENTifiers.
 thead=@					## (Pre-)define templates' (literal)
@@ -76,25 +77,26 @@ sfoot=')'				## ral) head and foot.
 ex_vn='_\('"$re_ident"'\)='		## Define expr(1) REs for splitting
 ex_vv='[^=]*=\(.*\)$'			## NAME=VALUE into NAME and VALUE.
 
-sx_quote_sh='s/'"$SQ"'/&'"$BS$BS"'&&/g;s/^/'"$SQ"'/;s/$/'"$SQ"'/'
-
 ##----------------------------------------------------------------------------
 ##  Phase 1: Check if SUBSTitution is specified and valid
 ##----------------------------------------------------------------------------
-if test $# -gt 0; then			## SUBSTitution specified?
-    subst=$1; shift			## Yes, fetch it.
-    case $subst in			## Is it valid?
-	re|rs|sh|quote|pathname|templates|FINISH_SEDFLAGS|get)
-	    vns=-			## Yes, start with empty NAME list.
-	    ;;
-	*)  echo "$0 $subst: unknown SUBSTitution!" >&2
-	    subst=usage			## No, complain and finally show
-	    ;;				## usage.
-    esac
-else					## No substitution given.
-    echo "$0: need SUBSTitution!" >&2
-    subst=usage				## Complain and finally show usage.
-fi
+case $# in				## SUBSTitution specified?
+    0)	echo "$0: need SUBSTitution!" >&2
+	subst=usage			## No, complain and show usage later.
+	;;
+    *)	subst=$1 vns=-			## Yes, fetch it and clear NAME list.
+	case $subst in			## Is it a valid SUBSTitution?
+	    re|rs|sh)			## Yes, a 'quote' shorthand...
+		subst=quote; set $subst "${2-}" $1 ${3+"$3"}
+		;;			## Shuffle parameters.
+	    quote|pathname|templates|FINISH_SEDFLAGS|get)
+		;;			## Yes.
+	    *)	echo "$0 $subst: unknown SUBSTitution!" >&2
+		subst=usage		## No, complain and show usage later.
+		;;
+	esac; shift
+	;;
+esac
 
 ##----------------------------------------------------------------------------
 ##  Phase 2: Process 'NAME=VALUE' parameters
@@ -192,47 +194,36 @@ esac
 ##  Phase 5: Generate substitution
 ##----------------------------------------------------------------------------
 case $subst in				## Which substitution?
-    re)					## 're' STRING [DELIMITER=/]...
-	$SED '/^$/d;s/[]'"${2-/}"'^\.*$[]/'"$BS$BS"'&/g' <<EOF
-$1
-EOF
-					## (RE,DELIMITER)-quote STRING (i.e.,
-					## quote for use as match in sed(1)
-	;;				## 's///' command with DELIMITER).
-    rs)					## 'rs' STRING [DELIMITER=/]...
-	$SED '/^$/d;s/[\&'"${2-/}"']/'"$BS$BS"'&/g' <<EOF
-$1
-EOF
-					## (RS,DELIMITER)-quote STRING (i.e.,
-					## quote for use as subst. in sed(1)
-	;;				## 's///' command with DELIMITER).
-    sh)					## 'sh' STRING...
-	sx=':1'"$NL"'$!{;N;b1'"$NL"'}'"$NL"'/^$/b2'"$NL"'/\'"$NL"'/b2'
-	sx="$sx$NL"'/['"$cs_shell"']/!b3'"$NL"':2'"$NL$sx_quote_sh$NL"':3'
-	$SED "$sx" <<EOF
-$1
-EOF
-	;;				## Intelligently (SH)-quote STRING.
-    quote)				## 'quote' STRING ...
-	case $#/${1-} in		## STRING specified?
-	    [01]/)			## None or empty...
-		;;			## We're done.
-	    *)	qs=$1			## Non-empty: Initialize result.
-		while shift; do		## Foreach OP do...
-		    case $#/${1-} in	## Which OP?
-			0/)		## None left...
-			    echo "$qs"; break
-			    ;;		## Emit result.
-			1/r[es]|*/sh)	## RE/RS without DELIMITER or SH...
-			    qs=`$0 $1 "$qs"`
-			    ;;		## (OP)-quote result.
-			*/r[es])	## RE/RS with DELIMITER...
-			    qs=`$0 $1 "$qs" "$2"`; shift
-			    ;;		## (OP,DELIMITER)-quote result.
-		    esac
-		done
-		;;
+    quote)				## 'quote' QUOTEE [OP [DELIM]] ...
+	cs_shell=']^?*~! 	${}()<|>&;#'"$BQ$DQ$SQ$BS"'['
+	sx_qre0='s/[]'	sx_qre1='^\.*$[]/'"$BS$BS"'&/g'
+	sx_qrs0='s/[\&'	sx_qrs1=']/'"$BS$BS"'&/g'
+	sx_qnl1=';s/'"$BS$NL"'/'"$BS$BS"'&/g'
+	sx_qsh='s/'"$SQ"'/&'"$BS$BS"'&&/g;s/^/'"$SQ"'/;s/$/'"$SQ"'/'
+					## Define sed(1) script particles.
+	case $# in			## QUOTEE specified?
+	    0)	quotee=; set shiftee;;	## No, assume it's empty.
+	    *)	quotee=$1	    ;;	## Yes, fetch it.
 	esac
+	i=0; sx=':n'"$i$NL"'$!{;N;bn'"$i$NL"'}'
+	while shift; do			## Foreach OP do...
+	    case $# in			## All OPs processed?
+		0)  $SED "$sx"';:p'"$i$NL"'/^$/d' <<EOF
+$quotee
+EOF
+		    break		## Yes, finally quote QUOTEE.
+		    ;;
+	    esac; case $1 in		## No, which OP?
+		re) sx="$sx$NL$sx_qre0${2-/}$sx_qre1$sx_qnl1"; ${2+shift}
+		    ;;			## Apply (RE[,DELIM='/'])-quoting.
+		rs) sx="$sx$NL$sx_qrs0${2-/}$sx_qrs1$sx_qnl1"; ${2+shift}
+		    ;;			## Apply (RS[,DELIM='/'])-quoting.
+		sh) sx="$sx"';:p'"$i"; i=`expr $i + 1`
+		    sx="$sx$NL"'/^$/bq'"$i$NL"'/'"$BS$NL"'/bq'"$i"
+		    sx="$sx$NL"'/['"$cs_shell"']/!bp'"$i$NL"':q'"$i$NL$sx_qsh"
+		    ;;			## Apply (SH)-quoting.
+	    esac
+	done
 	;;
     pathname|templates)			## 'pathname'/'templates'...
 	echo ${1+"$@"}			## Emit result (i.e., rewritten UNFI-
