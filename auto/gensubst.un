@@ -264,10 +264,16 @@ EOF`
 	'				## Construct and emit result from quo-
 	;;				## ted parts.
     get)				## 'get' NAME [VALUE]...
+	case $vns in			## 'makefile=MAKEFILE' specified?
+	    *-makefile-*)		## Yes.
+		;;
+	    *)	_makefile=Makefile      ## No, supply default.
+		;;
+	esac
 	$SED '
-	    /^'"$1"' *= */!d;s///;:1
+	    /^'"$1"'[ 	]*=[ 	]*/!d;s///;:1
 	    /\\$/!{;y/	/ /;s/   */ /g;s/ $//;/^$/d;q;};N;s/\\\'"$NL"'/ /;t1
-	' Makefile - <<EOF 2>/dev/null
+	' "$_makefile" - <<EOF 2>/dev/null
 $1=$2
 EOF
 					## Get NAME's value from 1st assign-
