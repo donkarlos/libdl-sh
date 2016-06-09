@@ -84,7 +84,7 @@ sx_quote_sh='s/'"$SQ"'/&'"$BS$BS"'&&/g;s/^/'"$SQ"'/;s/$/'"$SQ"'/'
 if test $# -gt 0; then			## SUBSTitution specified?
     subst=$1; shift			## Yes, fetch it.
     case $subst in			## Is it valid?
-	get|re|rs|sh|quote|pathname|templates|FINISH_SEDFLAGS)
+	re|rs|sh|quote|pathname|templates|FINISH_SEDFLAGS|get)
 	    vns=-			## Yes, start with empty NAME list.
 	    ;;
 	*)  echo "$0 $subst: unknown SUBSTitution!" >&2
@@ -192,16 +192,6 @@ esac
 ##  Phase 5: Generate substitution
 ##----------------------------------------------------------------------------
 case $subst in				## Which substitution?
-    get)				## 'get' NAME [VALUE]...
-	$SED '
-	    /^'"$1"' *= */!d;s///;:1
-	    /\\$/!{;y/	/ /;s/   */ /g;s/ $//;/^$/d;q;};N;s/\\\'"$NL"'/ /;t1
-	' Makefile - <<EOF 2>/dev/null
-$1=$2
-EOF
-					## Get NAME's value from 1st assign-
-					## ment in top-level Makefile (or sup-
-	;;				## ply default VALUE instead).
     re)					## 're' STRING [DELIMITER=/]...
 	$SED '/^$/d;s/[]'"${2-/}"'^\.*$[]/'"$BS$BS"'&/g' <<EOF
 $1
@@ -273,6 +263,16 @@ EOF`
 	    s/^/'"$rs_shead"'FINISH_ANTE_SEDFLAGS'"$rs_sfoot"' -f '"$rs_gensubst_sed"' -e '"$SQ"'/
 	'				## Construct and emit result from quo-
 	;;				## ted parts.
+    get)				## 'get' NAME [VALUE]...
+	$SED '
+	    /^'"$1"' *= */!d;s///;:1
+	    /\\$/!{;y/	/ /;s/   */ /g;s/ $//;/^$/d;q;};N;s/\\\'"$NL"'/ /;t1
+	' Makefile - <<EOF 2>/dev/null
+$1=$2
+EOF
+					## Get NAME's value from 1st assign-
+					## ment in top-level Makefile (or sup-
+	;;				## ply default VALUE instead).
     usage)
 	echo "Usage: $0 SUBST [NAME=VALUE ...] UNFINISHED ..." >&2
 	exit 2
