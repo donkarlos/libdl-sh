@@ -48,6 +48,7 @@
 ##					Add 'sh' substitution.
 ##		ks	2016-06-09	Make makefile tunable.
 ##					Unify quoting.
+##		ks	2016-06-10	Add 'expand' substitution.
 ##----------------------------------------------------------------------------
 ##  Initialization:
 #-----------------------------------------------------------------------------
@@ -98,6 +99,9 @@ case $# in				## SUBSTitution specified?
 		;;			## template head/foot.
 	    get)			## Get makefile variable...
 		_makefile=Makefile	## Supply default makefile.
+		;;
+	    expand)
+		_makefile=Makefile _mode=
 		;;
 	    *)	echo "$0 $subst: unknown SUBSTitution!" >&2
 		subst=usage		## No, complain and show usage later.
@@ -270,6 +274,97 @@ EOF
 					## Get NAME's value from 1st assign-
 					## ment in makefile (or supply de-
 	;;				## fault VALUE instead).
+    expand)				## 'expand' [mode=MODE] STRING ...
+	case ,$_mode, in
+	    *,trace,*)			## MODE has 'trace' option?
+		ax='td=40'	;;	## Yes, trace calls up to depth 40.
+	    *)	ax='td=0'	;;	## No, don't trace calls.
+	esac
+	case ,$_mode, in		## Which MODE?
+	    *,raw,*)			## Raw...
+		ax="$ax"'; vpd=0; vpm=0'
+		;;			## Disable any processing.
+	    *,get,*)			## Get...
+		ax="$ax"'; vpd=2; vpm=4+8+16+32'
+					## Disable expansion, enable line
+		;;			## folding and space compression.
+	    *,eval,*)			## Eval...
+		ax="$ax"'; vpd=2; vpm=2+4+8+16+32+64'
+					## Enable expansion, line folding,
+		;;			## space compression, and quoting.
+	    *)	ax="$ax"'; vpd=2; vpm=2+4+8+16+32'
+					## Enable expansion, line folding,
+		;;			## and space compression.
+	esac
+	for us in ${1+"$@"}; do		## Convert STRINGs into awk(1) frag.
+	    ax="$ax$NL		"'ui2us[++uc]='"$DQ$us$DQ"
+	done
+	nawk '
+	    BEGIN {
+		xd = uc = vc = 0
+		'"$ax"'
+		vkf = (((vpm/1)%2) >= 1); vxf = (((vpm/2)%2) >= 1)
+	    }
+
+	    function trace(fn,fa) {
+		printf(sprintf("%%-%us%%s(\"%%s\")\n", xd), "#", fn, fa)
+	    }
+
+	    function strexp(us ,xs,vn) {
+		if (++xd <= td) trace("strexp", us)
+		xs = ""; while (   match(us, /\$\('"$re_ident"'\)/)	\
+				|| match(us, /\${'"$re_ident"'}/)) {
+		    xs = xs substr(us, 1, RSTART - 1)
+		    vn = substr(us, RSTART + 2, RLENGTH - 3)
+		    us = substr(us, RSTART + RLENGTH)
+		    xs = xs varexp(vn)
+		}
+		--xd; return (xs us)
+	    }
+
+	    function varexp(vn ,vv) {
+		if (++xd <= td) trace("varexp", vn)
+		if (!vn2xc[vn] && (vn in ENVIRON)) {
+		    vn2xc[vn] = 1; vn2vv[vn] = ENVIRON[vn]
+		}
+		if (!vn2xc[vn]) {
+		    vv = vkf ? "${" vn "}" : ""
+		} else if ((++vn2xc[vn] == 2) && vxf) {
+		    vv = vn2vv[vn] = strexp(vn2vv[vn])
+		} else {
+		    vv = vn2vv[vn]
+		}
+		if (xd <= vpd) {
+		    if (((vpm/ 4)%2) >= 1) gsub(/\\\n/, "\n", vv)
+		    if (((vpm/ 8)%2) >= 1) gsub(/\n/, " ", vv)
+		    if (((vpm/16)%2) >= 1) gsub(/[ \t]+/, " ", vv)
+		    if (((vpm/32)%2) >= 1) {
+			gsub(/(^[ \t]+|[ \t]+$)/, "", vv)
+			gsub(/[ \t]*\n[ \t]*/, "\n", vv)
+		    }
+		    if (((vpm/64)%2) >= 1) {
+			gsub(/'"$SQ"'/, "&\\\\&&", vv)
+			sub(/^/, "'"$SQ"'", vv); sub(/$/, "'"$SQ"'", vv)
+		    }
+		}
+		--xd; return (vv)
+	    }
+
+	    /^'"$re_ident"'[ \t]*:?=[ \t]*/ {
+		match($0, /[ \t]*:?=[ \t]*/)
+		vn = substr($0, 1, RSTART - 1)
+		vv = substr($0, RSTART + RLENGTH)
+		while ($0 ~ /\\$/) {
+		    getline; vv = vv "\n" $0
+		}; vn2xc[vn] = 1; vn2vv[vn] = vv
+	    }
+
+	    END {
+		for (ui = 1; ui <= uc; ++ui)
+		    printf("%s\n", strexp(ui2us[ui]))
+	    }
+	' "$_makefile" 2>/dev/null
+	;;
     usage)
 	echo "Usage: $0 SUBST [NAME=VALUE ...] UNFINISHED ..." >&2
 	exit 2
