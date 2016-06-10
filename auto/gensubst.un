@@ -102,30 +102,39 @@ case $# in				## SUBSTitution specified?
 	    *)	echo "$0 $subst: unknown SUBSTitution!" >&2
 		subst=usage		## No, complain and show usage later.
 		;;
-	esac; shift
+	esac
 	;;
 esac
 
 ##----------------------------------------------------------------------------
-##  Phase 2: Process 'NAME=VALUE' parameters
+##  Phase 2: Parse 'NAME=VALUE' parameters
 ##----------------------------------------------------------------------------
-while test $# -gt 0; do
-    case $1 in
-	*=*)				## Looking at 'NAME=VALUE'?
-	    if vn=`expr "_$1" : "$ex_vn"`; then
+case $subst in
+    usage)				## Phase applies to SUBSTitution?
+	;;				## No, skip phase.
+    *)	while shift; do			## Yes, foreach 'NAME=VALUE' do...
+	    case $# in
+		0)  break   ;;
+	    esac; case $1 in
+		*=*)			## Looking at 'NAME=VALUE'?
+		    if vn=`expr "_$1" : "$ex_vn"`; then
 					## Yes, and NAME is an identifier?
-		vv=`expr "$1" : "$ex_vv"`
-		eval "_$vn"'=$vv'; vns=$vns$vn-
+			vv=`expr "$1" : "$ex_vv"`
+			eval "_$vn"'=$vv'; vns=$vns$vn-
 					## Yes, get VALUE and set variable.
-	    else
-		echo "$0 $subst $1: malformed NAME=VALUE!" >&2
-		subst=usage; break	## No, complain and finally show
-	    fi				## usage.
-	    ;;
-	*)  break			## No, assume it's an UNFINISHED.
-	    ;;
-    esac; shift
-done
+		    else
+			echo "$0 $subst $1: malformed NAME=VALUE!" >&2
+			subst=usage; break
+		    fi			## No, complain and show usage later.
+		    ;;
+		--) shift; break	## No, assume UNFINISHEDs follow.
+		    ;;
+		*)  break		## No, assume it's an UNFINISHED.
+		    ;;
+	    esac
+	done
+	;;
+esac
 
 ##----------------------------------------------------------------------------
 ##  Phase 3: Apply 'prefix=PREFIX' and/or 'suffix=SUFFIX' to UNFINISHEDs
