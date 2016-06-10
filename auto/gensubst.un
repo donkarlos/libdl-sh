@@ -69,8 +69,6 @@ cs_alpha=$cs_upper$cs_lower
 cs_alnum=$cs_alpha$cs_digit
 
 re_ident="[_$cs_alpha][_$cs_alnum]*"	## Define RE for IDENTifiers.
-thead=@					## (Pre-)define templates' (literal)
-tfoot=@					## head and foot.
 shead='$('				## (Pre-)define substitutions' (lite-
 sfoot=')'				## ral) head and foot.
 
@@ -164,14 +162,10 @@ esac
 ##----------------------------------------------------------------------------
 case $subst in				## Phase applies to SUBSTitution?
     templates|FINISH_SEDFLAGS)		## Yes...
-	case $vns in			## 'template=TEMPLATE' specified?
-	    *-template-*)		## Yes, extract templates' head/foot.
-		thead=`expr "_$_template" : '_\([^_'"$cs_alnum"']*\)'`
-		tfoot=`expr "_$_template" : '_[^_'"$cs_alnum"']*'"$re_ident"'\([^_'"$cs_alnum"']*\)$'`
-		;;
-	esac
-	re_thead=`$0 re "$thead"`	## RE-quote templates' head and foot.
-	re_tfoot=`$0 re "$tfoot"`
+	thead=`expr "_$_template" : '_\([^_'"$cs_alnum"']*\)'`
+	tfoot=`expr "_$_template" : '_[^_'"$cs_alnum"']*'"$re_ident"'\([^_'"$cs_alnum"']*\)$'`
+	re_thead=`$0 re "$thead"`	## Extract and (RE,'/')-quote
+	re_tfoot=`$0 re "$tfoot"`	## templates' head and foot.
 	set shiftee `{
 	    $SED '
 		:1
