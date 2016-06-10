@@ -85,12 +85,22 @@ case $# in				## SUBSTitution specified?
 	subst=usage			## No, complain and show usage later.
 	;;
     *)	subst=$1 vns=-			## Yes, fetch it and clear NAME list.
-	case $subst in			## Is it a valid SUBSTitution?
-	    re|rs|sh)			## Yes, a 'quote' shorthand...
+	case $subst in			## Which SUBSTitution?
+	    re|rs|sh)			## A 'quote' shorthand...
 		subst=quote; set $subst "${2-}" $1 ${3+"$3"}
 		;;			## Shuffle parameters.
-	    quote|pathname|templates|FINISH_SEDFLAGS|get)
-		;;			## Yes.
+	    quote)			## Universal string quoting.
+		;;
+	    pathname)			## Pathname mangling...
+		_suffix= _prefix=	## Supply default suffix and prefix.
+		;;
+	    templates|FINISH_SEDFLAGS)	## Template-extracting substitution...
+		_suffix= _prefix= _template="@${subst+_}@"
+					## Supply default suffix, prefix, and
+		;;			## template head/foot.
+	    get)			## Get makefile variable...
+		_makefile=Makefile	## Supply default makefile.
+		;;
 	    *)	echo "$0 $subst: unknown SUBSTitution!" >&2
 		subst=usage		## No, complain and show usage later.
 		;;
