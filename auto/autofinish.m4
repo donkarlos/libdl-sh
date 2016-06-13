@@ -102,7 +102,7 @@ AS_CASE([$FINISH],
     [*.un], [af_unfinished="$af_finish $af_unfinished"])
 
 AC_SUBST([FINISH_SEDFLAGS], [`
-    $GENSUBST FINISH_SEDFLAGS						\
+    $GENSUBST FINISH_SEDFLAGS srcdir="$srcdir"				\
 	prefix="${srcdir}/" suffix=.un $af_unfinished
 `])
 AC_SUBST([af_unfinished], [`
