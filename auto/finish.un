@@ -29,20 +29,6 @@ LC_ALL=C; export LC_ALL			## Avoid locale insanities.
 
 SQ=\' BS=\\ NL='
 '					## Used for proper quoting.
-eval `sed '
-    s/='"$SQ"'@[^@'"$SQ"'=]*@'"$SQ"'//;s/\('"$SQ"'\)=.*$/\1/;s/$/;/
-' <<\EOF
-    SED='@SED@'=sed
-EOF`					## Expand required output variables.
-case $0 in				## Derive ${GENSUBST} from $0...
-    *.un)
-	sx='s/[^/][^/]*\(\.un\)$/gensubst\1/'	;;
-    *)	sx='s/[^/][^/]*$/gensubst/'		;;
-esac
-GENSUBST=`$SED "$sx" <<EOF
-$0
-EOF`
-
 onexit=					## Register traps.
 trap 'es=$?; eval "$onexit" 2>/dev/null; trap '"$SQ$SQ"' 0; exit $es' 0
 trap 'echo "$0: killed" >&2; exit 1' 1 2 3 15
@@ -50,13 +36,20 @@ trap 'echo "$0: killed" >&2; exit 1' 1 2 3 15
 ##----------------------------------------------------------------------------
 ##  Global variables:
 ##----------------------------------------------------------------------------
+GENSUBST=`echo "$0" | sed '
+    s/[^/][^/]*\(\.[^/.]*\)$/gensubst\1/;tp
+    s/[^/][^/]*$/gensubst/;:p
+'`					## Auto-locate gensubst.
+eval "`$GENSUBST expand mode=eval -- 'SED=$(SED)' || echo 'SED=sed'`"
+readonly SQ BS NL GENSUBST SED		## Expand required output variables.
+
 cs_upper=ABCDEFGHIJKLMNOPQRSTUVWXYZ	## Construct upper/lower-case letter,
 cs_lower=abcdefghijklmnopqrstuvwxyz	## decimal digit, letter, and alpha-
 cs_digit=0123456789			## numeric character sets.
 cs_alpha=$cs_upper$cs_lower
 cs_alnum=$cs_alpha$cs_digit
 re_ident="[_$cs_alpha][_$cs_alnum]*"
-readonly SQ BS NL cs_upper cs_lower cs_digit cs_alpha cs_alnum re_ident
+readonly cs_upper cs_lower cs_digit cs_alpha cs_alnum re_ident
 
 ex_on='_\(..\)'				## Define expr(1) REs for splitting
 ex_ov='_..\(.*\)$'			## options into name and value.
