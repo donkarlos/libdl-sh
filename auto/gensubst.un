@@ -48,7 +48,8 @@
 ##					Add 'sh' substitution.
 ##		ks	2016-06-09	Make makefile tunable.
 ##					Unify quoting.
-##		ks	2016-06-10	Add 'expand' substitution.
+##		ks	2016-06-10	Add 'expand' substitution and retrofit
+##					'get' substitution onto the former.
 ##----------------------------------------------------------------------------
 ##  Initialization:
 #-----------------------------------------------------------------------------
@@ -98,8 +99,9 @@ case $# in				## SUBSTitution specified?
 					## Supply default suffix, prefix, and
 		;;			## template head/foot.
 	    get)			## Get makefile variable...
-		_makefile=Makefile	## Supply default makefile.
-		;;
+		eval ${3+"$2"'=$3; export '"$2"} &&
+		    exec $0 expand mode=get '$('"$2"')' || exit 1
+		;;			## Retrofit it onto 'expand' subst.
 	    expand)
 		_makefile=Makefile _mode=
 		;;
@@ -264,16 +266,6 @@ EOF`
 	    s/^/'"$rs_shead"'FINISH_ANTE_SEDFLAGS'"$rs_sfoot"' -f '"$rs_gensubst_sed"' -e '"$SQ"'/
 	'				## Construct and emit result from quo-
 	;;				## ted parts.
-    get)				## 'get' NAME [VALUE]...
-	$SED '
-	    /^'"$1"'[ 	]*=[ 	]*/!d;s///;:1
-	    /\\$/!{;y/	/ /;s/   */ /g;s/ $//;/^$/d;q;};N;s/\\\'"$NL"'/ /;t1
-	' "$_makefile" - <<EOF 2>/dev/null
-$1=$2
-EOF
-					## Get NAME's value from 1st assign-
-					## ment in makefile (or supply de-
-	;;				## fault VALUE instead).
     expand)				## 'expand' [mode=MODE] STRING ...
 	case ,$_mode, in
 	    *,trace,*)			## MODE has 'trace' option?
