@@ -50,7 +50,8 @@
 ##					Unify quoting.
 ##		ks	2016-06-10	Add 'expand' substitution and retrofit
 ##					'get' substitution onto the former.
-##		ks      2016-06-14	Allow to override $(SED)/$(srcdir).
+##		ks      2016-06-14	Allow to override $(SED)/$(srcdir),
+##					even for shorthands.
 ##----------------------------------------------------------------------------
 ##  Initialization:
 #-----------------------------------------------------------------------------
@@ -79,26 +80,11 @@ case $# in				## SUBSTitution specified?
 	subst=usage			## No, complain and show usage later.
 	;;
     *)	subst=$1 vns=-			## Yes, fetch it and clear NAME list.
-	case $subst in			## Which SUBSTitution?
-	    re|rs|sh)			## A 'quote' shorthand...
-		subst=quote; set $subst "${2-}" $1 ${3+"$3"}
-		;;			## Shuffle parameters.
-	    quote)			## Universal string quoting.
-		;;
-	    pathname)			## Pathname mangling...
-		_suffix= _prefix=	## Supply default suffix and prefix.
-		;;
-	    templates|FINISH_SEDFLAGS)	## Template-extracting substitution...
+	case $subst in			## Valid SUBSTitution?
+	    re|rs|sh|quote|pathname|templates|FINISH_SEDFLAGS|get|expand)
 		_suffix= _prefix= _template="@${subst+_}@"
-					## Supply default suffix, prefix, and
-		;;			## template head/foot.
-	    get)			## Get makefile variable...
-		eval ${3+"$2"'=$3; export '"$2"} &&
-		    exec $0 expand mode=get '$('"$2"')' || exit 1
-		;;			## Retrofit it onto 'expand' subst.
-	    expand)
 		_makefile=Makefile _mode=
-		;;
+		;;			## Yes, supply default settings.
 	    *)	echo "$0 $subst: unknown SUBSTitution!" >&2
 		subst=usage		## No, complain and show usage later.
 		;;
@@ -134,6 +120,15 @@ case $subst in
 	    esac
 	done
 	;;
+esac; case $subst in			## Which SUBSTitution?
+    re|rs|sh)				## A 'quote' shorthand...
+	set shiftee "${1-}" $subst ${2+"$2"}; shift; subst=quote
+	;;				## Shuffle parameters.
+    get)				## Get makefile variable...
+	eval ${2+"$1"'=$2; export '"$1"} &&
+	    exec $0 expand makefile="$_makefile" mode=get '$('"$1"')' ||
+	    exit 1			## Retrofit it onto 'expand' subst.
+	;;
 esac
 
 ##----------------------------------------------------------------------------
@@ -149,13 +144,13 @@ case $subst in				## Phase applies to SUBSTitution?
 	    0)	;;			## No, we're already done.
 	    *)  sx='s/$/ /;'		## Yes, start out sed(1) script.
 		case $_suffix in
-		    ?*)	rs=`$0 rs "$_suffix"`
+		    ?*)	rs=`$0 rs SED="$SED" -- "$_suffix"`
 			sx="$sx"'s/ /'"$rs"' /g;'
 			;;		## Augment sed(1) script so that
 		esac			## UNFINISHEDs are suffixed.
 		sx="$sx"'s/ $//;s/^/ /;'
 		case $_prefix in
-		    ?*)	rs=`$0 rs "$_prefix"`
+		    ?*)	rs=`$0 rs SED="$SED" -- "$_prefix"`
 			sx="$sx"'s/ / '"$rs"'/g;'
 			;;		## Augment sed(1) script so that
 		esac			## UNFINISHEDs are prefixed.
@@ -177,8 +172,10 @@ case $subst in				## Phase applies to SUBSTitution?
     templates|FINISH_SEDFLAGS)		## Yes...
 	thead=`expr "_$_template" : '_\([^_'"$cs_alnum"']*\)'`
 	tfoot=`expr "_$_template" : '_[^_'"$cs_alnum"']*'"$re_ident"'\([^_'"$cs_alnum"']*\)$'`
-	re_thead=`$0 re "$thead"`	## Extract and (RE,'/')-quote
-	re_tfoot=`$0 re "$tfoot"`	## templates' head and foot.
+	re_thead=`$0 re SED="$SED" -- "$thead"`
+	re_tfoot=`$0 re SED="$SED" -- "$tfoot"`
+					## Extract and (RE,'/')-quote
+					## templates' head and foot.
 	set shiftee `{
 	    $SED '
 		:1
@@ -248,23 +245,22 @@ EOF
 		srcdir=$_srcdir					;;
 	    *)	srcdir=`$0 expand '$(srcdir)'` || srcdir=.	;;
 	esac
-	rs_thead=`$0 quote "$thead" re '|' rs`
-	rs_tfoot=`$0 quote "$tfoot" re '|' rs`
+	rs_thead=`$0 quote SED="$SED" -- "$thead" re '|' rs`
+	rs_tfoot=`$0 quote SED="$SED" -- "$tfoot" re '|' rs`
 					## (RS,/)-quote (RE,|)-quoted template
 					## head and foot.
-	rs_shead=`$0 quote "$shead" rs '|' rs`
-	rs_sfoot=`$0 quote "$sfoot" rs '|' rs`
+	rs_shead=`$0 quote SED="$SED" -- "$shead" rs '|' rs`
+	rs_sfoot=`$0 quote SED="$SED" -- "$sfoot" rs '|' rs`
 					## (RS,/)-quote (RS,|)-quoted substi-
 					## tution head and foot.
 	gensubst_sed=`$SED 's/[^/][^/]*$/gensubst.sed/' <<EOF
 $0
-EOF`
-	test -f "$gensubst_sed" || if test -f "$srcdir/$gensubst_sed"; then
+EOF`;	test -f "$gensubst_sed" || if test -f "$srcdir/$gensubst_sed"; then
 	    gensubst_sed=$srcdir/$gensubst_sed
 	else
 	    echo "$0: $gensubst_sed: not found!" >&2; exit 1
 	fi				## Try to auto-locate gensubst.sed...
-	rs_gensubst_sed=`$0 rs "$gensubst_sed"`
+	rs_gensubst_sed=`$0 rs SED="$SED" -- "$gensubst_sed"`
 					## ...and (RS,/)-quote its pathname.
 	echo ${1+"$@"} | $SED '
 	    s/$/ /

@@ -102,11 +102,11 @@ AS_CASE([$FINISH],
     [*.un], [af_unfinished="$af_finish $af_unfinished"])
 
 AC_SUBST([FINISH_SEDFLAGS], [`
-    $GENSUBST FINISH_SEDFLAGS srcdir="$srcdir"				\
+    $GENSUBST FINISH_SEDFLAGS SED="$SED" srcdir="$srcdir"		\
 	prefix="${srcdir}/" suffix=.un $af_unfinished
 `])
 AC_SUBST([af_unfinished], [`
-    $GENSUBST pathname							\
+    $GENSUBST pathname SED="$SED"					\
 	prefix='$(srcdir)/' suffix=.un $af_unfinished
 `])
 af_dist_files="$af_dist_files"' $(af_makefile_deps) $(af_unfinished)'

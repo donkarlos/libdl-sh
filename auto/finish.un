@@ -185,9 +185,10 @@ esac
 ##----------------------------------------------------------------------------
 for ifpn in ${1+"$@"}; do		## Foreach UNFINISHED do...
     if test -f "$ifpn"; then		## UNFINISHED exists?
-	ifre=`$GENSUBST re "$ifpn"`	## Yes, (RE,'/')-quote it and get...
+	ifre=`$GENSUBST re SED="$SED" -- "$ifpn"`
 	ifty=`file "$ifpn" | $SED 's/^'"$ifre"': */-/'"$sx_file"`
-					## ...its normalized file type.
+					## Yes, (RE,'/')-quote it and get its
+					## normalized file type.
     else
 	echo "$0: $ifpn: not found!" >&2
 	action=error; break		## No, complain and skip remaining
@@ -223,17 +224,18 @@ case $action in				## Which action?
 
 	podpn=`dirname "$pofpn"`	## Try to make all intermediate direc-
 	until test -d "$podpn"; do      ## tories, collecting related undos.
-	    onexit="$onexit${NL}rmdir `$GENSUBST sh "$podpn"`"
+	    onexit="$onexit${NL}rmdir `$GENSUBST sh SED="$SED" -- "$podpn"`"
 	    mkdir "$podpn" || exit 1
 	    podpn=`dirname "$podpn"`
 	done
 
-	onexit="rm -f `$GENSUBST sh "$pofpn"`$NL$onexit"
+	onexit="rm -f `$GENSUBST sh SED="$SED" -- "$pofpn"`$NL$onexit"
 	$SED "$sx_ante$sx_main$sx_post" "$pifpn" >$pofpn || exit 1
 
-	ofre=`$GENSUBST re "$pofpn"`	## (RE,'/')-quote phase output file...
+	ofre=`$GENSUBST re SED="$SED" -- "$pofpn"`
 	ofty=`file "$pofpn" | $SED 's/^'"$ofre"': */-/'"$sx_file"`
-					## ...and get its norm. file type.
+					## (RE,'/')-quote phase output file
+					## and get its normalized file type.
 	case $ofty in			## Output file is executable script?
 	    *-script-text-executable-*)	## Yes...
 		chmod a+x "$pofpn" || exit 1
