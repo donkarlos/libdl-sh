@@ -50,6 +50,7 @@
 ##					Unify quoting.
 ##		ks	2016-06-10	Add 'expand' substitution and retrofit
 ##					'get' substitution onto the former.
+##		ks      2016-06-14	Allow to override $(SED)/$(srcdir).
 ##----------------------------------------------------------------------------
 ##  Initialization:
 #-----------------------------------------------------------------------------
@@ -88,9 +89,9 @@ case $# in				## SUBSTitution specified?
 		_suffix= _prefix=	## Supply default suffix and prefix.
 		;;
 	    templates|FINISH_SEDFLAGS)	## Template-extracting substitution...
-		_suffix= _prefix= _template="@${subst+_}@" _srcdir=.
-					## Supply default suffix, prefix, tem-
-		;;			## plate head/foot, and srcdir.
+		_suffix= _prefix= _template="@${subst+_}@"
+					## Supply default suffix, prefix, and
+		;;			## template head/foot.
 	    get)			## Get makefile variable...
 		eval ${3+"$2"'=$3; export '"$2"} &&
 		    exec $0 expand mode=get '$('"$2"')' || exit 1
@@ -140,10 +141,11 @@ esac
 ##----------------------------------------------------------------------------
 case $subst in				## Phase applies to SUBSTitution?
     pathname|templates|FINISH_SEDFLAGS)	## Yes...
-	eval "`$0 expand mode=eval -- 'SED=$(SED) srcdir=$(srcdir)' ||
-	    echo 'SED=sed srcdir=$_srcdir'
-	`"
-	case $# in			## UNFINISHEDs specified?
+	case $vns in			## Configured sed(1) supplied?
+	    *-SED-*)
+		SED=$_SED				;;
+	    *)	SED=`$0 expand '$(SED)'` || SED=sed	;;
+	esac; case $# in		## UNFINISHEDs specified?
 	    0)	;;			## No, we're already done.
 	    *)  sx='s/$/ /;'		## Yes, start out sed(1) script.
 		case $_suffix in
@@ -203,17 +205,20 @@ esac
 ##----------------------------------------------------------------------------
 case $subst in				## Which substitution?
     quote)				## 'quote' QUOTEE [OP [DELIM]] ...
-	eval "`$0 expand mode=eval -- 'SED=$(SED)' || echo 'SED=sed'`"
+	case $vns in			## Configured sed(1) supplied?
+	    *-SED-*)
+		SED=$_SED				;;
+	    *)	SED=`$0 expand '$(SED)'` || SED=sed	;;
+	esac; case $# in		## QUOTEE specified?
+	    0)	quotee=; set shiftee;;	## No, assume it's empty.
+	    *)	quotee=$1	    ;;	## Yes, fetch it.
+	esac
 	cs_shell=']^?*~! 	${}()<|>&;#'"$BQ$DQ$SQ$BS"'['
 	sx_qre0='s/[]'	sx_qre1='^\.*$[]/'"$BS$BS"'&/g'
 	sx_qrs0='s/[\&'	sx_qrs1=']/'"$BS$BS"'&/g'
 	sx_qnl1=';s/'"$BS$NL"'/'"$BS$BS"'&/g'
 	sx_qsh='s/'"$SQ"'/&'"$BS$BS"'&&/g;s/^/'"$SQ"'/;s/$/'"$SQ"'/'
 					## Define sed(1) script particles.
-	case $# in			## QUOTEE specified?
-	    0)	quotee=; set shiftee;;	## No, assume it's empty.
-	    *)	quotee=$1	    ;;	## Yes, fetch it.
-	esac
 	i=0; sx=':n'"$i$NL"'$!{;N;bn'"$i$NL"'}'
 	while shift; do			## Foreach OP do...
 	    case $# in			## All OPs processed?
@@ -238,6 +243,11 @@ EOF
 	echo ${1+"$@"}			## Emit result (i.e., rewritten UNFI-
 	;;				## NISHEDs or extr. template names.
     FINISH_SEDFLAGS)			## 'FINISH_SEDFLAGS'...
+	case $vns in
+	    *-srcdir-*)
+		srcdir=$_srcdir					;;
+	    *)	srcdir=`$0 expand '$(srcdir)'` || srcdir=.	;;
+	esac
 	rs_thead=`$0 quote "$thead" re '|' rs`
 	rs_tfoot=`$0 quote "$tfoot" re '|' rs`
 					## (RS,/)-quote (RE,|)-quoted template
