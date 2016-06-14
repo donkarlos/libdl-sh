@@ -28,30 +28,16 @@
 ##					with $(FINISH_ANTE/POST_SEDFLAGS).
 ##		ks	2016-05-27	Add 'pathname' substitution.
 ##		ks	2016-05-28	Divide processing into phases.
-##					Split 'pathname' substitution in two
-##					phases.
 ##					Add 'templates' substitution.
-##		ks	2016-05-29	Add 're' and 'rs' substitutions.
-##					Fix RE quoting in phase 4.
-##					Add 'FINISH_SEDFLAGS' substitution.
+##		ks	2016-05-29	Add 'FINISH_SEDFLAGS' substitution.
 ##					Drop 'FINISH' substitution.
-##		ks	2016-05-30	Eliminate direct RS quoting.
-##					Add 'get' substitution.
-##					Add (universal) 'quote' substitution.
-##					Use that to fix RE/RS quoting in
-##					'FINISH_SEDFLAGS' substitution.
-##					Make empty 'get' result disappear.
+##		ks	2016-05-30	Add (universal) 'quote' substitution.
 ##		ks	2016-06-07	Bootstrap gensubst.
-##					Add multi-line support to 'get' subst.
 ##					Make template head and foot tunable.
 ##		ks	2016-06-08	Get independent of config.sh.
-##					Add 'sh' substitution.
 ##		ks	2016-06-09	Make makefile tunable.
-##					Unify quoting.
-##		ks	2016-06-10	Add 'expand' substitution and retrofit
-##					'get' substitution onto the former.
-##		ks      2016-06-14	Allow to override $(SED)/$(srcdir),
-##					even for shorthands.
+##		ks	2016-06-10	Add 'expand' substitution.
+##		ks      2016-06-14	Allow to override $(SED)/$(srcdir).
 ##----------------------------------------------------------------------------
 ##  Initialization:
 #-----------------------------------------------------------------------------
@@ -81,7 +67,7 @@ case $# in				## SUBSTitution specified?
 	;;
     *)	subst=$1 vns=-			## Yes, fetch it and clear NAME list.
 	case $subst in			## Valid SUBSTitution?
-	    re|rs|sh|quote|pathname|templates|FINISH_SEDFLAGS|get|expand)
+	    quote|pathname|templates|FINISH_SEDFLAGS|expand)
 		_suffix= _prefix= _template="@${subst+_}@"
 		_makefile=Makefile _mode=
 		;;			## Yes, supply default settings.
@@ -120,15 +106,6 @@ case $subst in
 	    esac
 	done
 	;;
-esac; case $subst in			## Which SUBSTitution?
-    re|rs|sh)				## A 'quote' shorthand...
-	set shiftee "${1-}" $subst ${2+"$2"}; shift; subst=quote
-	;;				## Shuffle parameters.
-    get)				## Get makefile variable...
-	eval ${2+"$1"'=$2; export '"$1"} &&
-	    exec $0 expand makefile="$_makefile" mode=get '$('"$1"')' ||
-	    exit 1			## Retrofit it onto 'expand' subst.
-	;;
 esac
 
 ##----------------------------------------------------------------------------
@@ -144,13 +121,13 @@ case $subst in				## Phase applies to SUBSTitution?
 	    0)	;;			## No, we're already done.
 	    *)  sx='s/$/ /;'		## Yes, start out sed(1) script.
 		case $_suffix in
-		    ?*)	rs=`$0 rs SED="$SED" -- "$_suffix"`
+		    ?*)	rs=`$0 quote SED="$SED" -- "$_suffix" rs`
 			sx="$sx"'s/ /'"$rs"' /g;'
 			;;		## Augment sed(1) script so that
 		esac			## UNFINISHEDs are suffixed.
 		sx="$sx"'s/ $//;s/^/ /;'
 		case $_prefix in
-		    ?*)	rs=`$0 rs SED="$SED" -- "$_prefix"`
+		    ?*)	rs=`$0 quote SED="$SED" -- "$_prefix" rs`
 			sx="$sx"'s/ / '"$rs"'/g;'
 			;;		## Augment sed(1) script so that
 		esac			## UNFINISHEDs are prefixed.
@@ -172,8 +149,8 @@ case $subst in				## Phase applies to SUBSTitution?
     templates|FINISH_SEDFLAGS)		## Yes...
 	thead=`expr "_$_template" : '_\([^_'"$cs_alnum"']*\)'`
 	tfoot=`expr "_$_template" : '_[^_'"$cs_alnum"']*'"$re_ident"'\([^_'"$cs_alnum"']*\)$'`
-	re_thead=`$0 re SED="$SED" -- "$thead"`
-	re_tfoot=`$0 re SED="$SED" -- "$tfoot"`
+	re_thead=`$0 quote SED="$SED" -- "$thead" re`
+	re_tfoot=`$0 quote SED="$SED" -- "$tfoot" re`
 					## Extract and (RE,'/')-quote
 					## templates' head and foot.
 	set shiftee `{
@@ -260,7 +237,7 @@ EOF`;	test -f "$gensubst_sed" || if test -f "$srcdir/$gensubst_sed"; then
 	else
 	    echo "$0: $gensubst_sed: not found!" >&2; exit 1
 	fi				## Try to auto-locate gensubst.sed...
-	rs_gensubst_sed=`$0 rs SED="$SED" -- "$gensubst_sed"`
+	rs_gensubst_sed=`$0 quote SED="$SED" -- "$gensubst_sed" rs`
 					## ...and (RS,/)-quote its pathname.
 	echo ${1+"$@"} | $SED '
 	    s/$/ /

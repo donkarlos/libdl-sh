@@ -185,7 +185,7 @@ esac
 ##----------------------------------------------------------------------------
 for ifpn in ${1+"$@"}; do		## Foreach UNFINISHED do...
     if test -f "$ifpn"; then		## UNFINISHED exists?
-	ifre=`$GENSUBST re SED="$SED" -- "$ifpn"`
+	ifre=`$GENSUBST quote SED="$SED" -- "$ifpn" re`
 	ifty=`file "$ifpn" | $SED 's/^'"$ifre"': */-/'"$sx_file"`
 					## Yes, (RE,'/')-quote it and get its
 					## normalized file type.
@@ -224,15 +224,17 @@ case $action in				## Which action?
 
 	podpn=`dirname "$pofpn"`	## Try to make all intermediate direc-
 	until test -d "$podpn"; do      ## tories, collecting related undos.
-	    onexit="$onexit${NL}rmdir `$GENSUBST sh SED="$SED" -- "$podpn"`"
+	    onexit="$onexit${NL}rmdir `
+		$GENSUBST quote SED="$SED" -- "$podpn" sh
+	    `"
 	    mkdir "$podpn" || exit 1
 	    podpn=`dirname "$podpn"`
 	done
 
-	onexit="rm -f `$GENSUBST sh SED="$SED" -- "$pofpn"`$NL$onexit"
+	onexit="rm -f `$GENSUBST quote SED="$SED" -- "$pofpn" sh`$NL$onexit"
 	$SED "$sx_ante$sx_main$sx_post" "$pifpn" >$pofpn || exit 1
 
-	ofre=`$GENSUBST re SED="$SED" -- "$pofpn"`
+	ofre=`$GENSUBST quote SED="$SED" -- "$pofpn" re`
 	ofty=`file "$pofpn" | $SED 's/^'"$ofre"': */-/'"$sx_file"`
 					## (RE,'/')-quote phase output file
 					## and get its normalized file type.
