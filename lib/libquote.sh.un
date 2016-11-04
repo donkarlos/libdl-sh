@@ -127,7 +127,7 @@ EOF`"							;;
 
 ##----------------------------------------------------------------------------
 ##  quote_re(STRING [DELIMITER])
-##				Quote STRING for use as basic(?) RE
+##				Quote STRING for use as obsolete/basic RE
 ##----------------------------------------------------------------------------
 quote_re() {
     sed 's/[]'"$2"'^\.*$[]/'"$BS$BS"'&/g' <<EOF
