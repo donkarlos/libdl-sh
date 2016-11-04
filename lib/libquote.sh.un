@@ -67,6 +67,7 @@ a${ms}$quote_api
 f${ms}$quote_api${ms}meta(META [ARG ...])${ms}2-
 f${ms}$quote_api${ms}sh(STRING)${ms}1
 f${ms}$quote_api${ms}command(COMMAND [ARGUMENT|REDIRECTION ...])${ms}1-
+f${ms}$quote_api${ms}re(STRING [DELIMITER])${ms}1-2
 f${ms}$quote_api${ms}grep(STRING)${ms}1
 f${ms}$quote_api${ms}egrep(STRING)${ms}1
 f${ms}$quote_api${ms}sed(STRING [DELIMITER=/])${ms}1-2
@@ -121,6 +122,16 @@ EOF`"							;;
     esac
 
     echo "$cmd"				## Emit quoted command.
+}
+
+##----------------------------------------------------------------------------
+##  quote_re(STRING [DELIMITER])
+##				Quote STRING for use as basic(?) RE
+##----------------------------------------------------------------------------
+quote_re() {
+    sed 's/[]'"$2"'^\.*$[]/'"$BS$BS"'&/g' <<EOF
+$1
+EOF
 }
 
 ##----------------------------------------------------------------------------
