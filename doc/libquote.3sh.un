@@ -30,8 +30,8 @@
 .TH libquote 3SH 2016-05-24 "@PACKAGE_TARNAME@ @PACKAGE_VERSION@" "Shell Programming"
 
 .SH NAME
-quote_sh, quote_command, quote_grep, quote_egrep, quote_sed, quote_meta
-\- String quoting
+quote_sh, quote_command, quote_re, quote_grep, quote_egrep, quote_sed,
+quote_meta \- String quoting
 
 .SH SYNOPSIS
 \fBdl_load quote\fP
@@ -39,6 +39,8 @@ quote_sh, quote_command, quote_grep, quote_egrep, quote_sed, quote_meta
 \fBquote_sh\fP \fISTRING\fP
 .br
 \fBquote_command\fP \fICOMMAND\fP [\fIARGUMENT\fP|\fIREDIRECTION\fP ...]
+.br
+\fBquote_re\fP \fISTRING\fP [\fIDELIMITER\fP]
 .br
 \fBquote_grep\fP \fISTRING\fP
 .br
@@ -65,10 +67,16 @@ and write that to standard output, so that it may be \fBeval\fPuated by a
 POSIX shell.
 
 .TP
+\fBquote_re\fP \fISTRING\fP [\fIDELIMITER\fP]
+Quote \fISTRING\fP so that all characters special in "obsolete"/"basic" REs
+(see \fBregex\fP(7)) are prefixed with backslashes, and write that to standard
+output. For use in \fBgrep\fP(1) search patterns, omit \fIDELIMITER\fP; for
+use in \fBsed\fP(1) search patterns, specify the \fIDELIMITER\fP surrounding
+the RE (usually '/') so that it'll be quoted, too.
+
+.TP
 \fBquote_grep\fP \fISTRING\fP
-Quote \fISTRING\fP for use as \fBgrep\fP(1) search string, i.e. so that all
-characters special in "obsolete"/"basic" REs (see \fBregex\fP(7)) are quoted
-with backslashes, and write that to standard output.
+Equivalent to \fBquote_re\fP \fISTRING\fP (see above).
 
 .TP
 \fBquote_egrep\fP \fISTRING\fP
@@ -78,16 +86,7 @@ with backslashes, and write that to standard output.
 
 .TP
 \fBquote_sed\fP \fISTRING\fP [\fIDELIMITER\fP=/]
-Quote \fISTRING\fP for use as \fBsed\fP(1) search string, i.e. so that all
-characters special in "obsolete"/"basic" REs as well as the search pattern
-delimiter are quoted with backslashes, and write that to standard output.
-
-Without \fIDELIMITER\fP, the standard search pattern delimiter '/' is assumed;
-for constructing \fBsed\fP(1) commands with non-standard \fIDELIMITER\fPs, it
-may be specified explicitly.
-
-Note that this function may also be used to quote search strings for
-\fBed\fP(1) scripts.
+Equivalent to \fBquote_re\fP \fISTRING\fP [\fIDELIMITER\fP=/] (see above).
 
 .TP
 \fBquote_meta\fP \fIMETA\fP [\fIARG\fP ...]
