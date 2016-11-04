@@ -68,6 +68,7 @@ f${ms}$quote_api${ms}meta(META [ARG ...])${ms}2-
 f${ms}$quote_api${ms}sh(STRING)${ms}1
 f${ms}$quote_api${ms}command(COMMAND [ARGUMENT|REDIRECTION ...])${ms}1-
 f${ms}$quote_api${ms}re(STRING [DELIMITER])${ms}1-2
+f${ms}$quote_api${ms}ere(STRING [DELIMITER])${ms}1-2
 f${ms}$quote_api${ms}grep(STRING)${ms}1
 f${ms}$quote_api${ms}egrep(STRING)${ms}1
 f${ms}$quote_api${ms}sed(STRING [DELIMITER=/])${ms}1-2
@@ -130,6 +131,16 @@ EOF`"							;;
 ##----------------------------------------------------------------------------
 quote_re() {
     sed 's/[]'"$2"'^\.*$[]/'"$BS$BS"'&/g' <<EOF
+$1
+EOF
+}
+
+##----------------------------------------------------------------------------
+##  quote_ere(STRING [DELIMITER])
+##				Quote STRING for use as modern(?) RE
+##----------------------------------------------------------------------------
+quote_ere() {
+    sed 's/[]'"$2"'^\.(|)?*+{}$[]/'"$BS$BS"'&/g' <<EOF
 $1
 EOF
 }
