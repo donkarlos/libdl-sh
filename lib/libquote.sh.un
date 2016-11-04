@@ -42,7 +42,7 @@ readonly BQ DQ SQ BS CS DS QB QE CR NL
 quote_package='@PACKAGE_TARNAME@'	## Define source package name/version.
 quote_version='@PACKAGE_VERSION@'
 quote_api=0				## Define API version.
-quote_sh_sedex="s/$SQ/$SQ$BS$BS$SQ$SQ/g;s/^/$SQ/;s/$DS/$SQ/"
+quote_sh_sedex='s/'"$SQ"'/&'"$BS$BS"'&&/g;s/^/'"$SQ"'/;s/$/'"$SQ"'/'
 readonly quote_package quote_version quote_api quote_sh_sedex
 
 ##----------------------------------------------------------------------------
