@@ -24,14 +24,15 @@
 .\#					format.
 .\#		ks	2016-05-24	Add 'meta get package/version'.
 .\#					Use 'meta get apis' separator ';'.
+.\#		ks	2016-11-04	Add quote_{re,ere,rs}().
 .\#
 .\# NOTE: (1)	Please adjust below date whenever revising the manual page.
 .\#		vvvvvv
-.TH libquote 3SH 2016-05-24 "@PACKAGE_TARNAME@ @PACKAGE_VERSION@" "Shell Programming"
+.TH libquote 3SH 2016-11-04 "@PACKAGE_TARNAME@ @PACKAGE_VERSION@" "Shell Programming"
 
 .SH NAME
-quote_sh, quote_command, quote_re, quote_ere, quote_grep, quote_egrep,
-quote_sed, quote_meta \- String quoting
+quote_sh, quote_command, quote_re, quote_ere, quote_rs, quote_grep,
+quote_egrep, quote_sed, quote_meta \- String quoting
 
 .SH SYNOPSIS
 \fBdl_load quote\fP
@@ -43,6 +44,8 @@ quote_sed, quote_meta \- String quoting
 \fBquote_re\fP \fISTRING\fP [\fIDELIMITER\fP]
 .br
 \fBquote_ere\fP \fISTRING\fP [\fIDELIMITER\fP]
+.br
+\fBquote_rs\fP \fISTRING\fP [\fIDELIMITER\fP]
 .br
 \fBquote_grep\fP \fISTRING\fP
 .br
@@ -81,6 +84,14 @@ the RE (usually '/') so that it'll be quoted, too.
 Quote \fISTRING\fP so that all characters special in "modern"/"extended" REs
 (see \fBregex\fP(7)) are prefixed with backslashes, and write that to standard
 output. For use in \fBegrep\fP(1) search patterns, omit \fIDELIMITER\fP.
+
+.TP
+\fBquote_rs\fP \fISTRING\fP [\fIDELIMITER\fP]
+Quote \fISTRING\fP so that all characters special in RE substitutions (e.g.,
+right-hand sides of \fBsed\fP(1) \fBs///\fP statements) are quoted with
+backslashes, and write that to standard output. For use in \fBsed\fP(1)
+substitutions, specify the \fIDELIMITER\fP surrounding it (usually '/') so
+that it'll be quoted, too.
 
 .TP
 \fBquote_grep\fP \fISTRING\fP
