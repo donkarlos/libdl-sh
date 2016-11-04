@@ -30,8 +30,8 @@
 .TH libquote 3SH 2016-05-24 "@PACKAGE_TARNAME@ @PACKAGE_VERSION@" "Shell Programming"
 
 .SH NAME
-quote_sh, quote_command, quote_re, quote_grep, quote_egrep, quote_sed,
-quote_meta \- String quoting
+quote_sh, quote_command, quote_re, quote_ere, quote_grep, quote_egrep,
+quote_sed, quote_meta \- String quoting
 
 .SH SYNOPSIS
 \fBdl_load quote\fP
@@ -41,6 +41,8 @@ quote_meta \- String quoting
 \fBquote_command\fP \fICOMMAND\fP [\fIARGUMENT\fP|\fIREDIRECTION\fP ...]
 .br
 \fBquote_re\fP \fISTRING\fP [\fIDELIMITER\fP]
+.br
+\fBquote_ere\fP \fISTRING\fP [\fIDELIMITER\fP]
 .br
 \fBquote_grep\fP \fISTRING\fP
 .br
@@ -75,14 +77,18 @@ use in \fBsed\fP(1) search patterns, specify the \fIDELIMITER\fP surrounding
 the RE (usually '/') so that it'll be quoted, too.
 
 .TP
+\fBquote_ere\fP \fISTRING\fP [\fIDELIMITER\fP]
+Quote \fISTRING\fP so that all characters special in "modern"/"extended" REs
+(see \fBregex\fP(7)) are prefixed with backslashes, and write that to standard
+output. For use in \fBegrep\fP(1) search patterns, omit \fIDELIMITER\fP.
+
+.TP
 \fBquote_grep\fP \fISTRING\fP
 Equivalent to \fBquote_re\fP \fISTRING\fP (see above).
 
 .TP
 \fBquote_egrep\fP \fISTRING\fP
-Quote \fISTRING\fP for use as \fBegrep\fP(1) search string, i.e. so that all
-characters special in "modern"/"extended" REs (see \fBregex\fP(7)) are quoted
-with backslashes, and write that to standard output.
+Equivalent to \fBquote_ere\fP \fISTRING\fP (see above).
 
 .TP
 \fBquote_sed\fP \fISTRING\fP [\fIDELIMITER\fP=/]
