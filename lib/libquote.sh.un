@@ -137,7 +137,7 @@ EOF
 
 ##----------------------------------------------------------------------------
 ##  quote_ere(STRING [DELIMITER])
-##				Quote STRING for use as modern(?) RE
+##				Quote STRING for use as modern/extended RE
 ##----------------------------------------------------------------------------
 quote_ere() {
     sed 's/[]'"$2"'^\.(|)?*+{}$[]/'"$BS$BS"'&/g' <<EOF
