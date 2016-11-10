@@ -138,8 +138,10 @@ case $subst in				## Phase applies to SUBSTitution?
 		sx="$sx"'s/\( \.\.\/\(\.\.\/\)*\([^/ ][^/ ]*\/\)*\)\.[^./ ][^/ ]*\/\.\.\//\1/;t2'"$NL"
 		sx="$sx"'s/^ //'	## Augment sed(1) script with
 					## './' and '../' optimization.
-		set shiftee `echo $* | $SED "$sx"`; shift
-		;;			## Yes, rewrite UNFINISHEDs.
+		set shiftee `$SED "$sx" <<EOF
+$*
+EOF`;		shift			## Yes, rewrite UNFINISHEDs.
+		;;
 	esac
 	;;
 esac
@@ -245,12 +247,15 @@ EOF`;	test -f "$gensubst_sed" || if test -f "$srcdir/$gensubst_sed"; then
 	fi				## Try to auto-locate gensubst.sed...
 	rs_gensubst_sed=`$0 quote SED="$SED" -- "$gensubst_sed" rs`
 					## ...and (RS,/)-quote its pathname.
-	echo ${1+"$@"} | $SED '
+	$SED '
 	    s/$/ /
 	    s/\([^ ][^ ]*\) /s|'"$rs_thead"'\1'"$rs_tfoot"'|'"$rs_shead"'\1'"$rs_sfoot"'|g;/g
 	    s/;$/'"$SQ $rs_shead"'FINISH_POST_SEDFLAGS'"$rs_sfoot"'/
 	    s/^/'"$rs_shead"'FINISH_ANTE_SEDFLAGS'"$rs_sfoot"' -f '"$rs_gensubst_sed"' -e '"$SQ"'/
-	'				## Construct and emit result from quo-
+	' <<EOF
+$*
+EOF
+					## Construct and emit result from quo-
 	;;				## ted parts.
     expand)				## 'expand' [mode=MODE] STRING ...
 	case ,$_mode, in
