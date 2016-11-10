@@ -75,7 +75,7 @@ f${ms}$dl_api${ms}atexit(HOOK)${ms}1
 f${ms}$dl_api${ms}exit([STATUS=\$?])${ms}0-1
 EOF
 	    ;;
-	get-package|get-version|get-api|get-libpath|get-session|get-loaded)
+	get-package|get-version|get-api|get-libpath|get-loaded|get-session)
 					## Inquire internal variable...
 	    eval 'case ${'"$mp$2"'+=} in
 		=)  echo "$'"$mp$2"'"	;;
