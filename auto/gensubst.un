@@ -115,8 +115,10 @@ case $subst in				## Phase applies to SUBSTitution?
     pathname|templates|FINISH_SEDFLAGS)	## Yes...
 	case $vns in			## Configured sed(1) supplied?
 	    *-SED-*)
-		SED=$_SED				;;
-	    *)	SED=`$0 expand '$(SED)'` || SED=sed	;;
+		SED=$_SED	;;
+	    *)	SED=`
+		    $0 expand makefile="$_makefile" -- '$(SED)'
+		` || SED=sed	;;
 	esac; case $# in		## UNFINISHEDs specified?
 	    0)	;;			## No, we're already done.
 	    *)  sx='s/$/ /;'		## Yes, start out sed(1) script.
@@ -181,8 +183,10 @@ case $subst in				## Which substitution?
     quote)				## 'quote' QUOTEE [OP [DELIM]] ...
 	case $vns in			## Configured sed(1) supplied?
 	    *-SED-*)
-		SED=$_SED				;;
-	    *)	SED=`$0 expand '$(SED)'` || SED=sed	;;
+		SED=$_SED	;;
+	    *)	SED=`
+		    $0 expand makefile="$_makefile" -- '$(SED)'
+		` || SED=sed	;;
 	esac; case $# in		## QUOTEE specified?
 	    0)	quotee=; set shiftee;;	## No, assume it's empty.
 	    *)	quotee=$1	    ;;	## Yes, fetch it.
@@ -219,8 +223,10 @@ EOF
     FINISH_SEDFLAGS)			## 'FINISH_SEDFLAGS'...
 	case $vns in
 	    *-srcdir-*)
-		srcdir=$_srcdir					;;
-	    *)	srcdir=`$0 expand '$(srcdir)'` || srcdir=.	;;
+		srcdir=$_srcdir	;;
+	    *)	srcdir=`
+		    $0 expand makefile="$_makefile" -- '$(srcdir)'
+		` || srcdir=.	;;
 	esac
 	rs_thead=`$0 quote SED="$SED" -- "$thead" re '|' rs`
 	rs_tfoot=`$0 quote SED="$SED" -- "$tfoot" re '|' rs`
