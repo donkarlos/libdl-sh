@@ -262,8 +262,7 @@ EOF
 	    *,trace,*)			## MODE has 'trace' option?
 		ax='td=40'	;;	## Yes, trace calls up to depth 40.
 	    *)	ax='td=0'	;;	## No, don't trace calls.
-	esac
-	case ,$_mode, in		## Which MODE?
+	esac; case ,$_mode, in		## Which MODE?
 	    *,raw,*)			## Raw...
 		ax="$ax"'; vpd=0; vpm=0'
 		;;			## Disable any processing.
@@ -278,8 +277,7 @@ EOF
 	    *)	ax="$ax"'; vpd=2; vpm=2+4+8+16+32'
 					## Enable expansion, line folding,
 		;;			## and space compression.
-	esac
-	for us in ${1+"$@"}; do		## Convert STRINGs into awk(1) frag.
+	esac; for us in ${1+"$@"}; do	## Convert STRINGs into awk(1) frag.
 	    ax="$ax$NL		"'ui2us[++uc]='"$DQ$us$DQ"
 	done
 	nawk '
