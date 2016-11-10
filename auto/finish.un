@@ -40,7 +40,7 @@ GENSUBST=`echo "$0" | sed '
     s/[^/][^/]*\(\.[^/.]*\)$/gensubst\1/;tp
     s/[^/][^/]*$/gensubst/;:p
 '`					## Auto-locate gensubst.
-eval "`$GENSUBST expand mode=eval -- 'SED=$(SED)' || echo 'SED=sed'`"
+SED=`$GENSUBST expand '$(SED)'` || SED=sed
 readonly SQ BS NL GENSUBST SED		## Expand required output variables.
 
 cs_upper=ABCDEFGHIJKLMNOPQRSTUVWXYZ	## Construct upper/lower-case letter,
