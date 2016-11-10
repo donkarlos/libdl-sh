@@ -136,11 +136,11 @@ AS_IF([test -f "$srcdir/$af_finish.un"], [
 ])
 
 af_finish_sedflags=`
-    $GENSUBST FINISH_SEDFLAGS						\
+    $GENSUBST FINISH_SEDFLAGS SED="$SED"				\
 	prefix="${srcdir}/" suffix=.un -- $af_unfinished
 `
 af_sx_finish_sedflags='/^\(FINISH_SEDFLAGS *= *\).*$/s//\1'"`
-    $GENSUBST quote -- "$af_finish_sedflags" rs
+    $GENSUBST quote SED="$SED" -- "$af_finish_sedflags" rs
 `"'/'
 
 $SED '
