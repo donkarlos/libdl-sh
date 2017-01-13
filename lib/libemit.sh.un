@@ -2,7 +2,7 @@
 #-----------------------------------------------------------------------------
 #   libemit.sh			- Message emission library
 #
-#   Copyright (C) 2013-2016 Das Computerlabor (DCl-M)
+#   Copyright (C) 2013-2017 Das Computerlabor (DCl-M)
 #
 #   This library is free software; you can redistribute it and/or
 #   modify it under the terms of the GNU Lesser General Public License
@@ -24,6 +24,8 @@
 ##  CHANGED BY:	ks	2016-05-21	Implement meta operations.
 ##		ks	2016-05-24	Add 'meta get package/version'.
 ##					Use 'meta get apis' separator ';'.
+##		ks	2017-01-15	Update copyright.
+##					Add 'meta session *'.
 ##----------------------------------------------------------------------------
 ##  Global variables:
 #-----------------------------------------------------------------------------
@@ -64,6 +66,9 @@ EOF
 		=)  echo "$'"$mp$2"'"	;;
 		*)  return 1		;;
 	    esac'
+	    ;;
+	session-*)			## Dummy init/sustain/suspend/exit
+	    :				## session...
 	    ;;
 	*)  return 2			## Anything else...
 	    ;;				## Indicate misusage!

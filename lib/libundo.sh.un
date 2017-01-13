@@ -2,7 +2,7 @@
 #-----------------------------------------------------------------------------
 #   libundo.sh			- Undo stack management library
 #
-#   Copyright (C) 2013-2016 Das Computerlabor (DCl-M)
+#   Copyright (C) 2013-2017 Das Computerlabor (DCl-M)
 #
 #   This library is free software; you can redistribute it and/or
 #   modify it under the terms of the GNU Lesser General Public License
@@ -27,6 +27,8 @@
 ##		ks	2016-05-24	Deprecate undo_keep().
 ##					Add 'meta get package/version'.
 ##					Use 'meta get apis' separator ';'.
+##		ks	2017-01-15	Update copyright.
+##					Add 'meta session *'.
 ##----------------------------------------------------------------------------
 ##  Global variables:
 #-----------------------------------------------------------------------------
@@ -82,6 +84,9 @@ EOF
 	set-api)			## Set and freeze API...
 	    ${mp}meta get apis api | fgrep -qxe "$3" || return 1
 	    eval "$mp$2"'=$3; readonly '"$mp$2"
+	    ;;
+	session-*)			## Dummy init/sustain/suspend/exit
+	    :				## session...
 	    ;;
 	*)  return 2			## Anything else...
 	    ;;				## Indicate misusage!

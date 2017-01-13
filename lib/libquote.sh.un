@@ -2,7 +2,7 @@
 #-----------------------------------------------------------------------------
 #   libquote.sh			- String quoting library
 #
-#   Copyright (C) 2013-2016 Das Computerlabor (DCl-M)
+#   Copyright (C) 2013-2017 Das Computerlabor (DCl-M)
 #
 #   This library is free software; you can redistribute it and/or
 #   modify it under the terms of the GNU Lesser General Public License
@@ -25,6 +25,8 @@
 ##		ks	2016-05-19	Use meta prefix.
 ##		ks	2016-05-24	Add 'meta get package/version'.
 ##					Use 'meta get apis' separator ';'.
+##		ks	2017-01-15	Update copyright.
+##					Add 'meta session *'.
 ##
 ##  NOTE:   (1)	To avoid cluttering code, this library is exempted from need-
 ##		ing namespace prefixes for its special character and portable
@@ -81,6 +83,9 @@ EOF
 		=)  echo "$'"$mp$2"'"	;;
 		*)  return 1		;;
 	    esac'
+	    ;;
+	session-*)			## Dummy init/sustain/suspend/exit
+	    :				## session...
 	    ;;
 	*)  return 2			## Anything else...
 	    ;;				## Indicate misusage!
