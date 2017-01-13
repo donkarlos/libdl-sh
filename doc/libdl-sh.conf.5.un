@@ -68,8 +68,8 @@ behave as expected.
 Nonexisting configuration files and library search path items are silently
 ignored.
 
-.SH BUGS
-The current implementation doesn't guard against inadvertent infinte
+.SH CAVEATS
+The current implementation doesn't guard against inadvertent infinite
 recursion (e.g., by imposing a maximum \fBinclude\fP nesting depth).
 You have been warned!
 
