@@ -102,6 +102,7 @@ mechanism. It's not used internally by @PACKAGE_TARNAME@.
 
 .SH ENVIRONMENT
 Actions \fBload\fP and \fBpath\fP respect the following environment variables:
+.PD 0
 .TP
 \fBLIBDL_SH_LIBRARY_PATH\fP
 A colon-separated list of directories in which to search demand-loadable shell
@@ -109,14 +110,15 @@ A colon-separated list of directories in which to search demand-loadable shell
 in \fBlibdl-sh\fP's configuration files are searched (action
 \fBpath\fP, see \fBFILES\fP below) or the installed demand-loading library
 \fB@shlibdir@/libdl.sh\fP is loaded (action \fBload\fP).
-
 .TP
 \fBLIBDL_SH_CONF\fP
 The pathname of a \fBlibdl-sh.conf\fP(5)-style demand-loading configuration
 file parsed into LSP items before the user-specific and system-wide
 configuration files (action \fBpath\fP, see \fBFILES\fP below) are read.
+.PD
 
 .SH FILES
+.PD 0
 .TP
 \fB@shlibdir@/libdl.sh\fP, \fB@bindir@/libdl-sh\fP
 The demand-loading library and its helper described here.
@@ -124,6 +126,7 @@ The demand-loading library and its helper described here.
 \fB$HOME/.libdl-sh.conf\fP, \fB@sysconfdir@/libdl-sh.conf\fP
 The user-specific and system-wide demand-loading configuration files defining
 the library search path.
+.PD
 
 .SH SEE ALSO
 .BR dl_meta (3sh),
