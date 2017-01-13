@@ -1,7 +1,7 @@
 .\"								-*- nroff -*-
 .\" libdl-sh.1			- libdl-sh(1) manual page
 .\"
-.\" Copyright (C) 2013-2016 Das Computerlabor (DCl-M)
+.\" Copyright (C) 2013-2017 Das Computerlabor (DCl-M)
 .\"
 .\" This library is free software; you can redistribute it and/or
 .\" modify it under the terms of the GNU Lesser General Public License
@@ -23,18 +23,18 @@
 .\# CHANGED BY:	ks	2013-03-06	Rename configuration files.
 .\#		ks	2016-05-19	State that 'libdl-sh path' emits a
 .\#					tail-denormalized LSP.
+.\#		ks	2017-01-06	Update copyright.
+.\#					Use \f[BIP] font control.
 .\#
 .\# NOTE: (1)	Please adjust below date whenever revising the manual page.
 .\#		vvvvvv
-.TH LIBDL-SH 1 2016-05-22 "@PACKAGE_TARNAME@ @PACKAGE_VERSION@" "Shell Programming"
+.TH LIBDL-SH 1 2017-01-06 "@PACKAGE_TARNAME@ @PACKAGE_VERSION@" "Shell Programming"
 
 .SH NAME
 libdl-sh \- POSIX shell library demand-loading helper
 
 .SH SYNOPSIS
-.B libdl-sh
-.I ACTION
-.RI [ ARGUMENT " ...]"
+\fBlibdl-sh\fP \fIACTION\fP [\fIARGUMENT\fP ...]
 
 .SH DESCRIPTION
 The demand-loading library \fBlibdl.sh\fP and its helper \fBlibdl-sh\fP are the
@@ -45,7 +45,7 @@ the application.
 
 .SH ACTIONS
 .TP
-.BR load
+\fBload\fP
 Write a shell statement to standard output which, when executed, loads (i.e.,
 sources) the demand-loading library \fBlibdl.sh\fP (see \fBFILES\fP below) or
 exits the application with status \fB127\fP (like a binary executable that
@@ -72,7 +72,7 @@ If \fBLIBDL_SH_LIBRARY_PATH\fP is exported (see \fBENVIRONMENT\fP below),
 before loading \fB@shlibdir@/libdl.sh\fP.
 
 .TP
-.BR path
+\fBpath\fP
 Parse the demand-loading configuration and write the resulting,
 colon-separated library search path (LSP) in \fItail-denormalized\fP fashion
 (i.e., either empty or with trailing separator) to standard output.
@@ -93,7 +93,7 @@ search path (LSP). Of course, you may also use it to verify your
 configuration.
 
 .TP
-.BR echo " \fINAME\fP ..."
+\fBecho\fP \fINAME\fP ...
 Write installation path \fINAME\fP to standard output, where \fINAME\fP
 may be \fBbindir\fP, \fBlibdir\fP, \fBsysconfdir\fP, or \fBpkgdatadir\fP.
 The action's purpose is helping other packages which provide
