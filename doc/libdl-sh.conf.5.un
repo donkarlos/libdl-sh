@@ -1,7 +1,7 @@
 .\"								-*- nroff -*-
 .\" libdl-sh.conf.5		- libdl-sh.conf(5) manual page
 .\"
-.\" Copyright (C) 2013-2015 Das Computerlabor (DCl-M)
+.\" Copyright (C) 2013-2017 Das Computerlabor (DCl-M)
 .\"
 .\" This library is free software; you can redistribute it and/or
 .\" modify it under the terms of the GNU Lesser General Public License
@@ -21,10 +21,13 @@
 .\#
 .\# WRITTEN BY:	ks	2013-02-22
 .\# CHANGED BY:	ks	2013-03-06	Rename configuration files.
+.\#		ks	2017-01-16	Update copyright.
+.\#					Remove references to withdrawn func-
+.\#					tion dl_init().
 .\#
 .\# NOTE: (1)	Please adjust below date whenever revising the manual page.
 .\#		vvvvvv
-.TH LIBDL-SH.CONF 5 2013-08-17 "@PACKAGE_TARNAME@ @PACKAGE_VERSION@" "Shell Programming"
+.TH LIBDL-SH.CONF 5 2017-01-16 "@PACKAGE_TARNAME@ @PACKAGE_VERSION@" "Shell Programming"
 
 .SH NAME
 libdl-sh.conf \- POSIX shell library demand-loading configuration
@@ -72,7 +75,7 @@ You have been warned!
 
 .SH SEE ALSO
 .BR libdl-sh (1),
-.BR dl_init (3sh),
+.BR dl_meta (3sh),
 .BR dl_load (3sh).
 
 .SH AUTHOR
