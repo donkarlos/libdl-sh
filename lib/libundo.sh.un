@@ -29,15 +29,18 @@
 ##					Use 'meta get apis' separator ';'.
 ##		ks	2017-01-15	Update copyright.
 ##					Add 'meta session *'.
+##					Add 'meta get/set 0tag' as substitute
+##					for undo_init().
 ##----------------------------------------------------------------------------
 ##  Global variables:
 #-----------------------------------------------------------------------------
+undo_re_tag=':[^: 	][^ 	]*'	## Define unanchored RE for tags.
 undo_package='@PACKAGE_TARNAME@'	## Define source package name/version.
 undo_version='@PACKAGE_VERSION@'
 undo_api=1				## Define API version.
 undo_stack=
-undo_exit0=
-readonly undo_package undo_version
+undo_0tag=
+readonly undo_re_tag undo_package undo_version
 
 ##----------------------------------------------------------------------------
 ##  undo_meta(META [ARG ...])	Perform META operation (with ARGs)
@@ -74,7 +77,7 @@ f${ms}1${ms}pull(MARK [TAG] | TAG | [COUNT=1])${ms}0-2
 f${ms}1${ms}drop(MARK [TAG] | TAG | [COUNT=1])${ms}0-2
 EOF
 	    ;;
-	get-package|get-version|get-api)
+	get-package|get-version|get-api|get-0tag)
 					## Inquire internal variable...
 	    eval 'case ${'"$mp$2"'+=} in
 		=)  echo "$'"$mp$2"'"	;;
@@ -84,6 +87,10 @@ EOF
 	set-api)			## Set and freeze API...
 	    ${mp}meta get apis api | fgrep -qxe "$3" || return 1
 	    eval "$mp$2"'=$3; readonly '"$mp$2"
+	    ;;
+	set-0tag)			## Set cleanups tag...
+	    expr "_$3" : "_$undo_re_tag"'$' >/dev/null || return 1
+	    eval "$mp$2"'=$3'		## ...after making sure it's a tag.
 	    ;;
 	session-*)			## Dummy init/sustain/suspend/exit
 	    :				## session...
@@ -97,11 +104,7 @@ EOF
 ##  undo_init(TAG)		Set cleanups tag for successful exit
 ##----------------------------------------------------------------------------
 undo_init() {
-    case $1 in				## Cleanups tag is first?
-	::*)	return 2	;;	## No, it's a mark!
-	:?*)	undo_exit0=$1	;;	## Yes, set cleanups tag.
-	*)	return 2	;;	## No, it's not a tag!
-    esac
+    undo_meta set 0tag "$1"
 }
 
 ##----------------------------------------------------------------------------
@@ -230,11 +233,11 @@ undo_keep() {
 ##  NOTE:   (1)	This function is registered as exit-time hook!
 ##----------------------------------------------------------------------------
 undo_exit() {
-    case ${1-1}$undo_exit0 in		## Exit with...
+    case ${1-1}$undo_0tag in		## Exit with...
 	0)				## ...success and no cleanups tag?
 	    ;;				## What's done is done.
 	0:*)				## ...success and cleanups tag?
-	    eval "`undo_emit keep "$undo_exit0"`"
+	    eval "`undo_emit keep "$undo_0tag"`"
 	    ;;				## Apply cleanups.
 	*)				## ...failure?
 	    eval "$undo_stack"		## Apply undos.
