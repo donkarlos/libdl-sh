@@ -26,6 +26,8 @@
 ##					Use 'meta get apis' separator ';'.
 ##		ks	2017-01-15	Update copyright.
 ##					Add 'meta session *'.
+##					Add 'meta get/set 0tag' as substitute
+##					for safe_init().
 ##----------------------------------------------------------------------------
 ##  Global variables:
 #-----------------------------------------------------------------------------
@@ -36,7 +38,7 @@ safe_tmpdir=
 safe_suffix=$$
 safe_tarid=0
 safe_locks=
-safe_exit0=
+safe_0tag=
 readonly safe_package safe_version safe_api
 
 ##----------------------------------------------------------------------------
@@ -73,13 +75,16 @@ f${ms}$safe_api${ms}lock(PN)${ms}1
 f${ms}$safe_api${ms}wait(PN [SECONDS=30])${ms}1-2
 EOF
 	    ;;
-	get-package|get-version|get-api)
+	get-package|get-version|get-api|get-0tag)
 					## Inquire internal variable...
 	    eval 'case ${'"$mp$2"'+=} in
 		=)  echo "$'"$mp$2"'"	;;
 		*)  return 1		;;
 	    esac'
 	    ;;
+	set-0tag)			## Set cleanups tag...
+	    undo_meta "$@" && eval "$mp$2"'=$3'
+	    ;;				## ...after passing it to libundo.sh.
 	session-*)			## Dummy init/sustain/suspend/exit
 	    :				## session...
 	    ;;
@@ -92,7 +97,7 @@ EOF
 ##  safe_init(TAG)		Set cleanups tag for successful exit
 ##----------------------------------------------------------------------------
 safe_init() {
-    undo_init "$1" && safe_exit0=$1
+    safe_meta set 0tag "$1"
 }
 
 ##----------------------------------------------------------------------------
@@ -102,7 +107,7 @@ safe_mktmpdir() {
     test -n "$safe_tmpdir" || {		## Temporary directory made?
 	safe_tmpdir=`mktemp -d` || return 1
 					## No, try to make it once and for all.
-	undo_push $safe_exit0 'rm -rf' "$safe_tmpdir"
+	undo_push $safe_0tag 'rm -rf' "$safe_tmpdir"
     }
 
     case $# in				## Optional relative name supplied?
@@ -154,7 +159,7 @@ safe_touch() {
 safe_save() {
     test -f "$1~B$safe_suffix" || {	## File has already been saved?
 	cp -p "$1" "$1~B$safe_suffix" && {
-	    undo_push $safe_exit0 'rm -f' "$1~B$safe_suffix"
+	    undo_push $safe_0tag 'rm -f' "$1~B$safe_suffix"
 	    undo_push mv "$1~B$safe_suffix" "$1"
 	}				## No, try to save it.
     }
@@ -221,7 +226,7 @@ safe_lock() {
     echo "$safe_locks" | fgrep -qxe "$1" || {
 	safe_mkdir "`dirname "$1"`" &&
 	    safe_umask 277 mkdir "$1~lock" 2>/dev/null &&
-	    undo_push $safe_exit0 safe_unlock "$1" &&
+	    undo_push $safe_0tag safe_unlock "$1" &&
 	    safe_locks="$safe_locks$1$NL"
     }
 }
