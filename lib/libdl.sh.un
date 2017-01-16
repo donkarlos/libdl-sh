@@ -194,7 +194,7 @@ EOF`; shift; IFS=$ifs			## Split combined library search path.
 ##  dl_atload(HOOK)		Register load-time hook
 ##----------------------------------------------------------------------------
 dl_atload() {
-    expr "${1:-.}${1:+_$1}" : '^'"$dl_re_id"'$' >/dev/null &&
+    expr "_$1" : '_'"$dl_re_id"'$' >/dev/null &&
 	dl_atloads="$1"' "$lib"'"${dl_atloads+ && $dl_atloads}"
 }
 
@@ -228,7 +228,7 @@ dl_load() {
 ##  dl_atexit(HOOK)		Register exit-time hook
 ##----------------------------------------------------------------------------
 dl_atexit() {
-    expr "${1:-.}${1:+_$1}" : '^'"$dl_re_id"'$' >/dev/null &&
+    expr "_$1" : '_'"$dl_re_id"'$' >/dev/null &&
 	dl_atexits="$1"' $status; '"$dl_atexits"
 }
 
