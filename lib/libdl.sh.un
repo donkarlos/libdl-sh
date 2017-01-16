@@ -29,6 +29,8 @@
 ##					Use 'meta get apis' separator ';'.
 ##		ks	2017-01-15	Update copyright.
 ##					Add 'meta session *'.
+##					Make dl_warn() usable for other packa-
+##					ges.
 ##----------------------------------------------------------------------------
 ##  Global variables:
 #-----------------------------------------------------------------------------
@@ -69,7 +71,7 @@ dl_meta() {
 	    sed "$sx" <<EOF
 a${ms}$dl_api
 f${ms}$dl_api${ms}meta(META [ARG ...])${ms}2-
-f${ms}$dl_api${ms}warn(WHAT [ARG ...])${ms}1-
+f${ms}$dl_api${ms}warn(WHAT INVO [ARG ...])${ms}2-
 f${ms}$dl_api${ms}which(LIB)${ms}1
 f${ms}$dl_api${ms}atload(HOOK)${ms}1
 f${ms}$dl_api${ms}load(LIB ...)${ms}1-
@@ -105,51 +107,60 @@ EOF
 }
 
 ##----------------------------------------------------------------------------
-##  dl_warn(WHAT [ARG ...])	Warn about deprecated and/or withdrawn
-##				features
+##  dl_warn(WHAT INVO [ARG ...])
+##				Warn user about deprecated and/or withdrawn
+##				features and abort application if necessary
 ##----------------------------------------------------------------------------
 dl_warn() {
+    local bs=\\ sq=\' nl='
+';  local "`sed '
+	:0
+	$!{
+	    N;s/'"$bs$nl"'/'"$bs$bs"'n/;b0
+	};s/'"$sq"'/&'"$bs$bs"'&&/g;/^\('"$dl_re_ident"'\);/{
+	    s//lib=\1 invo='"$sq"'\1/;s/$/'"$sq"' package="`\1_meta get package`"/;bp
+	};s/^/lib=LIB invo='"$sq"'/;s/$/'"$sq"' package=PACKAGE/;:p
+    ' <<EOF
+$2
+EOF`"					## If possible, derive library and
+					## package from INVOcation.
     case $1 in				## Warn user about WHAT?
 	rel-req-set-api)		## Release requires set API version...
-					## (LIB INVO WREL CREL)
-	    cat >&2 <<EOF
-$2_$3; CAUTION!
-Function invoked without API version of lib$2.sh being selected before,
-which is required since release $4. I presume the application still wants
+	    cat >&2 <<EOF		## [WREL CREL]
+$invo; CAUTION!
+Function invoked without API version of lib$lib.sh being selected before,
+which is required since release $3. I presume the application still wants
 to use a withdrawn API version. To prevent serious damage, the application
 is terminated now!
 
-Downgrade package @PACKAGE_TARNAME@ to release $5 to make the application
+Downgrade package $package to release $4 to make the application
 work again.
 EOF
 	    exit 127
 	    ;;
 	rel-dpr-func)			## Release deprecated function...
-					## (LIB INVO DREL WREL CREL)
-	    cat >&2 <<EOF
-$2_$3; WARNING:
-Function deprecated since release $4, to be withdrawn by release $5.
-See lib$2(3SH) for suggestions on how to migrate your application or
-downgrade package @PACKAGE_TARNAME@ to release $6.
+	    cat >&2 <<EOF		## [DREL WREL CREL]
+$invo; WARNING:
+Function deprecated since release $3, to be withdrawn by release $4.
+See lib$lib(3SH) for suggestions on how to migrate your application or
+downgrade package $package to release $5.
 EOF
 	    return 0
 	    ;;
 	api-wdr-func)			## API version withdrew function...
-					## (LIB INVO WAPI CAPI)
-	    cat >&2 <<EOF
-$2_$3; WARNING:
-Function withdrawn from API version $4 of lib$2.sh.
-See lib$2(3SH) for suggestions on how to migrate your application or
-stay with (probably deprecated) API version $5 for the time being.
+	    cat >&2 <<EOF		## [WAPI CAPI]
+$invo; WARNING:
+Function withdrawn from API version $3 of lib$lib.sh.
+See lib$lib(3SH) for suggestions on how to migrate your application or
+stay with (probably deprecated) API version $4 for the time being.
 EOF
 	    ;;
 	rel-wdr-meta)			## Release withdrew meta operation...
-					## (LIB ARGS WREL CREL)
-	    cat >&2 <<EOF
-$2_meta($3); WARNING:
-Meta operation withdrawn since release $4.
-See lib$2(3SH) for suggestions on how to migrate your application or
-downgrade package @PACKAGE_TARNAME@ to release $5.
+	    cat >&2 <<EOF		## [WREL CREL]
+$invo; WARNING:
+Meta operation withdrawn since release $3.
+See lib$lib(3SH) for suggestions on how to migrate your application or
+downgrade package $package to release $4.
 EOF
 	    ;;
 	*)				## Catch-all...

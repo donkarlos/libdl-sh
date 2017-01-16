@@ -220,8 +220,8 @@ undo_drop() {
 ##----------------------------------------------------------------------------
 undo_keep() {
     case ${undo_api--} in
-	0)  dl_warn rel-dpr-func undo "keep([$#]$*)" 0.4 0.5 0.3.6	;;
-	1)  dl_warn api-wdr-func undo "keep([$#]$*)" 1 0		;;
+	1)  dl_warn api-wdr-func "undo;_keep([$#]$*)" 1 0		;;
+	*)  dl_warn rel-dpr-func "undo;_keep([$#]$*)" 0.4 0.5 0.3.6	;;
     esac || return 1
 
     undo_stack=`undo_emit keep ${1+"$@"}`
