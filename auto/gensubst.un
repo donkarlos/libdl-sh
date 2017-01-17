@@ -2,7 +2,7 @@
 #-----------------------------------------------------------------------------
 #   gensubst			- Generate substitutions
 #
-#   Copyright (C) 2013-2016 Das Computerlabor (DCl-M)
+#   Copyright (C) 2013-2017 Das Computerlabor (DCl-M)
 #
 #   This library is free software; you can redistribute it and/or
 #   modify it under the terms of the GNU Lesser General Public License
@@ -38,6 +38,8 @@
 ##		ks	2016-06-09	Make makefile tunable.
 ##		ks	2016-06-10	Add 'expand' substitution.
 ##		ks      2016-06-14	Allow to override $(SED)/$(srcdir).
+##		ks	2017-01-17	Update copyright.
+##					Add 'substitute' substitution.
 ##----------------------------------------------------------------------------
 ##  Initialization:
 #-----------------------------------------------------------------------------
@@ -67,7 +69,7 @@ case $# in				## SUBSTitution specified?
 	;;
     *)	subst=$1 vns=-			## Yes, fetch it and clear NAME list.
 	case $subst in			## Valid SUBSTitution?
-	    quote|pathname|templates|FINISH_SEDFLAGS|expand)
+	    quote|pathname|templates|FINISH_SEDFLAGS|substitute|expand)
 		_suffix= _prefix= _template="@${subst+_}@"
 		_makefile=Makefile _mode=
 		;;			## Yes, supply default settings.
@@ -112,7 +114,8 @@ esac
 ##  Phase 3: Apply 'prefix=PREFIX' and/or 'suffix=SUFFIX' to UNFINISHEDs
 ##----------------------------------------------------------------------------
 case $subst in				## Phase applies to SUBSTitution?
-    pathname|templates|FINISH_SEDFLAGS)	## Yes...
+    pathname|templates|FINISH_SEDFLAGS|substitute)
+					## Yes...
 	case $vns in			## Configured sed(1) supplied?
 	    *-SED-*)
 		SED=$_SED	;;
@@ -150,7 +153,8 @@ esac
 ##  Phase 4: Extract templates
 ##----------------------------------------------------------------------------
 case $subst in				## Phase applies to SUBSTitution?
-    templates|FINISH_SEDFLAGS)		## Yes...
+    templates|FINISH_SEDFLAGS|substitute)
+					## Yes...
 	thead=`expr "_$_template" : '_\([^_'"$cs_alnum"']*\)'`
 	tfoot=`expr "_$_template" : '_[^_'"$cs_alnum"']*'"$re_ident"'\([^_'"$cs_alnum"']*\)$'`
 	re_thead=`$0 quote SED="$SED" -- "$thead" re`
@@ -257,6 +261,24 @@ $*
 EOF
 					## Construct and emit result from quo-
 	;;				## ted parts.
+    substitute)				## 'substitute'...
+	rs_thead=`$0 quote SED="$SED" -- "$thead" re '|' rs`
+	rs_tfoot=`$0 quote SED="$SED" -- "$tfoot" re '|' rs`
+					## (RS,/)-quote (RE,|)-quoted template
+					## head and foot.
+	rs_shead=`$0 quote SED="$SED" -- "$shead" rs '|' rs`
+	rs_sfoot=`$0 quote SED="$SED" -- "$sfoot" rs '|' rs`
+					## (RS,/)-quote (RS,|)-quoted substi-
+					## tution head and foot.
+	$SED '
+	    s/$/ /
+	    s/\([^ ][^ ]*\) /s|'"$rs_thead"'\1'"$rs_tfoot"'|'"$rs_shead"'\1'"$rs_sfoot"'|g;/g
+	    s/;$/'"$SQ"'/;s/^/-e '"$SQ"'/
+	' <<EOF
+$*
+EOF
+					## Emit sed(1) "-e 's///'" option that
+	;;				## substitutes extracted templates.
     expand)				## 'expand' [mode=MODE] STRING ...
 	case ,$_mode, in
 	    *,trace,*)			## MODE has 'trace' option?
