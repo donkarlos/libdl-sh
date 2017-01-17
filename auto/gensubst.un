@@ -186,14 +186,14 @@ esac
 ##  Phase 5: Generate substitution
 ##----------------------------------------------------------------------------
 case $subst in				## Which substitution?
-    quote)				## 'quote' QUOTEE [OP [DELIM]] ...
+    quote)				## 'quote' STRING [OP [DELIM]] ...
 	case $vns in			## Configured sed(1) supplied?
 	    *-SED-*)
 		SED=$_SED	;;
 	    *)	SED=`
 		    $0 expand makefile="$_makefile" -- '$(SED)'
 		` || SED=sed	;;
-	esac; case $# in		## QUOTEE specified?
+	esac; case $# in		## STRING specified?
 	    0)	quotee=; set shiftee;;	## No, assume it's empty.
 	    *)	quotee=$1	    ;;	## Yes, fetch it.
 	esac
@@ -209,7 +209,7 @@ case $subst in				## Which substitution?
 		0)  $SED "$sx"';:p'"$i$NL"'/^$/d' <<EOF
 $quotee
 EOF
-		    break		## Yes, finally quote QUOTEE.
+		    break		## Yes, finally quote STRING.
 		    ;;
 	    esac; case $1 in		## No, which OP?
 		re) sx="$sx$NL$sx_qre0${2-/}$sx_qre1$sx_qnl1"; ${2+shift}
