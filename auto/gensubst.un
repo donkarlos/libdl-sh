@@ -366,7 +366,7 @@ EOF
 		for (ui = 1; ui <= uc; ++ui)
 		    printf("%s\n", strexp(ui2us[ui]))
 	    }
-	' "$_makefile" 2>/dev/null
+	' "$_makefile" </dev/null 2>&0
 	;;
     usage)
 	echo "Usage: $0 SUBST [NAME=VALUE ...] UNFINISHED ..." >&2
