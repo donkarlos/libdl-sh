@@ -273,11 +273,11 @@ EOF
 	$SED '
 	    s/$/ /
 	    s/\([^ ][^ ]*\) /s|'"$rs_thead"'\1'"$rs_tfoot"'|'"$rs_shead"'\1'"$rs_sfoot"'|g;/g
-	    s/;$/'"$SQ"'/;s/^/-e '"$SQ"'/
+	    s/;$//
 	' <<EOF
 $*
 EOF
-					## Emit sed(1) "-e 's///'" option that
+					## Emit sed(1) 's///' statement that
 	;;				## substitutes extracted templates.
     expand)				## 'expand' [mode=MODE] STRING ...
 	case ,$_mode, in
