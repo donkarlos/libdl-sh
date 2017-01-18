@@ -58,9 +58,6 @@ re_ident="[_$cs_alpha][_$cs_alnum]*"	## Define RE for IDENTifiers.
 shead='$('				## (Pre-)define substitutions' (lite-
 sfoot=')'				## ral) head and foot.
 
-ex_vn='_\('"$re_ident"'\)='		## Define expr(1) REs for splitting
-ex_vv='[^=]*=\(.*\)$'			## NAME=VALUE into NAME and VALUE.
-
 ##----------------------------------------------------------------------------
 ##  Phase 1: Check if SUBSTitution is specified and valid
 ##----------------------------------------------------------------------------
@@ -88,23 +85,20 @@ case $subst in
     usage)				## Phase applies to SUBSTitution?
 	;;				## No, skip phase.
     *)	while shift; do			## Yes, foreach 'NAME=VALUE' do...
-	    case $# in
-		0)  break   ;;
-	    esac; case $1 in
-		*=*)			## Looking at 'NAME=VALUE'?
-		    if vn=`expr "_$1" : "$ex_vn"`; then
-					## Yes, and NAME is an identifier?
-			vv=`expr "$1" : "$ex_vv"`
-			eval "_$vn"'=$vv'; vns=$vns$vn-
-					## Yes, get VALUE and set variable.
-		    else
-			echo "$0 $subst $1: malformed NAME=VALUE!" >&2
-			subst=usage; break
-		    fi			## No, complain and show usage later.
+	    case ${1+_$1} in		## Looking at?
+		_SED=*|_mode=*|_makefile=*|_prefix=*|_suffix=*|_template=*|_srcdir=*)
+					## Valid 'NAME=VALUE' ...
+		    vn=`expr "$1" : '\([^=]*\)='`
+		    vv=`expr "$1" : '[^=]*=\(.*\)$'`
+		    eval "_$vn"'=$vv'; vns=$vns$vn-
+		    ;;			## Yes, set _NAME to VALUE.
+		_*=*)			## Invalid 'NAME=VALUE' ...
+		    echo "$0 $subst $1: invalid NAME=VALUE!" >&2
+		    subst=usage; break	## Complain and show usage later.
 		    ;;
-		--) shift; break	## No, assume UNFINISHEDs follow.
+		_--)shift; break
 		    ;;
-		*)  break		## No, assume it's an UNFINISHED.
+		*)  break
 		    ;;
 	    esac
 	done
