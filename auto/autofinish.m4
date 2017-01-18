@@ -1,7 +1,7 @@
 dnl								-*-Autoconf-*-
 dnl autofinish.m4		- Build-time finishing macro
 dnl
-dnl Copyright (C) 2013-2016 Das Computerlabor (DCl-M)
+dnl Copyright (C) 2013-2017 Das Computerlabor (DCl-M)
 dnl
 dnl This library is free software; you can redistribute it and/or
 dnl modify it under the terms of the GNU Lesser General Public License
@@ -52,6 +52,8 @@ dnl		ks	2016-06-06	Introduce AF_INIT().
 dnl		ks	2016-06-07	Bootstrap gensubst.
 dnl					Invoke AC_PROG_SED.
 dnl					Add and integrate finishing script.
+dnl		ks	2017-01-18	Update copyright.
+dnl					Use 'gensubst Makefile'.
 dnl
 dnl AF_INIT([GENSUBST=gensubst])
 dnl				Initialize build-time finishing of @VARIABLE@
@@ -122,35 +124,19 @@ AS_CASE([$FINISH],
 AC_SUBST([FINISH])
 
 AC_CONFIG_COMMANDS([autofinish], [
-af_unfinished="$af_finished"
-
 AS_IF([test -f "$srcdir/$af_gensubst.un"], [
-    af_unfinished="$af_gensubst $af_unfinished"
+    af_finished="$af_gensubst $af_finished"
     GENSUBST=$srcdir/$af_gensubst.un
 ], [
     GENSUBST=$srcdir/$af_gensubst
 ])
 
 AS_IF([test -f "$srcdir/$af_finish.un"], [
-    af_unfinished="$af_finish $af_unfinished"
+    af_finished="$af_finish $af_finished"
 ])
 
-af_finish_sedflags=`
-    $GENSUBST FINISH_SEDFLAGS SED="$SED"				\
-	prefix="${srcdir}/" suffix=.un -- $af_unfinished
-`
-af_sx_finish_sedflags='/^\(FINISH_SEDFLAGS *= *\).*$/s//\1'"`
-    $GENSUBST quote SED="$SED" -- "$af_finish_sedflags" rs
-`"'/'
-
-$SED '
-    '"$af_sx_finish_sedflags"'
-    /\$(EXTRA_DIST)/s//$(af_dist_files) &/
-    /^Makefile:/s/$/ $(af_dist_files)/
-    /\$(am__depfiles_maybe)/s//autofinish &/
-    /^@<:@^: @:>@*clean@<:@^: @:>@*:\(  *@<:@^ @:>@@<:@^ @:>@*\)*  *clean-am/s//& clean-af/
-    /\$(am__CONFIG_DISTCLEAN_FILES)/s//& $(af_distclean_files)/
-' Makefile >$tmp/af_Makefile && mv $tmp/af_Makefile Makefile
+$GENSUBST Makefile SED="$SED" prefix="${srcdir}/" suffix=.un --		\
+    $af_finished >$tmp/af_Makefile && mv $tmp/af_Makefile Makefile
 ], [
 SED=$SED
 af_finished="$af_finished"

@@ -1,7 +1,7 @@
 ##								-*-Makefile-*-
 ##  Makefile.am			- libdl-sh `Makefile.in' template
 ##
-##  Copyright (C) 2013-2016 Das Computerlabor (DCl-M)
+##  Copyright (C) 2013-2017 Das Computerlabor (DCl-M)
 ##
 ##  This library is free software; you can redistribute it and/or
 ##  modify it under the terms of the GNU Lesser General Public License
@@ -27,6 +27,8 @@
 ##					aclocal(1) where to find stuff.
 ##		ks	2016-06-07	Bootstrap gensubst.
 ##					Add and integrate finishing script.
+##		ks	2017-01-18	Update copyright.
+##					Use 'gensubst Makefile'.
 ##
 ##  NOTE:   (1)	Update the build system with autoreconf(1).
 ##----------------------------------------------------------------------------
@@ -88,7 +90,8 @@ dist_man_MANS		= doc/dl_atexit.3sh doc/dl_atload.3sh		\
 ##  Finish and install scripts, libraries, manpages, and package data:
 ##----------------------------------------------------------------------------
 bin_SCRIPTS		= bin/libdl-sh
-pkgdata_SCRIPTS		= auto/gensubst auto/gensubst.sed lib/conf.awk
+pkgdata_SCRIPTS		= [@]FINISH@ [@]GENSUBST@ [@]GENSUBST@.sed	\
+			  lib/conf.awk
 shlib_DATA		= lib/libdl.sh lib/libquote.sh lib/libundo.sh	\
 			  lib/libsafe.sh lib/libconf.sh lib/libemit.sh
 man_MANS		= doc/libdl-sh.1 doc/libdl-sh.conf.5		\
