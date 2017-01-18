@@ -63,6 +63,7 @@ dnl
 dnl NOTE:   (1)	All pathnames passed are relative to $(top_builddir)!
 dnl
 AC_DEFUN([AF_INIT], [
+AC_REQUIRE([AC_PROG_SED])
 m4_ifval([$1], [af_gensubst=$1], [af_gensubst=gensubst])
 af_finish=`sed 's|@<:@^/@:>@@<:@^/@:>@*$|finish|' <<_AFEOF
 $af_gensubst
@@ -81,7 +82,6 @@ AS_IF([test -f "$srcdir/$af_gensubst.un"], [
     AC_MSG_ERROR([$af_gensubst not found!])
 ])
 
-AC_REQUIRE([AC_PROG_SED])
 AS_IF([test -f "$srcdir/$af_finish.un"], [
     af_distclean_files='$(FINISH) '"$af_distclean_files"
     FINISH=$srcdir/$af_finish.un
