@@ -54,14 +54,19 @@ dnl					Invoke AC_PROG_SED.
 dnl					Add and integrate finishing script.
 dnl		ks	2017-01-18	Update copyright.
 dnl					Use 'gensubst Makefile'.
+dnl					Eliminate ${af_pre}.
 dnl
 dnl AF_INIT([GENSUBST=gensubst])
 dnl				Initialize build-time finishing of @VARIABLE@
 dnl				placeholders in unfinished files
 dnl
+dnl NOTE:   (1)	All pathnames passed are relative to $(top_builddir)!
+dnl
 AC_DEFUN([AF_INIT], [
 m4_ifval([$1], [af_gensubst=$1], [af_gensubst=gensubst])
-af_pre=`echo "$af_gensubst" | sed 's|@<:@^/@:>@@<:@^/@:>@*$||'`
+af_finish=`sed 's|@<:@^/@:>@@<:@^/@:>@*$|finish|' <<_AFEOF
+$af_gensubst
+_AFEOF`
 AC_SUBST([af_distclean_files], [])
 AC_SUBST([af_makefile_deps], ['$(srcdir)/'"$af_gensubst"'.sed'])
 AC_SUBST([af_dist_files], [])
@@ -77,7 +82,6 @@ AS_IF([test -f "$srcdir/$af_gensubst.un"], [
 ])
 
 AC_REQUIRE([AC_PROG_SED])
-af_finish=${af_pre}finish
 AS_IF([test -f "$srcdir/$af_finish.un"], [
     af_distclean_files='$(FINISH) '"$af_distclean_files"
     FINISH=$srcdir/$af_finish.un
