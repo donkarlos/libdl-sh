@@ -40,6 +40,7 @@
 ##		ks      2016-06-14	Allow to override $(SED)/$(srcdir).
 ##		ks	2017-01-17	Update copyright.
 ##					Add 'substitute' substitution.
+##		ks	2017-01-18	Add 'Makefile' substitution.
 ##----------------------------------------------------------------------------
 ##  Initialization:
 #-----------------------------------------------------------------------------
@@ -69,7 +70,7 @@ case $# in				## SUBSTitution specified?
 	;;
     *)	subst=$1 vns=-			## Yes, fetch it and clear NAME list.
 	case $subst in			## Valid SUBSTitution?
-	    quote|pathname|templates|FINISH_SEDFLAGS|substitute|expand)
+	    quote|pathname|templates|FINISH_SEDFLAGS|substitute|expand|Makefile)
 		_suffix= _prefix= _template="@${subst+_}@"
 		_makefile=Makefile _mode=
 		;;			## Yes, supply default settings.
@@ -114,7 +115,7 @@ esac
 ##  Phase 3: Apply 'prefix=PREFIX' and/or 'suffix=SUFFIX' to UNFINISHEDs
 ##----------------------------------------------------------------------------
 case $subst in				## Phase applies to SUBSTitution?
-    pathname|templates|FINISH_SEDFLAGS|substitute)
+    pathname|templates|FINISH_SEDFLAGS|substitute|Makefile)
 					## Yes...
 	case $vns in			## Configured sed(1) supplied?
 	    *-SED-*)
@@ -279,6 +280,27 @@ $*
 EOF
 					## Emit sed(1) 's///' statement that
 	;;				## substitutes extracted templates.
+    Makefile)				## 'Makefile' ...
+	finish_sedflags=`$0 FINISH_SEDFLAGS SED="$SED" -- ${1+"$@"}`
+	sx_finish_sedflags='/^\(FINISH_SEDFLAGS *= *\).*$/s//\1'"`
+	    $0 quote SED="$SED" -- "$finish_sedflags" rs
+	`"'/'				## Generate sed(1) expr. that updates
+					## FINISH_SEDFLAGS.
+	sx_substitute=`
+	    $0 substitute SED="$SED" template='[@]_@' -- "$_makefile"
+	`				## Generate sed(1) expr. that makes
+					## '$(FINISH)' and '$(GENSUBST)' us-
+					## able everywhere.
+	$SED '
+	    '"$sx_finish_sedflags"'
+	    /\$(EXTRA_DIST)/s//$(af_dist_files) &/
+	    /^Makefile:/s/$/ $(af_dist_files)/
+	    /\$(am__depfiles_maybe)/s//autofinish &/
+	    /^[^: ]*clean[^: ]*:\(  *[^ ][^ ]*\)*  *clean-am/s//& clean-af/
+	    /\$(am__CONFIG_DISTCLEAN_FILES)/s//& $(af_distclean_files)/
+	    '"$sx_substitute"'
+	' "$_makefile"			## Emit patched Makefile.
+	;;
     expand)				## 'expand' [mode=MODE] STRING ...
 	case ,$_mode, in
 	    *,trace,*)			## MODE has 'trace' option?
