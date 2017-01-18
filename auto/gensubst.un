@@ -385,7 +385,41 @@ EOF
 	' "$_makefile" </dev/null 2>&0
 	;;
     usage)
-	echo "Usage: $0 SUBST [NAME=VALUE ...] UNFINISHED ..." >&2
+	cat >&2 <<EOF
+Usage: $0 SUBST [NAME=VALUE ...] [--] ARGUMENT ...
+
+Valid SUBSTitutions are:
+  * expand STRING ...
+	Expand STRING from makefile variable settings
+  * quote STRING [OP [DELIM]] ...
+	(OP,DELIM)-quote STRING, where OP
+	 - re DELIM quotes for sed(1) 's///' matches,
+	 - rs DELIM quotes for sed(1) 's///' substitutions
+	 - sh       quotes for sh(1) and
+	multiple OPs may be given
+  * pathname FINISHED ...
+	Transform each FINISHED by prepending PREFIX and/or appending SUFFIX
+  * templates FINISHED ...
+	Extract templates matching TEMPLATE from transformed FINISHEDs
+  * substitute FINISHED ...
+	Generate sed(1) 's///' statements that maps extracted templates to
+	makefile variable substitutions (e.g., '@${subst+NAME}@' to '\$(NAME)')
+  * FINISH_SEDFLAGS FINISHED ...
+	Generate @${subst+FINISH_SEDFLAGS}@ value (including sed(1) 's///' statements
+	mapping extracted templates)
+  * Makefile FINISHED ...
+	Patch makefile to work around GNU Automake deficiencies
+
+Valid NAME=VALUE assignments are:
+  - SED=\$(SED)		Override configured sed(1) command
+  - makefile=MAKEFILE	Override default makefile 'Makefile'
+  - mode=MODE		Use expand MODE
+  - prefix=PREFIX	Specify pathname PREFIX
+  - suffix=PREFIX	Specify pathname SUFFIX
+  - template=TEMPLATE	Override default template @${subst+NAME}@, where NAME
+			is abstract and matches any valid identifier
+  - srcdir=\$(srcdir)	Override configured (top) source directory
+EOF
 	exit 2
 	;;
 esac
