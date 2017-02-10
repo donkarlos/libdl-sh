@@ -1,7 +1,7 @@
 #-----------------------------------------------------------------------------
 #   .gitignore			- libdl-sh git(1) exclude patterns
 #
-#   Copyright (C) 2013-2016 Das Computerlabor (DCl-M)
+#   Copyright (C) 2013-2017 Das Computerlabor (DCl-M)
 #
 #   This library is free software; you can redistribute it and/or
 #   modify it under the terms of the GNU Lesser General Public License
@@ -21,7 +21,6 @@
 #
 #   WRITTEN BY:	ks	2013-02-12
 #   CHANGED BY:	ks	2013-03-06	Rename package to `libdl-sh'.
-#		ks	2016-05-20	Add bin/stub.
 #		ks	2016-06-07	Add auto/gensubst and auto/finish.
 #
 #   NOTE:   (1)	Exclude patterns for tools beyond the actual build tools have
@@ -50,7 +49,6 @@ Makefile
 /auto/finish
 /auto/gensubst
 /bin/libdl-sh
-/bin/stub
 /doc/*.[15]
 /doc/lib*.3sh
 /etc/*.conf

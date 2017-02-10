@@ -21,7 +21,6 @@
 ##
 ##  WRITTEN BY:	ks	2013-02-12
 ##  CHANGED BY:	ks	2013-03-06	Rename package to `libdl-sh'.
-##		ks	2016-05-20	Add stub.
 ##		ks	2016-05-24	Remove conf_init.3sh.
 ##		ks	2016-06-03	Use AC_CONFIG_MACRO_DIRS() to tell
 ##					aclocal(1) where to find stuff.
@@ -38,7 +37,6 @@ include $(top_srcdir)/auto/autofinish.am
 
 FINISH_UN		= $(srcdir)/$(FINISH).un
 GENSUBST_UN		= $(srcdir)/$(GENSUBST).un
-STUB			= $(srcdir)/bin/stub top_srcdir=$(srcdir)
 
 ##----------------------------------------------------------------------------
 ##  Extra primaries:
@@ -60,8 +58,6 @@ $(GENSUBST):		$(GENSUBST_UN) Makefile
 $(FINISH):		$(FINISH_UN) Makefile $(GENSUBST)
 	@echo "Bootstrap $@ from $(FINISH_UN) with $(FINISH_UN)..."
 	$(FINISH_UN) $(FINISH_SEDFLAGS) -s -o $@ $(FINISH_UN)
-
-noinst_SCRIPTS		= bin/stub
 
 ##----------------------------------------------------------------------------
 ##  Distribute and install manpages:
