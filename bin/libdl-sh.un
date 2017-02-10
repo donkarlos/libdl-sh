@@ -2,7 +2,7 @@
 #-----------------------------------------------------------------------------
 #   libdl-sh			- libdl.sh Demand-loading helper
 #
-#   Copyright (C) 2013-2015 Das Computerlabor (DCl-M)
+#   Copyright (C) 2013-2017 Das Computerlabor (DCl-M)
 #
 #   This library is free software; you can redistribute it and/or
 #   modify it under the terms of the GNU Lesser General Public License
@@ -23,6 +23,8 @@
 ##  WRITTEN BY:	ks	2013-02-12
 ##  CHANGED BY:	ks	2013-03-06	Attribute this to `libdl.sh'.
 ##		ks	2015-04-19	Optimize LSP normalization.
+##		ks	2017-02-10	Update copyright.
+##					Simplify 'load' action.
 ##----------------------------------------------------------------------------
 ##  include(CONF ...)		Parse demand-loading configuration file(s)
 ##				into list of library search path items
@@ -54,17 +56,16 @@ include() {
 ##----------------------------------------------------------------------------
 case $1 in				## Which action?
     load)				## Emit command to load libdl.sh...
-	BS=\\ SQ=\'; for item in `
-	    ifs=$IFS; IFS=:; echo $LIBDL_SH_LIBRARY_PATH @shlibdir@; IFS=$ifs
-	`				## Foreach item on the preliminary
-	do				## library search path (LSP) do...
-	    libdl=$item/libdl.sh; test -f "$libdl" && sed '
+	BS=\\ SQ=\'; for item in `	## Is it present on preliminary LSP?
+	    IFS=:; echo $LIBDL_SH_LIBRARY_PATH @shlibdir@
+	`; do
+	    libpn=$item/libdl.sh; test -f "$libpn" && sed '
 		s/'"$SQ"'/&'"$BS$BS"'&&/g
 		s/^/. '"$SQ"'/;s/$/'"$SQ"' || exit 127/
-	    ' <<EOF && exit 0
-$libdl
+	    ' <<EOF && exit 0		## Yes, have the application load it.
+$libpn
 EOF
-	done; echo 'exit 127'
+	done; echo 'exit 127'		## No, abort the application.
 	;;
     path)				## Emit library search path (LSP)...
 	libpath=			## Start with empty LSP.
