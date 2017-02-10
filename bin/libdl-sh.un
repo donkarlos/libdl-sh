@@ -25,6 +25,7 @@
 ##		ks	2015-04-19	Optimize LSP normalization.
 ##		ks	2017-02-10	Update copyright.
 ##					Simplify 'load' action.
+##					Canonify LSP items in 'path' action.
 ##----------------------------------------------------------------------------
 ##  include(CONF ...)		Parse demand-loading configuration file(s)
 ##				into list of library search path items
@@ -68,20 +69,21 @@ EOF
 	done; echo 'exit 127'		## No, abort the application.
 	;;
     path)				## Emit library search path (LSP)...
-	libpath=			## Start with empty LSP.
-	for item in `
+	items= libpath=			## Start with empty LSP.
+	for item in `			## Foreach item in environment and...
 	    ifs=$IFS; IFS=:; echo $LIBDL_SH_LIBRARY_PATH; IFS=$ifs
-	    include ${LIBDL_SH_CONF+"$LIBDL_SH_CONF"}			\
-		    ${HOME:+"$HOME"/.libdl-sh.conf}			\
-		    @sysconfdir@/libdl-sh.conf
-	`				## Foreach item in user's and system-
-	do				## wide configuration do...
-	    test -d "$item" && case :$libpath in
-		*:$item:*)		## Item exists and already is on LSP?
-		    ;;			## Yes, skip it.
-		*)			## Item exists yet isn't on LSP?
-		    libpath=$libpath$item:
-		    ;;			## Append it to path.
+	    include ${LIBDL_SH_CONF:+"$LIBDL_SH_CONF"}			\
+		    ${HOME:+"$HOME"/.@PACKAGE_TARNAME@.conf}		\
+		    @sysconfdir@/@PACKAGE_TARNAME@.conf
+	`; do				## ...configuration files do...
+	    case :$items$libpath in	## Item already seen/on LSP?
+		*:$item:*)		## Yes, skip it.
+		    ;;
+		*)  items=$items$item:	## No, add it to seen items, then
+		    item=`		## canonify and append it to LSP.
+			cd "$item" 2>/dev/null && /bin/pwd
+		    ` && libpath=$libpath$item:
+		    ;;
 	    esac
 	done; echo "$libpath"		## Emit tail-denormalized LSP (i.e.,
 	;;				## either empty or with trailing ':',

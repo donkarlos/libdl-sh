@@ -25,10 +25,11 @@
 .\#					tail-denormalized LSP.
 .\#		ks	2017-01-06	Update copyright.
 .\#					Use \f[BIP] font control.
+.\#		ks	2017-02-10	Canonify LSP items in 'path' action.
 .\#
 .\# NOTE: (1)	Please adjust below date whenever revising the manual page.
 .\#		vvvvvv
-.TH LIBDL-SH 1 2017-01-06 "@PACKAGE_TARNAME@ @PACKAGE_VERSION@" "Shell Programming"
+.TH LIBDL-SH 1 2017-02-10 "@PACKAGE_TARNAME@ @PACKAGE_VERSION@" "Shell Programming"
 
 .SH NAME
 libdl-sh \- POSIX shell library demand-loading helper
@@ -78,19 +79,22 @@ colon-separated library search path (LSP) in \fItail-denormalized\fP fashion
 (i.e., either empty or with trailing separator) to standard output.
 
 The system-wide configuration is obtained from files
-\fB@sysconfdir@/libdl-sh.conf\fP and
-\fB@sysconfdir@/libdl-sh.conf.d/\fP*\fB.conf\fP, where the latter are intended
-for adding package-specific LSP items.
+.br
+\(bu \fB@sysconfdir@/@PACKAGE_TARNAME@.conf\fP and
+.br
+\(bu \fB@sysconfdir@/@PACKAGE_TARNAME@.conf.d/\fP*\fB.conf\fP,
+.br
+where the latter are intended for adding package-specific LSP items.
 
-Any user may extend the library search path by creating a user-specific
-configuration file \fB$HOME/.libdl-sh.conf\fP, which is parsed before the
-system-wide configuration files. The format and semantics of demand-loading
-configuration files is described in
-.BR libdl-sh.conf (5).
+Users may extend the library search path by exporting
+\fBLIBDL_SH_LIBRARY_PATH\fP (see \fBENVIRONMENT\fP below) and/or creating a
+user-specific configuration file \fB$HOME/.@PACKAGE_TARNAME@.conf\fP, which
+are parsed before the system-wide configuration files. The syntax and
+semantics of demand-loading configuration files are described in
+.BR @PACKAGE_TARNAME@.conf (5).
 
 The action's primary purpose is initializing the demand-loading library's
-search path (LSP). Of course, you may also use it to verify your
-configuration.
+search path (LSP). You may also use it to verify your configuration.
 
 .TP
 \fBecho\fP \fINAME\fP ...
