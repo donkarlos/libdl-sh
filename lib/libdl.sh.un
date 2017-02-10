@@ -31,9 +31,19 @@
 ##					Add 'meta session *'.
 ##					Make dl_warn() usable for other packa-
 ##					ges.
+##
+##  NOTE:   (1)	To avoid cluttering code, this library is exempted from need-
+##		ing namespace prefixes for its special character definitions.
+##----------------------------------------------------------------------------
+##  Define special characters:
+#-----------------------------------------------------------------------------
+BQ=\` DQ=\" SQ=\' BS=\\ CS='#' DS=\$ QB=\` QE=\' CR=`printf '\r'` NL='
+'
+readonly BQ DQ SQ BS CS DS QB QE CR NL
+
 ##----------------------------------------------------------------------------
 ##  Global variables:
-#-----------------------------------------------------------------------------
+##----------------------------------------------------------------------------
 dl_cs_ul=ABCDEFGHIJKLMNOPQRSTUVWXYZ	## Define locale-independent character
 dl_cs_ll=abcdefghijklmnopqrstuvwxyz	## sets for upper-/lower-case letters,
 dl_cs_1d=123456789			## decimal digits, letters and alpha-
@@ -115,14 +125,13 @@ EOF
 ##				features and abort application if necessary
 ##----------------------------------------------------------------------------
 dl_warn() {
-    local bs=\\ sq=\' nl='
-';  local "`sed '
+    local "`sed '
 	:0
 	$!{
-	    N;s/'"$bs$nl"'/'"$bs$bs"'n/;b0
-	};s/'"$sq"'/&'"$bs$bs"'&&/g;/^\('"$dl_re_id"'\);/{
-	    s//lib=\1 invo='"$sq"'\1/;s/$/'"$sq"' package="`\1_meta get package`"/;bp
-	};s/^/lib=LIB invo='"$sq"'/;s/$/'"$sq"' package=PACKAGE/;:p
+	    N;s/'"$BS$NL"'/'"$BS$BS"'n/;b0
+	};s/'"$SQ"'/&'"$BS$BS"'&&/g;/^\('"$dl_re_id"'\);/{
+	    s//lib=\1 invo='"$SQ"'\1/;s/$/'"$SQ"' package="`\1_meta get package`"/;bp
+	};s/^/lib=LIB invo='"$SQ"'/;s/$/'"$SQ"' package=PACKAGE/;:p
     ' <<EOF
 $2
 EOF`"					## If possible, derive library and

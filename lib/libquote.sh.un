@@ -27,20 +27,9 @@
 ##					Use 'meta get apis' separator ';'.
 ##		ks	2017-01-15	Update copyright.
 ##					Add 'meta session *'.
-##
-##  NOTE:   (1)	To avoid cluttering code, this library is exempted from need-
-##		ing namespace prefixes for its special character and portable
-##		character range definitions.
-##----------------------------------------------------------------------------
-##  Define special characters:
-#-----------------------------------------------------------------------------
-BQ=\` DQ=\" SQ=\' BS=\\ CS='#' DS=\$ QB=\` QE=\' CR=`printf '\r'` NL='
-'
-readonly BQ DQ SQ BS CS DS QB QE CR NL
-
 ##----------------------------------------------------------------------------
 ##  Global variables:
-##----------------------------------------------------------------------------
+#-----------------------------------------------------------------------------
 quote_package='@PACKAGE_TARNAME@'	## Define source package name/version.
 quote_version='@PACKAGE_VERSION@'
 quote_api=0				## Define API version.
