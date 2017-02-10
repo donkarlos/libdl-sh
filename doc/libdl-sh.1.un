@@ -115,14 +115,14 @@ mechanism. It's not used internally by @PACKAGE_TARNAME@.
 Actions \fBload\fP and \fBpath\fP respect the following environment variables:
 .PD 0
 .TP
-\fBLIBDL_SH_LIBRARY_PATH\fP
+\(bu \fBLIBDL_SH_LIBRARY_PATH\fP
 A colon-separated list of directories in which to search demand-loadable shell
 (or \fBlibdl.sh\fP in particular) at runtime before directories
 in \fB@PACKAGE_TARNAME@\fP's configuration files are searched (action
 \fBpath\fP, see \fBFILES\fP below) or the installed demand-loading library
 \fB@shlibdir@/libdl.sh\fP is loaded (action \fBload\fP).
 .TP
-\fBLIBDL_SH_CONF\fP
+\(bu \fBLIBDL_SH_CONF\fP
 The pathname of a \fB@PACKAGE_TARNAME@.conf\fP(5)-style demand-loading
 configuration file parsed into LSP items before the user-specific and
 system-wide configuration files (action \fBpath\fP, see \fBFILES\fP below)
