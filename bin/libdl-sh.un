@@ -26,6 +26,7 @@
 ##		ks	2017-02-10	Update copyright.
 ##					Simplify 'load' action.
 ##					Canonify LSP items in 'path' action.
+##					Add 'exec' action.
 ##----------------------------------------------------------------------------
 ##  include(CONF ...)		Parse demand-loading configuration file(s)
 ##				into list of library search path items
@@ -89,6 +90,24 @@ EOF
 	;;				## either empty or with trailing ':',
 					## which is what dl_load() needs as it
 					## always prepends the LSP to $PATH).
+    exec)				## Execute command...
+	bindir=`dirname "$0"`		## Augment PATH.
+	PATH=`cd "$bindir" && /bin/pwd`:$PATH; export PATH
+	unset libdir; while shift; do	## Process 'NAME=VALUE' parameters...
+	    case ${1+_$1} in
+		_libdir=*)  eval "$1"	;;
+		_--)	    shift; break;;
+		*)	    break	;;
+	    esac
+	done; case ${libdir+=} in	## $libdir finally set?
+	    =)	LIBDL_SH_LIBRARY_PATH="$libdir"; export LIBDL_SH_LIBRARY_PATH
+					## Yes, export it as LIBDL_SH_LIBRA-
+		;;			## RY_PATH.
+	esac; case ${1+_$1} in		## COMMAND given?
+	    _?*)    exec "$@"	;;	## Yes, execute it.
+	    *)	    exit 127	;;	## No, indicate failure!
+	esac
+	;;
     echo)				## Emit installation path(s)...
 	shift; for name in ${1+"$@"}	## Foreach given name do...
 	do
