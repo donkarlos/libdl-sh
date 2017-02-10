@@ -1,5 +1,5 @@
 .\"								-*- nroff -*-
-.\" libdl-sh.1			- libdl-sh(1) manual page
+.\" libdl-sh.1			- @PACKAGE_TARNAME@(1) manual page
 .\"
 .\" Copyright (C) 2013-2017 Das Computerlabor (DCl-M)
 .\"
@@ -33,17 +33,17 @@
 .TH LIBDL-SH 1 2017-02-10 "@PACKAGE_TARNAME@ @PACKAGE_VERSION@" "Shell Programming"
 
 .SH NAME
-libdl-sh \- POSIX shell library demand-loading helper
+@PACKAGE_TARNAME@ \- POSIX shell library demand-loading helper
 
 .SH SYNOPSIS
-\fBlibdl-sh\fP \fIACTION\fP [\fIARGUMENT\fP ...]
+\fB@PACKAGE_TARNAME@\fP \fIACTION\fP [\fIARGUMENT\fP ...]
 
 .SH DESCRIPTION
-The demand-loading library \fBlibdl.sh\fP and its helper \fBlibdl-sh\fP are the
-core of @PACKAGE_TARNAME@'s shell library demand-loading mechanism. POSIX shell
-applications wishing to use the mechanism invoke \fBlibdl-sh load\fP (see below
-for details) to load \fBlibdl.sh\fP, thereby instantiating the mechanism within
-the application.
+The demand-loading library \fBlibdl.sh\fP and its helper
+\fB@PACKAGE_TARNAME@\fP are the core of @PACKAGE_TARNAME@'s shell library
+demand-loading mechanism. POSIX shell applications wishing to use the
+mechanism invoke \fB@PACKAGE_TARNAME@ load\fP (see below for details) to load
+\fBlibdl.sh\fP, thereby instantiating the mechanism within the application.
 
 .SH ACTIONS
 .TP
@@ -54,7 +54,7 @@ exits the application with status \fB127\fP (like a binary executable that
 fails to load a shared library would). Thus, an application invokes
 
 .in +4
-\fBeval "`libdl-sh load`"\fP
+\fBeval "`@PACKAGE_TARNAME@ load`"\fP
 .in -4
 
 to load the demand-loading library, (optionally) prepends application-specific
@@ -70,8 +70,8 @@ for details) and demand-loads further libraries with
 .BR dl_load (3sh).
 
 If \fBLIBDL_SH_LIBRARY_PATH\fP is exported (see \fBENVIRONMENT\fP below),
-\fBlibdl-sh load\fP uses it to search \fBlibdl.sh\fP in alternate directories
-before loading \fB@shlibdir@/libdl.sh\fP.
+\fB@PACKAGE_TARNAME@ load\fP uses it to search \fBlibdl.sh\fP in alternate
+directories before loading \fB@shlibdir@/libdl.sh\fP.
 
 .TP
 \fBpath\fP
@@ -118,23 +118,24 @@ Actions \fBload\fP and \fBpath\fP respect the following environment variables:
 \fBLIBDL_SH_LIBRARY_PATH\fP
 A colon-separated list of directories in which to search demand-loadable shell
 (or \fBlibdl.sh\fP in particular) at runtime before directories
-in \fBlibdl-sh\fP's configuration files are searched (action
+in \fB@PACKAGE_TARNAME@\fP's configuration files are searched (action
 \fBpath\fP, see \fBFILES\fP below) or the installed demand-loading library
 \fB@shlibdir@/libdl.sh\fP is loaded (action \fBload\fP).
 .TP
 \fBLIBDL_SH_CONF\fP
-The pathname of a \fBlibdl-sh.conf\fP(5)-style demand-loading configuration
-file parsed into LSP items before the user-specific and system-wide
-configuration files (action \fBpath\fP, see \fBFILES\fP below) are read.
+The pathname of a \fB@PACKAGE_TARNAME@.conf\fP(5)-style demand-loading
+configuration file parsed into LSP items before the user-specific and
+system-wide configuration files (action \fBpath\fP, see \fBFILES\fP below)
+are read.
 .PD
 
 .SH FILES
 .PD 0
 .TP
-\fB@shlibdir@/libdl.sh\fP, \fB@bindir@/libdl-sh\fP
+\fB@shlibdir@/libdl.sh\fP, \fB@bindir@/@PACKAGE_TARNAME@\fP
 The demand-loading library and its helper described here.
 .TP
-\fB$HOME/.libdl-sh.conf\fP, \fB@sysconfdir@/libdl-sh.conf\fP
+\fB$HOME/.@PACKAGE_TARNAME@.conf\fP, \fB@sysconfdir@/@PACKAGE_TARNAME@.conf\fP
 The user-specific and system-wide demand-loading configuration files defining
 the library search path.
 .PD
@@ -142,7 +143,7 @@ the library search path.
 .SH SEE ALSO
 .BR dl_meta (3sh),
 .BR dl_load (3sh),
-.BR libdl-sh.conf (5).
+.BR @PACKAGE_TARNAME@.conf (5).
 
 .SH AUTHOR
 Karl Schmitz <@PACKAGE_BUGREPORT@>
