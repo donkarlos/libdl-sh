@@ -27,13 +27,15 @@
 ##					Use 'meta get apis' separator ';'.
 ##		ks	2017-01-15	Update copyright.
 ##					Add 'meta session *'.
+##		ks	2017-02-11	Make quote_sh() and quote_command()
+##					process multi-line strings.
 ##----------------------------------------------------------------------------
 ##  Global variables:
 #-----------------------------------------------------------------------------
 quote_package='@PACKAGE_TARNAME@'	## Define source package name/version.
 quote_version='@PACKAGE_VERSION@'
 quote_api=0				## Define API version.
-quote_sh_sx='s/'"$SQ"'/&'"$BS$BS"'&&/g;s/^/'"$SQ"'/;s/$/'"$SQ"'/'
+quote_sh_sx=':0'"$NL"'$!{;N;b0'"$NL"'};s/'"$SQ"'/&'"$BS$BS"'&&/g;s/^/'"$SQ"'/;s/$/'"$SQ"'/'
 readonly quote_package quote_version quote_api quote_sh_sx
 
 ##----------------------------------------------------------------------------
@@ -86,7 +88,7 @@ EOF
 ##----------------------------------------------------------------------------
 quote_sh() {
     case $BASH in
-	?*) echo \'${1//\'/\'\\\'\'}\'
+	?*) echo "$SQ${1//\'/\'\\\'\'}$SQ"
 	    ;;
 	*)  sed "$quote_sh_sx" <<EOF
 $1
@@ -106,7 +108,7 @@ quote_command() {
 	?*) for arg in ${1+"$@"}; do case $arg in
 		*\<*|*\>*)
 		    cmd="$cmd $arg"			;;
-		*)  cmd="$cmd "\'${arg//\'/\'\\\'\'}\'	;;
+		*)  cmd="$cmd $SQ${arg//\'/\'\\\'\'}$SQ";;
 	    esac; done	;;
 	*)  for arg in ${1+"$@"}; do case $arg in
 		*\<*|*\>*)
