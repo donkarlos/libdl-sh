@@ -83,6 +83,7 @@ applications and/or libraries to push cleanups (i.e., commands bearing the
 cleanup tag whose purpose is to clean up (e.g., remove temporary files) after
 the application).
 
+.PD 0
 To distinguish marks and tags from commands,
 .IP \(bu 2
 \fIMARK\fPs begin with a double colon (\fB::\fP) followed by a non-empty
@@ -92,6 +93,7 @@ string,
 whereas
 .IP \(bu
 \fICOMMAND\fPs may not begin with a colon at all.
+.PD
 
 .SH FUNCTIONS
 .TP 4
@@ -214,6 +216,7 @@ of \fBlibundo.sh\fP provide \fBundo_mark\fP(3sh), you'd invoke:
 .RE
 
 .SH EXIT HOOKS
+.PD 0
 While loading, \fBlibundo.sh\fP invokes \fBdl_atexit\fP(3sh) to register its
 exit hook \fBundo_exit\fP(\fISTATUS\fP). Depending on exit status and cleanup
 tag, the exit hook does the following:
@@ -226,6 +229,7 @@ tag, all commands bearing the cleanup tag are executed, thereby undoing the
 application's side effects.
 .IP \(bu
 Otherwise, nothing happens.
+.PD
 
 .SH DEPRECATED FUNCTIONS
 Release 0.4 deprecates functions \fBundo_init\fP(3sh) and
