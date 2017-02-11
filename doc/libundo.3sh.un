@@ -68,8 +68,8 @@ In general, the undo stack management library \fBlibundo.sh\fP allows
 applications and/or other libraries to maintain a stack of commands that undo
 an application's overall effects on failure. For more fine-grained control
 over the stack, applications and/or libraries may push marks or tagged
-commands onto the stack so that they may drop, pull (i.e., execute and drop),
-or keep selected parts of the stack.
+commands onto the stack so that they may drop or pull (i.e. execute, then
+drop) selected parts of the stack.
 
 .SS Marks, tags, and cleanups
 Marks are pushed onto the stack instead of a (tagged) command, thus marking
@@ -147,7 +147,8 @@ and including the topmost instance of stack \fIMARK\fP from the undo stack
 \fBundo_pull\fP \fIMARK\fP \fITAG\fP
 In its 4th form, \fBundo_pull\fP executes and then drops all commands above
 the topmost instance of stack \fIMARK\fP bearing \fITAG\fP from the undo
-stack. The stack \fIMARK\fP and any contents below will be kept on the stack.
+stack. The stack \fIMARK\fP itself and any contents below will be kept on the
+stack.
 
 .TP
 \fBundo_meta\fP \fIMETA\fP [\fIARG\fP ...]
