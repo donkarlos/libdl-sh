@@ -33,8 +33,8 @@
 quote_package='@PACKAGE_TARNAME@'	## Define source package name/version.
 quote_version='@PACKAGE_VERSION@'
 quote_api=0				## Define API version.
-quote_sh_sedex='s/'"$SQ"'/&'"$BS$BS"'&&/g;s/^/'"$SQ"'/;s/$/'"$SQ"'/'
-readonly quote_package quote_version quote_api quote_sh_sedex
+quote_sh_sx='s/'"$SQ"'/&'"$BS$BS"'&&/g;s/^/'"$SQ"'/;s/$/'"$SQ"'/'
+readonly quote_package quote_version quote_api quote_sh_sx
 
 ##----------------------------------------------------------------------------
 ##  quote_meta(META [ARG ...])	Perform META operation (with ARGs)
@@ -88,7 +88,7 @@ quote_sh() {
     case $BASH in
 	?*) echo \'${1//\'/\'\\\'\'}\'
 	    ;;
-	*)  sed "$quote_sh_sedex" <<EOF
+	*)  sed "$quote_sh_sx" <<EOF
 $1
 EOF
 	    ;;
@@ -111,7 +111,7 @@ quote_command() {
 	*)  for arg in ${1+"$@"}; do case $arg in
 		*\<*|*\>*)
 		    cmd="$cmd $arg"			;;
-		*)  cmd="$cmd `sed "$quote_sh_sedex" <<EOF
+		*)  cmd="$cmd `sed "$quote_sh_sx" <<EOF
 $arg
 EOF`"							;;
 	    esac; done	;;
