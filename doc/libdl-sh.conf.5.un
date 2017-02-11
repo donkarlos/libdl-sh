@@ -24,6 +24,7 @@
 .\#		ks	2017-01-16	Update copyright.
 .\#					Remove references to withdrawn func-
 .\#					tion dl_init().
+.\#		ks	2017-02-10	Canonify LSP items in 'path' action.
 .\#
 .\# NOTE: (1)	Please adjust below date whenever revising the manual page.
 .\#		vvvvvv
@@ -56,8 +57,8 @@ order given.
 Other lines are treated as a whitespace-separated list of library search path
 items (i.e., directories appended to the library search path).
 .IP \(bu
-Configuration file pathnames and library search path items are subjected to one
-level of shell substitutions, so that lines like
+Configuration file pathnames and library search path (LSP) items are subjected
+to one level of shell substitutions, so that lines like
 
 .in +4
 \fBinclude $HOME/etc/libdl-sh.conf.d/*.conf\fP
@@ -65,8 +66,10 @@ level of shell substitutions, so that lines like
 
 behave as expected.
 .IP \(bu
-Nonexisting configuration files and library search path items are silently
-ignored.
+Nonexisting configuration files and LSP items are silently ignored.
+.IP \(bu
+Existing LSP items are canonified (i.e., turned into absolute pathnames free
+of symbolic link components).
 
 .SH CAVEATS
 The current implementation doesn't guard against inadvertent infinite

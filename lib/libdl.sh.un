@@ -31,6 +31,8 @@
 ##					Add 'meta session *'.
 ##					Make dl_warn() usable for other packa-
 ##					ges.
+##		ks	2017-02-11	Canonify LSP items in 'pre libpath'
+##					meta operation.
 ##
 ##  NOTE:   (1)	To avoid cluttering code, this library is exempted from need-
 ##		ing namespace prefixes for its special character definitions.
@@ -100,10 +102,16 @@ EOF
 	    esac'
 	    ;;
 	pre-libpath)			## Prepend to library search path...
-	    local n ifs; case ${3+=} in	## One or more path items given?
-		=)  n=$2; shift 2	## Yes, prepend them the LSP in tail-
-		    ifs=$IFS; IFS=:; eval "$mp$n"'="$*:$'"$mp$n"'"'; IFS=$ifs
-		    ;;			## denormalized fashion.
+	    case ${3+=} in		## One or more path items given?
+		=)  local ifs vs=$2 items= item; shift 2
+		    ifs=$IFS; IFS=:; set shiftee $*; shift; IFS=$ifs
+		    for item in ${1+"$@"}; do
+					## Yes, foreach item do...
+			item=`cd "$item" 2>/dev/null && /bin/pwd` &&
+			    items=$items$item:
+		    done; eval "$mp$vs"'=$items$'"$mp$vs"
+					## Canonify and prepend it to library
+		    ;;			## search path if it does exist.
 		*)  return 2		## No, indicate misusage!
 		    ;;
 	    esac

@@ -1,7 +1,7 @@
 .\"								-*- nroff -*-
 .\" libdl.3sh			- libdl(3sh) manual page
 .\"
-.\" Copyright (C) 2013-2016 Das Computerlabor (DCl-M)
+.\" Copyright (C) 2013-2017 Das Computerlabor (DCl-M)
 .\"
 .\" This library is free software; you can redistribute it and/or
 .\" modify it under the terms of the GNU Lesser General Public License
@@ -27,10 +27,13 @@
 .\#		ks      2016-05-23	Add service function dl_warn().
 .\#		ks	2016-05-24	Add 'meta get package/version'.
 .\#					Use 'meta get apis' separator ';'.
+.\#		ks	2017-02-11	Update copyright.
+.\#					Canonify LSP items in 'pre libpath'
+.\#					meta operation.
 .\#
 .\# NOTE: (1)	Please adjust below date whenever revising the manual page.
 .\#		vvvvvv
-.TH LIBDL 3SH 2016-05-24 "@PACKAGE_TARNAME@ @PACKAGE_VERSION@" "Shell Programming"
+.TH LIBDL 3SH 2017-02-11 "@PACKAGE_TARNAME@ @PACKAGE_VERSION@" "Shell Programming"
 
 .SH NAME
 dl_atload, dl_load, dl_atexit, dl_exit, dl_which, dl_meta
@@ -170,7 +173,9 @@ of \fBlibdl.sh\fP provide \fBdl_atload\fP(3sh), you'd invoke:
 \fBpre libpath\fP \fILIBPATH\fP ...
 Prepend \fILIBPATH\fP, a colon-separated list of library search path items
 (i.e., directories containing demand-loadable libraries) to the library search
-path (LSP) maintained by \fBlibdl.sh\fP.
+path (LSP) maintained by \fBlibdl.sh\fP. Nonexisting LSP items are silently
+ignored, whereas existing LSP items get canonified (i.e., turned into absolute
+pathnames free of symbolic link components) before being prepended.
 
 Applications may invoke \fBdl_meta pre libpath\fP to augment the library
 search path with private library directories. They should do so only once and
