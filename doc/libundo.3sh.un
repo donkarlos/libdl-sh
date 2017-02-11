@@ -84,13 +84,13 @@ cleanup tag whose purpose is to clean up (e.g., remove temporary files) after
 the application).
 
 To distinguish marks and tags from commands,
-.IP \(em 2
+.IP \(bu 2
 \fIMARK\fPs begin with a double colon (\fB::\fP) followed by a non-empty
 string,
-.IP \(em
+.IP \(bu
 \fITAG\fPs begin with a single colon (\fB:\fP) followed by a non-empty string,
 whereas
-.IP \(em
+.IP \(bu
 \fICOMMAND\fPs may not begin with a colon at all.
 
 .SH FUNCTIONS
@@ -178,11 +178,11 @@ undo stack. See section \fBEXIT HOOKS\fP below for further details.
 Inquire information about available API versions and write them to standard
 output. The information written depends on the output \fIFORMAT\fP:
 .RS 4
-.IP \(em 2
+.IP \(bu 2
 \fBapi\fP (the default format) represents each API version by a line
 containing \fIVERSION\fP.
 
-.IP \(em
+.IP \(bu
 \fBfull\fP represents each function within each API version by a line of three
 semicolon-separated fields: \fIVERSION\fP, \fISIGNATURE\fP, and \fIARGCS\fP,
 where the second has the format \fINAME\fP\fB(\fP\fIARGS\fP\fB)\fP and the
@@ -197,7 +197,7 @@ be represented by the following two lines:
 \fB1;undo_pull(MARK [TAG] | TAG | [COUNT=1]);0-2\fP
 .in -4
 
-.IP \(em
+.IP \(bu
 \fBlist\fP is similar to \fBfull\fP, except that \fB(\fP\fIARGS\fP\fB)\fP in
 the second field is omitted (i.e., just the function name is shown)
 .RE
@@ -217,14 +217,14 @@ of \fBlibundo.sh\fP provide \fBundo_mark\fP(3sh), you'd invoke:
 While loading, \fBlibundo.sh\fP invokes \fBdl_atexit\fP(3sh) to register its
 exit hook \fBundo_exit\fP(\fISTATUS\fP). Depending on exit status and cleanup
 tag, the exit hook does the following:
-.IP \(em 2
+.IP \(bu 2
 When terminating with failure (i.e., non-zero \fISTATUS\fP), the whole undo
 stack is executed, thereby completely undoing the application's effects.
-.IP \(em
+.IP \(bu
 When terminating with success (i.e., zero \fISTATUS\fP) and registered cleanup
 tag, all commands bearing the cleanup tag are executed, thereby undoing the
 application's side effects.
-.IP \(em
+.IP \(bu
 Otherwise, nothing happens.
 
 .SH DEPRECATED FUNCTIONS
