@@ -29,20 +29,18 @@
 .\#		ks	2017-02-11	Update copyright.
 .\#					Add 'meta get/set 0tag' as substitute
 .\#					for undo_init().
+.\#					Deprecate undo_init().
 .\#
 .\# NOTE: (1)	Please adjust below date whenever revising the manual page.
 .\#		vvvvvv
 .TH libundo 3SH 2017-02-11 "@PACKAGE_TARNAME@ @PACKAGE_VERSION@" "Shell Programming"
 
 .SH NAME
-undo_init, undo_mark, undo_push, undo_drop, undo_pull, undo_meta
-\- Undo stack management
+undo_mark, undo_push, undo_drop, undo_pull, undo_meta \- Undo stack management
 
 .SH SYNOPSIS
 \fBdl_load undo\fP
 
-\fBundo_init\fP \fITAG\fP
-.br
 \fBundo_mark\fP \fIMARK\fP
 .br
 \fBundo_push\fP [\fITAG\fP] \fICOMMAND\fP [\fIARGUMENT\fP|\fIREDIRECTION\fP ...]
@@ -97,12 +95,6 @@ whereas
 
 .SH FUNCTIONS
 .TP 4
-\fBundo_init\fP \fITAG\fP
-Register cleanup \fITAG\fP. When the application terminates with success
-(i.e., exit status 0), only commands bearing \fITAG\fP are pulled from the
-undo stack. See section \fBEXIT HOOKS\fP below for further details.
-
-.TP
 \fBundo_mark\fP \fIMARK\fP
 Push stack \fIMARK\fP onto the undo stack.
 
@@ -235,11 +227,16 @@ application's side effects.
 Otherwise, nothing happens.
 
 .SH DEPRECATED FUNCTIONS
-Release 0.4 deprecates function \fBundo_keep\fP(3sh). It will be withdrawn
-by release 0.5.
+Release 0.4 deprecates functions \fBundo_init\fP(3sh) and
+\fBundo_keep\fP(3sh). They will be withdrawn by release 0.5.
 
-The following paragraphs describe the deprecated functions.
+The following paragraphs describe the deprecated functions (and how they ought
+to be migrated to API version 1).
 .TP 4
+\fBundo_init\fP \fITAG\fP
+Ought to be replaced by: \fBundo_meta set 0tag\fP \fITAG\fP
+
+.TP
 \fBundo_keep\fP [\fICOUNT\fP=1]
 In its 1st form, \fBundo_keep\fP keeps the \fICOUNT\fP topmost commands on the
 undo stack (where marks also count as commands). Hence, it's the counterpart
