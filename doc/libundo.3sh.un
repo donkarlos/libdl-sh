@@ -1,7 +1,7 @@
 .\"								-*- nroff -*-
 .\" libundo.3sh			- libundo(3sh) manual page
 .\"
-.\" Copyright (C) 2015-2016 Das Computerlabor (DCl-M)
+.\" Copyright (C) 2015-2017 Das Computerlabor (DCl-M)
 .\"
 .\" This library is free software; you can redistribute it and/or
 .\" modify it under the terms of the GNU Lesser General Public License
@@ -26,10 +26,13 @@
 .\#		ks	2016-05-24	Deprecate undo_keep().
 .\#					Add 'meta get package/version'.
 .\#					Use 'meta get apis' separator ';'.
+.\#		ks	2017-02-11	Update copyright.
+.\#					Add 'meta get/set 0tag' as substitute
+.\#					for undo_init().
 .\#
 .\# NOTE: (1)	Please adjust below date whenever revising the manual page.
 .\#		vvvvvv
-.TH libundo 3SH 2016-05-24 "@PACKAGE_TARNAME@ @PACKAGE_VERSION@" "Shell Programming"
+.TH libundo 3SH 2017-02-11 "@PACKAGE_TARNAME@ @PACKAGE_VERSION@" "Shell Programming"
 
 .SH NAME
 undo_init, undo_mark, undo_push, undo_drop, undo_pull, undo_meta
@@ -161,15 +164,21 @@ certain library internals in a controlled manner. Currently, the following
 meta operations are implemented:
 .RS 4
 .TP 4
-\fBget package\fP|\fBversion\fP|\fBapi\fP
+\fBget package\fP|\fBversion\fP|\fBapi\fP|\fB0tag\fP
 Inquire library's source package name (\fB@PACKAGE_TARNAME@\fP), version
-(\fB@PACKAGE_VERSION@\fP), or selected API version and write it to standard
-output.
+(\fB@PACKAGE_VERSION@\fP), selected API version, or registered cleanup tag
+and write it to standard output.
 
 .TP
 \fBset api\fP \fIVERSION\fP
 Select API \fIVERSION\fP. This should be done right after demand-loading this
 library and can (successfully) only be done once.
+
+.TP
+\fBset 0tag\fP \fITAG\fP
+Register cleanup \fITAG\fP. When the application terminates with success
+(i.e., exit status 0), only commands bearing \fITAG\fP are pulled from the
+undo stack. See section \fBEXIT HOOKS\fP below for further details.
 
 .TP
 \fBget apis\fP [\fIFORMAT\fP=api [\fISEDEX\fP]]
