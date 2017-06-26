@@ -28,6 +28,7 @@
 ##					Add and integrate finishing script.
 ##		ks	2017-01-18	Update copyright.
 ##					Use 'gensubst Makefile'.
+##		ks	2017-06-26	Remove conf_getenv.3sh.
 ##
 ##  NOTE:   (1)	Update the build system with autoreconf(1).
 ##----------------------------------------------------------------------------
@@ -65,9 +66,8 @@ $(FINISH):		$(FINISH_UN) Makefile $(GENSUBST)
 dist_man_MANS		= doc/dl_atexit.3sh doc/dl_atload.3sh		\
 			  doc/dl_exit.3sh doc/dl_load.3sh		\
 			  doc/dl_meta.3sh doc/dl_which.3sh		\
-			  doc/conf_get.3sh doc/conf_getenv.3sh		\
-			  doc/conf_has.3sh doc/conf_meta.3sh		\
-			  doc/conf_put.3sh				\
+			  doc/conf_get.3sh doc/conf_has.3sh		\
+			  doc/conf_meta.3sh doc/conf_put.3sh		\
 			  doc/quote_command.3sh doc/quote_egrep.3sh	\
 			  doc/quote_grep.3sh doc/quote_meta.3sh		\
 			  doc/quote_sed.3sh doc/quote_sh.3sh		\
