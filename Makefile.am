@@ -30,6 +30,7 @@
 ##					Use 'gensubst Makefile'.
 ##		ks	2017-06-26	Remove conf_getenv.3sh.
 ##					Add quote_{ere,re,rs}.3sh.
+##					Remove undo_{init,keep}.3sh.
 ##
 ##  NOTE:   (1)	Update the build system with autoreconf(1).
 ##----------------------------------------------------------------------------
@@ -74,8 +75,7 @@ dist_man_MANS		= doc/dl_atexit.3sh doc/dl_atload.3sh		\
 			  doc/quote_meta.3sh doc/quote_re.3sh		\
 			  doc/quote_rs.3sh doc/quote_sed.3sh		\
 			  doc/quote_sh.3sh				\
-			  doc/undo_drop.3sh doc/undo_init.3sh		\
-			  doc/undo_keep.3sh doc/undo_mark.3sh		\
+			  doc/undo_drop.3sh doc/undo_mark.3sh		\
 			  doc/undo_meta.3sh doc/undo_pull.3sh		\
 			  doc/undo_push.3sh doc/safe_chdir.3sh		\
 			  doc/safe_init.3sh doc/safe_lock.3sh		\
