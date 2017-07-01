@@ -92,8 +92,7 @@ EOF
 	    ${mp}meta get apis api | fgrep -qxe "$3" || return 1
 	    eval "$mp$2"'=$3; readonly '"$mp$2"
 	    ;;
-	session-*)			## Dummy init/sustain/suspend/exit
-	    :				## session...
+	session-*)  :			## Session init/dump/load/exit...
 	    ;;
 	*)  return 2			## Anything else...
 	    ;;				## Indicate misusage!

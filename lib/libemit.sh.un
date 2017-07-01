@@ -67,8 +67,7 @@ EOF
 		*)  return 1		;;
 	    esac'
 	    ;;
-	session-*)			## Dummy init/sustain/suspend/exit
-	    :				## session...
+	session-*)  :			## Session init/dump/load/exit...
 	    ;;
 	*)  return 2			## Anything else...
 	    ;;				## Indicate misusage!

@@ -92,8 +92,7 @@ EOF
 	    expr "_$3" : "_$undo_re_tag"'$' >/dev/null || return 1
 	    eval "$mp$2"'=$3'		## ...after making sure it's a tag.
 	    ;;
-	session-*)			## Dummy init/sustain/suspend/exit
-	    :				## session...
+	session-*)  :			## Session init/dump/load/exit...
 	    ;;
 	*)  return 2			## Anything else...
 	    ;;				## Indicate misusage!
