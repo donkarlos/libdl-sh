@@ -33,6 +33,7 @@
 ##					ges.
 ##		ks	2017-02-11	Canonify LSP items in 'pre libpath'
 ##					meta operation.
+##		ks	2017-07-01	Add service function dl_dump().
 ##
 ##  NOTE:   (1)	To avoid cluttering code, this library is exempted from need-
 ##		ing namespace prefixes for its special character definitions.
@@ -87,6 +88,7 @@ dl_meta() {
 a${ms}$dl_api
 f${ms}$dl_api${ms}meta(META [ARG ...])${ms}2-
 f${ms}$dl_api${ms}warn(WHAT INVO [ARG ...])${ms}2-
+f${ms}$dl_api${ms}dump(MP VS ...)${ms}2-
 f${ms}$dl_api${ms}which(LIB)${ms}1
 f${ms}$dl_api${ms}atload(HOOK)${ms}1
 f${ms}$dl_api${ms}load(LIB ...)${ms}1-
@@ -187,6 +189,27 @@ EOF
 	    echo "$*; OOPS!" >&2
 	    ;;
     esac; return 1
+}
+
+##----------------------------------------------------------------------------
+##  dl_dump(MP VS ...)		Dump library's variables
+##
+##  NOTE:   (1)	The invoker is responsible for redirecting standard output!
+##----------------------------------------------------------------------------
+dl_dump() {
+    local sx0=':0'"$NL"'$!{;N;b0'"$NL"'};s/'"$SQ"'/&'"$BS$BS"'&&/g;s/^/'\
+	  sx1='='"$SQ"'/;s/$/'"$SQ"'/' mp="$1" vs; shift
+					## Fetch meta prefix.
+    for vs in ${1+"$@"}; do		## Foreach stem do...
+	eval 'case ${'"$mp$vs"'+=} in
+	    =)	sed "$sx0$mp$vs$sx1" <<EOF
+$'"$mp$vs"'
+EOF
+		;;
+	    *)	echo unset '"$mp$vs"'
+		;;
+	esac'
+    done
 }
 
 ##----------------------------------------------------------------------------

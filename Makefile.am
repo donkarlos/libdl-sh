@@ -31,6 +31,7 @@
 ##		ks	2017-06-26	Remove conf_getenv.3sh.
 ##					Add quote_{ere,re,rs}.3sh.
 ##					Remove undo_{init,keep}.3sh.
+##		ks	2017-07-01	Add service function dl_dump().
 ##
 ##  NOTE:   (1)	Update the build system with autoreconf(1).
 ##----------------------------------------------------------------------------
@@ -66,8 +67,9 @@ $(FINISH):		$(FINISH_UN) Makefile $(GENSUBST)
 ##  Distribute and install manpages:
 ##----------------------------------------------------------------------------
 dist_man_MANS		= doc/dl_atexit.3sh doc/dl_atload.3sh		\
-			  doc/dl_exit.3sh doc/dl_load.3sh		\
-			  doc/dl_meta.3sh doc/dl_which.3sh		\
+			  doc/dl_dump.3sh doc/dl_exit.3sh		\
+			  doc/dl_load.3sh doc/dl_meta.3sh		\
+			  doc/dl_which.3sh				\
 			  doc/conf_get.3sh doc/conf_has.3sh		\
 			  doc/conf_meta.3sh doc/conf_put.3sh		\
 			  doc/quote_command.3sh doc/quote_egrep.3sh	\

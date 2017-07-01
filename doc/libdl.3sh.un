@@ -30,13 +30,14 @@
 .\#		ks	2017-02-11	Update copyright.
 .\#					Canonify LSP items in 'pre libpath'
 .\#					meta operation.
+.\#		ks	2017-07-01	Add service function dl_dump().
 .\#
 .\# NOTE: (1)	Please adjust below date whenever revising the manual page.
 .\#		vvvvvv
-.TH LIBDL 3SH 2017-02-11 "@PACKAGE_TARNAME@ @PACKAGE_VERSION@" "Shell Programming"
+.TH LIBDL 3SH 2017-07-01 "@PACKAGE_TARNAME@ @PACKAGE_VERSION@" "Shell Programming"
 
 .SH NAME
-dl_atload, dl_load, dl_atexit, dl_exit, dl_which, dl_meta
+dl_atload, dl_load, dl_atexit, dl_exit, dl_which, dl_dump, dl_meta
 \- Demand-load POSIX shell libraries
 
 .SH SYNOPSIS
@@ -116,6 +117,10 @@ their return status is ignored by \fBdl_exit\fP.
 Try to locate shell library \fILIB\fP on the library search path and write its
 absolute pathname to standard output if it's found. Otherwise, return status
 \fB127\fP.
+
+.TP
+\fBdl_dump\fP \fIMP\fP \fIVS\fP ...
+NOT DOCUMENTED YET
 
 .TP
 \fBdl_meta\fP \fIMETA\fP [\fIARG\fP ...]
