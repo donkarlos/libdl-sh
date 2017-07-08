@@ -31,6 +31,7 @@
 .\#					Canonify LSP items in 'pre libpath'
 .\#					meta operation.
 .\#		ks	2017-07-01	Add service function dl_dump().
+.\#		ks	2017-07-08	Add service function dl_split().
 .\#
 .\# NOTE: (1)	Please adjust below date whenever revising the manual page.
 .\#		vvvvvv
@@ -252,6 +253,10 @@ State that release \fIWREL\fP withdrew the meta operation represented by
 
 .TP
 \fBdl_dump\fP \fIMP\fP \fIVS\fP ...
+NOT DOCUMENTED YET
+
+.TP
+\fBdl_split\fP \fIWORD\fP \fIIFS\fP &\fIFIELD\fP ...
 NOT DOCUMENTED YET
 
 .SH TRAPS

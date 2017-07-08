@@ -34,6 +34,7 @@
 ##		ks	2017-02-11	Canonify LSP items in 'pre libpath'
 ##					meta operation.
 ##		ks	2017-07-01	Add service function dl_dump().
+##		ks	2017-07-08	Add service function dl_split().
 ##
 ##  NOTE:   (1)	To avoid cluttering code, this library is exempted from need-
 ##		ing namespace prefixes for its special character definitions.
@@ -89,6 +90,7 @@ a${ms}$dl_api
 f${ms}$dl_api${ms}meta(META [ARG ...])${ms}2-
 f${ms}$dl_api${ms}warn(WHAT INVO [ARG ...])${ms}2-
 f${ms}$dl_api${ms}dump(MP VS ...)${ms}2-
+f${ms}$dl_api${ms}split(WORD IFS &FIELD ...)${ms}3-
 f${ms}$dl_api${ms}which(LIB)${ms}1
 f${ms}$dl_api${ms}atload(HOOK)${ms}1
 f${ms}$dl_api${ms}load(LIB ...)${ms}1-
@@ -210,6 +212,34 @@ EOF
 		;;
 	esac'
     done
+}
+
+##----------------------------------------------------------------------------
+##  dl_split(WORD IFS &FIELD ...)
+##				Split WORD by IFS into FIELDs
+##----------------------------------------------------------------------------
+dl_split() {
+    local word="$1" nifs="$2" oifs
+
+    case ${3+=} in			## At least one &FIELD given?
+	=)  shift 2	;;		## Yes, drop WORD and IFS.
+	*)  return 2	;;		## No, indicate usage error.
+    esac; eval "`awk '
+	BEGIN {
+	    print "oifs=$IFS; IFS=$nifs; set shiftee $word; IFS=$oifs"
+	}
+	{
+	    for (i = 2; i <= NF; ++i) if ($i ~ /^([on]ifs|word)$/)
+		++ec
+	    else
+		printf "%s=$%u%s",$i,i,((i < NF) ? " " : "\n")
+	}
+	END {
+	    if (ec) print "return 1"
+	}
+    ' <<EOF
+skippee $*
+EOF`"
 }
 
 ##----------------------------------------------------------------------------
