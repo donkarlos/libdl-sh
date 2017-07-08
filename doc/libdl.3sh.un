@@ -119,10 +119,6 @@ absolute pathname to standard output if it's found. Otherwise, return status
 \fB127\fP.
 
 .TP
-\fBdl_dump\fP \fIMP\fP \fIVS\fP ...
-NOT DOCUMENTED YET
-
-.TP
 \fBdl_meta\fP \fIMETA\fP [\fIARG\fP ...]
 Perform one of \fBlibdl.sh\fP's meta operations. These allow to inquire or
 modify certain library internals in a controlled manner. Currently, the
@@ -253,6 +249,10 @@ for now.
 State that release \fIWREL\fP withdrew the meta operation represented by
 \fIARGS\fP (format: \fB[\fP$#\fB]\fP$*) and give the usual downgrade hint.
 .RE
+
+.TP
+\fBdl_dump\fP \fIMP\fP \fIVS\fP ...
+NOT DOCUMENTED YET
 
 .SH TRAPS
 In order to have "naïve" applications benefit from \fBlibdl.sh\fP's exit-time
