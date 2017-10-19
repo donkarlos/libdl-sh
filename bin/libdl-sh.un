@@ -26,9 +26,7 @@
 ##		ks	2017-02-10	Update copyright.
 ##					Simplify 'load' action.
 ##					Canonify LSP items in 'path' action.
-##					Add 'exec' action.
-##		ks	2017-10-19	Recognize and use DESTDIR installation
-##					in 'exec' action.
+##		ks	2017-10-19	Add 'exec' action.
 ##----------------------------------------------------------------------------
 ##  include(CONF ...)		Parse demand-loading configuration file(s)
 ##				into list of library search path items
@@ -102,18 +100,7 @@ EOF
 		LIBDL_SH_LIBRARY_PATH=${destrn}@shlibdir@${LIBDL_SH_LIBRARY_PATH+:$LIBDL_SH_LIBRARY_PATH}
 		export LIBDL_SH_LIBRARY_PATH
 	    }
-	}
-	unset libdir; while shift; do	## Process 'NAME=VALUE' parameters...
-	    case ${1+_$1} in
-		_libdir=*)  eval "$1"	;;
-		_--)	    shift; break;;
-		*)	    break	;;
-	    esac
-	done; case ${libdir+=} in	## $libdir finally set?
-	    =)	LIBDL_SH_LIBRARY_PATH="$libdir"; export LIBDL_SH_LIBRARY_PATH
-					## Yes, export it as LIBDL_SH_LIBRA-
-		;;			## RY_PATH.
-	esac; case ${1+_$1} in		## COMMAND given?
+	}; case ${1+_$1} in		## COMMAND given?
 	    _?*)    exec "$@"	;;	## Yes, execute it.
 	    *)	    exit 127	;;	## No, indicate failure!
 	esac
