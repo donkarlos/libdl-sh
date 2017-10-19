@@ -27,6 +27,8 @@
 ##					Simplify 'load' action.
 ##					Canonify LSP items in 'path' action.
 ##					Add 'exec' action.
+##		ks	2017-10-19	Recognize and use DESTDIR installation
+##					in 'exec' action.
 ##----------------------------------------------------------------------------
 ##  include(CONF ...)		Parse demand-loading configuration file(s)
 ##				into list of library search path items
@@ -94,6 +96,12 @@ EOF
 	bindn=`dirname "$0"`; binrn=`cd "$bindn" && /bin/pwd` && {
 	    PATH=$binrn${PATH+:$PATH}; export PATH
 					## Augment PATH.
+	    destrn=`expr "_$binrn" : '_\(.*\)@bindir@$'` &&
+	    test -f "$destrn"@shlibdir@/libdl.sh &&
+	    test -f "$destrn"@pkgdatadir@/conf.awk && {
+		LIBDL_SH_LIBRARY_PATH=${destrn}@shlibdir@${LIBDL_SH_LIBRARY_PATH+:$LIBDL_SH_LIBRARY_PATH}
+		export LIBDL_SH_LIBRARY_PATH
+	    }
 	}
 	unset libdir; while shift; do	## Process 'NAME=VALUE' parameters...
 	    case ${1+_$1} in
