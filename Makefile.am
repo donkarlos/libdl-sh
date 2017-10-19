@@ -32,6 +32,7 @@
 ##					Add quote_{ere,re,rs}.3sh.
 ##					Remove undo_{init,keep}.3sh.
 ##		ks	2017-07-01	Add service function dl_dump().
+##		ks	2017-10-19	Add 'libsession.sh'.
 ##
 ##  NOTE:   (1)	Update the build system with autoreconf(1).
 ##----------------------------------------------------------------------------
@@ -94,7 +95,8 @@ bin_SCRIPTS		= bin/libdl-sh
 pkgdata_SCRIPTS		= [@]FINISH@ [@]GENSUBST@ [@]GENSUBST@.sed	\
 			  lib/conf.awk
 shlib_DATA		= lib/libdl.sh lib/libquote.sh lib/libundo.sh	\
-			  lib/libsafe.sh lib/libconf.sh lib/libemit.sh
+			  lib/libsafe.sh lib/libconf.sh lib/libemit.sh	\
+			  lib/libsession.sh
 man_MANS		= doc/libdl-sh.1 doc/libdl-sh.conf.5		\
 			  doc/libdl.3sh doc/libconf.3sh			\
 			  doc/libquote.3sh doc/libundo.3sh		\

@@ -25,6 +25,7 @@ dnl		ks	2016-06-03	Use AC_CONFIG_MACRO_DIRS() to tell
 dnl					aclocal(1) where to find stuff.
 dnl		ks	2016-06-06	Introduce AF_INIT().
 dnl		ks	2017-02-10	Update copyright.
+dnl		ks	2017-10-19	Add 'libsession.sh'.
 dnl
 dnl NOTE:   (1)	Update the build system with autoreconf(1).
 dnl	    (2)	AM_INIT_AUTOMAKE() already invokes AC_ARG_PROGRAM, AC_PROG_-
@@ -51,7 +52,7 @@ AF_FINISH_FILES([
     doc/libquote.3sh doc/libundo.3sh doc/libsafe.3sh
     etc/libdl-sh.conf
     lib/libdl.sh lib/libquote.sh lib/libundo.sh lib/libsafe.sh
-    lib/conf.awk lib/libconf.sh lib/libemit.sh
+    lib/conf.awk lib/libconf.sh lib/libemit.sh lib/libsession.sh
 ])
 AC_CONFIG_FILES([
     Makefile
