@@ -2,7 +2,7 @@
 #-----------------------------------------------------------------------------
 #   libdl.sh			- Demand-loading library
 #
-#   Copyright (C) 2013-2017 Das Computerlabor (DCl-M)
+#   Copyright (C) 2013-2018 Das Computerlabor (DCl-M)
 #
 #   This library is free software; you can redistribute it and/or
 #   modify it under the terms of the GNU Lesser General Public License
@@ -41,9 +41,9 @@
 ##----------------------------------------------------------------------------
 ##  Define special characters:
 #-----------------------------------------------------------------------------
-BQ=\` DQ=\" SQ=\' BS=\\ CS='#' DS=\$ QB=\` QE=\' CR=`printf '\r'` NL='
+BQ=\` DQ=\" SQ=\' BS=\\ CS='#' DS=\$ HS=\! QB=\` QE=\' CR=`printf '\r'` NL='
 '
-readonly BQ DQ SQ BS CS DS QB QE CR NL
+readonly BQ DQ SQ BS CS DS HS QB QE CR NL
 
 ##----------------------------------------------------------------------------
 ##  Global variables:
