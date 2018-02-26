@@ -233,7 +233,7 @@ dl_split() {
 	    while (++i <= NF) if ($i ~ /^([on]ifs|word)$/)
 		++ec
 	    else
-		printf "%s=$%u%s",$i,i+1,((i < NF) ? " " : "\n")
+		printf "%s=$%u\n",$i,i+1
 	}
 	END {
 	    if (ec) print "return 1"
