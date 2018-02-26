@@ -61,11 +61,11 @@ The demand-loading library \fBlibdl.sh\fP and its helper \fBlibdl-sh\fP are the
 core of @PACKAGE_TARNAME@'s shell library demand-loading mechanism. After the
 demand-loading library itself has been loaded into the application with
 \fBlibdl-sh\ load\fP (see \fBSYNOPSIS\fP above) and initialized the library
-search path by parsing its configuration, more libraries may be loaded by
+search path by parsing its configuration, further libraries may be loaded by
 invoking \fBdl_load\fP.
 
 Applications having private library directories may augment the library search
-path by invoking \fBdl_meta pre libpath\fP before loading more libraries.
+path by invoking \fBdl_meta pre libpath\fP before loading further libraries.
 
 Applications and/or libraries may also register load-time hooks (i.e.,
 functions invoked after successfully loading a library) as well as exit-time
@@ -181,7 +181,7 @@ pathnames free of symbolic link components) before being prepended.
 
 Applications may invoke \fBdl_meta pre libpath\fP to augment the library
 search path with private library directories. They should do so only once and
-before invoking \fBdl_load\fP to load more libraries.
+before invoking \fBdl_load\fP to load further libraries.
 
 .TP
 \fBget libpath\fP
@@ -292,7 +292,7 @@ so that execution may be terminated with either \fBexit\fP or \fBdl_exit\fP.
 
 Consequently, applications as well as demand-loadable libraries mustn't change
 the exit trap and instead register appropriate exit-time hooks. Note, however,
-that applications remain free to catch signals as they see fit.
+that applications remain free to trap signals as they see fit.
 
 .SH NAMING CONVENTIONS
 In order to avoid confusion (e.g., spurious overloading of functions),
