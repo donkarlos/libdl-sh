@@ -2,7 +2,7 @@
 #-----------------------------------------------------------------------------
 #   finish			- Finish unfinished file(s)
 #
-#   Copyright (C) 2016 Das Computerlabor (DCl-M)
+#   Copyright (C) 2016-2018 Das Computerlabor (DCl-M)
 #
 #   This library is free software; you can redistribute it and/or
 #   modify it under the terms of the GNU Lesser General Public License
@@ -22,6 +22,8 @@
 ##
 ##  WRITTEN BY:	ks	2016-06-07
 ##  CHANGED BY:	ks	2016-06-08	Get independent of config.sh.
+##		ks	2018-02-24	Become compatible with ancient file(1)
+##					implementations.
 ##----------------------------------------------------------------------------
 ##  Initialization:
 #-----------------------------------------------------------------------------
@@ -238,8 +240,8 @@ case $action in				## Which action?
 	ofty=`file "$pofpn" | $SED 's/^'"$ofre"': */-/'"$sx_file"`
 					## (RE,'/')-quote phase output file
 					## and get its normalized file type.
-	case $ofty in			## Output file is executable script?
-	    *-script-text-executable-*)	## Yes...
+	case $ofty in			## Output file is (executable) script?
+	    *-script-text-*)		## Yes...
 		chmod a+x "$pofpn" || exit 1
 		;;			## Grant execute permissions.
 	esac
