@@ -2,7 +2,7 @@
 #-----------------------------------------------------------------------------
 #   libdl-sh			- libdl.sh Demand-loading helper
 #
-#   Copyright (C) 2013-2017 Das Computerlabor (DCl-M)
+#   Copyright (C) 2013-2018 Das Computerlabor (DCl-M)
 #
 #   This library is free software; you can redistribute it and/or
 #   modify it under the terms of the GNU Lesser General Public License
@@ -26,7 +26,7 @@
 ##		ks	2017-02-10	Update copyright.
 ##					Simplify 'load' action.
 ##					Canonify LSP items in 'path' action.
-##		ks	2017-10-19	Add 'exec' action.
+##		ks	2018-02-26	Add 'exec' action.
 ##----------------------------------------------------------------------------
 ##  include(CONF ...)		Parse demand-loading configuration file(s)
 ##				into list of library search path items
@@ -91,7 +91,7 @@ EOF
 					## which is what dl_load() needs as it
 					## always prepends the LSP to $PATH).
     exec)				## Execute command...
-	bindn=`dirname "$0"`; binrn=`cd "$bindn" && /bin/pwd` && {
+	shift; bindn=`dirname "$0"`; binrn=`cd "$bindn" && /bin/pwd` && {
 	    PATH=$binrn${PATH+:$PATH}; export PATH
 					## Augment PATH.
 	    destrn=`expr "_$binrn" : '_\(.*\)@bindir@$'` &&
