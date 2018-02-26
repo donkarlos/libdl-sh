@@ -230,16 +230,16 @@ dl_split() {
 	    print "oifs=$IFS; IFS=$nifs; set shiftee $word; IFS=$oifs"
 	}
 	{
-	    for (i = 2; i <= NF; ++i) if ($i ~ /^([on]ifs|word)$/)
+	    while (++i <= NF) if ($i ~ /^([on]ifs|word)$/)
 		++ec
 	    else
-		printf "%s=$%u%s",$i,i,((i < NF) ? " " : "\n")
+		printf "%s=$%u%s",$i,i+1,((i < NF) ? " " : "\n")
 	}
 	END {
 	    if (ec) print "return 1"
 	}
     ' <<EOF
-skippee $*
+$*
 EOF`"
 }
 
