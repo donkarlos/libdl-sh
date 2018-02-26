@@ -61,10 +61,10 @@ dl_re_0n='['"$dl_cs_0d"']['"$dl_cs_0d"']*'
 dl_package='@PACKAGE_TARNAME@'		## Define source package name/version.
 dl_version='@PACKAGE_VERSION@'
 dl_api=1				## Define API version.
-dl_libpath=`libdl-sh path` || exit 127
-dl_loaded=:dl:
+dl_libpath=`libdl-sh path` || exit 127	## Determine LSP or abort!
+dl_loaded=:dl:				## Register this library as loaded.
 dl_needed=
-dl_atexits='exit $status'
+dl_atexits='exit $status'		## Preset exit-hook's command.
 readonly dl_cs_ul dl_cs_ll dl_cs_1d dl_cs_0d dl_cs_al dl_cs_an dl_re_id	\
 	 dl_re_1n dl_re_0n dl_package dl_version dl_api
 unset dl_atloads dl_session		## Discard spurious environment.
