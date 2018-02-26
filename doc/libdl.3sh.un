@@ -1,7 +1,7 @@
 .\"								-*- nroff -*-
 .\" libdl.3sh			- libdl(3sh) manual page
 .\"
-.\" Copyright (C) 2013-2017 Das Computerlabor (DCl-M)
+.\" Copyright (C) 2013-2018 Das Computerlabor (DCl-M)
 .\"
 .\" This library is free software; you can redistribute it and/or
 .\" modify it under the terms of the GNU Lesser General Public License
@@ -35,7 +35,7 @@
 .\#
 .\# NOTE: (1)	Please adjust below date whenever revising the manual page.
 .\#		vvvvvv
-.TH LIBDL 3SH 2017-07-01 "@PACKAGE_TARNAME@ @PACKAGE_VERSION@" "Shell Programming"
+.TH LIBDL 3SH 2018-02-26 "@PACKAGE_TARNAME@ @PACKAGE_VERSION@" "Shell Programming"
 
 .SH NAME
 dl_atload, dl_load, dl_atexit, dl_exit, dl_which, dl_dump, dl_meta
@@ -257,7 +257,28 @@ NOT DOCUMENTED YET
 
 .TP
 \fBdl_split\fP \fIWORD\fP \fIIFS\fP &\fIFIELD\fP ...
-NOT DOCUMENTED YET
+Split \fIWORD\fP into fields, using input field separator \fIIFS\fP, then
+assign the resulting field values to variable(s) \fIFIELD\fP in the order
+given. Excess \fIFIELD\fPs will be unset instead, allowing the invoker to
+distinguish between empty and missing fields. If some \fIFIELD\fP doesn't
+resemble a variable name (e.g., "-"), the corresponding field value will
+be skipped.
+
+For example, invoking
+
+.in +4
+\fBdl_split v1:v2:v3 : f1 - f3 f4\fP
+.in -4
+
+(un)sets variables in the invoker's namespace as follows:
+
+.in +4
+\fBf1=v1\fP
+.br
+\fBf3=v3\fP
+.br
+\fBunset f4\fP
+.in -4
 
 .SH TRAPS
 In order to have "naïve" applications benefit from \fBlibdl.sh\fP's exit-time

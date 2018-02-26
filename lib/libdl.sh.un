@@ -35,6 +35,7 @@
 ##					meta operation.
 ##		ks	2017-07-01	Add service function dl_dump().
 ##		ks	2017-07-08	Add service function dl_split().
+##		ks	2018-02-26	Overhaul dl_split().
 ##
 ##  NOTE:   (1)	To avoid cluttering code, this library is exempted from need-
 ##		ing namespace prefixes for its special character definitions.
@@ -230,10 +231,11 @@ dl_split() {
 	    print "oifs=$IFS; IFS=$nifs; set shiftee $word; IFS=$oifs"
 	}
 	{
-	    while (++i <= NF) if ($i ~ /^([on]ifs|word)$/)
-		++ec
-	    else
-		printf "%s=$%u\n",$i,i+1
+	    while (++i <= NF) if ($i ~ /^'"$dl_re_id"'$/)
+		if ($i ~ /^([on]ifs|word)$/)
+		    ++ec
+		else
+		    printf "case ${%u+=} in =) %s=$%u;; *) unset %s;; esac\n",i+1,$i,i+1,$i
 	}
 	END {
 	    if (ec) print "return 1"
