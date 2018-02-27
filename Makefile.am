@@ -1,7 +1,7 @@
 ##								-*-Makefile-*-
 ##  Makefile.am			- libdl-sh `Makefile.in' template
 ##
-##  Copyright (C) 2013-2017 Das Computerlabor (DCl-M)
+##  Copyright (C) 2013-2018 Das Computerlabor (DCl-M)
 ##
 ##  This library is free software; you can redistribute it and/or
 ##  modify it under the terms of the GNU Lesser General Public License
@@ -33,6 +33,7 @@
 ##					Remove undo_{init,keep}.3sh.
 ##		ks	2017-07-01	Add service function dl_dump().
 ##		ks	2017-10-19	Add 'libsession.sh'.
+##		ks	2018-02-27	Add 'test-deb-version'.
 ##
 ##  NOTE:   (1)	Update the build system with autoreconf(1).
 ##----------------------------------------------------------------------------
@@ -91,7 +92,7 @@ dist_man_MANS		= doc/dl_atexit.3sh doc/dl_atload.3sh		\
 ##----------------------------------------------------------------------------
 ##  Finish and install scripts, libraries, manpages, and package data:
 ##----------------------------------------------------------------------------
-bin_SCRIPTS		= bin/libdl-sh
+bin_SCRIPTS		= bin/libdl-sh bin/test-deb-version
 pkgdata_SCRIPTS		= [@]FINISH@ [@]GENSUBST@ [@]GENSUBST@.sed	\
 			  lib/conf.awk
 shlib_DATA		= lib/libdl.sh lib/libquote.sh lib/libundo.sh	\

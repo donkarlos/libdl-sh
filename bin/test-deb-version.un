@@ -1,0 +1,277 @@
+#! /bin/sh
+#-----------------------------------------------------------------------------
+#   test-deb-version		- Compare version strings like dpkg(1)
+#
+#   Copyright (C) 2016-2018 Das Computerlabor (DCl-M)
+#
+#   This library is free software; you can redistribute it and/or
+#   modify it under the terms of the GNU Lesser General Public License
+#   as published by the Free Software Foundation; either
+#   version 2.1 of the License, or (at your option) any later version.
+#
+#   This library is distributed in the hope that it will be useful,
+#   but WITHOUT ANY WARRANTY; without even the implied warranty of
+#   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+#   Lesser General Public License for more details.
+#
+#   You should have received a copy of the GNU Lesser General Public License
+#   along with this library; if not, write to the Free Software Founda-
+#   tion, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
+##
+##  AUTHOR(S):	ks	Karl Schmitz <ks@computerlabor.org>
+##
+##  WRITTEN BY:	ks	2016-05-17
+##  CHANGED BY:	ks	2018-02-27	Import from package `ssh-ca' (where
+##					it was known as `debverscmp').
+##----------------------------------------------------------------------------
+##  Global variables:
+#-----------------------------------------------------------------------------
+BS=\\ SQ=\' QB=\` QE=\'
+
+cs_ul=ABCDEFGHIJKLMNOPQRSTUVWXYZ	## Upper-case letters.
+cs_ll=abcdefghijklmnopqrstuvwxyz	## Lower-case letters.
+cs_0d=0123456789			## Decimal digits.
+					## UV (Upstream Vers.) character sets:
+cs_ED='-:+.~'"$cs_ul$cs_ll$cs_0d"	## - with-EP/with-DR,
+cs_E_=':+.~'"$cs_ul$cs_ll$cs_0d"	## - with-EP/sans-DR,
+cs__D='-+.~'"$cs_ul$cs_ll$cs_0d"	## - sans-EP/with-DR, or
+cs___='+.~'"$cs_ul$cs_ll$cs_0d"		## - sans-EP/sans-DR.
+re_E='['"$cs_0d"']['"$cs_0d"']*:'	## Unanchored RE for EP (Epoch).
+re_D='-['"$cs___"']*'			## Unanchored RE for DR (Debian Rev.).
+
+##----------------------------------------------------------------------------
+##  transform_version(VERSION)	Transform valid dpkg(1) VERSION
+##
+##  NOTE:   (1)	Invoker must set "BorF=F" for "*-nl" operators (see dpkg(1))
+##		to correctly collate an empty VERSION!
+##	    (2)	Though technically the leading '#' sentinel isn't necessary,
+##		it enables tracing intermediate substitutions done by sed(1),
+##		as the surrounding "eval `...`" perceives them as comments.
+##		Substitution tracing is enabled when "set -x" is in effect.
+##	    (3)	Though technically not necessary, UVs are forced to start with
+##		a number (to stay compatible to dpkg(1)'s notion of UVs).
+##
+##  The transformation is done in three stages:
+##   #1	An empty VERSION is weighted B or F by the 1st sed(1) expr.
+##	The four VERSION syntax variants are validated with 2nd to 5th sed(1)
+##	expr., prepending "#B#" (and the default EP "0:" iff sans-EP).
+##	A malformed VERSION gets rejected with 6th sed(1) expr.
+##   #2	While shifting the 2nd '#' sentinel, ' '-separating numeric from non-
+##	numeric parts, as well as appending '_' to each non-numeric part (both
+##	done on the fly with 7th sed(1) expr.), collate non-numeric parts into
+##	lexicographic order by weighting them as follows (":1"..."t1" loop):
+##	  * '~'	is weighted A (thus << anything),
+##	  * '_'	is weighted B (thus >> '~')
+##	  * '-'	is weighted C iff it separates UV from DR
+##		(thus << any letter and especially << '+' here!),
+##	  * a letter is weighted D, and
+##	  * '+'/'-'/'.'/':' are weighted E (thus >> letters).
+##   #3	The resulting transformed VERSION (between '#' sentinels), a ' '-sepa-
+##	rated sequence of a correctly collated empty part followed by alterna-
+##	ting numeric and collated non-numeric parts, is compiled into an
+##	echo(1) command, ultimately emitting it when eval(1)uated.
+##
+##  By transforming VERSION in this fashion, neither special handling of empty
+##  VERSIONs nor separate processing of EP and/or DR is necessary; just follow
+##  the flow of the alternating parts, comparing
+##    *	non-numeric parts lexicographically and
+##    *	    numeric parts numerically.
+##  Et voilà!
+##----------------------------------------------------------------------------
+transform_version() {
+    case ${BorF-B} in			## $BorF must be 'B' or 'F' (got it?).
+	B|F)		;;
+	*)  return 2	;;
+    esac
+
+    eval "`local p=; case $- in *x*) p=p;; esac; sed '
+	s/^$/#'"${BorF-B}"'#/'"$p"';t1
+	s/^'"$re_E"'['"$cs_0d"']['"$cs_ED"']*'"$re_D"'$/#B#&/'"$p"';t1
+	s/^'"$re_E"'['"$cs_0d"']['"$cs_E_"']*$/#B#&/'"$p"';t1
+	s/^['"$cs_0d"']['"$cs__D"']*'"$re_D"'$/#B#0:&/'"$p"';t1
+	s/^['"$cs_0d"']['"$cs___"']*$/#B#0:&/'"$p"';t1
+	s/^.*$/test/;q;:1
+	s/\([^#]\)#\(['"$cs_0d"']['"$cs_0d"']*\)\([^'"$cs_0d"']*\)/\1 \2 #\3_/'"$p"';t1
+	s/\([^#]\)#~/\1A#/'"$p"';t1
+	s/\([^#]\)#_/\1B#/'"$p"';t1
+	s/\([^#]\)#-\([^-]*\)$/\1C#\2/'"$p"';t1
+	s/\([^#]\)#\(['"$cs_ul$cs_ll"']\)/\1D\2#/'"$p"';t1
+	s/\([^#]\)#\(.\)/\1E\2#/'"$p"';t1
+	s/^#/echo '"$SQ"'/;s/#$/'"$SQ"'/;q
+    ' <<EOF
+$1
+EOF`"
+}
+
+##----------------------------------------------------------------------------
+##  compare_versions(VERSION1 OP VERSION2)
+##				Compare dpkg(1) versions VERSION1 and VERSION2
+##				with comparison OPerator and return status re-
+##				presenting comparison result
+##
+##  NOTE:   (1)	Shield from broken Solaris sed(1) by placing labels at EOL!
+##	    (2)	Though technically the leading '#' sentinel isn't necessary,
+##		it enables tracing intermediate substitutions done by sed(1),
+##		as the surrounding "eval `...`" perceives them as comments.
+##		Substitution tracing is enabled when "set -x" is in effect.
+##----------------------------------------------------------------------------
+compare_versions() {
+    local eqn=-eq eqs='=' nes="$BS$BS"'!=' a='\&\&' o='||'		\
+	  tv1 op tv2 BorF form opn ops
+
+    case $# in				## Usage OK?
+	3)  if op=`expr "_$2" : '^_\(['"$cs_ll]"'*\)-nl$'`; then
+					## OPerator is "*-nl" variant?
+		BorF=F			## Yes, make empty VERSIONs become
+					## >> non-empty version.
+	    else			## No, make empty VERSIONs become
+		BorF=B op=$2		## << non-empty version.
+	    fi; case $op in		## Choose OPerator's compilation form
+					## and (escaped) test(1) operators...
+		lt|'<<'|'<')	form=va opn=-lt  ops="$BS$BS"'<';;
+		le|'<=')	form=vo opn=-lt  ops="$BS$BS"'<';;
+		eq|'=='|'=')	form=-a opn=$eqn ops=$eqs	;;
+		ne|'!='|'<>')	form=-o opn=-ne  ops=$nes	;;
+		ge|'>=')	form=vo opn=-gt  ops="$BS$BS"'>';;
+		gt|'>>'|'>')	form=va opn=-gt  ops="$BS$BS"'>';;
+		*)		return 3		;;
+	    esac			## ...or reject unknown OPerator!
+	    tv1=`transform_version "$1"` || return 4
+					## Try to transform VERSION1.
+	    tv2=`transform_version "$3"` || return 5
+	    ;;				## Try to transform VERSION2.
+	*)  return 2			## No, indicate misusage!
+	    ;;
+    esac
+
+    ##------------------------------------------------------------------------
+    ##	While compiling the comparison into a test(1) sequence, sed(1)'s pat-
+    ##	tern space generally has the form
+    ##	  "#"<FO>"#"<DE>"#"<TV1>"#"<TV2>"#"<AS>
+    ##	where
+    ##	  * <FO> is the chosen compilation form, i.e.
+    ##	    "-a" for linear '&&' form (OPerator  "eq"),
+    ##	    "-o" for linear '||' form (OPerator  "ne"),
+    ##	    "va" for valley '&&' form (OPerators "lt"/"gt"), and
+    ##	    "vo" for valley '||' form (OPerators "le"/"ge"),
+    ##	  * <DE> is the DEscending test(1) sequence compiled so far,
+    ##	  * <TV1> and <TV2> are the transformed versions' parts not compiled
+    ##	    so far (in particular
+    ##	      <TV1_Si>=<1Si>[" "<1Ni+1>" "<1Si+1>...] and
+    ##	      <TV2_Si>=<2Si>[" "<2Ni+1>" "<2Si+1>...]
+    ##	    when compiling the i-th string (non-numeric) part), or
+    ##	      <TV1_Ni>=<1Ni>" "<1Si>[" "<1Ni+1>" "<1Si+1>...] and
+    ##	      <TV2_Ni>=<2Ni>" "<2Si>[" "<2Ni+1>" "<2Si+1>...]
+    ##      when compiling the i-th numeric part, and finally
+    ##	  * <AS> is the AScending test(1) sequence compiled so far.
+    ##	Initially (i=0), the pattern space (except for empty VERSIONs, see
+    ##	below) is
+    ##	  "#"<FO>"#"<DE_N0>"#"<TV1_N0>"#"<TV2_N1>"#"<AS_N0>,
+    ##	with <DE_N0>=<AS_N0>="", so the non-numeric part pair <1S0>/<2S0>
+    ##	is compiled first.
+    ##
+    ##	A numeric part pair <1Ni>/<2Ni> is compiled according to chosen form:
+    ##	  * For linear '&&' form (OP "eq") in particular,
+    ##	    <DE_Si>=<DE_Ni>"test "<1Ni>" $opn "<2Ni>" $a " and
+    ##	    <AS_Si>=<AS_Ni>="".
+    ##	  * For linear '||' form (OP "ne") in particular,
+    ##	    <DE_Si>=<DE_Ni>"test "<1Ni>" $opn "<2Ni>" $o " and
+    ##	    <AS_Si>=<AS_Ni>="".
+    ##	  * For both valley forms (OPs "lt"/"le"/"ge"/"gt") in particular,
+    ##	    <DE_Si>=<DE_Ni>"test "<1Ni>" $eqn "<2Ni>" $a { " and
+    ##	    <AS_Si>="; } $o test "<1Ni>" $opn "<2Ni><AS_Ni>.
+    ##	Field pair <1Ni>/<2Ni> is consumed, so the pattern space becomes
+    ##	  "#"<FO>"#"<DE_Si>"#"<TV1_Si>"#"<TV2_Si>"#"<AS_Si>.
+    ##
+    ##	If both <1Si> and <2Si> are followed by
+    ##	<1Ni+1>" "<1Si+1> and <2Ni+1>" "<2Si+1> respectively, the string
+    ##	part pair <1Si>/<2Si> is compiled analoguous to numeric part pairs:
+    ##	  * For linear '&&' form (OP "eq") in particular,
+    ##	    <DE_Ni+1>=<DE_Si>"test "<1Si>" $ops "<2Si>" $a " and
+    ##	    <AS_Ni+1>=<AS_Si>="".
+    ##	  * For linear '||' form (OP "ne") in particular,
+    ##	    <DE_Ni+1>=<DE_Si>"test "<1Si>" $ops "<2Si>" $o " and
+    ##	    <AS_Ni+1>=<AS_Si>="".
+    ##	  * For both valley forms (OPs "lt"/"le"/"ge"/"gt") in particular,
+    ##	    <DE_Ni+1>=<DE_Si>"test "<1Si>" $eqs "<2Si>" $a { " and
+    ##	    <AS_Ni+1>="; } $o test "<1Si>" $ops "<2Si><AS_Si>.
+    ##	Again, the part pair is consumed, so the pattern space becomes
+    ##	  "#"<FO>"#"<DE_Ni+1>"#"<TV1_Ni+1>"#"<TV2_Ni+1>"#"<AS_Ni+1>
+    ##	and compilation continues with numeric part pair <1Ni+1>/<2Ni+1>.
+    ##
+    ##	Otherwise (<1Ni+1> not following or <2Ni+1> not following), the string
+    ##	tail pair <TV1_Si>/<TV2_Si> is compiled by different rules:
+    ##	  * For linear forms (OPs "eq"/"ne") in particular,
+    ##	    <DE_Ni+1>=<DE_Si>"test $SQ"<TV1_Si>"$SQ $ops $SQ"<TV2_Si>"$SQ"
+    ##	    and
+    ##	    <AS_Ni+1>=<AS_Si>="".
+    ##	  * For valley '&&' form (OPs "lt"/"gt") in particular,
+    ##	    <DE_Ni+1>=<DE_Si>"test $SQ"<TV1_Si>"$SQ $nes $SQ"<TV2_Si>"$SQ $a "
+    ##	    and
+    ##	    <AS_Ni+1>="test $SQ"<TV1_Si>"$SQ $ops $SQ"<TV2_Si>"$SQ"<AS_Si>.
+    ##	  * For valley '||' form (OPs "le"/"ge") in particular,
+    ##	    <DE_Ni+1>=<DE_Si>"test $SQ"<TV1_Si>"$SQ $eqs $SQ"<TV2_Si>"$SQ $o "
+    ##	    and
+    ##	    <AS_Ni+1>="test "<TV1_Si>" $ops "<TV2_Si><AS_Si>.
+    ##	Since what remains of both transformed versions is consumed now, the
+    ##	3rd to 5th '#' separators are also consumed (glueing the <DE> and <AS>
+    ##	parts together), so the pattern space becomes:
+    ##	  "#"<FO>"#"<DE_Ni+1><AS_Ni+1>.
+    ##  Finally stripping the leading "#"<FO>"" yields the test(1) sequence
+    ##  that gets evaluated.
+    ##
+    ##	EXAMPLE:
+    ##
+    ##	compare_versions '0+0' lt '0-0'
+    ##    * transforms versions '0+0' and '0-0' into
+    ##	    tv1=`transform_version 0+0`, i.e. tv1='B 0 E:B 0 E+B 0 B' and
+    ##	    tv2=`transform_version 0-0`, i.e. tv2='B 0 E:B 0 CB 0 B', then
+    ##	  * compiles "#va##B 0 E:B 0 E+B 0 B#B 0 E:B 0 CB 0 B#" into the
+    ##	    test(1) sequence depicted (neatly folded to illustrate that in-
+    ##      deed we must descend into, then ascend out of a valley) below:
+    ##
+    ##	  --.			     SHORTCUT			       .->
+    ##	   T \ test B = B     && {    TAKEN     } || test B \< B      / F
+    ##	    T \ test 0 -eq 0   && {	|      } || test 0 -lt 0     / F
+    ##	     T \ test E:B = E:B && {	|     } || test E:B \< E:B; / F
+    ##	      T \ test 0 -eq 0   && {	v    } || test 0 -lt 0;    / F
+    ##	       F \ test E+B = CB  && { ---> } || test E+B \< CB;  / F
+    ##		  \ test 0 -eq 0   && {    } || test 0 -lt 0;    /
+    ##		   \ test 'B' \!= 'B'   &&  test 'B' \< 'B';    /
+    ##		    `------------------------------------------´
+    ##	  (<-- DEscending sequence -->)    (<--- AScending sequence ---->)
+    ##	       ought to ensure "ne"		ought to ensure "lt"
+    ##		   and does so			  but can't do so
+    ##------------------------------------------------------------------------
+    eval "`local p=; case $- in *x*) p=p;; esac; sed '
+	:s
+	s/^\(#-a#[^#]*\)#\([^ #]*\) \([^#]*\)#\([^ #]*\) \([^#]*\)#/\1test \2 '"$ops"' \4 '"$a"' #\3#\5#/'"$p"';tn
+	s/^\(#-o#[^#]*\)#\([^ #]*\) \([^#]*\)#\([^ #]*\) \([^#]*\)#/\1test \2 '"$ops"' \4 '"$o"' #\3#\5#/'"$p"';tn
+	s/^\(#v.#[^#]*\)#\([^ #]*\) \([^#]*\)#\([^ #]*\) \([^#]*\)#/\1test \2 '"$eqs"' \4 '"$a"' { #\3#\5#; } '"$o"' test \2 '"$ops"' \4/'"$p"';tn
+	s/^\(#-.#[^#]*\)#\([^#]*\)#\([^#]*\)#/\1test '"$SQ"'\2'"$SQ $ops $SQ"'\3'"$SQ"'/'"$p"';tp
+	s/^\(#va#[^#]*\)#\([^#]*\)#\([^#]*\)#/\1test '"$SQ"'\2'"$SQ $nes $SQ"'\3'"$SQ"' '"$a"' test '"$SQ"'\2'"$SQ $ops $SQ"'\3'"$SQ"'/'"$p"';tp
+	s/^\(#vo#[^#]*\)#\([^#]*\)#\([^#]*\)#/\1test '"$SQ"'\2'"$SQ $eqs $SQ"'\3'"$SQ"' '"$o"' test '"$SQ"'\2'"$SQ $ops $SQ"'\3'"$SQ"'/'"$p"';tp
+	:n
+	s/^\(#-a#[^#]*\)#\([^ #]*\) \([^#]*\)#\([^ #]*\) \([^#]*\)#/\1test \2 '"$opn"' \4 '"$a"' #\3#\5#/'"$p"';ts
+	s/^\(#-o#[^#]*\)#\([^ #]*\) \([^#]*\)#\([^ #]*\) \([^#]*\)#/\1test \2 '"$opn"' \4 '"$o"' #\3#\5#/'"$p"';ts
+	s/^\(#v.#[^#]*\)#\([^ #]*\) \([^#]*\)#\([^ #]*\) \([^#]*\)#/\1test \2 '"$eqn"' \4 '"$a"' { #\3#\5#; } '"$o"' test \2 '"$opn"' \4/'"$p"';ts
+	:p
+	s/^#..#//
+	' <<EOF
+#$form##$tv1#$tv2#
+EOF`"
+}
+
+##----------------------------------------------------------------------------
+##  Main program:
+##----------------------------------------------------------------------------
+LC_ALL=C; export LC_ALL			## Avoid locale insanities.
+command=`basename "$0"`
+
+compare_versions ${1+"$@"} || case $? in
+    1)							 exit 1	;;
+    2)	echo "Usage: $command VERSION1 OP VERSION2" >&2; exit 2	;;
+    3)	echo "$command: Unknown operator $QB$2$QE!" >&2; exit 2	;;
+    4)	echo "$command: Invalid version $QB$1$QE!"  >&2; exit 2	;;
+    5)	echo "$command: Invalid version $QB$3$QE!"  >&2; exit 2	;;
+esac

@@ -1,7 +1,7 @@
 dnl								-*-Autoconf-*-
 dnl configure.ac		- libdl-sh Autotools configuration
 dnl
-dnl Copyright (C) 2013-2017 Das Computerlabor (DCl-M)
+dnl Copyright (C) 2013-2018 Das Computerlabor (DCl-M)
 dnl
 dnl This library is free software; you can redistribute it and/or
 dnl modify it under the terms of the GNU Lesser General Public License
@@ -26,6 +26,7 @@ dnl					aclocal(1) where to find stuff.
 dnl		ks	2016-06-06	Introduce AF_INIT().
 dnl		ks	2017-02-10	Update copyright.
 dnl		ks	2017-10-19	Add 'libsession.sh'.
+dnl		ks	2018-02-27	Add 'test-deb-version'.
 dnl
 dnl NOTE:   (1)	Update the build system with autoreconf(1).
 dnl	    (2)	AM_INIT_AUTOMAKE() already invokes AC_ARG_PROGRAM, AC_PROG_-
@@ -47,7 +48,7 @@ dnl
 dnl Generate output files:
 dnl
 AF_FINISH_FILES([
-    bin/libdl-sh
+    bin/libdl-sh bin/test-deb-version
     doc/libdl-sh.1 doc/libdl-sh.conf.5 doc/libdl.3sh doc/libconf.3sh
     doc/libquote.3sh doc/libundo.3sh doc/libsafe.3sh
     etc/libdl-sh.conf
