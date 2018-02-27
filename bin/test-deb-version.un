@@ -23,6 +23,8 @@
 ##  WRITTEN BY:	ks	2016-05-17
 ##  CHANGED BY:	ks	2018-02-27	Import from package `ssh-ca' (where
 ##					it was known as `debverscmp').
+##					Suppress leading zeros in numeric
+##					parts.
 ##----------------------------------------------------------------------------
 ##  Global variables:
 #-----------------------------------------------------------------------------
@@ -30,13 +32,13 @@ BS=\\ SQ=\' QB=\` QE=\'
 
 cs_ul=ABCDEFGHIJKLMNOPQRSTUVWXYZ	## Upper-case letters.
 cs_ll=abcdefghijklmnopqrstuvwxyz	## Lower-case letters.
-cs_0d=0123456789			## Decimal digits.
+cs_1d=123456789				## Decimal digits without and
+cs_0d=0$cs_1d				## with '0'.
 					## UV (Upstream Vers.) character sets:
 cs_ED='-:+.~'"$cs_ul$cs_ll$cs_0d"	## - with-EP/with-DR,
 cs_E_=':+.~'"$cs_ul$cs_ll$cs_0d"	## - with-EP/sans-DR,
 cs__D='-+.~'"$cs_ul$cs_ll$cs_0d"	## - sans-EP/with-DR, or
 cs___='+.~'"$cs_ul$cs_ll$cs_0d"		## - sans-EP/sans-DR.
-re_E='['"$cs_0d"']['"$cs_0d"']*:'	## Unanchored RE for EP (Epoch).
 re_D='-['"$cs___"']*'			## Unanchored RE for DR (Debian Rev.).
 
 ##----------------------------------------------------------------------------
@@ -86,12 +88,15 @@ transform_version() {
 
     eval "`local p=; case $- in *x*) p=p;; esac; sed '
 	s/^$/#'"${BorF-B}"'#/'"$p"';t1
-	s/^'"$re_E"'['"$cs_0d"']['"$cs_ED"']*'"$re_D"'$/#B#&/'"$p"';t1
-	s/^'"$re_E"'['"$cs_0d"']['"$cs_E_"']*$/#B#&/'"$p"';t1
+	s/^0*\(['"$cs_1d"']['"$cs_0d"']*:['"$cs_0d"']['"$cs_ED"']*'"$re_D"'\)$/#B#\1/'"$p"';t1
+	s/^0*\(['"$cs_0d"']:['"$cs_0d"']['"$cs_ED"']*'"$re_D"'\)$/#B#\1/'"$p"';t1
+	s/^0*\(['"$cs_1d"']['"$cs_0d"']*:['"$cs_0d"']['"$cs_E_"']*\)$/#B#\1/'"$p"';t1
+	s/^0*\(['"$cs_0d"']:['"$cs_0d"']['"$cs_E_"']*\)$/#B#\1/'"$p"';t1
 	s/^['"$cs_0d"']['"$cs__D"']*'"$re_D"'$/#B#0:&/'"$p"';t1
 	s/^['"$cs_0d"']['"$cs___"']*$/#B#0:&/'"$p"';t1
 	s/^.*$/test/;q;:1
-	s/\([^#]\)#\(['"$cs_0d"']['"$cs_0d"']*\)\([^'"$cs_0d"']*\)/\1 \2 #\3_/'"$p"';t1
+	s/\([^#]\)#0*\(['"$cs_1d"']['"$cs_0d"']*\)\([^'"$cs_0d"']*\)/\1 \2 #\3_/'"$p"';t1
+	s/\([^#]\)#0*\(['"$cs_0d"']\)\([^'"$cs_0d"']*\)/\1 \2 #\3_/'"$p"';t1
 	s/\([^#]\)#~/\1A#/'"$p"';t1
 	s/\([^#]\)#_/\1B#/'"$p"';t1
 	s/\([^#]\)#-\([^-]*\)$/\1C#\2/'"$p"';t1
