@@ -23,6 +23,7 @@
 #   CHANGED BY:	ks	2013-03-06	Rename package to `libdl-sh'.
 #		ks	2016-06-07	Add auto/gensubst and auto/finish.
 #		ks	2018-02-27	Add bin/test-deb-version.
+#		ks	2018-03-03	Add bin/args.awk.
 #
 #   NOTE:   (1)	Exclude patterns for tools beyond the actual build tools have
 #		been left out intentionally! Such patterns are better kept in
@@ -49,6 +50,7 @@ Makefile
 #-----------------------------------------------------------------------------
 /auto/finish
 /auto/gensubst
+/bin/args.awk
 /bin/libdl-sh
 /bin/test-deb-version
 /doc/*.[15]

@@ -34,6 +34,7 @@
 ##		ks	2017-07-01	Add service function dl_dump().
 ##		ks	2017-10-19	Add 'libsession.sh'.
 ##		ks	2018-02-27	Add 'test-deb-version'.
+##		ks	2018-03-03	Add 'args.awk'.
 ##
 ##  NOTE:   (1)	Update the build system with autoreconf(1).
 ##----------------------------------------------------------------------------
@@ -64,6 +65,8 @@ $(GENSUBST):		$(GENSUBST_UN) Makefile
 $(FINISH):		$(FINISH_UN) Makefile $(GENSUBST)
 	@echo "Bootstrap $@ from $(FINISH_UN) with $(FINISH_UN)..."
 	$(FINISH_UN) $(FINISH_SEDFLAGS) -s -o $@ $(FINISH_UN)
+
+noinst_SCRIPTS		= bin/args.awk
 
 ##----------------------------------------------------------------------------
 ##  Distribute and install manpages:
