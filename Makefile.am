@@ -20,30 +20,13 @@
 ##  AUTHOR(S):	ks	Karl Schmitz <ks@computerlabor.org>
 ##
 ##  WRITTEN BY:	ks	2013-02-12
-##  CHANGED BY:	ks	2013-03-06	Rename package to `libdl-sh'.
-##		ks	2016-05-24	Remove conf_init.3sh.
-##		ks	2016-06-03	Use AC_CONFIG_MACRO_DIRS() to tell
-##					aclocal(1) where to find stuff.
-##		ks	2016-06-07	Bootstrap gensubst.
-##					Add and integrate finishing script.
-##		ks	2017-01-18	Update copyright.
-##					Use 'gensubst Makefile'.
-##		ks	2017-06-26	Remove conf_getenv.3sh.
-##					Add quote_{ere,re,rs}.3sh.
-##					Remove undo_{init,keep}.3sh.
-##		ks	2017-07-01	Add service function dl_dump().
-##		ks	2017-10-19	Add 'libsession.sh'.
-##		ks	2018-02-27	Add 'test-deb-version'.
-##		ks	2018-03-03	Add 'args.awk'.
+##  CHANGED BY:	ks	2018-03-11	Import prebuilt autofinish scripts.
 ##
 ##  NOTE:   (1)	Update the build system with autoreconf(1).
 ##----------------------------------------------------------------------------
 ##  Initialization:
 ##----------------------------------------------------------------------------
 include $(top_srcdir)/auto/autofinish.am
-
-FINISH_UN		= $(srcdir)/$(FINISH).un
-GENSUBST_UN		= $(srcdir)/$(GENSUBST).un
 
 ##----------------------------------------------------------------------------
 ##  Extra primaries:
@@ -58,14 +41,6 @@ dist_noinst_DATA	= LICENSE
 ##----------------------------------------------------------------------------
 ##  Finish scripts:
 ##----------------------------------------------------------------------------
-$(GENSUBST):		$(GENSUBST_UN) Makefile
-	@echo "Bootstrap $@ from $(GENSUBST_UN) with $(FINISH_UN)..."
-	$(FINISH_UN) $(FINISH_SEDFLAGS) -s -o $@ $(GENSUBST_UN)
-
-$(FINISH):		$(FINISH_UN) Makefile $(GENSUBST)
-	@echo "Bootstrap $@ from $(FINISH_UN) with $(FINISH_UN)..."
-	$(FINISH_UN) $(FINISH_SEDFLAGS) -s -o $@ $(FINISH_UN)
-
 noinst_SCRIPTS		= bin/args.awk
 
 ##----------------------------------------------------------------------------
@@ -96,8 +71,7 @@ dist_man_MANS		= doc/dl_atexit.3sh doc/dl_atload.3sh		\
 ##  Finish and install scripts, libraries, manpages, and package data:
 ##----------------------------------------------------------------------------
 bin_SCRIPTS		= bin/libdl-sh bin/test-deb-version
-pkgdata_SCRIPTS		= [@]FINISH@ [@]GENSUBST@ [@]GENSUBST@.sed	\
-			  lib/conf.awk
+pkgdata_SCRIPTS		= lib/conf.awk
 shlib_DATA		= lib/libdl.sh lib/libquote.sh lib/libundo.sh	\
 			  lib/libsafe.sh lib/libconf.sh lib/libemit.sh	\
 			  lib/libsession.sh
@@ -106,5 +80,4 @@ man_MANS		= doc/libdl-sh.1 doc/libdl-sh.conf.5		\
 			  doc/libquote.3sh doc/libundo.3sh		\
 			  doc/libsafe.3sh
 sysconf_DATA		= etc/libdl-sh.conf
-pkgdata_DATA		= auto/autofinish.am auto/autofinish.m4
 

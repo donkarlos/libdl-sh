@@ -2,7 +2,7 @@
 #-----------------------------------------------------------------------------
 #   gensubst.sed		- Strip tagged script comments
 #
-#   Copyright (C) 2013-2016 Das Computerlabor (DCl-M)
+#   Copyright (C) 2013-2018 Das Computerlabor (DCl-M)
 #
 #   This library is free software; you can redistribute it and/or
 #   modify it under the terms of the GNU Lesser General Public License
@@ -21,10 +21,7 @@
 #   AUTHOR(S):	ks	Karl Schmitz <ks@computerlabor.org>
 #
 #   WRITTEN BY:	ks	2013-03-09
-#   CHANGED BY:	ks	2013-08-17	Strip comments in finalized manpages.
-#		ks	2016-05-19	Drop legacy block comment stripping.
-#		ks	2016-06-06	Properly strip '##'-style block com-
-#					ments.
+#   CHANGED BY:	ks	2018-02-26	Reimport from package `libdl-sh'.
 #-----------------------------------------------------------------------------
 1{;/^#![^#]*##/d;}
 /^##-*$/d

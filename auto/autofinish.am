@@ -1,7 +1,7 @@
 ##								-*-Makefile-*-
 ##  autofinish.am		- Build-time finishing rules
 ##
-##  Copyright (C) 2013-2016 Das Computerlabor (DCl-M)
+##  Copyright (C) 2013-2018 Das Computerlabor (DCl-M)
 ##
 ##  This library is free software; you can redistribute it and/or
 ##  modify it under the terms of the GNU Lesser General Public License
@@ -20,13 +20,7 @@
 ##  AUTHOR(S):	ks	Karl Schmitz <ks@computerlabor.org>
 ##
 ##  WRITTEN BY:	ks	2013-02-12
-##  CHANGED BY:	ks	2016-05-25	Add cleaning rule.
-##		ks	2016-05-27	Rename $(af__CLEAN_FILES) to $(af_fi-
-##					nished).
-##		ks	2016-05-29	Use 'FINISH_SEDFLAGS' substitution.
-##		ks	2016-05-30	Fix build dependencies.
-##		ks	2016-06-06	Turn suffix rule into pattern rule.
-##		ks	2016-06-07	Add and integrate finishing script.
+##  CHANGED BY:	ks	2018-02-26	Reimport from package `libdl-sh'.
 ##
 ##  NOTE:   (1)	Only include this in the top-level Makefile.am!
 ##		Otherwise, the pattern rule won't work.

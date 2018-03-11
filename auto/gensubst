@@ -2,7 +2,7 @@
 #-----------------------------------------------------------------------------
 #   gensubst			- Generate substitutions
 #
-#   Copyright (C) 2013-2017 Das Computerlabor (DCl-M)
+#   Copyright (C) 2013-2018 Das Computerlabor (DCl-M)
 #
 #   This library is free software; you can redistribute it and/or
 #   modify it under the terms of the GNU Lesser General Public License
@@ -17,84 +17,52 @@
 #   You should have received a copy of the GNU Lesser General Public License
 #   along with this library; if not, write to the Free Software Founda-
 #   tion, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
-##
-##  AUTHOR(S):	ks	Karl Schmitz <ks@computerlabor.org>
-##
-##  WRITTEN BY:	ks	2013-02-12
-##  CHANGED BY:	ks	2013-03-09	Move script comment stripping to
-##					`auto/gensubst.sed'.
-##		ks	2013-04-17	Fix and optimize template extraction.
-##					Allow to tune the finishing mechanism
-##					with $(FINISH_ANTE/POST_SEDFLAGS).
-##		ks	2016-05-27	Add 'pathname' substitution.
-##		ks	2016-05-28	Divide processing into phases.
-##					Add 'templates' substitution.
-##		ks	2016-05-29	Add 'FINISH_SEDFLAGS' substitution.
-##					Drop 'FINISH' substitution.
-##		ks	2016-05-30	Add (universal) 'quote' substitution.
-##		ks	2016-06-07	Bootstrap gensubst.
-##					Make template head and foot tunable.
-##		ks	2016-06-08	Get independent of config.sh.
-##		ks	2016-06-09	Make makefile tunable.
-##		ks	2016-06-10	Add 'expand' substitution.
-##		ks      2016-06-14	Allow to override $(SED)/$(srcdir).
-##		ks	2017-01-17	Update copyright.
-##					Add 'substitute' substitution.
-##		ks	2017-01-18	Add 'Makefile' substitution.
-##----------------------------------------------------------------------------
-##  Initialization:
 #-----------------------------------------------------------------------------
-LC_ALL=C; export LC_ALL			## Avoid locale insanities.
+LC_ALL=C; export LC_ALL
 
 BQ=\` DQ=\" SQ=\' BS=\\ NL='
-'					## Used for proper quoting.
-cs_upper=ABCDEFGHIJKLMNOPQRSTUVWXYZ	## Construct upper/lower-case letter,
-cs_lower=abcdefghijklmnopqrstuvwxyz	## decimal digit, letter, and alpha-
-cs_digit=0123456789			## numeric character sets.
+'
+cs_upper=ABCDEFGHIJKLMNOPQRSTUVWXYZ
+cs_lower=abcdefghijklmnopqrstuvwxyz
+cs_digit=0123456789
 cs_alpha=$cs_upper$cs_lower
 cs_alnum=$cs_alpha$cs_digit
 
-re_ident="[_$cs_alpha][_$cs_alnum]*"	## Define RE for IDENTifiers.
-shead='$('				## (Pre-)define substitutions' (lite-
-sfoot=')'				## ral) head and foot.
+re_ident="[_$cs_alpha][_$cs_alnum]*"
+shead='$('
+sfoot=')'
 
-##----------------------------------------------------------------------------
-##  Phase 1: Check if SUBSTitution is specified and valid
-##----------------------------------------------------------------------------
-case $# in				## SUBSTitution specified?
+case $# in
     0)	echo "$0: need SUBSTitution!" >&2
-	subst=usage			## No, complain and show usage later.
+	subst=usage
 	;;
-    *)	subst=$1 vns=-			## Yes, fetch it and clear NAME list.
-	case $subst in			## Valid SUBSTitution?
+    *)	subst=$1 vns=-
+	case $subst in
 	    quote|pathname|templates|FINISH_SEDFLAGS|substitute|expand|Makefile)
 		_suffix= _prefix= _template="@${subst+_}@"
-		_makefile=Makefile _mode=
-		;;			## Yes, supply default settings.
+		_makefile=Makefile _mode= _bootstrap=n
+		;;
 	    *)	echo "$0 $subst: unknown SUBSTitution!" >&2
-		subst=usage		## No, complain and show usage later.
+		subst=usage
 		;;
 	esac
 	;;
 esac
 
-##----------------------------------------------------------------------------
-##  Phase 2: Parse 'NAME=VALUE' parameters
-##----------------------------------------------------------------------------
 case $subst in
-    usage)				## Phase applies to SUBSTitution?
-	;;				## No, skip phase.
-    *)	while shift; do			## Yes, foreach 'NAME=VALUE' do...
-	    case ${1+_$1} in		## Looking at?
-		_SED=*|_mode=*|_makefile=*|_prefix=*|_suffix=*|_template=*|_srcdir=*)
-					## Valid 'NAME=VALUE' ...
+    usage)
+	;;
+    *)	while shift; do
+	    case ${1+_$1} in
+		_SED=*|_bootstrap=*|_mode=*|_makefile=*|		\
+		_prefix=*|_suffix=*|_template=*|_srcdir=*)
 		    vn=`expr "$1" : '\([^=]*\)='`
 		    vv=`expr "$1" : '[^=]*=\(.*\)$'`
 		    eval "_$vn"'=$vv'; vns=$vns$vn-
-		    ;;			## Yes, set _NAME to VALUE.
-		_*=*)			## Invalid 'NAME=VALUE' ...
+		    ;;
+		_*=*)
 		    echo "$0 $subst $1: invalid NAME=VALUE!" >&2
-		    subst=usage; break	## Complain and show usage later.
+		    subst=usage; break
 		    ;;
 		_--)shift; break
 		    ;;
@@ -105,57 +73,46 @@ case $subst in
 	;;
 esac
 
-##----------------------------------------------------------------------------
-##  Phase 3: Apply 'prefix=PREFIX' and/or 'suffix=SUFFIX' to UNFINISHEDs
-##----------------------------------------------------------------------------
-case $subst in				## Phase applies to SUBSTitution?
+case $subst in
     pathname|templates|FINISH_SEDFLAGS|substitute|Makefile)
-					## Yes...
-	case $vns in			## Configured sed(1) supplied?
+	case $vns in
 	    *-SED-*)
 		SED=$_SED	;;
 	    *)	SED=`
 		    $0 expand makefile="$_makefile" -- '$(SED)'
 		` || SED=sed	;;
-	esac; case $# in		## UNFINISHEDs specified?
-	    0)	;;			## No, we're already done.
-	    *)  sx='s/$/ /;'		## Yes, start out sed(1) script.
+	esac; case $# in
+	    0)	;;
+	    *)  sx='s/$/ /;'
 		case $_suffix in
 		    ?*)	rs=`$0 quote SED="$SED" -- "$_suffix" rs`
 			sx="$sx"'s/ /'"$rs"' /g;'
-			;;		## Augment sed(1) script so that
-		esac			## UNFINISHEDs are suffixed.
+			;;
+		esac
 		sx="$sx"'s/ $//;s/^/ /;'
 		case $_prefix in
 		    ?*)	rs=`$0 quote SED="$SED" -- "$_prefix" rs`
 			sx="$sx"'s/ / '"$rs"'/g;'
-			;;		## Augment sed(1) script so that
-		esac			## UNFINISHEDs are prefixed.
+			;;
+		esac
 		sx="$sx"':1'"$NL"'s/\([ /]\)\.\//\1/;t1'"$NL"':2'"$NL"
 		sx="$sx"'s/\( \.\.\/\(\.\.\/\)*\([^/ ][^/ ]*\/\)*\)[^./ ][^/ ]*\/\.\.\//\1/;t2'"$NL"
 		sx="$sx"'s/\( \.\.\/\(\.\.\/\)*\([^/ ][^/ ]*\/\)*\)\.[^./ ][^/ ]*\/\.\.\//\1/;t2'"$NL"
-		sx="$sx"'s/^ //'	## Augment sed(1) script with
-					## './' and '../' optimization.
+		sx="$sx"'s/^ //'
 		set shiftee `$SED "$sx" <<EOF
 $*
-EOF`;		shift			## Yes, rewrite UNFINISHEDs.
+EOF`;		shift
 		;;
 	esac
 	;;
 esac
 
-##----------------------------------------------------------------------------
-##  Phase 4: Extract templates
-##----------------------------------------------------------------------------
-case $subst in				## Phase applies to SUBSTitution?
+case $subst in
     templates|FINISH_SEDFLAGS|substitute)
-					## Yes...
 	thead=`expr "_$_template" : '_\([^_'"$cs_alnum"']*\)'`
 	tfoot=`expr "_$_template" : '_[^_'"$cs_alnum"']*'"$re_ident"'\([^_'"$cs_alnum"']*\)$'`
 	re_thead=`$0 quote SED="$SED" -- "$thead" re`
 	re_tfoot=`$0 quote SED="$SED" -- "$tfoot" re`
-					## Extract and (RE,'/')-quote
-					## templates' head and foot.
 	set shiftee `{
 	    $SED '
 		:1
@@ -165,63 +122,56 @@ case $subst in				## Phase applies to SUBSTitution?
 		s/'"$re_thead$re_ident$re_tfoot"'//;b1
 	    ' ${1+"$@"} </dev/null 2>&0 ||
 		echo "$0 $subst: Update your AF_FINISH_FILES() invocation!" >&2
-	} | sort | uniq`; shift		## Extract names of templates occuring
-					## in UNFINISHEDs, unify them, and re-
-					## place UNFINISHEDs with template
-					## names.
-	case $# in			## UNFINISHEDs contained templates?
-	    0)	echo "$0 $subst: No templates found. Do you still need me?" >&2
-		exit 0			## No, show warning and exit with suc-
-		;;			## cess (as no more phases apply).
+	} | sort | uniq`; shift
+	case $# in
+	    0)	echo "$0 $subst: No templates matching $BQ$_template$SQ found. Do you still need me?" >&2
+		exit 0
+		;;
 	esac
 	;;
 esac
 
-##----------------------------------------------------------------------------
-##  Phase 5: Generate substitution
-##----------------------------------------------------------------------------
-case $subst in				## Which substitution?
-    quote)				## 'quote' STRING [OP [DELIM]] ...
-	case $vns in			## Configured sed(1) supplied?
+case $subst in
+    quote)
+	case $vns in
 	    *-SED-*)
 		SED=$_SED	;;
 	    *)	SED=`
 		    $0 expand makefile="$_makefile" -- '$(SED)'
 		` || SED=sed	;;
-	esac; case $# in		## STRING specified?
-	    0)	quotee=; set shiftee;;	## No, assume it's empty.
-	    *)	quotee=$1	    ;;	## Yes, fetch it.
+	esac; case $# in
+	    0)	quotee=; set shiftee;;
+	    *)	quotee=$1	    ;;
 	esac
 	cs_shell=']^?*~! 	${}()<|>&;#'"$BQ$DQ$SQ$BS"'['
 	sx_qre0='s/[]'	sx_qre1='^\.*$[]/'"$BS$BS"'&/g'
 	sx_qrs0='s/[\&'	sx_qrs1=']/'"$BS$BS"'&/g'
 	sx_qnl1=';s/'"$BS$NL"'/'"$BS$BS"'&/g'
 	sx_qsh='s/'"$SQ"'/&'"$BS$BS"'&&/g;s/^/'"$SQ"'/;s/$/'"$SQ"'/'
-					## Define sed(1) script particles.
 	i=0; sx=':n'"$i$NL"'$!{;N;bn'"$i$NL"'}'
-	while shift; do			## Foreach OP do...
-	    case $# in			## All OPs processed?
+	while shift; do
+	    case $# in
 		0)  $SED "$sx"';:p'"$i$NL"'/^$/d' <<EOF
 $quotee
 EOF
-		    break		## Yes, finally quote STRING.
+		    break
 		    ;;
-	    esac; case $1 in		## No, which OP?
+	    esac; case $1 in
 		re) sx="$sx$NL$sx_qre0${2-/}$sx_qre1$sx_qnl1"; ${2+shift}
-		    ;;			## Apply (RE[,DELIM='/'])-quoting.
+		    ;;
 		rs) sx="$sx$NL$sx_qrs0${2-/}$sx_qrs1$sx_qnl1"; ${2+shift}
-		    ;;			## Apply (RS[,DELIM='/'])-quoting.
+		    ;;
 		sh) sx="$sx"';:p'"$i"; i=`expr $i + 1`
 		    sx="$sx$NL"'/^$/bq'"$i$NL"'/'"$BS$NL"'/bq'"$i"
 		    sx="$sx$NL"'/['"$cs_shell"']/!bp'"$i$NL"':q'"$i$NL$sx_qsh"
-		    ;;			## Apply (SH)-quoting.
+		    ;;
 	    esac
 	done
 	;;
-    pathname|templates)			## 'pathname'/'templates'...
-	echo ${1+"$@"}			## Emit result (i.e., rewritten UNFI-
-	;;				## NISHEDs or extr. template names.
-    FINISH_SEDFLAGS)			## 'FINISH_SEDFLAGS'...
+    pathname|templates)
+	echo ${1+"$@"}
+	;;
+    FINISH_SEDFLAGS)
 	case $vns in
 	    *-srcdir-*)
 		srcdir=$_srcdir	;;
@@ -231,21 +181,16 @@ EOF
 	esac
 	rs_thead=`$0 quote SED="$SED" -- "$thead" re '|' rs`
 	rs_tfoot=`$0 quote SED="$SED" -- "$tfoot" re '|' rs`
-					## (RS,/)-quote (RE,|)-quoted template
-					## head and foot.
 	rs_shead=`$0 quote SED="$SED" -- "$shead" rs '|' rs`
 	rs_sfoot=`$0 quote SED="$SED" -- "$sfoot" rs '|' rs`
-					## (RS,/)-quote (RS,|)-quoted substi-
-					## tution head and foot.
 	gensubst_sed=`$SED 's/[^/][^/]*$/gensubst.sed/' <<EOF
 $0
 EOF`;	test -f "$gensubst_sed" || if test -f "$srcdir/$gensubst_sed"; then
 	    gensubst_sed=$srcdir/$gensubst_sed
 	else
 	    echo "$0: $gensubst_sed: not found!" >&2; exit 1
-	fi				## Try to auto-locate gensubst.sed...
+	fi
 	rs_gensubst_sed=`$0 quote SED="$SED" -- "$gensubst_sed" rs`
-					## ...and (RS,/)-quote its pathname.
 	$SED '
 	    s/$/ /
 	    s/\([^ ][^ ]*\) /s|'"$rs_thead"'\1'"$rs_tfoot"'|'"$rs_shead"'\1'"$rs_sfoot"'|g;/g
@@ -254,17 +199,12 @@ EOF`;	test -f "$gensubst_sed" || if test -f "$srcdir/$gensubst_sed"; then
 	' <<EOF
 $*
 EOF
-					## Construct and emit result from quo-
-	;;				## ted parts.
-    substitute)				## 'substitute'...
+	;;
+    substitute)
 	rs_thead=`$0 quote SED="$SED" -- "$thead" re '|' rs`
 	rs_tfoot=`$0 quote SED="$SED" -- "$tfoot" re '|' rs`
-					## (RS,/)-quote (RE,|)-quoted template
-					## head and foot.
 	rs_shead=`$0 quote SED="$SED" -- "$shead" rs '|' rs`
 	rs_sfoot=`$0 quote SED="$SED" -- "$sfoot" rs '|' rs`
-					## (RS,/)-quote (RS,|)-quoted substi-
-					## tution head and foot.
 	$SED '
 	    s/$/ /
 	    s/\([^ ][^ ]*\) /s|'"$rs_thead"'\1'"$rs_tfoot"'|'"$rs_shead"'\1'"$rs_sfoot"'|g;/g
@@ -272,19 +212,20 @@ EOF
 	' <<EOF
 $*
 EOF
-					## Emit sed(1) 's///' statement that
-	;;				## substitutes extracted templates.
-    Makefile)				## 'Makefile' ...
+	;;
+    Makefile)
 	finish_sedflags=`$0 FINISH_SEDFLAGS SED="$SED" -- ${1+"$@"}`
 	sx_finish_sedflags='/^\(FINISH_SEDFLAGS *= *\).*$/s//\1'"`
 	    $0 quote SED="$SED" -- "$finish_sedflags" rs
-	`"'/'				## Generate sed(1) expr. that updates
-					## FINISH_SEDFLAGS.
-	sx_substitute=`
-	    $0 substitute SED="$SED" template='[@]_@' -- "$_makefile"
-	`				## Generate sed(1) expr. that makes
-					## '$(FINISH)' and '$(GENSUBST)' us-
-					## able everywhere.
+	`"'/'
+	case $_bootstrap in
+	    y)	sx_substitute=`
+		    $0 substitute SED="$SED" template='[@]_@' -- "$_makefile"
+		`
+		;;
+	    *)	sx_substitute=
+		;;
+	esac
 	$SED '
 	    '"$sx_finish_sedflags"'
 	    /\$(EXTRA_DIST)/s//$(af_dist_files) &/
@@ -293,29 +234,26 @@ EOF
 	    /^[^: ]*clean[^: ]*:\(  *[^ ][^ ]*\)*  *clean-am/s//& clean-af/
 	    /\$(am__CONFIG_DISTCLEAN_FILES)/s//& $(af_distclean_files)/
 	    '"$sx_substitute"'
-	' "$_makefile"			## Emit patched Makefile.
+	' "$_makefile"
 	;;
-    expand)				## 'expand' [mode=MODE] STRING ...
+    expand)
 	case ,$_mode, in
-	    *,trace,*)			## MODE has 'trace' option?
-		ax='td=40'	;;	## Yes, trace calls up to depth 40.
-	    *)	ax='td=0'	;;	## No, don't trace calls.
-	esac; case ,$_mode, in		## Which MODE?
-	    *,raw,*)			## Raw...
+	    *,trace,*)
+		ax='td=40'	;;
+	    *)	ax='td=0'	;;
+	esac; case ,$_mode, in
+	    *,raw,*)
 		ax="$ax"'; vpd=0; vpm=0'
-		;;			## Disable any processing.
-	    *,get,*)			## Get...
+		;;
+	    *,get,*)
 		ax="$ax"'; vpd=2; vpm=4+8+16+32'
-					## Disable expansion, enable line
-		;;			## folding and space compression.
-	    *,eval,*)			## Eval...
+		;;
+	    *,eval,*)
 		ax="$ax"'; vpd=2; vpm=2+4+8+16+32+64'
-					## Enable expansion, line folding,
-		;;			## space compression, and quoting.
+		;;
 	    *)	ax="$ax"'; vpd=2; vpm=2+4+8+16+32'
-					## Enable expansion, line folding,
-		;;			## and space compression.
-	esac; for us in ${1+"$@"}; do	## Convert STRINGs into awk(1) frag.
+		;;
+	esac; for us in ${1+"$@"}; do
 	    ax="$ax$NL		"'ui2us[++uc]='"$DQ$us$DQ"
 	done
 	nawk '

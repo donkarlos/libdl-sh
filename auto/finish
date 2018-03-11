@@ -1,0 +1,218 @@
+#! /bin/sh
+#-----------------------------------------------------------------------------
+#   finish			- Finish unfinished file(s)
+#
+#   Copyright (C) 2016-2018 Das Computerlabor (DCl-M)
+#
+#   This library is free software; you can redistribute it and/or
+#   modify it under the terms of the GNU Lesser General Public License
+#   as published by the Free Software Foundation; either
+#   version 2.1 of the License, or (at your option) any later version.
+#
+#   This library is distributed in the hope that it will be useful,
+#   but WITHOUT ANY WARRANTY; without even the implied warranty of
+#   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+#   Lesser General Public License for more details.
+#
+#   You should have received a copy of the GNU Lesser General Public License
+#   along with this library; if not, write to the Free Software Founda-
+#   tion, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
+#-----------------------------------------------------------------------------
+LC_ALL=C; export LC_ALL
+
+SQ=\' BS=\\ NL='
+'
+onexit=
+trap 'es=$?; eval "$onexit" 2>/dev/null; trap '"$SQ$SQ"' 0; exit $es' 0
+trap 'echo "$0: killed" >&2; exit 1' 1 2 3 15
+
+GENSUBST=`echo "$0" | sed '
+    s/[^/][^/]*\(\.[^/.]*\)$/gensubst\1/;tp
+    s/[^/][^/]*$/gensubst/;:p
+'`
+SED=`$GENSUBST expand '$(SED)'` || SED=sed
+readonly SQ BS NL GENSUBST SED
+
+cs_upper=ABCDEFGHIJKLMNOPQRSTUVWXYZ
+cs_lower=abcdefghijklmnopqrstuvwxyz
+cs_digit=0123456789
+cs_alpha=$cs_upper$cs_lower
+cs_alnum=$cs_alpha$cs_digit
+re_ident="[_$cs_alpha][_$cs_alnum]*"
+readonly cs_upper cs_lower cs_digit cs_alpha cs_alnum re_ident
+
+ex_on='_\(..\)'
+ex_ov='_..\(.*\)$'
+readonly ex_on ex_ov
+
+sx_file='
+    y/	'"$cs_upper"'/'" $cs_lower"'/;s/$/ /;s/   */ /g
+    s/^-a \/\([^/ ][^/ ]*\/\)*\([^/ ][^/ ]*\)\( -[^ ]*\)* script/-\2-script/
+    s/[^-'"$cs_lower$cs_digit"']/-/g;s/---*/-/g
+    s/-ascii\(-text-\)/\1/;s/-utf-8-unicode\(-text-\)/\1/
+    s/\(-text-\)with-very-long-lines-/\1/
+    s/-[gn]roff-/-troff-/;s/\(-troff-\)or-preprocessor-input-/\1/
+    s/\(-m4-\)macro-processor-/\1/
+    s/-posix\(-shell-\)/\1/
+'
+readonly sx_file
+
+sx_ante= sx_main= sx_post=
+action=finish-all
+
+ons=
+nos=st mos= aos=efo
+while unset ov; do
+    case $#/$1 in
+	0/*)
+	    break
+	    ;;
+	1/-[$aos])
+	    echo "$0 $1: needs value!" >&2
+	    action=usage; break
+	    ;;
+	*/-[$aos])
+	    on=$1 ov=$2; shift
+	    ;;
+	*/-[$mos$aos]?*)
+	    on=`expr "_$1" : "$ex_on"` ov=`expr "_$1" : "$ex_ov"`
+	    ;;
+	*/-[$mos$nos])
+	    on=$1
+	    ;;
+	*/-[$nos]?*)
+	    on=`expr "_$1" : "$ex_on"` ov=`expr "_$1" : "$ex_ov"`
+	    shift; set shiftee "-$ov" ${1+"$@"}; unset ov
+	    ;;
+	*/--)
+	    shift; break
+	    ;;
+	*/-?)
+	    on=$1
+	    echo "$0: $on: option unknown!" >&2
+	    action=usage; break
+	    ;;
+	*/-??*)
+	    on=`expr "_$1" : "$ex_on"`
+	    echo "$0: $on: option unknown!" >&2
+	    action=usage; break
+	    ;;
+	*)  break
+	    ;;
+    esac
+
+    ons=$ons$on
+    case $on in
+	-e)
+	    case $ov in
+		-ante-*|-main-*|-post-*)
+		    sn=`expr "_$ov" : '_-\([^-]*\)-'`
+		    ov=`expr "_$ov" : '_-[^-]*-\(.*\)$'`
+		    ;;
+		*)  sn=main
+		    ;;
+	    esac
+
+	    case $ov in
+		-*) echo "$0 $on $ov: no sed(1) script. (ignored)" >&2
+		    ;;
+		?*) eval 'sx_'"$sn"'="$sx_'"$sn"'$ov$NL"'
+		    ;;
+	    esac
+	    ;;
+	-f)
+	    case $ov in
+		-ante-*|-main-*|-post-*)
+		    sn=`expr "_$ov" : '_-\([^-]*\)-'`
+		    ov=`expr "_$ov" : '_-[^-]*-\(.*\)$'`
+		    ;;
+		*)  sn=main
+		    ;;
+	    esac
+
+	    if ov="`$SED '/^[ 	]*#/d' "$ov" </dev/null 2>&0`"; then
+		eval 'sx_'"$sn"'="$sx_'"$sn"'$ov$NL"'
+	    else
+		echo "$0 $on $ov: not found. (ignored)" >&2
+	    fi
+	    ;;
+	-o) ofpn=$ov
+	    ;;
+    esac; shift
+done; unset on ov sn
+
+case $ons in
+    *-t*)   action=type-all	;;
+    *-o*)   action=finish-one	;;
+esac
+
+case $action in
+    finish-one)
+	test $# -eq 1 || action=usage
+	;;
+esac
+
+for ifpn in ${1+"$@"}; do
+    if test -f "$ifpn"; then
+	ifre=`$GENSUBST quote SED="$SED" -- "$ifpn" re`
+	ifty=`file "$ifpn" | $SED 's/^'"$ifre"': */-/'"$sx_file"`
+    else
+	echo "$0: $ifpn: not found!" >&2
+	action=error; break
+    fi
+
+    case $action in
+	type-all)
+	    echo "$ifpn:$ifty"
+	    ;;
+	finish-*)
+	    case $ifty in
+		*-text-*)
+		    ;;
+		*)  echo "$0: $ifpn: not a text file!" >&2
+		    action=error; break
+		    ;;
+	    esac
+	    ;;
+    esac
+done
+
+case $action in
+    finish-all)
+	$SED "$sx_ante$sx_main$sx_post" ${1+"$@"} || action=error
+	;;
+    finish-one)
+	phase=4
+	pifpn=$ifpn
+	pofpn=$ofpn~$$.$phase
+
+	podpn=`dirname "$pofpn"`
+	until test -d "$podpn"; do
+	    onexit="$onexit${NL}rmdir `
+		$GENSUBST quote SED="$SED" -- "$podpn" sh
+	    `"
+	    mkdir "$podpn" || exit 1
+	    podpn=`dirname "$podpn"`
+	done
+
+	onexit="rm -f `$GENSUBST quote SED="$SED" -- "$pofpn" sh`$NL$onexit"
+	$SED "$sx_ante$sx_main$sx_post" "$pifpn" >$pofpn || exit 1
+
+	ofre=`$GENSUBST quote SED="$SED" -- "$pofpn" re`
+	ofty=`file "$pofpn" | $SED 's/^'"$ofre"': */-/'"$sx_file"`
+	case $ofty in
+	    *-script-text-*)
+		chmod a+x "$pofpn" || exit 1
+		;;
+	esac
+
+	mv "$pofpn" "$ofpn" || exit 1
+	onexit=
+	;;
+    error)
+	exit 1
+	;;
+    usage)
+	exit 2
+	;;
+esac

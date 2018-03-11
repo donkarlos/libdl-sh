@@ -1,7 +1,7 @@
 dnl								-*-Autoconf-*-
 dnl autofinish.m4		- Build-time finishing macro
 dnl
-dnl Copyright (C) 2013-2017 Das Computerlabor (DCl-M)
+dnl Copyright (C) 2013-2018 Das Computerlabor (DCl-M)
 dnl
 dnl This library is free software; you can redistribute it and/or
 dnl modify it under the terms of the GNU Lesser General Public License
@@ -20,41 +20,9 @@ dnl
 dnl AUTHOR(S):	ks	Karl Schmitz <ks@computerlabor.org>
 dnl
 dnl WRITTEN BY:	ks	2013-02-12
-dnl CHANGED BY:	ks	2013-03-09	Move script comment stripping to
-dnl					`auto/gensubst.sed'.
-dnl		ks	2016-05-24	Use autoconf(1)-style comments only.
-dnl		ks	2016-05-25	Add cleaning rule.
-dnl		ks	2016-05-27	Rename $(af__CLEAN_FILES) to $(af_fi-
-dnl					nished).
-dnl					Rename ${af__unfinished} to ${af_un-
-dnl					finished}.
-dnl					Rename ${af__gensubst} to ${af_gen-
-dnl					subst}.
-dnl					Use "pathname prefix='$(srcdir)/'"
-dnl					substitution instead of 'CONFIG_STA-
-dnl					TUS_DEPENDENCIES' substitution.
-dnl		ks	2016-05-29	Use 'FINISH_SEDFLAGS' substitution.
-dnl					Turn ${af_gensubst} into output var.
-dnl					Split $(af__config_status_deps) into
-dnl					$(af_makefile_deps) and $(af_unfini-
-dnl					shed).
-dnl					Join $(af_makefile_deps) and $(af_un-
-dnl					finished) into $(af_dist_files).
-dnl		ks	2016-05-30	Fix build dependencies.
-dnl					Utilize temporary directory provided
-dnl					by ./config.status.
-dnl					Tack 'clean-af' dependency to cleaning
-dnl					rules depending on 'clean-am'.
-dnl					Also update $(FINISH_SEDFLAGS) in
-dnl					AC_CONFIG_COMMANDS().
-dnl		ks	2016-06-03	Delay ${af_unfinished} pre-/suffixing.
-dnl		ks	2016-06-06	Introduce AF_INIT().
-dnl		ks	2016-06-07	Bootstrap gensubst.
-dnl					Invoke AC_PROG_SED.
-dnl					Add and integrate finishing script.
-dnl		ks	2017-01-18	Update copyright.
-dnl					Use 'gensubst Makefile'.
-dnl					Eliminate ${af_pre}.
+dnl CHANGED BY:	ks	2018-02-26	Reimport from package `libdl-sh'.
+dnl		ks	2018-03-08	Distinguish between bootstrapped and
+dnl					non-bootstrapped build.
 dnl
 dnl AF_INIT([GENSUBST=gensubst])
 dnl				Initialize build-time finishing of @VARIABLE@
@@ -101,11 +69,12 @@ dnl NOTE:   (1)	All pathnames passed are relative to $(top_builddir)!
 dnl
 AC_DEFUN([AF_FINISH_FILES], [
 AC_SUBST([af_finished], 'm4_normalize([$1])')
+af_bootstrap=n
 af_unfinished="$af_finished"
 AS_CASE([$GENSUBST],
-    [*.un], [af_unfinished="$af_gensubst $af_unfinished"])
+    [*.un], [af_bootstrap=y af_unfinished="$af_gensubst $af_unfinished"])
 AS_CASE([$FINISH],
-    [*.un], [af_unfinished="$af_finish $af_unfinished"])
+    [*.un], [af_bootstrap=y af_unfinished="$af_finish $af_unfinished"])
 
 AC_SUBST([FINISH_SEDFLAGS], [`
     $GENSUBST FINISH_SEDFLAGS SED="$SED" srcdir="$srcdir"		\
@@ -139,10 +108,12 @@ AS_IF([test -f "$srcdir/$af_finish.un"], [
     af_finished="$af_finish $af_finished"
 ])
 
-$GENSUBST Makefile SED="$SED" prefix="${srcdir}/" suffix=.un --		\
+$GENSUBST Makefile SED="$SED" bootstrap="$af_bootstrap"			\
+    prefix="${srcdir}/" suffix=.un --					\
     $af_finished >$tmp/af_Makefile && mv $tmp/af_Makefile Makefile
 ], [
 SED=$SED
+af_bootstrap=$af_bootstrap
 af_finished="$af_finished"
 af_gensubst=$af_gensubst
 af_finish=$af_finish

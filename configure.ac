@@ -20,14 +20,7 @@ dnl
 dnl AUTHOR(S):	ks	Karl Schmitz <ks@computerlabor.org>
 dnl
 dnl WRITTEN BY:	ks	2013-02-12
-dnl CHANGED BY:	ks	2013-03-06	Rename package to `libdl-sh'.
-dnl		ks	2016-06-03	Use AC_CONFIG_MACRO_DIRS() to tell
-dnl					aclocal(1) where to find stuff.
-dnl		ks	2016-06-06	Introduce AF_INIT().
-dnl		ks	2017-02-10	Update copyright.
-dnl		ks	2017-10-19	Add 'libsession.sh'.
-dnl		ks	2018-02-27	Add 'test-deb-version'.
-dnl		ks	2018-03-03	Add 'args.awk'.
+dnl CHANGED BY:	ks	2018-03-11	Import prebuilt autofinish scripts.
 dnl
 dnl NOTE:   (1)	Update the build system with autoreconf(1).
 dnl	    (2)	AM_INIT_AUTOMAKE() already invokes AC_ARG_PROGRAM, AC_PROG_-
