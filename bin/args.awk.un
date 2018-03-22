@@ -52,7 +52,8 @@ function getopt_add_optstring(optstring,pi ,ow,on,ot,oi) {
 	if (!(oi = pion2oi[pi,on])) {	## Short option unregistered so far?
 	    pioi2on[pi,oi = pion2oi[pi,on] = ++pi2oc[pi]] = on
 	    pioi2ot[pi,oi] = ot		## Yes, register short option.
-	    if (DEBUG) printf "# pioi2on[pi=%u,oi=pion2oi[pi,on]=%u]=on;pioi2ot[pi,oi]=ot\n",pi,oi
+	    if (DEBUG) printf "# pioi2on[pi=%u,oi=pion2oi[pi,on]=%u]"	\
+		"=on;pioi2ot[pi,oi]=ot\n",pi,oi
 	} else if (ot != pioi2ot[pi,oi]) {
 					## No, and registered differently?
 	    printf "%s: '%s' already registered by '%s%s'!\n",
@@ -89,7 +90,8 @@ function getopt_add_longopts(longopts,pi ,di,dc,dv,cp,ow,on,ot,oi) {
 					## registered as abbreviation?
 	    pioi2on[pi,oi = pion2oi[pi,on] = ++pi2oc[pi]] = on
 	    pioi2ot[pi,oi] = ot		## Yes, register long option.
-	    if (DEBUG) printf "# pioi2on[pi=%u,oi=pion2oi[pi,on]=%u]=on;pioi2ot[pi,oi]=ot\n",pi,oi
+	    if (DEBUG) printf "# pioi2on[pi=%u,oi=pion2oi[pi,on]=%u]"	\
+		"=on;pioi2ot[pi,oi]=ot\n",pi,oi
 	} else if (ot != pioi2ot[pi,oi]) {
 					## No, and registered differently?
 	    printf "%s: '%s' already registered by '%s%s'!\n",
@@ -151,7 +153,8 @@ function getopt_next(pi ,on,ov,oi,ot,ep) {
 		    return AT_ERR	## No, complain and indicate failure!
 		}
 	    }
-	    if (DEBUG) printf "# OPTNAM=\"%s\";OPTVAL=\"%s\";return %u\n",on,ov,ot
+	    if (DEBUG) printf "# OPTNAM=\"%s\";OPTVAL=\"%s\";return %u\n",
+		on,ov,ot
 	    OPTNAM = on; OPTVAL = ov; return ot
 	} else if (!piow2ov[pi,"a"] || (ARGV[ARGI] !~ /^(-[^-=]+)+/)) {
 					## Alternative long options allowed
@@ -240,7 +243,8 @@ function args_getopt(cn ,at,O,A) {
 	    }; break			## Force entry to next pass.
 	} else if (OPTNAM ~ /^(-a|--alternative)$/) {
 	    ++piow2ov[pi+1,"a"]		## Allow alternative long options.
-	    if (DEBUG) printf "# piow2ov[%u,\"a\"]=%u\n",pi+1,piow2ov[pi+1,"a"]
+	    if (DEBUG) printf "# piow2ov[%u,\"a\"]=%u\n",
+		pi+1,piow2ov[pi+1,"a"]
 	} else if (OPTNAM ~ /^(-l|--longoptions)$/) {
 	    if (getopt_add_longopts(OPTVAL,pi+1)) return 1
 					## Try to add LONGOPTS for invokee.
