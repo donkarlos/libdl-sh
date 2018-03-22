@@ -218,7 +218,7 @@ function args_print() {
 ##----------------------------------------------------------------------------
 ##  args_getopt(CN)		Emulate getopt(1)
 ##----------------------------------------------------------------------------
-function args_getopt(cn ,at,X,O,A) {
+function args_getopt(cn ,at,O,A) {
     piow2ov[pi+1,"n"] = piow2ov[pi,"n"] = cn
 					## Preset pass' command name.
     getopt_add_optstring("ahl:n:o:qQs:uTV",pi)
@@ -227,15 +227,15 @@ function args_getopt(cn ,at,X,O,A) {
 
     while ((at = getopt_next(pi)) > AT_EOA) {
 	if (at < OT_NONVAL) {		## getopt(1) options consumed?
-	    if (!X) {			## '-o OPTSTRING' seen?
+	    if (!piow2ov[pi,"o"]) {	## '-o OPTSTRING' seen?
 		if (ARGI >= ARGC) {	## No, but we're looking at it?
 		    printf "Usage: %s [OPTIONS] OPTSTRING [ARG ...]\n",
 			piow2ov[pi,"n"] | stderr
 		    return 2		## No, complain and indicate failure!
 		} else if (getopt_add_optstring(ARGV[ARGI++],pi+1)) {
-		    return 1
+		    return 1		## Try to add OPTSTRING for command.
 		}
-	    }; break
+	    }; break			## Force entry to next pass.
 	} else if (OPTNAM ~ /^(-a|--alternative)$/) {
 	    ++piow2ov[pi+1,"a"]		## Allow alternative long options.
 	    if (DEBUG) printf "# piow2ov[%u,\"a\"]=%u\n",pi+1,piow2ov[pi+1,"a"]
@@ -248,7 +248,7 @@ function args_getopt(cn ,at,X,O,A) {
 		pi+1,piow2ov[pi+1,"n"]
 	} else if (OPTNAM ~ /^(-o|--options)$/) {
 	    if (getopt_add_optstring(OPTVAL,pi+1)) return 1
-	    ++X				## Try to add OPTSTRING for invokee.
+	    ++piow2ov[pi,"o"]		## Try to add OPTSTRING for command.
 	} else if (OPTNAM ~ /^(-s|--shell)$/) {
 	    if (OPTVAL ~ /^([bd]?a|[ck])?sh$/) {
 		pi2sh[pi+1] = OPTVAL	## Update invokee's shell.
