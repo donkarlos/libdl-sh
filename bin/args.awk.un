@@ -247,7 +247,7 @@ function args_getopt(cn ,at,O,A) {
 		pi+1,piow2ov[pi+1,"a"]
 	} else if (OPTNAM ~ /^(-l|--longoptions)$/) {
 	    if (getopt_add_longopts(OPTVAL,pi+1)) return 1
-					## Try to add LONGOPTS for invokee.
+					## Try to add LONGOPTS for command.
 	} else if (OPTNAM ~ /^(-n|--name)$/) {
 	    piow2ov[pi+1,"n"] = OPTVAL	## Update command name.
 	    if (DEBUG) printf "# piow2ov[%u,\"n\"]=\"%s\"\n",
