@@ -23,11 +23,13 @@
 ##  WRITTEN BY:	ks	2018-03-03
 ##  CHANGED BY:
 ##----------------------------------------------------------------------------
-##  quote_sh(STRING)		Quote STRING
+##  quote_sh(STRING,PI)		Conditionally quote STRING
 #-----------------------------------------------------------------------------
-function quote_sh(string) {
-    gsub(/'/,"&\\\\&&",string)
-    return "'" string "'"
+function quote_sh(string,pi) {
+    if (!piow2ov[pi,"u"]) {		## Must quote STRING?
+	gsub(/'/,"&\\\\&&",string); string = "'" string "'"
+    }					## Yes, do so.
+    return string
 }
 
 ##----------------------------------------------------------------------------
@@ -257,6 +259,10 @@ function args_getopt(cn ,at,O,A) {
 		printf "%s: '%s' is no shell!\n",
 		    piow2ov[pi,"n"],OPTVAL | stderr
 	    }
+	} else if (OPTNAM ~ /^(-u|--unquoted)$/) {
+	    ++piow2ov[pi+1,"u"]		## Force unquoted output.
+	    if (DEBUG) printf "# piow2ov[%u,\"u\"]=%u\n",
+		pi+1,piow2ov[pi+1,"u"]
 	}
     }
     if (at < AT_EOA) return 1
@@ -265,16 +271,16 @@ function args_getopt(cn ,at,O,A) {
     while ((at = getopt_next(pi)) > AT_EOO) {
 	if (DEBUG) printf "# at=%d\n",at
 	if (at < OT_NONVAL) {
-	    A = A " " quote_sh(ARGV[ARGI])
+	    A = A " " quote_sh(ARGV[ARGI],pi)
 	} else if (at == OT_NONVAL) {
-	    O = O quote_sh(OPTNAM) " "
+	    O = O quote_sh(OPTNAM,pi) " "
 	} else {
-	    O = O quote_sh(OPTNAM) " " quote_sh(OPTVAL) " "
+	    O = O quote_sh(OPTNAM,pi) " " quote_sh(OPTVAL,pi) " "
 	}
     }
     if (DEBUG) printf "# at=%d\n",at
     if (at < AT_EOA) return 1
-    if (at == AT_EOO) while (ARGI < ARGC) A = A " " quote_sh(ARGV[ARGI++])
+    if (at == AT_EOO) while (ARGI < ARGC) A = A " " quote_sh(ARGV[ARGI++],pi)
     printf "%s--%s\n",O,A
     return 0
 }
