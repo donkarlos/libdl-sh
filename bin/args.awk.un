@@ -39,7 +39,8 @@ function getopt_add_optstring(optstring,pi ,ow,on,ot,oi) {
     while (optstring) {			## While OPTSTRING is non-empty do...
 	if (!match(optstring,/^[^-:]:?:?/)) {
 					## Looking at valid description?
-	    printf "%s: '%s' describes no short option!\n",pi2cn[pi],optstring | stderr
+	    printf "%s: '%s' describes no short option!\n",
+		piow2ov[pi,"n"],optstring | stderr
 	    return 1			## No, complain and indicate failure!
 	}
 	ow = substr(optstring,1,1); on = "-" ow; ot = dl2ot[RLENGTH]
@@ -53,7 +54,7 @@ function getopt_add_optstring(optstring,pi ,ow,on,ot,oi) {
 	} else if (ot != pioi2ot[pi,oi]) {
 					## No, and registered differently?
 	    printf "%s: '%s' already registered by '%s%s'!\n",
-		pi2cn[pi],on,ow,ot2ds[pioi2ot[pi,oi]] | stderr
+		piow2ov[pi,"n"],on,ow,ot2ds[pioi2ot[pi,oi]] | stderr
 	    return 1			## Yes, complain and indicate failure!
 	}
 	optstring = substr(optstring,1+RLENGTH)
@@ -71,7 +72,8 @@ function getopt_add_longopts(longopts,pi ,di,dc,dv,cp,ow,on,ot,oi) {
     while (++di <= dc) {		## Foreach description do...
 	if (!match(dv[di],/^[^-=:]+(-[^-=:]+)*:?:?$/)) {
 					## Description is valid?
-	    printf "%s: '%s' describes no long option!\n",pi2cn[pi],dv[di] | stderr
+	    printf "%s: '%s' describes no long option!\n",
+		piow2ov[pi,"n"],dv[di] | stderr
 	    return 1			## No, complain and indicate failure!
 	}
 	if (!(cp = index(dv[di],":"))) cp = RLENGTH + 1
@@ -89,7 +91,7 @@ function getopt_add_longopts(longopts,pi ,di,dc,dv,cp,ow,on,ot,oi) {
 	} else if (ot != pioi2ot[pi,oi]) {
 					## No, and registered differently?
 	    printf "%s: '%s' already registered by '%s%s'!\n",
-		pi2cn[pi],on,ow,ot2ds[pioi2ot[pi,oi]] | stderr
+		piow2ov[pi,"n"],on,ow,ot2ds[pioi2ot[pi,oi]] | stderr
 	    return 1			## Yes, complain and indicate failure!
 	}
 
@@ -141,7 +143,8 @@ function getopt_next(pi ,on,ov,oi,ot,ep) {
 					## Another argument follows?
 		    ov = ARGV[ARGI]	## Yes, supply that as value.
 		} else {
-		    printf "%s: %s: Missing value!\n",pi2cn[pi],on | stderr
+		    printf "%s: %s: Missing value!\n",
+			piow2ov[pi,"n"],on | stderr
 		    if (DEBUG) print "# return AT_ERR"
 		    return AT_ERR	## No, complain and indicate failure!
 		}
@@ -151,7 +154,7 @@ function getopt_next(pi ,on,ov,oi,ot,ep) {
 	} else if (!piow2ov[pi,"a"] || (ARGV[ARGI] !~ /^(-[^-=]+)+/)) {
 					## Alternative long options allowed
 					## and option looks like that?
-	    printf "%s: %s: Unknown option!\n",pi2cn[pi],on | stderr
+	    printf "%s: %s: Unknown option!\n",piow2ov[pi,"n"],on | stderr
 	    if (DEBUG) print "# return AT_ERR"
 	    return AT_ERR		## No, complain and indicate failure!
 	}
@@ -163,11 +166,11 @@ function getopt_next(pi ,on,ov,oi,ot,ep) {
 	if (DEBUG) printf "# on=\"%s\"\n",on
 					## Yes, derive name.
 	if (!(oi = pion2oi[pi,on])) {	## Registered for PI-th pass?
-	    printf "%s: %s: Unknown option!\n",pi2cn[pi],on | stderr
+	    printf "%s: %s: Unknown option!\n",piow2ov[pi,"n"],on | stderr
 	    if (DEBUG) print "# return AT_ERR"
 	    return AT_ERR		## No, complain and indicate failure!
 	} else if (oi < 0) {		## Unambiguous?
-	    printf "%s: %s: Ambiguous option!\n",pi2cn[pi],on | stderr
+	    printf "%s: %s: Ambiguous option!\n",piow2ov[pi,"n"],on | stderr
 	    if (DEBUG) print "# return AT_ERR"
 	    return AT_ERR		## No, complain and indicate failure!
 	}
@@ -178,7 +181,8 @@ function getopt_next(pi ,on,ov,oi,ot,ep) {
 	    if (ot >= OT_OPTVAL) {	## Option wants value?
 		ot = OT_REQVAL; ov = substr(ARGV[ARGI],ep+1)
 	    } else {			## Yes, supply it.
-		printf "%s: %s: Excess value (ignored).\n",pi2cn[pi],on | stderr
+		printf "%s: %s: Excess value (ignored).\n",
+		    piow2ov[pi,"n"],on | stderr
 	    }				## No, warn about excess value.
 	} else {			## No, value attached!
 	    if (ot <= OT_OPTVAL) {	## Option requires value?
@@ -186,7 +190,7 @@ function getopt_next(pi ,on,ov,oi,ot,ep) {
 	    } else if (++ARGI < ARGC) {	## Another argument follows?
 		ov = ARGV[ARGI]		## Yes, supply that as value.
 	    } else {
-		printf "%s: %s: Missing value!\n",pi2cn[pi],on | stderr
+		printf "%s: %s: Missing value!\n",piow2ov[pi,"n"],on | stderr
 		if (DEBUG) print "# return AT_ERR"
 		return AT_ERR		## No, complain and indicate failure!
 	    }
@@ -215,7 +219,8 @@ function args_print() {
 ##  args_getopt(CN)		Emulate getopt(1)
 ##----------------------------------------------------------------------------
 function args_getopt(cn ,at,X,O,A) {
-    pi2cn[pi+1] = pi2cn[pi] = cn	## Setup pass' command name.
+    piow2ov[pi+1,"n"] = piow2ov[pi,"n"] = cn
+					## Preset pass' command name.
     getopt_add_optstring("ahl:n:o:qQs:uTV",pi)
     getopt_add_longopts("alternative,help,longoptions:,name:,options:",pi)
     getopt_add_longopts("quiet,quiet-output,shell:,unquoted,test,version",pi)
@@ -224,7 +229,8 @@ function args_getopt(cn ,at,X,O,A) {
 	if (at < OT_NONVAL) {		## getopt(1) options consumed?
 	    if (!X) {			## '-o OPTSTRING' seen?
 		if (ARGI >= ARGC) {	## No, but we're looking at it?
-		    printf "Usage: %s [OPTIONS] OPTSTRING [ARG ...]\n",pi2cn[pi] | stderr
+		    printf "Usage: %s [OPTIONS] OPTSTRING [ARG ...]\n",
+			piow2ov[pi,"n"] | stderr
 		    return 2		## No, complain and indicate failure!
 		} else if (getopt_add_optstring(ARGV[ARGI++],pi+1)) {
 		    return 1
@@ -237,8 +243,9 @@ function args_getopt(cn ,at,X,O,A) {
 	    if (getopt_add_longopts(OPTVAL,pi+1)) return 1
 					## Try to add LONGOPTS for invokee.
 	} else if (OPTNAM ~ /^(-n|--name)$/) {
-	    pi2cn[pi+1] = OPTVAL	## Update invokee's name.
-	    if (DEBUG) printf "# pi2cn[%u]=\"%s\"\n",pi+1,OPTVAL
+	    piow2ov[pi+1,"n"] = OPTVAL	## Update command name.
+	    if (DEBUG) printf "# piow2ov[%u,\"n\"]=\"%s\"\n",
+		pi+1,piow2ov[pi+1,"n"]
 	} else if (OPTNAM ~ /^(-o|--options)$/) {
 	    if (getopt_add_optstring(OPTVAL,pi+1)) return 1
 	    ++X				## Try to add OPTSTRING for invokee.
@@ -247,7 +254,8 @@ function args_getopt(cn ,at,X,O,A) {
 		pi2sh[pi+1] = OPTVAL	## Update invokee's shell.
 		if (DEBUG) printf "# pi2sh[%u]=\"%s\"\n",pi+1,OPTVAL
 	    } else {
-		printf "%s: '%s' is no shell!\n",pi2cn[pi],OPTVAL | stderr
+		printf "%s: '%s' is no shell!\n",
+		    piow2ov[pi,"n"],OPTVAL | stderr
 	    }
 	}
     }
