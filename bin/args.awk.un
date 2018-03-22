@@ -112,9 +112,9 @@ function getopt_add_longopts(longopts,pi ,di,dc,dv,cp,ow,on,ot,oi) {
 }
 
 ##----------------------------------------------------------------------------
-##  getopt_next(PI,ALTERNATIVE)	Fetch next option/argument
+##  getopt_next(PI)		Fetch next option/argument
 ##----------------------------------------------------------------------------
-function getopt_next(pi,alternative ,on,ov,oi,ot,ep) {
+function getopt_next(pi ,on,ov,oi,ot,ep) {
     if (++ARGI >= ARGC) {		## No more arguments?
 	if (DEBUG) print "# return AT_EOA"
 	return AT_EOA			## Yes, indicate so.
@@ -148,7 +148,9 @@ function getopt_next(pi,alternative ,on,ov,oi,ot,ep) {
 	    }
 	    if (DEBUG) printf "# OPTNAM=\"%s\";OPTVAL=\"%s\";return %u\n",on,ov,ot
 	    OPTNAM = on; OPTVAL = ov; return ot
-	} else if (!alternative || (ARGV[ARGI] !~ /^(-[^-=]+)+/)) {
+	} else if (!piow2ov[pi,"a"] || (ARGV[ARGI] !~ /^(-[^-=]+)+/)) {
+					## Alternative long options allowed
+					## and option looks like that?
 	    printf "%s: %s: Unknown option!\n",pi2cn[pi],on | stderr
 	    if (DEBUG) print "# return AT_ERR"
 	    return AT_ERR		## No, complain and indicate failure!
@@ -212,14 +214,13 @@ function args_print() {
 ##----------------------------------------------------------------------------
 ##  args_getopt(CN)		Emulate getopt(1)
 ##----------------------------------------------------------------------------
-function args_getopt(cn ,at,X,alternative,O,A) {
+function args_getopt(cn ,at,X,O,A) {
     pi2cn[pi+1] = pi2cn[pi] = cn	## Setup pass' command name.
     getopt_add_optstring("ahl:n:o:qQs:uTV",pi)
     getopt_add_longopts("alternative,help,longoptions:,name:,options:",pi)
     getopt_add_longopts("quiet,quiet-output,shell:,unquoted,test,version",pi)
 
-    alternative = FALSE
-    while ((at = getopt_next(pi,FALSE)) > AT_EOA) {
+    while ((at = getopt_next(pi)) > AT_EOA) {
 	if (at < OT_NONVAL) {		## getopt(1) options consumed?
 	    if (!X) {			## '-o OPTSTRING' seen?
 		if (ARGI >= ARGC) {	## No, but we're looking at it?
@@ -230,8 +231,8 @@ function args_getopt(cn ,at,X,alternative,O,A) {
 		}
 	    }; break
 	} else if (OPTNAM ~ /^(-a|--alternative)$/) {
-	    alternative = TRUE		## Allow alternative long options.
-	    if (DEBUG) printf "# alternative=%u\n",alternative
+	    ++piow2ov[pi+1,"a"]		## Allow alternative long options.
+	    if (DEBUG) printf "# piow2ov[%u,\"a\"]=%u\n",pi+1,piow2ov[pi+1,"a"]
 	} else if (OPTNAM ~ /^(-l|--longoptions)$/) {
 	    if (getopt_add_longopts(OPTVAL,pi+1)) return 1
 					## Try to add LONGOPTS for invokee.
@@ -253,7 +254,7 @@ function args_getopt(cn ,at,X,alternative,O,A) {
     if (at < AT_EOA) return 1
 
     --ARGI; ++pi			## Enter next pass.
-    while ((at = getopt_next(pi,alternative)) > AT_EOO) {
+    while ((at = getopt_next(pi)) > AT_EOO) {
 	if (DEBUG) printf "# at=%d\n",at
 	if (at < OT_NONVAL) {
 	    A = A " " quote_sh(ARGV[ARGI])
