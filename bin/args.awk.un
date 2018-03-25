@@ -236,17 +236,8 @@ function args_getopt(cn ,at,O,A) {
     getopt_add_longopts("quiet,quiet-output,shell:,unquoted,test,version",pi)
 
     while ((at = getopt_next(pi)) > AT_EOA) {
-	if (at < OT_NONVAL) {		## getopt(1) options consumed?
-	    if (!piow2ov[pi+1,"o"]) {	## '-o OPTSTRING' seen?
-		if (ARGI >= ARGC) {	## No, but we're looking at it?
-		    if (!piow2ov[pi+1,"q"])
-			printf "Usage: %s [OPTIONS] OPTSTRING [ARG ...]\n",
-			    piow2ov[pi,"n"] | stderr
-		    return 2		## No, complain and indicate failure!
-		} else if (getopt_add_optstring(ARGV[ARGI++],pi+1)) {
-		    return 1		## Try to add OPTSTRING for command.
-		}
-	    }; break			## Force entry to next pass.
+	if (at <= AT_ARG) {		## getopt(1) options consumed?
+	    break			## Yes, enter next pass.
 	} else if (OPTNAM ~ /^(-a|--alternative)$/) {
 	    ++piow2ov[pi+1,"a"]		## Allow alternative long options.
 	    if (DEBUG) printf "# piow2ov[%u,\"a\"]=%u\n",
@@ -287,9 +278,18 @@ function args_getopt(cn ,at,O,A) {
     }
 
     if (at < AT_EOA) return 1		## Pass any failure through.
+    if (!piow2ov[++pi,"o"]) {		## '-o OPTSTRING' seen?
+	if (ARGI >= ARGC) {		## No, but looking at OPTSTRING now?
+	    if (!piow2ov[pi,"q"])
+		printf "Usage: %s [OPTIONS] OPTSTRING [ARG ...]\n",
+		    piow2ov[pi,"n"] | stderr
+	    return 2			## No, complain and indicate failure!
+	} else if (getopt_add_optstring(ARGV[ARGI++],pi)) {
+	    return 1			## Try to add OPTSTRING for command.
+	}
+    }
 
-    --ARGI; ++pi			## Enter next pass.
-    while ((at = getopt_next(pi)) > AT_EOO) {
+    --ARGI; while ((at = getopt_next(pi)) > AT_EOO) {
 					## While processing command's
 					## arguments do...
 	if (DEBUG) printf "# at=%d\n",at
