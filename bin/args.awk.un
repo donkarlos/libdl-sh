@@ -281,22 +281,31 @@ function args_getopt(cn ,at,O,A) {
 		pi+1,piow2ov[pi+1,"u"]
 	}
     }
-    if (at < AT_EOA) return 1
+
+    if (at < AT_EOA) return 1		## Pass any failure through.
 
     --ARGI; ++pi			## Enter next pass.
     while ((at = getopt_next(pi)) > AT_EOO) {
+					## While processing command's
+					## arguments do...
 	if (DEBUG) printf "# at=%d\n",at
-	if (at < OT_NONVAL) {
+	if (at < OT_NONVAL) {		## Saw argument?
 	    A = A " " quote_sh(ARGV[ARGI],pi)
-	} else if (at == OT_NONVAL) {
+					## Yes, quote and append it.
+	} else if (at == OT_NONVAL) {	## Saw option without value?
 	    O = O quote_sh(OPTNAM,pi) " "
-	} else {
+					## Yes, quote and append it.
+	} else {			## Saw option with value!
 	    O = O quote_sh(OPTNAM,pi) " " quote_sh(OPTVAL,pi) " "
-	}
+					## Quote and append it as well as
+	}				## its value.
     }
     if (DEBUG) printf "# at=%d\n",at
-    if (at < AT_EOA) return 1
+
+    if (at < AT_EOA) return 1		## Pass any failure through.
     if (at == AT_EOO) while (ARGI < ARGC) A = A " " quote_sh(ARGV[ARGI++],pi)
+					## Quote and append remaining
+					## arguments.
     printf "%s--%s\n",O,A
     return 0
 }
