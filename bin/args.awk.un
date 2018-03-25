@@ -237,7 +237,7 @@ function args_getopt(cn ,at,O,A) {
 
     while ((at = getopt_next(pi)) > AT_EOA) {
 	if (at < OT_NONVAL) {		## getopt(1) options consumed?
-	    if (!piow2ov[pi,"o"]) {	## '-o OPTSTRING' seen?
+	    if (!piow2ov[pi+1,"o"]) {	## '-o OPTSTRING' seen?
 		if (ARGI >= ARGC) {	## No, but we're looking at it?
 		    if (!piow2ov[pi+1,"q"])
 			printf "Usage: %s [OPTIONS] OPTSTRING [ARG ...]\n",
@@ -260,7 +260,7 @@ function args_getopt(cn ,at,O,A) {
 		pi+1,piow2ov[pi+1,"n"]
 	} else if (OPTNAM ~ /^(-o|--options)$/) {
 	    if (getopt_add_optstring(OPTVAL,pi+1)) return 1
-	    ++piow2ov[pi,"o"]		## Try to add OPTSTRING for command.
+	    ++piow2ov[pi+1,"o"]		## Try to add OPTSTRING for command.
 	} else if (OPTNAM ~ /^(-q|--quiet)$/) {
 	    ++piow2ov[pi+1,"q"]		## Become quiet.
 	    if (DEBUG) printf "# piow2ov[%u,\"q\"]=%u\n",
