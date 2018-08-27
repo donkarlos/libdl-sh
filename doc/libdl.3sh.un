@@ -32,10 +32,11 @@
 .\#					meta operation.
 .\#		ks	2017-07-01	Add service function dl_dump().
 .\#		ks	2017-07-08	Add service function dl_split().
+.\#		ks	2018-08-27	Document public variables.
 .\#
 .\# NOTE: (1)	Please adjust below date whenever revising the manual page.
 .\#		vvvvvv
-.TH LIBDL 3SH 2018-02-26 "@PACKAGE_TARNAME@ @PACKAGE_VERSION@" "Shell Programming"
+.TH LIBDL 3SH 2018-08-27 "@PACKAGE_TARNAME@ @PACKAGE_VERSION@" "Shell Programming"
 
 .SH NAME
 dl_atload, dl_load, dl_atexit, dl_exit, dl_which, dl_dump, dl_meta
@@ -308,6 +309,59 @@ Exceptions to the above rule ought to be rare and must be properly documented.
 .IP 3.
 No naming conventions are imposed on symbols defined in local scopes (e.g.,
 local variables).
+
+.SH PUBLIC VARIABLES
+.PD 0
+This library (\fBlibdl.sh\fP) defines some read-only variables in global
+scope. They may be used as shorthands by other libraries or applications to
+safely
+.IP \(bu 2
+compose strings with characters usually interpreted by POSIX shells.
+.PD
+
+.SS Characters interpreted by POSIX shells
+The names assigned to these variables don't adhere to the above naming
+conventions to avoid bloating. In particular, they are:
+.TP 3
+.B BQ
+A back-quote
+.RB ( "`" ).
+.TP
+.B DQ
+A double-quote
+.RB ( \(dq ).
+.TP
+.B SQ
+A single-quote
+.RB ( ' ).
+.TP
+.B BS
+A backslash
+.RB ( \e ).
+.TP
+.B CS
+A comment sign
+.RB ( # ).
+.TP
+.B DS
+A dollar sign
+.RB ( $ ).
+.TP
+.B HS
+A history sign
+.RB ( ! ).
+.TP
+.B CR
+A carriage return.
+.TP
+.B NL
+A newline (i.e., line feed).
+.TP
+.B QB
+A leading quote (for use in messages).
+.TP
+.B QE
+A trailing quote (for use in messages).
 
 .SH SEE ALSO
 .BR libdl-sh (1),
