@@ -316,7 +316,9 @@ This library (\fBlibdl.sh\fP) defines some read-only variables in global
 scope. They may be used as shorthands by other libraries or applications to
 safely
 .IP \(bu 2
-compose strings with characters usually interpreted by POSIX shells.
+compose strings with characters usually interpreted by POSIX shells or
+.IP \(bu
+compose regular expressions in a locale-independent fashion.
 .PD
 
 .SS Characters interpreted by POSIX shells
@@ -362,6 +364,32 @@ A leading quote (for use in messages).
 .TP
 .B QE
 A trailing quote (for use in messages).
+
+.SS Locale-independent character sets
+The following global variables define locale-independent character sets.
+Locale independence is achieved by explicitly itemizing the members. They're
+intended as building blocks for constructing regular expressions:
+.TP 9
+.B dl_cs_ul
+All ASCII upper-case letters (\fBA\fP…\fBZ\fP).
+.TP
+.B dl_cs_ll
+All ASCII lower-case letters (\fBa\fP…\fBz\fP).
+.TP
+.B dl_cs_1d
+All non-zero decimal digits (\fB1\fP…\fB9\fP).
+.TP
+.B dl_cs_0d
+All decimal digits (\fB0\fP…\fB9\fP).
+.TP
+.B dl_cs_al
+All ASCII (upper- and lower-case) letters.
+.TP
+.B dl_cs_an
+All ASCII letters and decimal digits.
+.TP
+.B dl_cs_sh
+All characters usually interpreted by POSIX shells.
 
 .SH SEE ALSO
 .BR libdl-sh (1),
