@@ -391,6 +391,22 @@ All ASCII letters and decimal digits.
 .B dl_cs_sh
 All characters usually interpreted by POSIX shells.
 
+.SS Locale-independent unanchored regular expressions
+The following global variables define common unanchored locale-independent
+regular expressions:
+.TP 9
+.B dl_re_id
+matches a POSIX shell identifier (i.e., the regular expression
+\fB\(dq[_$dl_cs_al][_$dl_cs_al$dl_cs_0d]*\(dq\fP).
+.TP
+.B dl_re_1n
+matches a positive decimal number (i.e., the regular expression
+\fB\(dq[$dl_cs_1d][$dl_cs_0d]*\(dq\fP).
+.TP
+.B dl_re_0n
+matches a non-negative decimal number (i.e., the regular expression
+\fB\(dq[$dl_cs_0d][$dl_cs_0d]*\(dq\fP).
+
 .SH SEE ALSO
 .BR libdl-sh (1),
 .BR libdl-sh.conf (5),
