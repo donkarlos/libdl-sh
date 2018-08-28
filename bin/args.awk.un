@@ -334,5 +334,8 @@ BEGIN {
 	args_print()			## Print arguments.
     } else if (ARGV[ARGI] == "getopt") {
 	args_getopt(ARGV[ARGI])		## Emulate getopt(1).
+    } else {
+	printf "%s: unknown action '%s'!\n",
+	    piow2ov[pi,"n"],ARGV[ARGI] | stderr
     }
 }
