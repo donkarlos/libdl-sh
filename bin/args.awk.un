@@ -67,7 +67,7 @@ function getopt_add_optstring(optstring,pi ,ow,on,ot,oi) {
     if (DEBUG) enter("getopt_add_optstring",sprintf("optstring=\"%s\",pi=%u",optstring,pi))
     while (optstring) {			## While OPTSTRING is non-empty do...
 	if (!match(optstring,/^[^-:]:?:?/)) {
-	    if (!piow2ov[pi,"q"])	## Looking at valid description?
+	    if (!piow2ov[pi,"q"])	## Looking at valid descriptor?
 		printf "%s: '%s' describes no short option!\n",
 		    piow2ov[pi,"n"],optstring | stderr
 	    if (DEBUG) leave(1); return 1
@@ -75,7 +75,7 @@ function getopt_add_optstring(optstring,pi ,ow,on,ot,oi) {
 	ow = substr(optstring,1,1); on = "-" ow; ot = dl2ot[RLENGTH]
 	if (DEBUG) trace(sprintf("ow=\"%s\";on=\"%s\";ot=%u",ow,on,ot))
 					## Derive option word, name, and
-					## type from description.
+					## type from descriptor.
 	if (!(oi = pion2oi[pi,on])) {	## Short option unregistered so far?
 	    pioi2on[pi,oi = pion2oi[pi,on] = ++pi2oc[pi]] = on
 	    pioi2ot[pi,oi] = ot		## Yes, register short option.
@@ -88,7 +88,7 @@ function getopt_add_optstring(optstring,pi ,ow,on,ot,oi) {
 	}				## Yes, complain and indicate failure!
 	optstring = substr(optstring,1+RLENGTH)
 	if (DEBUG) trace(sprintf("optstring=\"%s\"",optstring))
-    }					## Consume description.
+    }					## Consume descriptor.
     if (DEBUG) leave(0); return 0	## Indicate success.
 }
 
@@ -99,8 +99,8 @@ function getopt_add_optstring(optstring,pi ,ow,on,ot,oi) {
 ##----------------------------------------------------------------------------
 function getopt_add_longopts(longopts,pi ,di,dc,dv,cp,ow,on,ot,oi) {
     if (DEBUG) enter("getopt_add_longopts",sprintf("longopts=\"%s\",pi=%u",longopts,pi))
-    di = 0; dc = split(longopts,dv,/,/)	## Split LONGOPTS into descriptions.
-    while (++di <= dc) {		## Foreach description do...
+    di = 0; dc = split(longopts,dv,/,/)	## Split LONGOPTS into descriptors.
+    while (++di <= dc) {		## Foreach descriptor do...
 	if (!match(dv[di],/^[^-=:]+(-[^-=:]+)*:?:?$/)) {
 	    if (!piow2ov[pi,"q"])	## Description is valid?
 		printf "%s: '%s' describes no long option!\n",
@@ -112,7 +112,7 @@ function getopt_add_longopts(longopts,pi ,di,dc,dv,cp,ow,on,ot,oi) {
 	if (DEBUG) trace(sprintf("ow=\"%s\";on=\"%s\";ot=%u",ow,on,ot))
 					## Derive colon position as well as
 					## option word, name, and type from
-					## description.
+					## descriptor.
 	if (!(oi = pion2oi[pi,on]) || (on < pioi2on[pi,oi])) {
 					## Long option so far unregistered or
 					## registered as abbreviation?
@@ -351,8 +351,8 @@ BEGIN {
     dl2ot[1] = OT_NONVAL ; dl2ot[2] = OT_REQVAL  ; dl2ot[3] = OT_OPTVAL
     ot2ds[OT_NONVAL] = ""; ot2ds[OT_REQVAL] = ":"; ot2ds[OT_OPTVAL] = "::"
 					## Define option types as well as
-					## description length -> option type/
-					## option type -> description suffix
+					## descriptor length -> option type/
+					## option type -> descriptor suffix
 					## maps.
     pi = 1				## Begin with 1st pass.
     if (ARGV[ARGI=1] == "print") {	## Which action?
