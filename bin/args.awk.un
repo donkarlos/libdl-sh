@@ -23,8 +23,34 @@
 ##  WRITTEN BY:	ks	2018-03-03
 ##  CHANGED BY:
 ##----------------------------------------------------------------------------
-##  quote_sh(STRING,PI)		Conditionally quote STRING
+##  enter(FN,FP)		Trace entry into FN(FP), increasing nesting
+##				depth
 #-----------------------------------------------------------------------------
+function enter(fn,fp) {
+    printf "#%s %s(%s)\n",NESTING,fn,fp; sub(/$/,"+",NESTING)
+}
+
+##----------------------------------------------------------------------------
+##  trace(EX)			Trace EXpression, keeping nesting depth
+##----------------------------------------------------------------------------
+function trace(ex) {
+    if (DEBUG) {
+	printf "#%s %s\n",NESTING,ex
+    }
+}
+
+##----------------------------------------------------------------------------
+##  leave(RV)			Trace return(RV), decreasing nesting depth
+##----------------------------------------------------------------------------
+function leave(rv) {
+    if (DEBUG) {
+	printf "#%s return %s\n",NESTING,rv; sub(/.$/,"",NESTING)
+    }
+}
+
+##----------------------------------------------------------------------------
+##  quote_sh(STRING,PI)		Conditionally quote STRING
+##----------------------------------------------------------------------------
 function quote_sh(string,pi) {
     if (!piow2ov[pi,"u"]) {		## Must quote STRING?
 	gsub(/'/,"&\\\\&&",string); string = "'" string "'"
@@ -38,31 +64,32 @@ function quote_sh(string,pi) {
 ##				PI-th pass
 ##----------------------------------------------------------------------------
 function getopt_add_optstring(optstring,pi ,ow,on,ot,oi) {
+    if (DEBUG) enter("getopt_add_optstring",sprintf("optstring=\"%s\",pi=%u",optstring,pi))
     while (optstring) {			## While OPTSTRING is non-empty do...
 	if (!match(optstring,/^[^-:]:?:?/)) {
 	    if (!piow2ov[pi,"q"])	## Looking at valid description?
 		printf "%s: '%s' describes no short option!\n",
 		    piow2ov[pi,"n"],optstring | stderr
-	    return 1			## No, complain and indicate failure!
-	}
+	    if (DEBUG) leave(1); return 1
+	}				## No, complain and indicate failure!
 	ow = substr(optstring,1,1); on = "-" ow; ot = dl2ot[RLENGTH]
-	if (DEBUG) printf "# ow=\"%s\";on=\"%s\";ot=%u\n",ow,on,ot
+	if (DEBUG) trace(sprintf("ow=\"%s\";on=\"%s\";ot=%u",ow,on,ot))
 					## Derive option word, name, and
 					## type from description.
 	if (!(oi = pion2oi[pi,on])) {	## Short option unregistered so far?
 	    pioi2on[pi,oi = pion2oi[pi,on] = ++pi2oc[pi]] = on
 	    pioi2ot[pi,oi] = ot		## Yes, register short option.
-	    if (DEBUG) printf "# pioi2on[pi=%u,oi=pion2oi[pi,on]=%u]"	\
-		"=on;pioi2ot[pi,oi]=ot\n",pi,oi
+	    if (DEBUG) trace(sprintf("pioi2on[pi=%u,oi=pion2oi[pi,on]=%u]=on;pioi2ot[pi,oi]=ot",pi,oi))
 	} else if (ot != pioi2ot[pi,oi]) {
 	    if (!piow2ov[pi,"q"])	## No, and registered differently?
 		printf "%s: '%s' already registered by '%s%s'!\n",
 		    piow2ov[pi,"n"],on,ow,ot2ds[pioi2ot[pi,oi]] | stderr
-	    return 1			## Yes, complain and indicate failure!
-	}
+	    if (DEBUG) leave(1); return 1
+	}				## Yes, complain and indicate failure!
 	optstring = substr(optstring,1+RLENGTH)
+	if (DEBUG) trace(sprintf("optstring=\"%s\"",optstring))
     }					## Consume description.
-    return 0				## Indicate success.
+    if (DEBUG) leave(0); return 0	## Indicate success.
 }
 
 ##----------------------------------------------------------------------------
@@ -71,17 +98,18 @@ function getopt_add_optstring(optstring,pi ,ow,on,ot,oi) {
 ##				PI-th pass
 ##----------------------------------------------------------------------------
 function getopt_add_longopts(longopts,pi ,di,dc,dv,cp,ow,on,ot,oi) {
+    if (DEBUG) enter("getopt_add_longopts",sprintf("longopts=\"%s\",pi=%u",longopts,pi))
     di = 0; dc = split(longopts,dv,/,/)	## Split LONGOPTS into descriptions.
     while (++di <= dc) {		## Foreach description do...
 	if (!match(dv[di],/^[^-=:]+(-[^-=:]+)*:?:?$/)) {
 	    if (!piow2ov[pi,"q"])	## Description is valid?
 		printf "%s: '%s' describes no long option!\n",
 		    piow2ov[pi,"n"],dv[di] | stderr
-	    return 1			## No, complain and indicate failure!
-	}
+	    if (DEBUG) leave(1); return 1
+	}				## No, complain and indicate failure!
 	if (!(cp = index(dv[di],":"))) cp = RLENGTH + 1
 	ow = substr(dv[di],1,cp-1); on = "--" ow; ot = dl2ot[2+RLENGTH-cp]
-	if (DEBUG) printf "# ow=\"%s\";on=\"%s\";ot=%u\n",ow,on,ot
+	if (DEBUG) trace(sprintf("ow=\"%s\";on=\"%s\";ot=%u",ow,on,ot))
 					## Derive colon position as well as
 					## option word, name, and type from
 					## description.
@@ -90,43 +118,42 @@ function getopt_add_longopts(longopts,pi ,di,dc,dv,cp,ow,on,ot,oi) {
 					## registered as abbreviation?
 	    pioi2on[pi,oi = pion2oi[pi,on] = ++pi2oc[pi]] = on
 	    pioi2ot[pi,oi] = ot		## Yes, register long option.
-	    if (DEBUG) printf "# pioi2on[pi=%u,oi=pion2oi[pi,on]=%u]"	\
-		"=on;pioi2ot[pi,oi]=ot\n",pi,oi
+	    if (DEBUG) trace(sprintf("pioi2on[pi=%u,oi=pion2oi[pi,on]=%u]=on;pioi2ot[pi,oi]=ot",pi,oi))
 	} else if (ot != pioi2ot[pi,oi]) {
 	    if (!piow2ov[pi,"q"])	## No, and registered differently?
 		printf "%s: '%s' already registered by '%s%s'!\n",
 		    piow2ov[pi,"n"],on,ow,ot2ds[pioi2ot[pi,oi]] | stderr
-	    return 1			## Yes, complain and indicate failure!
-	}
+	    if (DEBUG) leave(1); return 1
+	}				## Yes, complain and indicate failure!
 
 	while (cp > 2) {		## Foreach abbreviation do...
 	    if (!pion2oi[pi,on = substr(on,1,cp--)]) {
 					## Abbreviation is unregistered?
 		pion2oi[pi,on] = oi	## Yes, register abbreviation.
-		if (DEBUG) printf "# pion2oi[pi=%u,on=\"%s\"]=%u\n",pi,on,oi
+		if (DEBUG) trace(sprintf("pion2oi[%u,\"%s\"]=%u",pi,on,oi))
 	    } else if ((oi = pion2oi[pi,on]) < 0) {
 					## Abbreviation was ambiguous?
 		break			## Yes, so its prefices are, too!
 	    } else if (pioi2on[pi,oi] != on) {
 					## Abbreviation is ambiguous?
 		pion2oi[pi,on] = -1	## Yes, indicate so.
-		if (DEBUG) printf "# pion2oi[pi=%u,on=\"%s\"]=-1\n",pi,on
+		if (DEBUG) trace(sprintf("pion2oi[%u,\"%s\"]=-1",pi,on))
 	    }
 	}
     }
-    return 0				## Indicate success.
+    if (DEBUG) leave(0); return 0	## Indicate success.
 }
 
 ##----------------------------------------------------------------------------
 ##  getopt_next(PI)		Fetch next option/argument
 ##----------------------------------------------------------------------------
 function getopt_next(pi ,on,ov,oi,ot,ep) {
+    if (DEBUG) enter("getopt_next",sprintf("pi=%u",pi))
     if (++ARGI >= ARGC) {		## No more arguments?
-	if (DEBUG) print "# return AT_EOA"
-	return AT_EOA			## Yes, indicate so.
-    } else {
-	if (DEBUG) printf "# ARGV[ARGI=%u]=\"%s\"\n",ARGI,ARGV[ARGI]
-    }
+	if (DEBUG) leave(AT_EOA); return AT_EOA
+    }					## Yes, indicate so.
+
+    if (DEBUG) trace(sprintf("ARGV[%u]=\"%s\"",ARGI,ARGV[ARGI]))
     if (match(ARGV[ARGI],/^-[^-]/)) {	## Looking at short option?
 	on = substr(ARGV[ARGI],RSTART,RLENGTH)
 	ov = substr(ARGV[ARGI],RSTART+RLENGTH)
@@ -136,10 +163,10 @@ function getopt_next(pi ,on,ov,oi,ot,ep) {
 	    if (ov) {			## Value attached?
 		if (ot >= OT_OPTVAL) {	## Yes, and option wants value?
 		    ot = OT_REQVAL	## Yes, supply it.
-		} else {
+		} else {		## No, push back glued short options.
+		    if (DEBUG) trace(sprintf("ARGV[%u]=\"-%s\"",ARGI,ov))
 		    ARGV[ARGI--] = "-" ov
-					## No, push back attached combined
-		}			## short options.
+		}
 	    } else {			## No value attached!
 		if (ot <= OT_OPTVAL) {	## Option requires value?
 		    ot = OT_NONVAL	## No, don't supply any.
@@ -149,39 +176,36 @@ function getopt_next(pi ,on,ov,oi,ot,ep) {
 		} else {
 		    if (!piow2ov[pi,"q"]) printf "%s: %s: Missing value!\n",
 			piow2ov[pi,"n"],on | stderr
-		    if (DEBUG) print "# return AT_ERR"
-		    return AT_ERR	## No, complain and indicate failure!
-		}
+		    if (DEBUG) leave(AT_ERR); return AT_ERR
+		}			## No, complain and indicate failure!
 	    }
-	    if (DEBUG) printf "# OPTNAM=\"%s\";OPTVAL=\"%s\";return %u\n",
-		on,ov,ot
-	    OPTNAM = on; OPTVAL = ov; return ot
+	    if (DEBUG) trace(sprintf("OPTNAM=\"%s\";OPTVAL=\"%s\"",on,ov))
+	    if (DEBUG) leave(ot); OPTNAM = on; OPTVAL = ov; return ot
 	} else if (!piow2ov[pi,"a"] || (ARGV[ARGI] !~ /^(-[^-=]+)+/)) {
 					## Alternative long options allowed
 					## and option looks like that?
 	    if (!piow2ov[pi,"q"]) printf "%s: %s: Unknown option!\n",
 		piow2ov[pi,"n"],on | stderr
-	    if (DEBUG) print "# return AT_ERR"
-	    return AT_ERR		## No, complain and indicate failure!
-	}
+	    if (DEBUG) leave(AT_ERR); return AT_ERR
+	}				## No, complain and indicate failure!
 	ARGV[ARGI] = "-" ARGV[ARGI]	## Fake long option.
+	if (DEBUG) trace(sprintf("ARGV[ARGI=%u]=\"%s\"",ARGI,ARGV[ARGI]))
     }
     if (match(ARGV[ARGI],/^-(-[^-=]+)+/)) {
 					## Looking at long option?
 	on = substr(ARGV[ARGI],RSTART,RLENGTH)
-	if (DEBUG) printf "# on=\"%s\"\n",on
+	if (DEBUG) trace(sprintf("on=\"%s\"",on))
 					## Yes, derive name.
 	if (!(oi = pion2oi[pi,on])) {	## Registered for PI-th pass?
 	    if (!piow2ov[pi,"q"]) printf "%s: %s: Unknown option!\n",
 		piow2ov[pi,"n"],on | stderr
-	    if (DEBUG) print "# return AT_ERR"
-	    return AT_ERR		## No, complain and indicate failure!
+	    if (DEBUG) leave(AT_ERR); return AT_ERR
+					## No, complain and indicate failure!
 	} else if (oi < 0) {		## Unambiguous?
 	    if (!piow2ov[pi,"q"]) printf "%s: %s: Ambiguous option!\n",
 		piow2ov[pi,"n"],on | stderr
-	    if (DEBUG) print "# return AT_ERR"
-	    return AT_ERR		## No, complain and indicate failure!
-	}
+	    if (DEBUG) leave(AT_ERR); return AT_ERR
+	}				## No, complain and indicate failure!
 	ot = pioi2ot[pi,oi]		## Fetch option type and unabbrevi-
 	on = pioi2on[pi,oi]		## ated name.
 	if (ep = index(ARGV[ARGI],"=")) {
@@ -201,19 +225,16 @@ function getopt_next(pi ,on,ov,oi,ot,ep) {
 	    } else {
 		if (!piow2ov[pi,"q"]) printf "%s: %s: Missing value!\n",
 			piow2ov[pi,"n"],on | stderr
-		if (DEBUG) print "# return AT_ERR"
-		return AT_ERR		## No, complain and indicate failure!
-	    }
+		if (DEBUG) leave(AT_ERR); return AT_ERR
+	    }				## No, complain and indicate failure!
 	}
-	if (DEBUG) printf "# OPTNAM=\"%s\";OPTVAL=\"%s\";return %u\n",on,ov,ot
-	OPTNAM = on; OPTVAL = ov; return ot
+	if (DEBUG) trace(sprintf("OPTNAM=\"%s\";OPTVAL=\"%s\"",on,ov))
+	if (DEBUG) leave(ot); OPTNAM = on; OPTVAL = ov; return ot
     }
-    if (ARGV[ARGI] == "--") {
-	if (DEBUG) print "# return AT_EOO"
-	++ARGI; return AT_EOO
-    }
-    if (DEBUG) print "# return AT_ARG"
-    return AT_ARG
+    if (ARGV[ARGI] == "--") {		## Looking at end-of-option marker?
+	++ARGI; if (DEBUG) leave(AT_EOO); return AT_EOO
+    }					## Yes, consume and return it.
+    if (DEBUG) leave(AT_ARG); return AT_ARG
 }
 
 ##----------------------------------------------------------------------------
@@ -229,7 +250,9 @@ function args_print() {
 ##  args_getopt(CN)		Emulate getopt(1)
 ##----------------------------------------------------------------------------
 function args_getopt(cn ,at,O,A) {
+    if (DEBUG) enter("args_getopt",sprintf("cn=\"%s\"",cn))
     piow2ov[pi+1,"n"] = piow2ov[pi,"n"] = cn
+    if (DEBUG) trace(sprintf("piow2ov[%u,\"n\"]=piow2ov[%u,\"n\"]=\"%s\"",pi+1,pi,cn))
 					## Preset pass' command name.
     getopt_add_optstring("ahl:n:o:qQs:uTV",pi)
     getopt_add_longopts("alternative,help,longoptions:,name:,options:",pi)
@@ -240,59 +263,59 @@ function args_getopt(cn ,at,O,A) {
 	    break			## Yes, enter next pass.
 	} else if (OPTNAM ~ /^(-a|--alternative)$/) {
 	    ++piow2ov[pi+1,"a"]		## Allow alternative long options.
-	    if (DEBUG) printf "# piow2ov[%u,\"a\"]=%u\n",
-		pi+1,piow2ov[pi+1,"a"]
+	    if (DEBUG) trace(sprintf("piow2ov[%u,\"a\"]=%u",pi+1,piow2ov[pi+1,"a"]))
 	} else if (OPTNAM ~ /^(-l|--longoptions)$/) {
-	    if (getopt_add_longopts(OPTVAL,pi+1)) return 1
-					## Try to add LONGOPTS for command.
+	    if (getopt_add_longopts(OPTVAL,pi+1)) {
+		if (DEBUG) leave(1); return 1
+	    }				## Try to add LONGOPTS for command.
 	} else if (OPTNAM ~ /^(-n|--name)$/) {
 	    piow2ov[pi+1,"n"] = OPTVAL	## Update command name.
-	    if (DEBUG) printf "# piow2ov[%u,\"n\"]=\"%s\"\n",
-		pi+1,piow2ov[pi+1,"n"]
+	    if (DEBUG) trace(sprintf("piow2ov[%u,\"n\"]=\"%s\"",pi+1,piow2ov[pi+1,"n"]))
 	} else if (OPTNAM ~ /^(-o|--options)$/) {
-	    if (getopt_add_optstring(OPTVAL,pi+1)) return 1
+	    if (getopt_add_optstring(OPTVAL,pi+1)) {
+		if (DEBUG) leave(1); return 1
+	    }
 	    ++piow2ov[pi+1,"o"]		## Try to add OPTSTRING for command.
+	    if (DEBUG) trace(sprintf("piow2ov[%u,\"o\"]=%u",pi+1,piow2ov[pi+1,"o"]))
 	} else if (OPTNAM ~ /^(-q|--quiet)$/) {
 	    ++piow2ov[pi+1,"q"]		## Become quiet.
-	    if (DEBUG) printf "# piow2ov[%u,\"q\"]=%u\n",
-		pi+1,piow2ov[pi+1,"q"]
+	    if (DEBUG) trace(sprintf("piow2ov[%u,\"q\"]=%u",pi+1,piow2ov[pi+1,"q"]))
 	} else if (OPTNAM ~ /^(-Q|--quiet-output)$/) {
 	    ++piow2ov[pi+1,"Q"]		## Don't print result.
-	    if (DEBUG) printf "# piow2ov[%u,\"Q\"]=%u\n",
-		pi+1,piow2ov[pi+1,"Q"]
+	    if (DEBUG) trace(sprintf("piow2ov[%u,\"Q\"]=%u",pi+1,piow2ov[pi+1,"Q"]))
 	} else if (OPTNAM ~ /^(-s|--shell)$/) {
 	    if (OPTVAL ~ /^([bd]?a|[ck])?sh$/) {
 		piow2ov[pi+1,"s"] = OPTVAL
 					## Update command's shell.
-		if (DEBUG) printf "# piow2ov[%u,\"s\"]=\"%s\"\n",
-		    pi+1,piow2ov[pi+1,"s"]
+		if (DEBUG) trace(sprintf("piow2ov[%u,\"s\"]=\"%s\"",pi+1,piow2ov[pi+1,"s"]))
 	    } else {
 		if (!piow2ov[pi+1,"q"]) printf "%s: '%s' is no shell!\n",
 			piow2ov[pi,"n"],OPTVAL | stderr
 	    }
 	} else if (OPTNAM ~ /^(-u|--unquoted)$/) {
 	    ++piow2ov[pi+1,"u"]		## Force unquoted output.
-	    if (DEBUG) printf "# piow2ov[%u,\"u\"]=%u\n",
-		pi+1,piow2ov[pi+1,"u"]
+	    if (DEBUG) trace(sprintf("piow2ov[%u,\"u\"]=%u",pi+1,piow2ov[pi+1,"u"]))
 	}
     }
 
-    if (at < AT_EOA) return 1		## Pass any failure through.
+    if (at < AT_EOA) {
+	if (DEBUG) leave(1); return 1	## Pass any failure through.
+    }
     if (!piow2ov[++pi,"o"]) {		## '-o OPTSTRING' seen?
 	if (ARGI >= ARGC) {		## No, but looking at OPTSTRING now?
 	    if (!piow2ov[pi,"q"])
 		printf "Usage: %s [OPTIONS] OPTSTRING [ARG ...]\n",
 		    piow2ov[pi,"n"] | stderr
-	    return 2			## No, complain and indicate failure!
+	    if (DEBUG) leave(2); return 2	## No, complain and indicate failure!
 	} else if (getopt_add_optstring(ARGV[ARGI++],pi)) {
-	    return 1			## Try to add OPTSTRING for command.
+	    if (DEBUG) leave(1); return 1 ## Try to add OPTSTRING for command.
 	}
     }
 
     --ARGI; while ((at = getopt_next(pi)) > AT_EOO) {
 					## While processing command's
 					## arguments do...
-	if (DEBUG) printf "# at=%d\n",at
+	if (DEBUG) trace(sprintf("at=%d",at))
 	if (at < OT_NONVAL) {		## Saw argument?
 	    A = A " " quote_sh(ARGV[ARGI],pi)
 					## Yes, quote and append it.
@@ -304,14 +327,16 @@ function args_getopt(cn ,at,O,A) {
 					## Quote and append it as well as
 	}				## its value.
     }
-    if (DEBUG) printf "# at=%d\n",at
+    if (DEBUG) trace(sprintf("at=%d",at))
 
-    if (at < AT_EOA) return 1		## Pass any failure through.
+    if (at < AT_EOA) {
+	if (DEBUG) leave(1); return 1	## Pass any failure through.
+    }
     if (at == AT_EOO) while (ARGI < ARGC) A = A " " quote_sh(ARGV[ARGI++],pi)
 					## Quote and append remaining
 					## arguments.
     if (!piow2ov[pi,"Q"]) printf "%s--%s\n",O,A
-    return 0
+    if (DEBUG) leave(0); return 0
 }
 
 ##----------------------------------------------------------------------------
