@@ -161,15 +161,15 @@ function getopt_next(pi ,on,ov,oi,ot,ep) {
 	if (oi = pion2oi[pi,on]) {	## Registered for PI-th pass?
 	    ot = pioi2ot[pi,oi]		## Yes, fetch option type.
 	    if (ov) {			## Value attached?
-		if (ot >= OT_OPTVAL) {	## Yes, and option wants value?
-		    ot = OT_REQVAL	## Yes, supply it.
+		if (ot >= AT_OOA) {	## Yes, and option wants value?
+		    ot = AT_ORA		## Yes, supply it.
 		} else {		## No, push back glued short options.
 		    if (DEBUG) trace(sprintf("ARGV[%u]=\"-%s\"",ARGI,ov))
 		    ARGV[ARGI--] = "-" ov
 		}
 	    } else {			## No value attached!
-		if (ot <= OT_OPTVAL) {	## Option requires value?
-		    ot = OT_NONVAL	## No, don't supply any.
+		if (ot <= AT_OOA) {	## Option requires value?
+		    ot = AT_ONA		## No, don't supply any.
 		} else if (++ARGI < ARGC) {
 					## Another argument follows?
 		    ov = ARGV[ARGI]	## Yes, supply that as value.
@@ -210,16 +210,16 @@ function getopt_next(pi ,on,ov,oi,ot,ep) {
 	on = pioi2on[pi,oi]		## ated name.
 	if (ep = index(ARGV[ARGI],"=")) {
 					## Value attached?
-	    if (ot >= OT_OPTVAL) {	## Option wants value?
-		ot = OT_REQVAL; ov = substr(ARGV[ARGI],ep+1)
+	    if (ot >= AT_OOA) {		## Option wants value?
+		ot = AT_ORA; ov = substr(ARGV[ARGI],ep+1)
 	    } else {			## Yes, supply it.
 		if (!piow2ov[pi,"q"])
 		    printf "%s: %s: Excess value (ignored).\n",
 			piow2ov[pi,"n"],on | stderr
 	    }				## No, warn about excess value.
 	} else {			## No, value attached!
-	    if (ot <= OT_OPTVAL) {	## Option requires value?
-		ot = OT_NONVAL		## No, don't supply any.
+	    if (ot <= AT_OOA) {		## Option requires value?
+		ot = AT_ONA		## No, don't supply any.
 	    } else if (++ARGI < ARGC) {	## Another argument follows?
 		ov = ARGV[ARGI]		## Yes, supply that as value.
 	    } else {
@@ -330,10 +330,10 @@ function args_getopt(cn ,at,O,A) {
 					## While processing command's
 					## arguments do...
 	if (DEBUG) trace(sprintf("at=%d",at))
-	if (at < OT_NONVAL) {		## Saw argument?
+	if (at < AT_ONA) {		## Saw argument?
 	    A = A " " quote_sh(ARGV[ARGI],pi)
 					## Yes, quote and append it.
-	} else if (at == OT_NONVAL) {	## Saw option without value?
+	} else if (at == AT_ONA) {	## Saw option without value?
 	    O = O quote_sh(OPTNAM,pi) " "
 					## Yes, quote and append it.
 	} else {			## Saw option with value!
@@ -361,9 +361,9 @@ BEGIN {
     stderr = "cat >&2"			## Setup portable printing to stderr.
     FALSE = 0; TRUE = 1
     AT_ERR = -3; AT_EOA = -2; AT_EOO = -1; AT_ARG = 0
-    OT_NONVAL = 1; OT_OPTVAL = 2; OT_REQVAL = 3
-    dl2ot[1] = OT_NONVAL ; dl2ot[2] = OT_REQVAL  ; dl2ot[3] = OT_OPTVAL
-    ot2ds[OT_NONVAL] = ""; ot2ds[OT_REQVAL] = ":"; ot2ds[OT_OPTVAL] = "::"
+    AT_ONA = 1; AT_OOA = 2; OT_REQVAL = 3
+    dl2ot[1] = AT_ONA ; dl2ot[2] = AT_ORA  ; dl2ot[3] = AT_OOA
+    ot2ds[AT_ONA] = ""; ot2ds[AT_ORA] = ":"; ot2ds[AT_OOA] = "::"
 					## Define option types as well as
 					## descriptor length -> option type/
 					## option type -> descriptor suffix
