@@ -22,6 +22,7 @@ dnl
 dnl WRITTEN BY:	ks	2013-02-12
 dnl CHANGED BY:	ks	2018-03-11	Import prebuilt autofinish scripts.
 dnl		ks	2020-05-03	Require at least GNU Automake 1.13.
+dnl					Make xz(1)-compressed distributions.
 dnl
 dnl NOTE:   (1)	Update the build system with autoreconf(1).
 dnl	    (2)	AM_INIT_AUTOMAKE() already invokes AC_ARG_PROGRAM, AC_PROG_-
@@ -36,7 +37,7 @@ AC_PREREQ([2.61])
 AC_CONFIG_SRCDIR([bin/libdl-sh.un])
 AC_CONFIG_AUX_DIR([auto])
 AC_CONFIG_MACRO_DIRS([auto])
-AM_INIT_AUTOMAKE([foreign no-define 1.13])
+AM_INIT_AUTOMAKE([foreign no-define dist-xz no-dist-gzip 1.13])
 AF_INIT([auto/gensubst])
 
 dnl
