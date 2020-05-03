@@ -32,7 +32,7 @@ dnl
 dnl Initialization:
 dnl
 AC_INIT([Demand-loadable libraries for POSIX shell scripts],
-    [0.4~1], [ks+libdl-sh@computerlabor.org], [libdl-sh])
+    [0.4~2], [ks+libdl-sh@computerlabor.org], [libdl-sh])
 AC_PREREQ([2.61])
 AC_CONFIG_SRCDIR([bin/libdl-sh.un])
 AC_CONFIG_AUX_DIR([auto])
