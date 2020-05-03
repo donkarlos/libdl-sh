@@ -2,7 +2,7 @@
 #-----------------------------------------------------------------------------
 #   libdl.sh			- Demand-loading library
 #
-#   Copyright (C) 2013-2018 Das Computerlabor (DCl-M)
+#   Copyright © 2013-2020 Das Computerlabor (DCl-M)
 #
 #   This library is free software; you can redistribute it and/or
 #   modify it under the terms of the GNU Lesser General Public License
@@ -36,6 +36,7 @@
 ##		ks	2017-07-01	Add service function dl_dump().
 ##		ks	2017-07-08	Add service function dl_split().
 ##		ks	2018-02-26	Overhaul dl_split().
+##		ks	2020-05-03	Add 'meta get-apis r/o'.
 ##
 ##  NOTE:   (1)	To avoid cluttering code, this library is exempted from need-
 ##		ing namespace prefixes for its special character definitions.
@@ -79,12 +80,15 @@ dl_meta() {
     case $1-$2 in			## Which META operation?
 	get-apis)			## Inquire APIs...
 	    local sx ms=\;
-	    local fa='/^a'"$ms"'/!d;s///'   ff='/^f'"$ms"'/!d;s///'	\
-		  da=';s/([^)'"$ms"'(]*)//' p2=';s/'"$ms"'/&'"$mp"'/;s/_(/(/'
+	    local fa='/^a'"$ms"'/!d;s///' da=';s/([^)'"$ms"'(]*)//'	\
+		  ff='/^F'"$ms"'/{;s///;t2;};/^f'"$ms"'/!d;s///'	\
+		  fr='/^R'"$ms"'/{;s///;t2;};/^r'"$ms"'/!d;s///'	\
+		  p2=';s/'"$ms"'/&'"$mp"'/;:2'
 	    case ${3-api} in		## Which format?
 		api)	sx="$fa"		;;
 		full)   sx="$ff$p2${4+;$4}"	;;
 		list)	sx="$ff$p2$da${4+;$4}"	;;
+		r/o)	sx="$fr$p2${4+;$4}"	;;
 		*)	return 1		;;
 	    esac
 	    sed "$sx" <<EOF
@@ -98,6 +102,26 @@ f${ms}$dl_api${ms}atload(HOOK)${ms}1
 f${ms}$dl_api${ms}load(LIB ...)${ms}1-
 f${ms}$dl_api${ms}atexit(HOOK)${ms}1
 f${ms}$dl_api${ms}exit([STATUS=\$?])${ms}0-1
+R${ms}$dl_api${ms}BQ
+R${ms}$dl_api${ms}DQ
+R${ms}$dl_api${ms}SQ
+R${ms}$dl_api${ms}BS
+R${ms}$dl_api${ms}CS
+R${ms}$dl_api${ms}DS
+R${ms}$dl_api${ms}HS
+R${ms}$dl_api${ms}QB
+R${ms}$dl_api${ms}QE
+R${ms}$dl_api${ms}CR
+R${ms}$dl_api${ms}NL
+r${ms}$dl_api${ms}cs_ul
+r${ms}$dl_api${ms}cs_ll
+r${ms}$dl_api${ms}cs_1d
+r${ms}$dl_api${ms}cs_0d
+r${ms}$dl_api${ms}cs_al
+r${ms}$dl_api${ms}cs_an
+r${ms}$dl_api${ms}re_id
+r${ms}$dl_api${ms}re_1n
+r${ms}$dl_api${ms}re_0n
 EOF
 	    ;;
 	get-package|get-version|get-api|get-libpath|get-loaded|get-session)
