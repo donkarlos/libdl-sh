@@ -2,7 +2,7 @@
 #-----------------------------------------------------------------------------
 #   libemit.sh			- Message emission library
 #
-#   Copyright (C) 2013-2017 Das Computerlabor (DCl-M)
+#   Copyright © 2013-2020 Das Computerlabor (DCl-M)
 #
 #   This library is free software; you can redistribute it and/or
 #   modify it under the terms of the GNU Lesser General Public License
@@ -26,6 +26,8 @@
 ##					Use 'meta get apis' separator ';'.
 ##		ks	2017-01-15	Update copyright.
 ##					Add 'meta session *'.
+##		ks	2020-05-03	Make 'meta get apis FORMAT' properly
+##					handle namespace rule-exempted names.
 ##----------------------------------------------------------------------------
 ##  Global variables:
 #-----------------------------------------------------------------------------
@@ -44,8 +46,9 @@ emit_meta() {
     case $1-$2 in			## Which META operation?
 	get-apis)			## Inquire APIs...
 	    local sx ms=\;
-	    local fa='/^a'"$ms"'/!d;s///'   ff='/^f'"$ms"'/!d;s///'	\
-		  da=';s/([^)'"$ms"'(]*)//' p2=';s/'"$ms"'/&'"$mp"'/;s/_(/(/'
+	    local fa='/^a'"$ms"'/!d;s///' da=';s/([^)'"$ms"'(]*)//'	\
+		  ff='/^F'"$ms"'/{;s///;t2;};/^f'"$ms"'/!d;s///'	\
+		  p2=';s/'"$ms"'/&'"$mp"'/;:2'
 	    case ${3-api} in		## Which format?
 		api)	sx="$fa"		;;
 		full)   sx="$ff$p2${4+;$4}"	;;
@@ -57,7 +60,7 @@ a${ms}$emit_api
 f${ms}$emit_api${ms}meta(META [ARG ...])${ms}2-
 f${ms}$emit_api${ms}set_head(LEVEL HEAD)${ms}2
 f${ms}$emit_api${ms}get_head(LEVEL)${ms}1
-f${ms}$emit_api${ms}(LEVEL MESSAGE ...)${ms}2
+F${ms}$emit_api${ms}emit(LEVEL MESSAGE ...)${ms}2-
 EOF
 	    ;;
 	get-package|get-version|get-api)
