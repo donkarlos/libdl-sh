@@ -27,7 +27,8 @@
 .\#					Use \f[BIP] font control.
 .\#		ks	2017-02-10	Canonify LSP items in 'path' action.
 .\#					Add 'exec' action.
-.\#		ks	2020-05-12	Fix 'exec' action's usage.
+.\#		ks	2020-05-12	Fix 'exec' action's usage and describe
+.\#					how to use it as a test aid.
 .\#
 .\# NOTE: (1)	Please adjust below date whenever revising the manual page.
 .\#		vvvvvv
@@ -103,6 +104,23 @@ search path (LSP). You may also use it to verify your configuration.
 Construct environment that allows to execute \fICOMMAND\fP without any actual
 demand-loading configuration (i.e., so that \fB@PACKAGE_TARNAME@ load\fP
 succeeds) and execute \fICOMMAND\fP in that environment.
+
+Note that this action particularly aids in testing just-built versions of
+shell applications (and the libraries they demand-load) \fIinside the source
+tree\fP before their actual installation: If, for example,
+.br
+\(bu shell applications are built in subdirectory \fBbin\fP and
+.br
+\(bu demand-loadable libraries are built in subdirectory \fBlib\fP
+.br
+of the source tree, then shell application \fICOMMAND\fP (and the libraries it
+demand-loads) may be tested by invoking
+
+.in +4
+\fBLIBDL_SH_LIBRARY_PATH=lib @PACKAGE_TARNAME@ exec bin/\fP\fICOMMAND\fP
+.in -4
+
+(Any \fIARGUMENT\fPs have been omitted for simplicity's sake.)
 
 .TP
 \fBecho\fP \fINAME\fP ...
