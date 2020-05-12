@@ -35,7 +35,7 @@
 .TH LIBDL-SH 1 2020-05-12 "@PACKAGE_TARNAME@ @PACKAGE_VERSION@" "Shell Programming"
 
 .SH NAME
-@PACKAGE_TARNAME@ \- POSIX shell library demand-loading helper
+@PACKAGE_TARNAME@ \- Shell library demand-loading helper
 
 .SH SYNOPSIS
 \fB@PACKAGE_TARNAME@\fP \fIACTION\fP [\fIARGUMENT\fP ...]
@@ -43,8 +43,8 @@
 .SH DESCRIPTION
 The demand-loading library \fBlibdl.sh\fP and its helper
 \fB@PACKAGE_TARNAME@\fP are the core of @PACKAGE_TARNAME@'s shell library
-demand-loading mechanism. POSIX shell applications wishing to use the
-mechanism invoke \fB@PACKAGE_TARNAME@ load\fP (see below for details) to load
+demand-loading mechanism. Shell applications wishing to use the mechanism
+invoke \fB@PACKAGE_TARNAME@ load\fP (see below for details) to load
 \fBlibdl.sh\fP, thereby instantiating the mechanism within the application.
 
 .SH ACTIONS
