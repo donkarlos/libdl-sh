@@ -1,7 +1,7 @@
 .\"								-*- nroff -*-
 .\" libdl-sh.1			- @PACKAGE_TARNAME@(1) manual page
 .\"
-.\" Copyright (C) 2013-2017 Das Computerlabor (DCl-M)
+.\" Copyright © 2013-2020 Das Computerlabor (DCl-M)
 .\"
 .\" This library is free software; you can redistribute it and/or
 .\" modify it under the terms of the GNU Lesser General Public License
@@ -27,10 +27,11 @@
 .\#					Use \f[BIP] font control.
 .\#		ks	2017-02-10	Canonify LSP items in 'path' action.
 .\#					Add 'exec' action.
+.\#		ks	2020-05-12	Fix 'exec' action's usage.
 .\#
 .\# NOTE: (1)	Please adjust below date whenever revising the manual page.
 .\#		vvvvvv
-.TH LIBDL-SH 1 2017-02-10 "@PACKAGE_TARNAME@ @PACKAGE_VERSION@" "Shell Programming"
+.TH LIBDL-SH 1 2020-05-12 "@PACKAGE_TARNAME@ @PACKAGE_VERSION@" "Shell Programming"
 
 .SH NAME
 @PACKAGE_TARNAME@ \- POSIX shell library demand-loading helper
@@ -98,7 +99,7 @@ The action's primary purpose is initializing the demand-loading library's
 search path (LSP). You may also use it to verify your configuration.
 
 .TP
-\fBexec\fP [\fBlibdir=\fP\fILIBDIR\fP] [\fB--\fP] \fICOMMAND\fP
+\fBexec\fP \fICOMMAND\fP [\fIARGUMENT\fP ...]
 Construct environment that allows to execute \fICOMMAND\fP without any actual
 demand-loading configuration (i.e., so that \fB@PACKAGE_TARNAME@ load\fP
 succeeds) and execute \fICOMMAND\fP in that environment.
