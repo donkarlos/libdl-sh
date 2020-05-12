@@ -43,7 +43,8 @@ dist_noinst_DATA	= LICENSE
 ##  Finish scripts:
 ##----------------------------------------------------------------------------
 noinst_SCRIPTS		= bin/args.awk					\
-			  bin/genchangelog
+			  bin/genchangelog				\
+			  bin/test-deb-version
 
 ##----------------------------------------------------------------------------
 ##  Distribute and install manpages:
@@ -72,7 +73,7 @@ dist_man_MANS		= doc/dl_atexit.3sh doc/dl_atload.3sh		\
 ##----------------------------------------------------------------------------
 ##  Finish and install scripts, libraries, manpages, and package data:
 ##----------------------------------------------------------------------------
-bin_SCRIPTS		= bin/libdl-sh bin/test-deb-version
+bin_SCRIPTS		= bin/libdl-sh
 pkgdata_SCRIPTS		= lib/conf.awk
 shlib_DATA		= lib/libdl.sh lib/libquote.sh lib/libundo.sh	\
 			  lib/libsafe.sh lib/libconf.sh lib/libemit.sh	\
