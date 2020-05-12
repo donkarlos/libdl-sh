@@ -23,6 +23,7 @@ dnl WRITTEN BY:	ks	2013-02-12
 dnl CHANGED BY:	ks	2018-03-11	Import prebuilt autofinish scripts.
 dnl		ks	2020-05-03	Require at least GNU Automake 1.13.
 dnl					Make xz(1)-compressed distributions.
+dnl		ks	2020-05-12	Import changelog generator.
 dnl
 dnl NOTE:   (1)	Update the build system with autoreconf(1).
 dnl	    (2)	AM_INIT_AUTOMAKE() already invokes AC_ARG_PROGRAM, AC_PROG_-
@@ -44,7 +45,7 @@ dnl
 dnl Generate output files:
 dnl
 AF_FINISH_FILES([
-    bin/args.awk bin/libdl-sh bin/test-deb-version
+    bin/args.awk bin/genchangelog bin/libdl-sh bin/test-deb-version
     doc/libdl-sh.1 doc/libdl-sh.conf.5 doc/libdl.3sh doc/libconf.3sh
     doc/libquote.3sh doc/libundo.3sh doc/libsafe.3sh
     etc/libdl-sh.conf

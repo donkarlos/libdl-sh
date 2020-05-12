@@ -1,0 +1,176 @@
+#! /bin/sh
+#-----------------------------------------------------------------------------
+#   genchangelog		- Generate change log from git(1) logs
+#
+#   Copyright (C) 2016 Das Computerlabor (DCl-M)
+#
+#   This library is free software; you can redistribute it and/or
+#   modify it under the terms of the GNU Lesser General Public License
+#   as published by the Free Software Foundation; either
+#   version 2.1 of the License, or (at your option) any later version.
+#
+#   This library is distributed in the hope that it will be useful,
+#   but WITHOUT ANY WARRANTY; without even the implied warranty of
+#   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+#   Lesser General Public License for more details.
+#
+#   You should have received a copy of the GNU Lesser General Public License
+#   along with this library; if not, write to the Free Software Founda-
+#   tion, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
+##
+##  AUTHOR(S):	ks	Karl Schmitz <ks@computerlabor.org>
+##
+##  WRITTEN BY:	ks	2016-05-20
+##  CHANGED BY:
+##----------------------------------------------------------------------------
+##  gcl_atload(LIB)		Library load-time hook
+#-----------------------------------------------------------------------------
+gcl_atload() {
+    case $1 in
+	conf)
+	    conf_meta set api 1
+	    ;;
+	safe)
+	    safe_init :0
+	    ;;
+    esac
+}
+
+##----------------------------------------------------------------------------
+##  gcl_help()			Show usage
+##----------------------------------------------------------------------------
+gcl_help() {
+    cat <<EOF
+Usage: $command [OPTION ...] CHANGELOG
+
+Valid OPTIONs are:
+ -f FORMAT	Use output FORMAT (instead of 'oneline').
+ -p PREFIX	Use release tag prefix PREFIX (instead of 'release/').
+EOF
+}
+
+##----------------------------------------------------------------------------
+##  gcl_tag_oneline(OBJECT)	Print annotated/signed tag OBJECT's message
+##				in faked '--oneline' format
+##----------------------------------------------------------------------------
+gcl_tag_oneline() {
+    git show --no-notes --no-patch "$1" | sed '1,/^$/d;s/^/ * '"$1"' /;q'
+}
+
+##----------------------------------------------------------------------------
+##  gcl_tags([PREFIX])		Print tags (having PREFIX)
+##----------------------------------------------------------------------------
+gcl_tags() {
+    git rev-parse --symbolic --tags${1+"=$1*"} | sed 's|^refs/[^/]*/||'
+}
+
+##----------------------------------------------------------------------------
+##  gcl_tagmap(PREFIX)		Generate map in reverse chronological order
+##				from tags matching PREFIX
+##----------------------------------------------------------------------------
+gcl_tagmap() {
+    local tag object commit q1
+
+    q1=`quote_sed "$1"`
+    for tag in `gcl_tags "$1"`; do
+	object=`git rev-parse --short "$tag"'^{object}'`
+	commit=`git rev-parse --short "$tag"'^{commit}'`
+	git show --no-notes --no-patch				\
+	    --pretty="tformat:%at %ct $object $commit $tag" "$commit"
+    done | sort -t' ' -k1,2nr |
+	sed 's/^[^ ]* [^ ]* \([^ ]* [^ *]* \)'"$q1"'/\1/'
+}
+
+##----------------------------------------------------------------------------
+##  gcl_format_logs(FORMAT OBJECT1 COMMIT0[..COMMIT1] RELEASE0 [RELEASE1])
+##				~~~~
+##----------------------------------------------------------------------------
+gcl_format_logs() {
+    case ${5:+=}:$3 in
+	=:*..*)	echo "Changes from release $4 to $5:"	;;
+	*:*..*)	echo "Changes since release $4:"	;;
+	*:*)	echo "Changes up to release $4:"	;;
+    esac | sed 'p;s/./=/gp;s/^.*$//;q'
+
+    case $1 in
+	oneline)
+	    case $3 in			## RELEASE1's tag is plain (i.e.,
+					## just points to commit)?
+		$2|*..$2|*..)		;;
+					## Yes.
+		*)  gcl_tag_oneline "$2";;
+					## No, print tag's message in fake
+					## '--oneline' format.
+	    esac
+	    git log --oneline "$3" | sed 's/^/ * /;${;p;s/^.*$//;}'
+	    ;;
+	*)  echo "$command: $1: Unknown output format!" >&2
+	    ;;
+    esac
+}
+
+##----------------------------------------------------------------------------
+##  Main program:
+##----------------------------------------------------------------------------
+case `(dl_meta get loaded) 2>/dev/null` in
+    *:dl:*)				## Stubbed invocation?
+	command=`basename "$command"`	## Yes, determine command name from
+	;;				## $command passed by stub.
+    *)  LC_ALL=C; export LC_ALL		## No, avoid locale insanities, deter-
+	command=`basename "$0"`		## mine command name from $0, and
+	eval "`libdl-sh load`"		## prepare demand-library loading.
+	;;
+esac
+
+format=oneline prefix=release/ unreleased=y
+while getopts 'rf:p:' o; do		## Foreach OPTION do...
+    case $o in				## Which option?
+	r)  unreleased=n		## '-r'...
+	    ;;				## Yes, suppress unreleased changes.
+	f)  format=$OPTARG		## '-f FORMAT'...
+	    ;;				## Yes, update output format.
+	p)  prefix=$OPTARG		## '-r PREFIX'...
+	    ;;				## Yes, update release tag prefix.
+	*)  gcl_help >&2		## Anything else...
+	    exit 2			## Show usage and indicate misusage!
+	    ;;
+    esac
+done; shift `expr $OPTIND - 1`
+
+iwt=`(git rev-parse --is-inside-work-tree) 2>/dev/null`
+case $?:$iwt in				## Inside git(1) work tree?
+    0:true)	;;			## Yes.
+    0:*)				## No...
+	echo "$command: Not inside git(1) work tree!" >&2
+	exit 1	;;			## Complain and indicate failure!
+    *)					## Don't know; git(1) wasn't found...
+	echo "$command: git: command not found!" >&2
+	exit 1	;;			## Complain and indicate failure!
+esac
+
+dl_atload gcl_atload && dl_load safe
+					## Register load-time hook and try to
+					## load required libraries.
+safe_mktmpdir tdpn
+ofpn=$1 ifpn=$tdpn/`basename "$1"`
+if test -f "$ofpn"; then
+    cp -p "$ofpn" "$ifpn"
+else
+    touch "$ifpn"
+fi
+
+unset object1 commit1 release1; HEAD=`git rev-parse --short HEAD`
+releasemap="`gcl_tagmap "$prefix"`"
+while read object0 commit0 release0; do
+    case $unreleased:${object1+=}:$HEAD in
+	?::$commit0|n::*)
+	    ;;
+	*)  gcl_format_logs "$format" "$object1" "$commit0..$commit1"	\
+		"$release0" "$release1"
+	    ;;
+    esac
+    object1=$object0 commit1=$commit0 release1=$release0
+done <<EOF
+$releasemap
+EOF
+gcl_format_logs "$format" "$object1" "$commit1" "$release1"

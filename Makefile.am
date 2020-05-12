@@ -1,7 +1,7 @@
 ##								-*-Makefile-*-
 ##  Makefile.am			- libdl-sh `Makefile.in' template
 ##
-##  Copyright (C) 2013-2018 Das Computerlabor (DCl-M)
+##  Copyright © 2013-2020 Das Computerlabor (DCl-M)
 ##
 ##  This library is free software; you can redistribute it and/or
 ##  modify it under the terms of the GNU Lesser General Public License
@@ -21,6 +21,7 @@
 ##
 ##  WRITTEN BY:	ks	2013-02-12
 ##  CHANGED BY:	ks	2018-03-11	Import prebuilt autofinish scripts.
+##		ks	2020-05-12	Import changelog generator.
 ##
 ##  NOTE:   (1)	Update the build system with autoreconf(1).
 ##----------------------------------------------------------------------------
@@ -41,7 +42,8 @@ dist_noinst_DATA	= LICENSE
 ##----------------------------------------------------------------------------
 ##  Finish scripts:
 ##----------------------------------------------------------------------------
-noinst_SCRIPTS		= bin/args.awk
+noinst_SCRIPTS		= bin/args.awk					\
+			  bin/genchangelog
 
 ##----------------------------------------------------------------------------
 ##  Distribute and install manpages:
