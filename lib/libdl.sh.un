@@ -302,8 +302,11 @@ dl_atload() {
 	=)  dl_atloads="$1 $DQ${DS}lib$DQ && $dl_atloads"
 	    ;;				## No, register load-time hook.
 	*)  dl_atloads="$1 $DQ${DS}lib$DQ || dl_exit 127"
-	    ;;				## Yes, register load-time hook with
-    esac				## failure handling.
+					## Yes, register load-time hook with
+					## failure handling and...
+	    local lib=dl; eval "$dl_atloads"
+	    ;;				## ...exercise it for this library.
+    esac
 }
 
 ##----------------------------------------------------------------------------
