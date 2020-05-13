@@ -49,25 +49,42 @@ noinst_SCRIPTS		= bin/args.awk					\
 ##----------------------------------------------------------------------------
 ##  Distribute and install manpages:
 ##----------------------------------------------------------------------------
-dist_man_MANS		= doc/dl_atexit.3sh doc/dl_atload.3sh		\
-			  doc/dl_dump.3sh doc/dl_exit.3sh		\
-			  doc/dl_load.3sh doc/dl_meta.3sh		\
+dist_man_MANS		= doc/conf_get.3sh				\
+			  doc/conf_has.3sh				\
+			  doc/conf_meta.3sh				\
+			  doc/conf_put.3sh				\
+			  doc/dl_atexit.3sh				\
+			  doc/dl_atload.3sh				\
+			  doc/dl_dump.3sh				\
+			  doc/dl_exit.3sh				\
+			  doc/dl_load.3sh				\
+			  doc/dl_meta.3sh				\
 			  doc/dl_which.3sh				\
-			  doc/conf_get.3sh doc/conf_has.3sh		\
-			  doc/conf_meta.3sh doc/conf_put.3sh		\
-			  doc/quote_command.3sh doc/quote_egrep.3sh	\
-			  doc/quote_ere.3sh doc/quote_grep.3sh		\
-			  doc/quote_meta.3sh doc/quote_re.3sh		\
-			  doc/quote_rs.3sh doc/quote_sed.3sh		\
+			  doc/quote_command.3sh				\
+			  doc/quote_egrep.3sh				\
+			  doc/quote_ere.3sh				\
+			  doc/quote_grep.3sh				\
+			  doc/quote_meta.3sh				\
+			  doc/quote_re.3sh				\
+			  doc/quote_rs.3sh				\
+			  doc/quote_sed.3sh				\
 			  doc/quote_sh.3sh				\
-			  doc/undo_drop.3sh doc/undo_mark.3sh		\
-			  doc/undo_meta.3sh doc/undo_pull.3sh		\
-			  doc/undo_push.3sh doc/safe_chdir.3sh		\
-			  doc/safe_init.3sh doc/safe_lock.3sh		\
-			  doc/safe_meta.3sh doc/safe_mkdir.3sh		\
-			  doc/safe_mktmpdir.3sh doc/safe_remove.3sh	\
-			  doc/safe_rename.3sh doc/safe_save.3sh		\
-			  doc/safe_touch.3sh doc/safe_umask.3sh		\
+			  doc/undo_drop.3sh				\
+			  doc/undo_mark.3sh				\
+			  doc/undo_meta.3sh				\
+			  doc/undo_pull.3sh				\
+			  doc/undo_push.3sh				\
+			  doc/safe_chdir.3sh				\
+			  doc/safe_init.3sh				\
+			  doc/safe_lock.3sh				\
+			  doc/safe_meta.3sh				\
+			  doc/safe_mkdir.3sh				\
+			  doc/safe_mktmpdir.3sh				\
+			  doc/safe_remove.3sh				\
+			  doc/safe_rename.3sh				\
+			  doc/safe_save.3sh				\
+			  doc/safe_touch.3sh				\
+			  doc/safe_umask.3sh				\
 			  doc/safe_wait.3sh
 
 ##----------------------------------------------------------------------------
@@ -75,12 +92,19 @@ dist_man_MANS		= doc/dl_atexit.3sh doc/dl_atload.3sh		\
 ##----------------------------------------------------------------------------
 bin_SCRIPTS		= bin/libdl-sh
 pkgdata_SCRIPTS		= lib/conf.awk
-shlib_DATA		= lib/libdl.sh lib/libquote.sh lib/libundo.sh	\
-			  lib/libsafe.sh lib/libconf.sh lib/libemit.sh	\
+shlib_DATA		= lib/libconf.sh				\
+			  lib/libdl.sh					\
+			  lib/libemit.sh				\
+			  lib/libquote.sh				\
+			  lib/libundo.sh				\
+			  lib/libsafe.sh				\
 			  lib/libsession.sh
-man_MANS		= doc/libdl-sh.1 doc/libdl-sh.conf.5		\
-			  doc/libdl.3sh doc/libconf.3sh			\
-			  doc/libquote.3sh doc/libundo.3sh		\
+man_MANS		= doc/libconf.3sh				\
+			  doc/libdl-sh.1				\
+			  doc/libdl-sh.conf.5				\
+			  doc/libdl.3sh					\
+			  doc/libquote.3sh				\
+			  doc/libundo.3sh				\
 			  doc/libsafe.3sh
 sysconf_DATA		= etc/libdl-sh.conf
 
