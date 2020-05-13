@@ -24,6 +24,7 @@ dnl CHANGED BY:	ks	2018-03-11	Import prebuilt autofinish scripts.
 dnl		ks	2020-05-03	Require at least GNU Automake 1.13.
 dnl					Make xz(1)-compressed distributions.
 dnl		ks	2020-05-12	Import changelog generator.
+dnl		ks	2020-05-13	Import initial test suite.
 dnl
 dnl NOTE:   (1)	Update the build system with autoreconf(1).
 dnl	    (2)	AM_INIT_AUTOMAKE() already invokes AC_ARG_PROGRAM, AC_PROG_-
@@ -33,7 +34,7 @@ dnl
 dnl Initialization:
 dnl
 AC_INIT([Demand-loadable libraries for POSIX shell scripts],
-    [0.4~3], [ks+libdl-sh@computerlabor.org], [libdl-sh])
+    [0.4~4], [ks+libdl-sh@computerlabor.org], [libdl-sh])
 AC_PREREQ([2.61])
 AC_CONFIG_SRCDIR([bin/libdl-sh.un])
 AC_CONFIG_AUX_DIR([auto])
@@ -65,6 +66,8 @@ AF_FINISH_FILES([
     lib/libsafe.sh
     lib/libsession.sh
     lib/libundo.sh
+    tests/01-meta-get-apis.test
+    tests/02-dl_split.test
 ])
 AC_CONFIG_FILES([
     Makefile

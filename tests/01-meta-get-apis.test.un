@@ -1,0 +1,115 @@
+#! /bin/sh
+#-----------------------------------------------------------------------------
+#   01-meta-get-apis.test	- Test libraries' 'meta get apis' output
+#
+#   Copyright (C) 2016 Das Computerlabor (DCl-M)
+#
+#   This library is free software; you can redistribute it and/or
+#   modify it under the terms of the GNU Lesser General Public License
+#   as published by the Free Software Foundation; either
+#   version 2.1 of the License, or (at your option) any later version.
+#
+#   This library is distributed in the hope that it will be useful,
+#   but WITHOUT ANY WARRANTY; without even the implied warranty of
+#   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+#   Lesser General Public License for more details.
+#
+#   You should have received a copy of the GNU Lesser General Public License
+#   along with this library; if not, write to the Free Software Founda-
+#   tion, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
+##
+##  AUTHOR(S):	ks	Karl Schmitz <ks@computerlabor.org>
+##
+##  WRITTEN BY:	ks	2016-05-21
+##  CHANGED BY:
+##----------------------------------------------------------------------------
+##  Global variables:
+#-----------------------------------------------------------------------------
+LC_ALL=C; export LC_ALL			## Avoid locale insanities.
+command=`basename "$0"`			## Determine command name.
+eval "`libdl-sh load`"
+dl_load quote
+dl_dump dl_ re_id
+dl_dump quote_ sh_sx
+exit 0
+
+BQ=\` DQ=\" SQ=\' BS=\\ CS=\# DS=\$ NL='
+'
+
+##----------------------------------------------------------------------------
+##  test_exit(STATUS)		Test's exit-time hook
+##----------------------------------------------------------------------------
+test_exit() {
+    local status=$1
+
+    case $status in
+	0)						;;
+	*)  echo '> $?='"$status"' (caught)' >&2	;;
+    esac
+}
+
+##----------------------------------------------------------------------------
+##  trace(COMMAND [ARGUMENT ...])
+##				~~~~
+##----------------------------------------------------------------------------
+trace() {
+    local s=0
+
+    echo "$DS $*" >&2
+    ${1+"$@"} || {
+	s=$?; echo '! $?='"$s" >&2
+	return $s
+    }
+}
+
+##----------------------------------------------------------------------------
+##  trace_bq(NAME COMMAND [ARGUMENT ...])
+##				~~~~
+##----------------------------------------------------------------------------
+trace_bq() {
+    local s=0 n="$1" v; shift
+
+    echo "$DS $n=$BQ$*$BQ" >&2
+    v=`${1+"$@"}` || {
+	s=$?; echo '! $?='"$s" >&2
+	return $s
+    }
+    echo '+ '"$n=$v" >&2
+    echo "$v"
+}
+
+##----------------------------------------------------------------------------
+##  Test:
+##----------------------------------------------------------------------------
+eval "`libdl-sh load`"
+
+echo '### Running test '"$command"' ###'
+set +x; set -eu
+trace dl_atexit test_exit
+for lib in conf dl emit quote safe undo; do
+    loaded=`trace_bq loaded dl_meta get loaded`
+    case $loaded in
+	*:$lib:*)
+	    ;;
+	*)  trace dl_load $lib
+	    case $lib in
+		conf)
+		    set -x; trace ${lib}_meta set api 1; set +x
+		    ;;
+	    esac
+	    ;;
+    esac
+
+    trace ${lib}_meta get api
+    for format in brief api full list; do
+	trace ${lib}_meta get apis $format || {
+	    status=$?; case $format in
+		brief)
+		    echo '> $?='"$status"' (expected failure)' >&2
+		    ;;
+		*)  echo '> $?='"$status"' (failure)' >&2
+		    ;;
+	    esac
+	}
+    done
+done

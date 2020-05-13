@@ -22,6 +22,7 @@
 ##  WRITTEN BY:	ks	2013-02-12
 ##  CHANGED BY:	ks	2018-03-11	Import prebuilt autofinish scripts.
 ##		ks	2020-05-12	Import changelog generator.
+##		ks	2020-05-13	Import initial test suite.
 ##
 ##  NOTE:   (1)	Update the build system with autoreconf(1).
 ##----------------------------------------------------------------------------
@@ -44,7 +45,9 @@ dist_noinst_DATA	= LICENSE
 ##----------------------------------------------------------------------------
 noinst_SCRIPTS		= bin/args.awk					\
 			  bin/genchangelog				\
-			  bin/test-deb-version
+			  bin/test-deb-version				\
+			  tests/01-meta-get-apis.test			\
+			  tests/02-dl_split.test
 noinst_DATA		= lib/libsession.sh
 
 ##----------------------------------------------------------------------------
