@@ -79,7 +79,7 @@ alternative directories before trying \fB@shlibdir@/libdl.sh\fP.
 \fBpath\fP
 Parse the demand-loading configuration and write the resulting,
 colon-separated library search path (LSP) in \fItail-denormalized\fP fashion
-(i.e., either empty or with trailing separator) to standard output.
+(i.e., either empty or with a colon appended) to standard output.
 
 The system-wide configuration is obtained from files
 .br
