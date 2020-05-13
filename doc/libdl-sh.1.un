@@ -129,8 +129,8 @@ demand-loads) may be tested by invoking
 Write installation path \fINAME\fP to standard output, where \fINAME\fP
 may be \fBbindir\fP, \fBlibdir\fP, \fBsysconfdir\fP, or \fBpkgdatadir\fP.
 The action's purpose is helping other packages which provide
-demand-loadable POSIX shell libraries integrating with the demand-loading
-mechanism. It's not used internally by @PACKAGE_TARNAME@.
+demand-loadable shell libraries integrating with the demand-loading mechanism.
+It's not used internally by @PACKAGE_TARNAME@ itself.
 
 .SH ENVIRONMENT
 Actions \fBload\fP and \fBpath\fP respect the following environment variables:
