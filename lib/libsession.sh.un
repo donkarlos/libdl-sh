@@ -27,9 +27,9 @@
 ##----------------------------------------------------------------------------
 ##  Global variables:
 #-----------------------------------------------------------------------------
-session_package='@PACKAGE_TARNAME@'		## Define source package name/version.
+session_package='@PACKAGE_TARNAME@'	## Define source package name/version.
 session_version='@PACKAGE_VERSION@'
-session_api=0					## Define API version.
+session_api=0				## Define API version.
 readonly session_package session_version session_api
 
 ##----------------------------------------------------------------------------
