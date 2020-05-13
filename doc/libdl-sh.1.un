@@ -72,8 +72,8 @@ for details) and demand-loads further libraries with
 .BR dl_load (3sh).
 
 If \fBLIBDL_SH_LIBRARY_PATH\fP is exported (see \fBENVIRONMENT\fP below),
-\fB@PACKAGE_TARNAME@ load\fP uses it to search \fBlibdl.sh\fP in alternate
-directories before loading \fB@shlibdir@/libdl.sh\fP.
+\fB@PACKAGE_TARNAME@ load\fP uses it to search for \fBlibdl.sh\fP in
+alternative directories before trying \fB@shlibdir@/libdl.sh\fP.
 
 .TP
 \fBpath\fP
