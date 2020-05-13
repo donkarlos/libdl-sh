@@ -298,8 +298,13 @@ dl_atload() {
     expr "$#=${1-}" : "1=$dl_re_id$DS" >/dev/null || return 2
 					## Indicate misuse unless HOOK was
 					## passed and is formally correct.
-    dl_atloads="$1 $DQ${DS}lib$DQ${dl_atloads+ && $dl_atloads}"
-}					## Register load-time hook.
+    case ${dl_atloads+=} in		## 1st invocation?
+	=)  dl_atloads="$1 $DQ${DS}lib$DQ && $dl_atloads"
+	    ;;				## No, register load-time hook.
+	*)  dl_atloads="$1 $DQ${DS}lib$DQ || dl_exit 127"
+	    ;;				## Yes, register load-time hook with
+    esac				## failure handling.
+}
 
 ##----------------------------------------------------------------------------
 ##  dl_load(LIB ...)		Load demanded libraries
@@ -317,8 +322,7 @@ dl_load() {
 	    *)	needed=$dl_needed; dl_needed=$dl_needed$lib:
 		. "lib$lib.sh" || dl_exit 127
 		dl_needed=$needed; dl_loaded=:$lib$dl_loaded
-		eval "${dl_atloads-:}" || dl_exit $?
-					## No, mark it as needed, load it,
+		eval "${dl_atloads-:}"	## No, mark it as needed, load it,
 		;;			## mark it as loaded, and invoke load-
 	esac				## time hooks.
     done
