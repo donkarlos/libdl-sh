@@ -102,9 +102,10 @@ configuration.
 
 .TP
 \fBexec\fP \fICOMMAND\fP [\fIARGUMENT\fP ...]
-Construct environment that allows to execute \fICOMMAND\fP without any actual
-demand-loading configuration (i.e., so that \fB@PACKAGE_TARNAME@ load\fP
-succeeds) and execute \fICOMMAND\fP in that environment.
+Construct an environment that allows to execute shell application
+\fICOMMAND\fP without any actual or bypassing the installed demand-loading
+configuration (i.e., so that \fB@PACKAGE_TARNAME@ load\fP succeeds
+nonetheless) and execute \fICOMMAND\fP in that environment.
 
 Note that this action particularly aids in testing just-built versions of
 shell applications (and the libraries they demand-load) \fIinside the source
