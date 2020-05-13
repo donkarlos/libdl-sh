@@ -92,14 +92,20 @@ EOF
 					## always prepends the LSP to $PATH).
     exec)				## Execute command...
 	shift; bindn=`dirname "$0"`; binrn=`cd "$bindn" && /bin/pwd` && {
+					## Could we detect this program's
+					## real dirname?
 	    PATH=$binrn${PATH+:$PATH}; export PATH
-					## Augment PATH.
+					## Yes, augment PSP so that this pro-
+					## gram is found by 1st PSP item.
 	    destrn=`expr "_$binrn" : '_\(.*\)@bindir@$'` &&
 	    test -f "$destrn"@shlibdir@/libdl.sh &&
 	    test -f "$destrn"@pkgdatadir@/conf.awk && {
+					## Invoked from ${destrn}-prefixed
+					## installation?
 		LIBDL_SH_LIBRARY_PATH=${destrn}@shlibdir@${LIBDL_SH_LIBRARY_PATH+:$LIBDL_SH_LIBRARY_PATH}
 		export LIBDL_SH_LIBRARY_PATH
-	    }
+	    }				## Yes, augment LSP so that prefixed
+					## installation is searched first.
 	}; case ${1+_$1} in		## COMMAND given?
 	    _?*)    exec "$@"	;;	## Yes, execute it.
 	    *)	    exit 127	;;	## No, indicate failure!
