@@ -156,9 +156,13 @@ are parsed.
 \fB@shlibdir@/libdl.sh\fP, \fB@bindir@/@PACKAGE_TARNAME@\fP
 The demand-loading library and its helper described here.
 .TP
-\fB$HOME/.@PACKAGE_TARNAME@.conf\fP, \fB@sysconfdir@/@PACKAGE_TARNAME@.conf\fP
-The user-specific and system-wide demand-loading configuration files defining
-the library search path.
+\fB$HOME/.@PACKAGE_TARNAME@.conf\fP
+The user-specific demand-loading configuration file augmenting the library
+search path.
+.TP
+\fB@sysconfdir@/@PACKAGE_TARNAME@.conf\fP, \fB@sysconfdir@/@PACKAGE_TARNAME@.conf.d/\fP*\fB.conf\fP
+The system-wide demand-loading configuration files defining the
+\(lqinstalled\(rq library search path.
 .PD
 
 .SH SEE ALSO
