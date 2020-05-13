@@ -2,7 +2,7 @@
 #-----------------------------------------------------------------------------
 #   libdl-sh			- libdl.sh Demand-loading helper
 #
-#   Copyright (C) 2013-2018 Das Computerlabor (DCl-M)
+#   Copyright © 2013-2020 Das Computerlabor (DCl-M)
 #
 #   This library is free software; you can redistribute it and/or
 #   modify it under the terms of the GNU Lesser General Public License
@@ -27,6 +27,8 @@
 ##					Simplify 'load' action.
 ##					Canonify LSP items in 'path' action.
 ##		ks	2018-02-26	Add 'exec' action.
+##		ks	2020-05-12	Make libdl.sh aware of relocated in-
+##					stallations in 'exec' action.
 ##----------------------------------------------------------------------------
 ##  include(CONF ...)		Parse demand-loading configuration file(s)
 ##				into list of library search path items
@@ -102,10 +104,12 @@ EOF
 	    test -f "$destrn"@pkgdatadir@/conf.awk && {
 					## Invoked from ${destrn}-relocated
 					## installation?
+		LIBDL_SH_DESTDIR=$destrn
 		LIBDL_SH_LIBRARY_PATH=${destrn}@shlibdir@${LIBDL_SH_LIBRARY_PATH+:$LIBDL_SH_LIBRARY_PATH}
-		export LIBDL_SH_LIBRARY_PATH
-	    }				## Yes, augment LSP so that relocated
-					## installation is searched first.
+		export LIBDL_SH_DESTDIR LIBDL_SH_LIBRARY_PATH
+	    }				## Yes, make libdl.sh aware of relo-
+					## cated installation and augment LSP
+					## so that it's searched first.
 	}; case ${1+_$1} in		## COMMAND given?
 	    _?*)    exec "$@"	;;	## Yes, execute it.
 	    *)	    exit 127	;;	## No, indicate failure!
