@@ -87,7 +87,7 @@ The system-wide configuration is obtained from files
 .br
 \(bu \fB@sysconfdir@/@PACKAGE_TARNAME@.conf.d/\fP*\fB.conf\fP,
 .br
-where the latter are intended for adding package-specific LSP items.
+where the latter are intended for adding other packages' LSP items.
 
 Users may extend the library search path by exporting
 \fBLIBDL_SH_LIBRARY_PATH\fP (see \fBENVIRONMENT\fP below) and/or creating a
