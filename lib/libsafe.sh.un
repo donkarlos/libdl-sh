@@ -2,7 +2,7 @@
 #-----------------------------------------------------------------------------
 #   libsafe.sh			- Safe directory/file operations library
 #
-#   Copyright (C) 2013-2017 Das Computerlabor (DCl-M)
+#   Copyright © 2013-2020 Das Computerlabor (DCl-M)
 #
 #   This library is free software; you can redistribute it and/or
 #   modify it under the terms of the GNU Lesser General Public License
@@ -28,6 +28,7 @@
 ##					Add 'meta session *'.
 ##					Add 'meta get/set 0tag' as substitute
 ##					for safe_init().
+##		ks	2020-05-12	Limit valid 'meta session' operations.
 ##----------------------------------------------------------------------------
 ##  Global variables:
 #-----------------------------------------------------------------------------
@@ -85,10 +86,11 @@ EOF
 	set-0tag)			## Set cleanups tag...
 	    undo_meta "$@" && eval "$mp$2"'=$3'
 	    ;;				## ...after passing it to libundo.sh.
-	session-*)  :			## Session init/dump/load/exit...
-	    ;;
+	session-init|session-load|session-dump|session-exit)
+	    :				## Session init/load/dump/exit...
+	    ;;				## ...is a no-op.
 	*)  return 2			## Anything else...
-	    ;;				## Indicate misusage!
+	    ;;				## ...is misuse!
     esac
 }
 

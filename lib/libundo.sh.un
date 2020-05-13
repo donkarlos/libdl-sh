@@ -2,7 +2,7 @@
 #-----------------------------------------------------------------------------
 #   libundo.sh			- Undo stack management library
 #
-#   Copyright (C) 2013-2017 Das Computerlabor (DCl-M)
+#   Copyright © 2013-2020 Das Computerlabor (DCl-M)
 #
 #   This library is free software; you can redistribute it and/or
 #   modify it under the terms of the GNU Lesser General Public License
@@ -32,6 +32,7 @@
 ##					Add 'meta get/set 0tag' as substitute
 ##					for undo_init().
 ##		ks	2017-02-11	Deprecate undo_init().
+##		ks	2020-05-12	Limit valid 'meta session' operations.
 ##----------------------------------------------------------------------------
 ##  Global variables:
 #-----------------------------------------------------------------------------
@@ -92,10 +93,11 @@ EOF
 	    expr "_$3" : "_$undo_re_tag"'$' >/dev/null || return 1
 	    eval "$mp$2"'=$3'		## ...after making sure it's a tag.
 	    ;;
-	session-*)  :			## Session init/dump/load/exit...
-	    ;;
+	session-init|session-load|session-dump|session-exit)
+	    :				## Session init/load/dump/exit...
+	    ;;				## ...is a no-op.
 	*)  return 2			## Anything else...
-	    ;;				## Indicate misusage!
+	    ;;				## ...is misuse!
     esac
 }
 

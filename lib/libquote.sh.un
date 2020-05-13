@@ -2,7 +2,7 @@
 #-----------------------------------------------------------------------------
 #   libquote.sh			- String quoting library
 #
-#   Copyright (C) 2013-2017 Das Computerlabor (DCl-M)
+#   Copyright © 2013-2020 Das Computerlabor (DCl-M)
 #
 #   This library is free software; you can redistribute it and/or
 #   modify it under the terms of the GNU Lesser General Public License
@@ -29,6 +29,7 @@
 ##					Add 'meta session *'.
 ##		ks	2017-02-11	Make quote_sh() and quote_command()
 ##					process multi-line strings.
+##		ks	2020-05-12	Limit valid 'meta session' operations.
 ##----------------------------------------------------------------------------
 ##  Global variables:
 #-----------------------------------------------------------------------------
@@ -75,10 +76,11 @@ EOF
 		*)  return 1		;;
 	    esac'
 	    ;;
-	session-*)  :			## Session init/dump/load/exit...
-	    ;;
+	session-init|session-load|session-dump|session-exit)
+	    :				## Session init/load/dump/exit...
+	    ;;				## ...is a no-op.
 	*)  return 2			## Anything else...
-	    ;;				## Indicate misusage!
+	    ;;				## ...is misuse!
     esac
 }
 

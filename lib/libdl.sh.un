@@ -39,6 +39,7 @@
 ##		ks	2020-05-03	Add 'meta get-apis r/o'.
 ##		ks	2020-05-12	Become aware of relocated installa-
 ##					tions.
+##					Limit valid 'meta session' operations.
 ##
 ##  NOTE:   (1)	To avoid cluttering code, this library is exempted from need-
 ##		ing namespace prefixes for its special character definitions.
@@ -151,10 +152,11 @@ EOF
 	set-session)			## Set session ID...
 	    eval "$mp$2"'=$3'
 	    ;;
-	session-*)  :			## Session init/dump/load/exit...
-	    ;;
+	session-init|session-load|session-dump|session-exit)
+	    :				## Session init/load/dump/exit...
+	    ;;				## ...is a no-op.
 	*)  return 2			## Anything else...
-	    ;;				## Indicate misusage!
+	    ;;				## ...is misuse!
     esac
 }
 

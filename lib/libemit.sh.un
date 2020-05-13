@@ -28,6 +28,7 @@
 ##					Add 'meta session *'.
 ##		ks	2020-05-03	Make 'meta get apis FORMAT' properly
 ##					handle namespace rule-exempted names.
+##		ks	2020-05-12	Limit valid 'meta session' operations.
 ##----------------------------------------------------------------------------
 ##  Global variables:
 #-----------------------------------------------------------------------------
@@ -70,10 +71,11 @@ EOF
 		*)  return 1		;;
 	    esac'
 	    ;;
-	session-*)  :			## Session init/dump/load/exit...
-	    ;;
+	session-init|session-load|session-dump|session-exit)
+	    :				## Session init/load/dump/exit...
+	    ;;				## ...is a no-op.
 	*)  return 2			## Anything else...
-	    ;;				## Indicate misusage!
+	    ;;				## ...is misuse!
     esac
 }
 
