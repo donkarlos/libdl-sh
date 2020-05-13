@@ -45,12 +45,26 @@ dnl
 dnl Generate output files:
 dnl
 AF_FINISH_FILES([
-    bin/args.awk bin/genchangelog bin/libdl-sh bin/test-deb-version
-    doc/libdl-sh.1 doc/libdl-sh.conf.5 doc/libdl.3sh doc/libconf.3sh
-    doc/libquote.3sh doc/libundo.3sh doc/libsafe.3sh
+    bin/args.awk
+    bin/genchangelog
+    bin/libdl-sh
+    bin/test-deb-version
+    doc/libconf.3sh
+    doc/libdl-sh.1
+    doc/libdl-sh.conf.5
+    doc/libdl.3sh
+    doc/libquote.3sh
+    doc/libsafe.3sh
+    doc/libundo.3sh
     etc/libdl-sh.conf
-    lib/libdl.sh lib/libquote.sh lib/libundo.sh lib/libsafe.sh
-    lib/conf.awk lib/libconf.sh lib/libemit.sh lib/libsession.sh
+    lib/conf.awk
+    lib/libconf.sh
+    lib/libdl.sh
+    lib/libemit.sh
+    lib/libquote.sh
+    lib/libsafe.sh
+    lib/libsession.sh
+    lib/libundo.sh
 ])
 AC_CONFIG_FILES([
     Makefile
