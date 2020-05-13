@@ -64,6 +64,7 @@ AF_FINISH_FILES([
     doc/libdl-sh.1
     doc/libdl-sh.conf.5
     doc/libdl.3sh
+    doc/libemit.3sh
     doc/libquote.3sh
     doc/libsafe.3sh
     doc/libundo.3sh

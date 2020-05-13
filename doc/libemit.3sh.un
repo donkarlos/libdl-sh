@@ -1,0 +1,116 @@
+.\"								-*- nroff -*-
+.\" libemit.3sh			- libemit(3sh) manual page
+.\"
+.\" Copyright © 2020 Das Computerlabor (DCl-M)
+.\"
+.\" This library is free software; you can redistribute it and/or
+.\" modify it under the terms of the GNU Lesser General Public License
+.\" as published by the Free Software Foundation; either
+.\" version 2.1 of the License, or (at your option) any later version.
+.\"
+.\" This library is distributed in the hope that it will be useful,
+.\" but WITHOUT ANY WARRANTY; without even the implied warranty of
+.\" MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+.\" Lesser General Public License for more details.
+.\"
+.\" You should have received a copy of the GNU Lesser General Public License
+.\" along with this library; if not, write to the Free Software Founda-
+.\" tion, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
+.\"
+.\# AUTHOR(S):	ks	Karl Schmitz <carolus.faber@gmail.com>
+.\#
+.\# WRITTEN BY:	ks	2020-05-13
+.\# CHANGED BY:
+.\#
+.\# NOTE: (1)	Please adjust below date whenever revising the manual page.
+.\#		vvvvvv
+.TH LIBDL 3SH 2020-05-13 "@PACKAGE_TARNAME@ @PACKAGE_VERSION@" "Shell Programming"
+
+.SH NAME
+emit_set_head, emit_get_head, emit, emit_meta \- Message emission library
+
+.SH SYNOPSIS
+\fBdl_load emit\fP
+
+\fBemit_set_head\fP \fILEVEL\fP \fIHEAD\fP
+.br
+\fBemit_get_head\fP \fILEVEL\fP
+.br
+\fBemit\fP \fILEVEL\fP \fIMESSAGE\fP ...
+.br
+\fBemit_meta\fP \fIMETA\fP [\fIARG\fP ...]
+
+.SH DESCRIPTION
+The message emission library \fBlibemit.sh\fP allows applications to emit
+messages with standardized headers.
+
+.SH FUNCTIONS
+.TP
+\fBemit_set_head\fP \fILEVEL\fP \fIHEAD\fP
+NOT DOCUMENTED YET
+
+.TP
+\fBemit_get_head\fP \fILEVEL\fP
+NOT DOCUMENTED YET
+
+.TP
+\fBemit\fP \fILEVEL\fP \fIMESSAGE\fP ...
+NOT DOCUMENTED YET
+
+.TP
+\fBemit_meta\fP \fIMETA\fP [\fIARG\fP ...]
+Perform one of \fBlibemit.sh\fP's meta operations. These allow to inquire
+certain library internals in a controlled manner. Currently, the following
+meta operations are implemented:
+.RS 4
+.TP 4
+\fBget package\fP|\fBversion\fP|\fBapi\fP
+Inquire library's source package name (\fB@PACKAGE_TARNAME@\fP), version
+(\fB@PACKAGE_VERSION@\fP), or selected API version and write it to standard
+output.
+
+.TP
+\fBget apis\fP [\fIFORMAT\fP=api [\fISEDEX\fP]]
+Inquire information about available API versions and write them to standard
+output. The information written depends on the output \fIFORMAT\fP:
+.RS 4
+.IP \(em 2
+\fBapi\fP (the default format) represents each API version by a line
+containing \fIVERSION\fP.
+
+.IP \(em
+\fBfull\fP represents each function within each API version by a line of three
+semicolon-separated fields: \fIVERSION\fP, \fISIGNATURE\fP, and \fIARGCS\fP,
+where the second has the format \fINAME\fP\fB(\fP\fIARGS\fP\fB)\fP and the
+latter is a (possibly open) range of valid $# values.
+
+For example, for API 0, \fBemit_set_head\fP(3sh) and \fBemit_get_head\fP(3sh)
+would be represented by the following two lines:
+
+.in +4
+\fB0;emit_set_head(LEVEL HEAD);2\fP
+.br
+\fB0;emit_get_head(LEVEL);1\fP
+.in -4
+
+.IP \(em
+\fBlist\fP is similar to \fBfull\fP, except that \fB(\fP\fIARGS\fP\fB)\fP in
+the second field is omitted (i.e., just the function name is shown)
+.RE
+
+.RS 4
+For output formats \fBfull\fP and \fBlist\fP, the resulting output format may
+be further tailored by \fISEDEX\fP, a sequence of \fBsed\fP(1) commands. Thus,
+if you want to know which API versions (analogous to output format \fBapi\fP)
+of \fBlibemit.sh\fP provide \fBemit\fP(3sh), you'd invoke:
+
+.in +4
+\fBemit_meta get apis list '/;emit;/!d;s/;.*$//'\fP
+.in -4
+.RE
+
+.SH SEE ALSO
+.BR dl_load (3sh).
+
+.SH AUTHOR
+Karl Schmitz <@PACKAGE_BUGREPORT@>
