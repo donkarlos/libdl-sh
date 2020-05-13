@@ -97,7 +97,8 @@ semantics of demand-loading configuration files are described in
 .BR @PACKAGE_TARNAME@.conf (5).
 
 The action's primary purpose is initializing the demand-loading library's
-search path (LSP). You may also use it to verify your configuration.
+search path (LSP). You may also use it to verify your demand-loading
+configuration.
 
 .TP
 \fBexec\fP \fICOMMAND\fP [\fIARGUMENT\fP ...]
