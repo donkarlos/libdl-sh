@@ -22,6 +22,8 @@
 ##
 ##  WRITTEN BY:	ks	2017-10-19
 ##  CHANGED BY:	ks	2020-05-12	Limit valid 'meta session' operations.
+##					Make 'meta get apis FORMAT' properly
+##					handle namespace rule-exempted names.
 ##----------------------------------------------------------------------------
 ##  Global variables:
 #-----------------------------------------------------------------------------
@@ -39,8 +41,9 @@ session_meta() {
     case $1-$2 in			## Which META operation?
 	get-apis)			## Inquire APIs...
 	    local sx ms=\;
-	    local fa='/^a'"$ms"'/!d;s///'   ff='/^f'"$ms"'/!d;s///'	\
-		  da=';s/([^)'"$ms"'(]*)//' p2=';s/'"$ms"'/&'"$mp"'/;s/_(/(/'
+	    local fa='/^a'"$ms"'/!d;s///' da=';s/([^)'"$ms"'(]*)//'	\
+		  ff='/^F'"$ms"'/{;s///;t2;};/^f'"$ms"'/!d;s///'	\
+		  p2=';s/'"$ms"'/&'"$mp"'/;:2'
 	    case ${3-api} in		## Which format?
 		api)	sx="$fa"		;;
 		full)   sx="$ff$p2${4+;$4}"	;;
