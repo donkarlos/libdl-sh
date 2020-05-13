@@ -40,11 +40,12 @@ shlibdir		= @libdir@/sh
 dist_noinst_DATA	= LICENSE
 
 ##----------------------------------------------------------------------------
-##  Finish scripts:
+##  Finish scripts and libraries:
 ##----------------------------------------------------------------------------
 noinst_SCRIPTS		= bin/args.awk					\
 			  bin/genchangelog				\
 			  bin/test-deb-version
+noinst_DATA		= lib/libsession.sh
 
 ##----------------------------------------------------------------------------
 ##  Distribute and install manpages:
@@ -97,8 +98,7 @@ shlib_DATA		= lib/libconf.sh				\
 			  lib/libemit.sh				\
 			  lib/libquote.sh				\
 			  lib/libundo.sh				\
-			  lib/libsafe.sh				\
-			  lib/libsession.sh
+			  lib/libsafe.sh
 man_MANS		= doc/libconf.3sh				\
 			  doc/libdl-sh.1				\
 			  doc/libdl-sh.conf.5				\
