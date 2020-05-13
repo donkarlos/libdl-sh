@@ -295,9 +295,11 @@ EOF`; shift; IFS=$ifs			## Split combined library search path.
 ##  dl_atload(HOOK)		Register load-time hook
 ##----------------------------------------------------------------------------
 dl_atload() {
-    expr "_$1" : '_'"$dl_re_id"'$' >/dev/null &&
-	dl_atloads="$1"' "$lib"'"${dl_atloads+ && $dl_atloads}"
-}
+    expr "$#=${1-}" : "1=$dl_re_id$DS" >/dev/null || return 2
+					## Indicate misuse unless HOOK was
+					## passed and is formally correct.
+    dl_atloads="$1 $DQ${DS}lib$DQ${dl_atloads+ && $dl_atloads}"
+}					## Register load-time hook.
 
 ##----------------------------------------------------------------------------
 ##  dl_load(LIB ...)		Load demanded libraries
@@ -329,9 +331,11 @@ dl_load() {
 ##  dl_atexit(HOOK)		Register exit-time hook
 ##----------------------------------------------------------------------------
 dl_atexit() {
-    expr "_$1" : '_'"$dl_re_id"'$' >/dev/null &&
-	dl_atexits="$1"' $status; '"$dl_atexits"
-}
+    expr "$#=${1-}" : "1=$dl_re_id$DS" >/dev/null || return 2
+					## Indicate misuse unless HOOK was
+					## passed and is formally correct.
+    dl_atexits="$1 ${DS}status; $dl_atexits"
+}					## Register exit-time hook.
 
 ##----------------------------------------------------------------------------
 ##  dl_exit([STATUS=$?])	Terminate program with STATUS
