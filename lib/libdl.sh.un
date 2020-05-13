@@ -349,10 +349,11 @@ dl_atexit() {
 ##----------------------------------------------------------------------------
 dl_exit() {
     local status=`expr 0 + "${1-$?}" 2>/dev/null` || status=2
-					## Fetch exit status ($dl_atexits re-
-					## fers to it!), unregister exit trap,
-    trap '' 0; eval "$dl_atexits"	## and invoke exit-time hooks.
-}
+    set +eu; trap '' 0			## Fetch exit status ($dl_atexits re-
+    eval "$dl_atexits"			## fers to it!), disable sh(1)'s err-
+					## exit and nounset options, unregis-
+					## ter exit trap, and invoke exit-time
+}					## hooks.
 
 ##----------------------------------------------------------------------------
 ##  Initialization:
