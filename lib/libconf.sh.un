@@ -70,6 +70,7 @@ conf_meta() {
 		*:*)	return 1		;;
 	    esac
 	    sed "$sx" <<EOF
+f${ms}0${ms}meta(META [ARG ...])${ms}2-
 a${ms}1
 f${ms}1${ms}meta(META [ARG ...])${ms}2-
 f${ms}1${ms}exec(CFPN ...)${ms}1-
