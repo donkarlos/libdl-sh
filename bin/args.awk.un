@@ -22,6 +22,47 @@
 ##
 ##  WRITTEN BY:	ks	2018-03-03
 ##  CHANGED BY:	ks	2020-05-14	Update copyright notice.
+##
+##  Global constants and variables:
+##	- DEBUG		Debugging flag (set with '-vDEBUG=1')
+##	- FALSE/TRUE	Boolean constants
+##	- stderr	Portably print to standard error output
+##	- legacy	Legacy mode flag
+##	- posixish	POSIX compliancy flag
+##	- ordered	Ordered output mode flag
+##	- AT_{ERR,EOA,EOO,ARG,ONA,OOA,ORA}
+##			Argument/option type indices returned by getopt_next()
+##			denoting
+##			  * ERRor,
+##			  * End Of Arguments,
+##			  * End Of Options ("--"),
+##			  * (non-option) ARGument,
+##			  * Option with No/Optional/Required Argument
+##			(The latter three being the option type subset)
+##	- at2sy[AT]	Argument type -> symbol map
+##	- dl2at[DL]	Short option descriptor's length -> option type map
+##	- at2ds[AT]	Option type -> descriptor suffix map
+##	- pi2oc[PI]	Per-pass option count (i.e., 1 <= OI <= pi2oc[PI])
+##	- pion2oi[PI,ON] Per-pass option name -> index map
+##			 (also used for long options' abbreviations)
+##	- pioi2on[PI,OI] Per-pass option index -> name map
+##	- pioi2at[PI,OI] Per-pass option index -> type map
+##			 (uses subset AT_{ONA,OOA,ORA})
+##	- piow2ov[PI,"a"]
+##			Per-pass alternative long options flag
+##	- piow2ov[PI,"n"]
+##			Per-pass command name
+##	- piow2ov[PI,"o"]
+##			Per-pass OPTSTRING count
+##	- piow2ov[PI,"q"]
+##			Per-pass quiet flag (i.e., suppress error messages)
+##	- piow2ov[PI,"Q"]
+##			Per-pass suppress output flag
+##	- piow2ov[PI,"u"]
+##			Per-pass unquoted output flag
+##	- piow2ov[PI,"s"]
+##			Per-pass shell
+##	- NESTING	Nesting depth
 ##----------------------------------------------------------------------------
 ##  enter(FN,FP)		Trace entry into FN(FP), increasing nesting
 ##				depth
