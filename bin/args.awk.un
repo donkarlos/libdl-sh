@@ -155,10 +155,10 @@ function getopt_add_optstring(optstring,pi ,ow,on,at,oi) {
 	    if (!piow2ov[pi,"q"])	## Looking at valid descriptor?
 		printf "%s: '%s' describes no short option!\n",
 		    piow2ov[pi,"n"],optstring | stderr
-	    leave(1); return 1
-	}				## No, complain and indicate failure!
+	    leave(1); return 1		## No, complain and indicate failure!
+	}
 	ow = substr(optstring,1,1); on = "-" ow; at = dl2at[RLENGTH]
-	trace(sprintf("ow=\"%s\";on=\"%s\";at=%u",ow,on,at))
+	trace(sprintf("ow=\"%s\";on=\"%s\";at=%s",ow,on,at2sy[at]))
 					## Derive option word, name, and
 					## type from descriptor.
 	if (!(oi = pion2oi[pi,on])) {	## Short option unregistered so far?
@@ -170,8 +170,8 @@ function getopt_add_optstring(optstring,pi ,ow,on,at,oi) {
 	    if (!piow2ov[pi,"q"])	## No, and registered differently?
 		printf "%s: '%s' already registered by '%s%s'!\n",
 		    piow2ov[pi,"n"],on,ow,at2ds[pioi2at[pi,oi]] | stderr
-	    leave(1); return 1
-	}				## Yes, complain and indicate failure!
+	    leave(1); return 1		## Yes, complain and indicate failure!
+	}
 	optstring = substr(optstring,1+RLENGTH)
 	trace(sprintf("optstring=\"%s\"",optstring))
     }					## Consume descriptor.
@@ -191,11 +191,11 @@ function getopt_add_longopts(longopts,pi ,di,dc,dv,cp,ow,on,at,oi) {
 	    if (!piow2ov[pi,"q"])	## Description is valid?
 		printf "%s: '%s' describes no long option!\n",
 		    piow2ov[pi,"n"],dv[di] | stderr
-	    leave(1); return 1
-	}				## No, complain and indicate failure!
+	    leave(1); return 1		## No, complain and indicate failure!
+	}
 	if (!(cp = index(dv[di],":"))) cp = RLENGTH + 1
 	ow = substr(dv[di],1,cp-1); on = "--" ow; at = dl2at[2+RLENGTH-cp]
-	trace(sprintf("ow=\"%s\";on=\"%s\";at=%u",ow,on,at))
+	trace(sprintf("ow=\"%s\";on=\"%s\";at=%s",ow,on,at2sy[at]))
 					## Derive colon position as well as
 					## option word, name, and type from
 					## descriptor.
@@ -232,12 +232,12 @@ function getopt_add_longopts(longopts,pi ,di,dc,dv,cp,ow,on,at,oi) {
 }
 
 ##----------------------------------------------------------------------------
-##  getopt_next(PI)		Fetch next option/argument
+##  getopt_next(PI)		Fetch next option/argument in PI-th pass
 ##----------------------------------------------------------------------------
 function getopt_next(pi ,on,ov,oi,at,ep) {
     enter("getopt_next",sprintf("pi=%u",pi))
-    if (++ARGI >= ARGC) {		## No more arguments?
-	leave(AT_EOA); return AT_EOA
+    if (++ARGI >= ARGC) {		## Arguments exhausted?
+	leave(at2sy[AT_EOA]); return AT_EOA
     }					## Yes, indicate so.
 
     trace(sprintf("ARGV[%u]=\"%s\"",ARGI,ARGV[ARGI]))
@@ -263,17 +263,17 @@ function getopt_next(pi ,on,ov,oi,at,ep) {
 		} else {
 		    if (!piow2ov[pi,"q"]) printf "%s: %s: Missing value!\n",
 			piow2ov[pi,"n"],on | stderr
-		    leave(AT_ERR); return AT_ERR
+		    leave(at2sy[AT_ERR]); return AT_ERR
 		}			## No, complain and indicate failure!
 	    }
 	    trace(sprintf("OPTNAM=\"%s\";OPTVAL=\"%s\"",on,ov))
-	    leave(at); OPTNAM = on; OPTVAL = ov; return at
+	    leave(at2sy[at]); OPTNAM = on; OPTVAL = ov; return at
 	} else if (!piow2ov[pi,"a"] || (ARGV[ARGI] !~ /^(-[^-=]+)+/)) {
 					## Alternative long options allowed
 					## and option looks like that?
 	    if (!piow2ov[pi,"q"]) printf "%s: %s: Unknown option!\n",
 		piow2ov[pi,"n"],on | stderr
-	    leave(AT_ERR); return AT_ERR
+	    leave(at2sy[AT_ERR]); return AT_ERR
 	}				## No, complain and indicate failure!
 	ARGV[ARGI] = "-" ARGV[ARGI]	## Fake long option.
 	trace(sprintf("ARGV[ARGI=%u]=\"%s\"",ARGI,ARGV[ARGI]))
@@ -286,12 +286,12 @@ function getopt_next(pi ,on,ov,oi,at,ep) {
 	if (!(oi = pion2oi[pi,on])) {	## Registered for PI-th pass?
 	    if (!piow2ov[pi,"q"]) printf "%s: %s: Unknown option!\n",
 		piow2ov[pi,"n"],on | stderr
-	    leave(AT_ERR); return AT_ERR
+	    leave(at2sy[AT_ERR]); return AT_ERR
 					## No, complain and indicate failure!
 	} else if (oi < 0) {		## Unambiguous?
 	    if (!piow2ov[pi,"q"]) printf "%s: %s: Ambiguous option!\n",
 		piow2ov[pi,"n"],on | stderr
-	    leave(AT_ERR); return AT_ERR
+	    leave(at2sy[AT_ERR]); return AT_ERR
 	}				## No, complain and indicate failure!
 	at = pioi2at[pi,oi]		## Fetch argument type and unabbrevi-
 	on = pioi2on[pi,oi]		## ated name.
@@ -312,16 +312,16 @@ function getopt_next(pi ,on,ov,oi,at,ep) {
 	    } else {
 		if (!piow2ov[pi,"q"]) printf "%s: %s: Missing value!\n",
 			piow2ov[pi,"n"],on | stderr
-		leave(AT_ERR); return AT_ERR
+		leave(at2sy[AT_ERR]); return AT_ERR
 	    }				## No, complain and indicate failure!
 	}
 	trace(sprintf("OPTNAM=\"%s\";OPTVAL=\"%s\"",on,ov))
-	leave(at); OPTNAM = on; OPTVAL = ov; return at
+	leave(at2sy[at]); OPTNAM = on; OPTVAL = ov; return at
     }
     if (ARGV[ARGI] == "--") {		## Looking at end-of-option marker?
-	++ARGI; leave(AT_EOO); return AT_EOO
+	++ARGI; leave(at2sy[AT_EOO]); return AT_EOO
     }					## Yes, consume and return it.
-    leave(AT_ARG); return AT_ARG
+    leave(at2sy[AT_ARG]); return AT_ARG
 }
 
 ##----------------------------------------------------------------------------
@@ -410,8 +410,8 @@ function args_getopt(cn ,at,O,A) {
 	    if (!piow2ov[pi,"q"])
 		printf "Usage: %s [OPTIONS] OPTSTRING [ARG ...]\n",
 		    piow2ov[pi,"n"] | stderr
-	    leave(2); return 2
-	}				## Complain and indicate usage error!
+	    leave(2); return 2		## Complain and indicate usage error!
+	}
     }
 
     --ARGI; while ((at = getopt_next(pi)) > AT_EOO) {
@@ -438,7 +438,7 @@ function args_getopt(cn ,at,O,A) {
 					## Quote and append remaining
 					## arguments.
     if (!piow2ov[pi,"Q"]) printf "%s--%s\n",O,A
-    leave(0); return 0
+    leave(0); return 0			## Indicate success.
 }
 
 ##----------------------------------------------------------------------------
