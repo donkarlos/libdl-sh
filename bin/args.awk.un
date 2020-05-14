@@ -22,6 +22,7 @@
 ##
 ##  WRITTEN BY:	ks	2018-03-03
 ##  CHANGED BY:	ks	2020-05-14	Update copyright notice.
+##					Move initialization to front.
 ##
 ##  Global constants and variables:
 ##	- DEBUG		Debugging flag (set with '-vDEBUG=1')
@@ -64,9 +65,31 @@
 ##			Per-pass shell
 ##	- NESTING	Nesting depth
 ##----------------------------------------------------------------------------
+##  Initialization:
+#-----------------------------------------------------------------------------
+BEGIN {
+    FALSE = 0; TRUE = !FALSE		## Define booleans.
+
+    stderr = "cat >&2"			## Portable stderr.
+
+    at				= -4	## Enumerate argument types...
+    at2sy[AT_ERR = ++at]	= "AT_ERR"
+    at2sy[AT_EOA = ++at]	= "AT_EOA"
+    at2sy[AT_EOO = ++at]	= "AT_EOO"
+    at2sy[AT_ARG = ++at]	= "AT_ARG"
+    at2sy[AT_ONA = ++at]	= "AT_ONA"
+    at2sy[AT_OOA = ++at]	= "AT_OOA"
+    at2sy[AT_ORA = ++at]	= "AT_ORA"
+
+    at2ds[dl2at[++dl] = AT_ONA]	= ""	## Preset option type -> descriptor
+    at2ds[dl2at[++dl] = AT_ORA]	= ":"	## suffix and short option descrip-
+    at2ds[dl2at[++dl] = AT_OOA]	= "::"	## tor's length -> option type maps
+}					## in one go!
+
+##----------------------------------------------------------------------------
 ##  enter(FN,FP)		Trace entry into FN(FP), increasing nesting
 ##				depth
-#-----------------------------------------------------------------------------
+##----------------------------------------------------------------------------
 function enter(fn,fp) {
     printf "#%s %s(%s)\n",NESTING,fn,fp; sub(/$/,"+",NESTING)
 }
@@ -398,17 +421,6 @@ function args_getopt(cn ,at,O,A) {
 ##  Main program:
 ##----------------------------------------------------------------------------
 BEGIN {
-    DEBUG = ("ARGS_DEBUG" in ENVIRON)	## Fetch debug flag.
-    stderr = "cat >&2"			## Setup portable printing to stderr.
-    FALSE = 0; TRUE = 1
-    AT_ERR = -3; AT_EOA = -2; AT_EOO = -1; AT_ARG = 0
-    AT_ONA = 1; AT_OOA = 2; OT_REQVAL = 3
-    dl2at[1] = AT_ONA ; dl2at[2] = AT_ORA  ; dl2at[3] = AT_OOA
-    at2ds[AT_ONA] = ""; at2ds[AT_ORA] = ":"; at2ds[AT_OOA] = "::"
-					## Define option types as well as
-					## descriptor length -> option type/
-					## option type -> descriptor suffix
-					## maps.
     if (ARGV[ARGI=1] == "print") {	## Which action?
 	args_print()			## Print arguments.
     } else if (ARGV[ARGI] == "getopt") {
