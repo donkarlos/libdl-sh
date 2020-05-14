@@ -25,6 +25,7 @@
 ##					Move initialization to front.
 ##					Trace argument types symbolically.
 ##					Print error messages with error().
+##					Also trace to stderr.
 ##
 ##  Global constants and variables:
 ##	- DEBUG		Debugging flag (set with '-vDEBUG=1')
@@ -90,47 +91,52 @@ BEGIN {
 
 ##----------------------------------------------------------------------------
 ##  enter(FN,FP)		Trace entry into function FN with sprintf()-
-##				formatted parameter list FP and increase
-##				nesting depth
+##				formatted parameter list FP to stderr and
+##				increase nesting depth
 ##
 ##  Global variables:
+##	- stderr	(R) Portable stderr (pipe handle)
 ##	- nesting	(W) Nesting depth
 ##  Local variables:
 ##	- fmt		(R) Printf() format
 ##----------------------------------------------------------------------------
 function enter(fn,fp ,fmt) {
     if (DEBUG) {
-	fmt = sprintf("#%%%us%%s(%%s)\n",nesting++); printf fmt,"",fn,fp
+	fmt = sprintf("#%%%us%%s(%%s)\n",nesting++)
+	printf fmt,"",fn,fp | stderr
     }
 }
 
 ##----------------------------------------------------------------------------
-##  trace(EX)			Trace sprintf()-formatted EXpression
+##  trace(EX)			Trace sprintf()-formatted EXpression to stderr
 ##
 ##  Global variables:
+##	- stderr	(R) Portable stderr (pipe handle)
 ##	- nesting	(R) Nesting depth
 ##  Local variables:
 ##	- fmt		(R) Printf() format
 ##----------------------------------------------------------------------------
 function trace(ex ,fmt) {
     if (DEBUG) {
-	fmt = sprintf("#%%%us%%s\n",nesting); printf fmt,"",ex
+	fmt = sprintf("#%%%us%%s\n",nesting); printf fmt,"",ex | stderr
     }
 }
 
 ##----------------------------------------------------------------------------
 ##  leave(RV)			Trace leave from function with sprintf()-
-##				formatted return value RV and decrease
-##				nesting depth
+##				formatted return value RV to stderr and
+##				decrease nesting depth
 ##
 ##  Global variables:
+##	- stderr	(R) Portable stderr (pipe handle)
 ##	- nesting	(W) Nesting depth
 ##  Local variables:
 ##	- fmt		(R) Printf() format
 ##----------------------------------------------------------------------------
 function leave(rv ,fmt) {
     if (DEBUG) {
-	fmt = sprintf("#%%%usreturn(%%s)\n",--nesting); printf fmt,"",rv;
+	fmt = sprintf("#%%%usreturn(%%s)\n",--nesting)
+	printf fmt,"",rv | stderr
     }
 }
 
