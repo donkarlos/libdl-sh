@@ -23,6 +23,8 @@
 ##  WRITTEN BY:	ks	2018-03-03
 ##  CHANGED BY:	ks	2020-05-14	Update copyright notice.
 ##					Move initialization to front.
+##					Trace argument types symbolically.
+##					Print error messages with error().
 ##
 ##  Global constants and variables:
 ##	- DEBUG		Debugging flag (set with '-vDEBUG=1')
@@ -133,6 +135,24 @@ function leave(rv ,fmt) {
 }
 
 ##----------------------------------------------------------------------------
+##  error(MESSAGE,PI)		Print sprintf()-formatted MESSAGE on stderr
+##				unless PI-th pass is quiet
+##
+##  Global variables:
+##	- stderr	(R) Portable stderr (pipe handle)
+##	- piow2ov[PI,"n"]
+##			(R) Per-pass command name
+##	- piow2ov[PI,"q"]
+##			(R) Per-pass quiet flag
+##----------------------------------------------------------------------------
+function error(message,pi) {
+    if (!piow2ov[pi,"q"]) {		## PI-th pass is quiet?
+	print piow2ov[pi,"n"] ": " message | stderr
+					## No, print MESSAGE (prefixed with
+    }					## pass's command name) on stderr.
+}
+
+##----------------------------------------------------------------------------
 ##  quote_sh(STRING,PI)		Conditionally quote STRING
 ##----------------------------------------------------------------------------
 function quote_sh(string,pi) {
@@ -152,9 +172,8 @@ function getopt_add_optstring(optstring,pi ,ow,on,at,oi) {
 	optstring,pi))
     while (optstring) {			## While OPTSTRING is non-empty do...
 	if (!match(optstring,/^[^-:]:?:?/)) {
-	    if (!piow2ov[pi,"q"])	## Looking at valid descriptor?
-		printf "%s: '%s' describes no short option!\n",
-		    piow2ov[pi,"n"],optstring | stderr
+					## Looking at valid descriptor?
+	    error(sprintf("'%s' describes no short option!",optstring),pi)
 	    leave(1); return 1		## No, complain and indicate failure!
 	}
 	ow = substr(optstring,1,1); on = "-" ow; at = dl2at[RLENGTH]
@@ -167,9 +186,9 @@ function getopt_add_optstring(optstring,pi ,ow,on,at,oi) {
 	    trace(sprintf("pioi2on[pi=%u,oi=pion2oi[pi,on]=%u]=on;"	\
 		"pioi2at[pi,oi]=at",pi,oi))
 	} else if (at != pioi2at[pi,oi]) {
-	    if (!piow2ov[pi,"q"])	## No, and registered differently?
-		printf "%s: '%s' already registered by '%s%s'!\n",
-		    piow2ov[pi,"n"],on,ow,at2ds[pioi2at[pi,oi]] | stderr
+					## No, and registered differently?
+	    error(sprintf("'%s' already registered by '%s%s'!",on,ow,	\
+		at2ds[pioi2at[pi,oi]]),pi)
 	    leave(1); return 1		## Yes, complain and indicate failure!
 	}
 	optstring = substr(optstring,1+RLENGTH)
@@ -188,9 +207,8 @@ function getopt_add_longopts(longopts,pi ,di,dc,dv,cp,ow,on,at,oi) {
     di = 0; dc = split(longopts,dv,/,/)	## Split LONGOPTS into descriptors.
     while (++di <= dc) {		## Foreach descriptor do...
 	if (!match(dv[di],/^[^-=:]+(-[^-=:]+)*:?:?$/)) {
-	    if (!piow2ov[pi,"q"])	## Description is valid?
-		printf "%s: '%s' describes no long option!\n",
-		    piow2ov[pi,"n"],dv[di] | stderr
+					## Description is valid?
+	    error(sprintf("'%s' describes no long option!",dv[di]),pi)
 	    leave(1); return 1		## No, complain and indicate failure!
 	}
 	if (!(cp = index(dv[di],":"))) cp = RLENGTH + 1
@@ -207,11 +225,11 @@ function getopt_add_longopts(longopts,pi ,di,dc,dv,cp,ow,on,at,oi) {
 	    trace(sprintf("pioi2on[pi=%u,oi=pion2oi[pi,on]=%u]=on;"	\
 		"pioi2at[pi,oi]=at",pi,oi))
 	} else if (at != pioi2at[pi,oi]) {
-	    if (!piow2ov[pi,"q"])	## No, and registered differently?
-		printf "%s: '%s' already registered by '%s%s'!\n",
-		    piow2ov[pi,"n"],on,ow,at2ds[pioi2at[pi,oi]] | stderr
-	    leave(1); return 1
-	}				## Yes, complain and indicate failure!
+					## No, and registered differently?
+	    error(sprintf("'%s' already registered by '%s%s'!",on,ow,	\
+		at2ds[pioi2at[pi,oi]]),pi)
+	    leave(1); return 1		## Yes, complain and indicate failure!
+	}
 
 	while (cp > 2) {		## Foreach abbreviation do...
 	    if (!pion2oi[pi,on = substr(on,1,cp--)]) {
@@ -261,8 +279,7 @@ function getopt_next(pi ,on,ov,oi,at,ep) {
 					## Another argument follows?
 		    ov = ARGV[ARGI]	## Yes, supply that as value.
 		} else {
-		    if (!piow2ov[pi,"q"]) printf "%s: %s: Missing value!\n",
-			piow2ov[pi,"n"],on | stderr
+		    error(sprintf("%s: Missing value!",on),pi)
 		    leave(at2sy[AT_ERR]); return AT_ERR
 		}			## No, complain and indicate failure!
 	    }
