@@ -135,7 +135,8 @@ function trace(ex ,fmt) {
 ##----------------------------------------------------------------------------
 function leave(rv ,fmt) {
     if (DEBUG) {
-	fmt = sprintf("#%%%usreturn(%%s)\n",--nesting)
+	fmt = rv ? sprintf("#%%%usreturn(%%s)\n",--nesting)		\
+		 : sprintf("#%%%usreturn%%s\n",  --nesting)
 	printf fmt,"",rv | stderr
     }
 }
@@ -180,7 +181,7 @@ function getopt_add_optstring(optstring,pi ,ow,on,at,oi) {
 	if (!match(optstring,/^[^-:]:?:?/)) {
 					## Looking at valid descriptor?
 	    error(sprintf("'%s' describes no short option!",optstring),pi)
-	    leave(1); return 1		## No, complain and indicate failure!
+	    leave("1"); return 1	## No, complain and indicate failure!
 	}
 	ow = substr(optstring,1,1); on = "-" ow; at = dl2at[RLENGTH]
 	trace(sprintf("ow=\"%s\";on=\"%s\";at=%s",ow,on,at2sy[at]))
@@ -195,12 +196,12 @@ function getopt_add_optstring(optstring,pi ,ow,on,at,oi) {
 					## No, and registered differently?
 	    error(sprintf("'%s' already registered by '%s%s'!",on,ow,	\
 		at2ds[pioi2at[pi,oi]]),pi)
-	    leave(1); return 1		## Yes, complain and indicate failure!
+	    leave("1"); return 1	## Yes, complain and indicate failure!
 	}
 	optstring = substr(optstring,1+RLENGTH)
 	trace(sprintf("optstring=\"%s\"",optstring))
     }					## Consume descriptor.
-    leave(0); return 0			## Indicate success.
+    leave("0"); return 0		## Indicate success.
 }
 
 ##----------------------------------------------------------------------------
@@ -215,7 +216,7 @@ function getopt_add_longopts(longopts,pi ,di,dc,dv,cp,ow,on,at,oi) {
 	if (!match(dv[di],/^[^-=:]+(-[^-=:]+)*:?:?$/)) {
 					## Description is valid?
 	    error(sprintf("'%s' describes no long option!",dv[di]),pi)
-	    leave(1); return 1		## No, complain and indicate failure!
+	    leave("1"); return 1	## No, complain and indicate failure!
 	}
 	if (!(cp = index(dv[di],":"))) cp = RLENGTH + 1
 	ow = substr(dv[di],1,cp-1); on = "--" ow; at = dl2at[2+RLENGTH-cp]
@@ -234,7 +235,7 @@ function getopt_add_longopts(longopts,pi ,di,dc,dv,cp,ow,on,at,oi) {
 					## No, and registered differently?
 	    error(sprintf("'%s' already registered by '%s%s'!",on,ow,	\
 		at2ds[pioi2at[pi,oi]]),pi)
-	    leave(1); return 1		## Yes, complain and indicate failure!
+	    leave("1"); return 1	## Yes, complain and indicate failure!
 	}
 
 	while (cp > 2) {		## Foreach abbreviation do...
@@ -252,7 +253,7 @@ function getopt_add_longopts(longopts,pi ,di,dc,dv,cp,ow,on,at,oi) {
 	    }
 	}
     }
-    leave(0); return 0			## Indicate success.
+    leave("0"); return 0		## Indicate success.
 }
 
 ##----------------------------------------------------------------------------
@@ -386,16 +387,18 @@ function args_getopt(cn ,at,O,A) {
 	    trace(sprintf("piow2ov[%u,\"a\"]=%u",pi+1,piow2ov[pi+1,"a"]))
 	} else if (OPTNAM ~ /^(-l|--longoptions)$/) {
 	    if (getopt_add_longopts(OPTVAL,pi+1)) {
-		leave(1); return 1
-	    }				## Try to add LONGOPTS for command.
+					## LONGOPTS added for command?
+		leave("1"); return 1	## No, indicate failure!
+	    }
 	} else if (OPTNAM ~ /^(-n|--name)$/) {
 	    piow2ov[pi+1,"n"] = OPTVAL	## Update command name.
 	    trace(sprintf("piow2ov[%u,\"n\"]=\"%s\"",pi+1,piow2ov[pi+1,"n"]))
 	} else if (OPTNAM ~ /^(-o|--options)$/) {
 	    if (getopt_add_optstring(OPTVAL,pi+1)) {
-		leave(1); return 1
+					## OPTSTRING added for command?
+		leave("1"); return 1	## No, indicate failure!
 	    }
-	    ++piow2ov[pi+1,"o"]		## Try to add OPTSTRING for command.
+	    ++piow2ov[pi+1,"o"]		## Count OPTSTRING occurence.
 	    trace(sprintf("piow2ov[%u,\"o\"]=%u",pi+1,piow2ov[pi+1,"o"]))
 	} else if (OPTNAM ~ /^(-q|--quiet)$/) {
 	    ++piow2ov[pi+1,"q"]		## Become quiet.
@@ -420,20 +423,20 @@ function args_getopt(cn ,at,O,A) {
     }
 
     if (at < AT_EOA) {
-	leave(1); return 1		## Pass any failure through.
+	leave("1"); return 1		## Pass any failure through.
     }
     if (!piow2ov[pi,"o"]) {		## Any OPTSTRING seen so far?
 	if (ARGI < ARGC) {		## No, but looking at OPTSTRING now?
 	    if (ARGI == 2) ++legacy	## Yes, force legacy mode on legacy
 					## invocation and try...
 	    if (getopt_add_optstring(ARGV[ARGI++],pi)) {
-		leave(1); return 1
+		leave("1"); return 1
 	    }				## ...to add OPTSTRING for 2nd pass.
 	} else {			## OPTSTRING is missing.
 	    if (!piow2ov[pi,"q"])
 		printf "Usage: %s [OPTIONS] OPTSTRING [ARG ...]\n",
 		    piow2ov[pi,"n"] | stderr
-	    leave(2); return 2		## Complain and indicate usage error!
+	    leave("2"); return 2	## Complain and indicate usage error!
 	}
     }
 
@@ -455,13 +458,13 @@ function args_getopt(cn ,at,O,A) {
     if (DEBUG) trace(sprintf("at=%d",at))
 
     if (at < AT_EOA) {
-	leave(1); return 1		## Pass any failure through.
+	leave("1"); return 1		## Pass any failure through.
     }
     if (at == AT_EOO) while (ARGI < ARGC) A = A " " quote_sh(ARGV[ARGI++],pi)
 					## Quote and append remaining
 					## arguments.
     if (!piow2ov[pi,"Q"]) printf "%s--%s\n",O,A
-    leave(0); return 0			## Indicate success.
+    leave("0"); return 0		## Indicate success.
 }
 
 ##----------------------------------------------------------------------------
