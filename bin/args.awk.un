@@ -63,7 +63,7 @@
 ##			Per-pass unquoted output flag
 ##	- piow2ov[PI,"s"]
 ##			Per-pass shell
-##	- NESTING	Nesting depth
+##	- nesting	Nesting depth
 ##----------------------------------------------------------------------------
 ##  Initialization:
 #-----------------------------------------------------------------------------
@@ -87,30 +87,48 @@ BEGIN {
 }					## in one go!
 
 ##----------------------------------------------------------------------------
-##  enter(FN,FP)		Trace entry into FN(FP), increasing nesting
-##				depth
+##  enter(FN,FP)		Trace entry into function FN with sprintf()-
+##				formatted parameter list FP and increase
+##				nesting depth
+##
+##  Global variables:
+##	- nesting	(W) Nesting depth
+##  Local variables:
+##	- fmt		(R) Printf() format
 ##----------------------------------------------------------------------------
-function enter(fn,fp) {
+function enter(fn,fp ,fmt) {
     if (DEBUG) {
-	printf "#%s %s(%s)\n",NESTING,fn,fp; sub(/$/,"+",NESTING)
+	fmt = sprintf("#%%%us%%s(%%s)\n",nesting++); printf fmt,"",fn,fp
     }
 }
 
 ##----------------------------------------------------------------------------
-##  trace(EX)			Trace EXpression, keeping nesting depth
+##  trace(EX)			Trace sprintf()-formatted EXpression
+##
+##  Global variables:
+##	- nesting	(R) Nesting depth
+##  Local variables:
+##	- fmt		(R) Printf() format
 ##----------------------------------------------------------------------------
-function trace(ex) {
+function trace(ex ,fmt) {
     if (DEBUG) {
-	printf "#%s %s\n",NESTING,ex
+	fmt = sprintf("#%%%us%%s\n",nesting); printf fmt,"",ex
     }
 }
 
 ##----------------------------------------------------------------------------
-##  leave(RV)			Trace return(RV), decreasing nesting depth
+##  leave(RV)			Trace leave from function with sprintf()-
+##				formatted return value RV and decrease
+##				nesting depth
+##
+##  Global variables:
+##	- nesting	(W) Nesting depth
+##  Local variables:
+##	- fmt		(R) Printf() format
 ##----------------------------------------------------------------------------
-function leave(rv) {
+function leave(rv ,fmt) {
     if (DEBUG) {
-	printf "#%s return %s\n",NESTING,rv; sub(/.$/,"",NESTING)
+	fmt = sprintf("#%%%usreturn(%%s)\n",--nesting); printf fmt,"",rv;
     }
 }
 
