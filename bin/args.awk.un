@@ -249,6 +249,25 @@ function getopt_add_optstring(optstring,pi ,re,ow,on,at,oi) {
 ##  getopt_add_longopts(LONGOPTS,PI)
 ##				Add long options described by LONGOPTS's to
 ##				PI-th pass
+##  Global variables:
+##	- RSTART	(W) match() start position
+##	- RLENGTH	(W) match() length
+##	- at2sy[AT]	(R) Argument type -> symbol map
+##	- dl2at[DL]	(R) Short option descriptor's length -> type map
+##	- at2ds[AT]	(R) Option type -> descriptor suffix map
+##	- pi2oc[PI]	(W) Per-pass option index -> name map's size
+##	- pion2oi[PI,ON](W) Per-pass option name -> index map
+##	- pioi2on[PI,OI](W) Per-pass option index -> name map
+##	- pioi2at[PI,OI](W) Per-pass option index -> type map
+##  Local variables:
+##	- di		(W) Descriptor index
+##	- dc		(R) Descriptor count
+##	- dv[DI]	(R) Descriptor vector
+##	- cp		(W) Colon position/Abbreviation length
+##	- ow		(W) Option word
+##	- on		(W) Option name
+##	- at		(W) Option type
+##	- oi		(W) Option index
 ##----------------------------------------------------------------------------
 function getopt_add_longopts(longopts,pi ,di,dc,dv,cp,ow,on,at,oi) {
     enter("getopt_add_longopts",sprintf("longopts=\"%s\",pi=%u",longopts,pi))
