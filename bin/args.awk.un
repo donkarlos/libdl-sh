@@ -317,6 +317,17 @@ function getopt_add_longopts(longopts,pi ,di,dc,dv,cp,ow,on,at,oi) {
 }
 
 ##----------------------------------------------------------------------------
+##  unshift(ARG)		Unfetch ARGument
+##
+##  Global variables:
+##	- ARGI		(W) Argument index
+##	- ARGV[ARGI]	(W) Argument vector
+##----------------------------------------------------------------------------
+function unshift(arg) {
+    ARGV[--ARGI] = arg; trace(sprintf("ARGV[--ARGI=%u]=arg",ARGI))
+}
+
+##----------------------------------------------------------------------------
 ##  getopt_shift(PI)		Fetch next option/argument in PI-th pass
 ##----------------------------------------------------------------------------
 function getopt_shift(pi ,on,ov,oi,at,ep) {
