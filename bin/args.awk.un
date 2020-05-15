@@ -182,6 +182,25 @@ function quote_sh(string,pi) {
 ##  getopt_add_optstring(OPTSTRING,PI)
 ##				Add short options described by OPTSTRING to
 ##				PI-th pass
+##  Global variables:
+##	- compatible	(R) Compatibility mode flag
+##	- posixly	(W) POSIX compliancy flag
+##	- ordered	(W) Ordered output flag
+##	- RSTART	(W) match() start position
+##	- RLENGTH	(W) match() length
+##	- at2sy[AT]	(R) Argument type -> symbol map
+##	- dl2at[DL]	(R) Short option descriptor's length -> type map
+##	- at2ds[AT]	(R) Option type -> descriptor suffix map
+##	- pi2oc[PI]	(W) Per-pass option index -> name map's size
+##	- pion2oi[PI,ON](W) Per-pass option name -> index map
+##	- pioi2on[PI,OI](W) Per-pass option index -> name map
+##	- pioi2at[PI,OI](W) Per-pass option index -> type map
+##  Local variables:
+##	- re		(R) Mode-specific short option descriptor RE
+##	- ow		(W) Option word
+##	- on		(W) Option name
+##	- at		(W) Option type
+##	- oi		(W) Option index
 ##----------------------------------------------------------------------------
 function getopt_add_optstring(optstring,pi ,re,ow,on,at,oi) {
     enter("getopt_add_optstring",sprintf("optstring=\"%s\",pi=%u",	\
