@@ -35,8 +35,8 @@
 ##	- posixish	POSIX compliancy flag
 ##	- ordered	Ordered output mode flag
 ##	- AT_{ERR,EOA,EOO,ARG,ONA,OOA,ORA}
-##			Argument/option type indices returned by getopt_next()
-##			denoting
+##			Argument/option type indices returned by
+##			getopt_shift() denoting
 ##			  * ERRor,
 ##			  * End Of Arguments,
 ##			  * End Of Options ("--"),
@@ -266,10 +266,10 @@ function getopt_add_longopts(longopts,pi ,di,dc,dv,cp,ow,on,at,oi) {
 }
 
 ##----------------------------------------------------------------------------
-##  getopt_next(PI)		Fetch next option/argument in PI-th pass
+##  getopt_shift(PI)		Fetch next option/argument in PI-th pass
 ##----------------------------------------------------------------------------
-function getopt_next(pi ,on,ov,oi,at,ep) {
-    enter("getopt_next",sprintf("pi=%u",pi))
+function getopt_shift(pi ,on,ov,oi,at,ep) {
+    enter("getopt_shift",sprintf("pi=%u",pi))
     if (++ARGI >= ARGC) {		## Arguments exhausted?
 	leave(at2sy[AT_EOA]); return AT_EOA
     }					## Yes, indicate so.
@@ -388,7 +388,7 @@ function args_getopt(cn ,at,O,A) {
     for (;;) {				## While in 1st pass do...
 	if (compatible) {		## In compatibility mode?
 	    ++ARGI; ++pi; break		## Yes, skip 1st pass entirely!
-	} else if ((at = getopt_next(pi)) <= AT_ARG) {
+	} else if ((at = getopt_shift(pi)) <= AT_ARG) {
 					## getopt(1) options consumed?
 	    ++pi; break			## Yes, leave 1st pass.
 	} else if (OPTNAM ~ /^(-a|--alternative)$/) {
@@ -449,7 +449,7 @@ function args_getopt(cn ,at,O,A) {
 	}
     }
 
-    --ARGI; while ((at = getopt_next(pi)) > AT_EOO) {
+    --ARGI; while ((at = getopt_shift(pi)) > AT_EOO) {
 					## While processing command's
 					## arguments do...
 	if (DEBUG) trace(sprintf("at=%d",at))
@@ -466,8 +466,8 @@ function args_getopt(cn ,at,O,A) {
     }
     if (DEBUG) trace(sprintf("at=%d",at))
 
-    if (at < AT_EOA) {
-	leave("1"); return 1		## Pass any failure through.
+    if (at < AT_EOA) {			## Prior getopt_shift() failed?
+	leave("1"); return 1		## Yes, indicate failure!
     }
     if (at == AT_EOO) while (ARGI < ARGC) A = A " " quote_sh(ARGV[ARGI++],pi)
 					## Quote and append remaining
