@@ -231,8 +231,8 @@ function getopt_add_optstring(optstring,pi ,re,ow,on,at,oi) {
 	if (!(oi = pion2oi[pi,on])) {	## Short option unregistered so far?
 	    pioi2on[pi,oi = pion2oi[pi,on] = ++pi2oc[pi]] = on
 	    pioi2at[pi,oi] = at		## Yes, register short option.
-	    trace(sprintf("pioi2on[pi=%u,oi=pion2oi[pi,on]=%u]=on;"	\
-		"pioi2at[pi,oi]=at",pi,oi))
+	    trace(sprintf("pioi2on[pi=%u,oi=pion2oi[pi,on]=++pi2oc[pi]"	\
+		"=%u]=on;pioi2at[pi,oi]=at",pi,oi))
 	} else if (at != pioi2at[pi,oi]) {
 					## No, and registered differently?
 	    error(sprintf("'%s' already registered by '%s%s'!",on,ow,	\
