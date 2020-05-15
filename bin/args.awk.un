@@ -168,13 +168,14 @@ function error(msg,pi) {
 }
 
 ##----------------------------------------------------------------------------
-##  quote_sh(STRING,PI)		Conditionally quote STRING
+##  quote_sh(STRING,PI)		Conditionally sh(1)-quote STRING
 ##----------------------------------------------------------------------------
 function quote_sh(string,pi) {
-    if (!legacy && !piow2ov[pi,"u"]) {	## Must quote STRING?
+    enter("quote_sh",sprintf("string=\"%s\",pi=%u",string,pi))
+    if (!piow2ov[pi,"u"]) {		## Must quote STRING?
 	gsub(/'/,"&\\\\&&",string); string = "'" string "'"
     }					## Yes, do so.
-    return string
+    leave("\"" string "\""); return string
 }
 
 ##----------------------------------------------------------------------------
