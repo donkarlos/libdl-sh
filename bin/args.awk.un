@@ -249,16 +249,16 @@ function getopt_add_longopts(longopts,pi ,di,dc,dv,cp,ow,on,at,oi) {
 
 	while (cp > 2) {		## Foreach abbreviation do...
 	    if (!pion2oi[pi,on = substr(on,1,cp--)]) {
-					## Abbreviation is unregistered?
-		pion2oi[pi,on] = oi	## Yes, register abbreviation.
-		trace(sprintf("pion2oi[%u,\"%s\"]=%u",pi,on,oi))
+					## Abbreviation already registered?
+		pion2oi[pi,on] = oi	## No, register abbreviation.
+		trace(sprintf("pion2oi[pi=%u,on=\"%s\"]=%u",pi,on,oi))
 	    } else if ((oi = pion2oi[pi,on]) < 0) {
-					## Abbreviation was ambiguous?
+					## Abbreviation already ambiguous?
 		break			## Yes, so its prefices are, too!
 	    } else if (pioi2on[pi,oi] != on) {
 					## Abbreviation is ambiguous?
 		pion2oi[pi,on] = -1	## Yes, indicate so.
-		trace(sprintf("pion2oi[%u,\"%s\"]=-1",pi,on))
+		trace(sprintf("pion2oi[pi=%u,on=\"%s\"]=-1",pi,on))
 	    }
 	}
     }
