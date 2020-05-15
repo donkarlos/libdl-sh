@@ -33,7 +33,7 @@
 ##	- FALSE/TRUE	Boolean constants
 ##	- compatible	Compatibility mode flag
 ##	- posixly	POSIX compliancy flag
-##	- ordered	Ordered output mode flag
+##	- ordered	Ordered output flag
 ##	- AT_{ERR,EOA,EOO,ARG,ONA,OOA,ORA}
 ##			Argument/option type indices returned by
 ##			getopt_shift() denoting
@@ -46,7 +46,7 @@
 ##	- at2sy[AT]	Argument type -> symbol map
 ##	- dl2at[DL]	Short option descriptor's length -> option type map
 ##	- at2ds[AT]	Option type -> descriptor suffix map
-##	- pi2oc[PI]	Per-pass option count (i.e., 1 <= OI <= pi2oc[PI])
+##	- pi2oc[PI]	Per-pass option index -> name map's size
 ##	- pion2oi[PI,ON] Per-pass option name -> index map
 ##			 (also used for long options' abbreviations)
 ##	- pioi2on[PI,OI] Per-pass option index -> name map
@@ -183,12 +183,25 @@ function quote_sh(string,pi) {
 ##				Add short options described by OPTSTRING to
 ##				PI-th pass
 ##----------------------------------------------------------------------------
-function getopt_add_optstring(optstring,pi ,ow,on,at,oi) {
+function getopt_add_optstring(optstring,pi ,re,ow,on,at,oi) {
     enter("getopt_add_optstring",sprintf("optstring=\"%s\",pi=%u",	\
 	optstring,pi))
+    if (optstring ~ /^\+/) {		## OPSTRING has leading '+'?
+	if (!compatible) ++posixly	## Yes, force POSIX compliancy (unless
+	sub(/^./,"",optstring)		## in compatibility mode) and consume
+					## leading '+'.
+	trace(sprintf("posixly=%u;optstring=\"%s\"",posixly,optstring))
+    } else if (optstring ~ /^-/) {	## OPSTRING has leading '-'?
+	if (!compatible) ++ordered	## Yes, force output ordering (unless
+	sub(/^./,"",optstring)		## in compatibility mode) and consume
+					## leading '-'.
+	trace(sprintf("ordered=%u;optstring=\"%s\"",ordered,optstring))
+    }
+
+    re = compatible ? "^.:?:?" : "^[^-:]:?:?"
+					## Choose short option descriptor RE.
     while (optstring) {			## While OPTSTRING is non-empty do...
-	if (!match(optstring,/^[^-:]:?:?/)) {
-					## Looking at valid descriptor?
+	if (!match(optstring,re)) {	## Looking at valid descriptor?
 	    error(sprintf("'%s' describes no short option!",optstring),pi)
 	    leave("1"); return 1	## No, complain and indicate failure!
 	}
