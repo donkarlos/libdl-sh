@@ -26,11 +26,11 @@
 ##					Trace argument types symbolically.
 ##					Print error messages with error().
 ##					Also trace to stderr.
+##			2020-05-15	Use system("echo '...' >&2").
 ##
 ##  Global constants and variables:
 ##	- DEBUG		Debugging flag (set with '-vDEBUG=1')
 ##	- FALSE/TRUE	Boolean constants
-##	- stderr	Portably print to standard error output
 ##	- legacy	Legacy mode flag
 ##	- posixish	POSIX compliancy flag
 ##	- ordered	Ordered output mode flag
@@ -73,8 +73,6 @@
 BEGIN {
     FALSE = 0; TRUE = !FALSE		## Define booleans.
 
-    stderr = "cat >&2"			## Portable stderr.
-
     at				= -4	## Enumerate argument types...
     at2sy[AT_ERR = ++at]	= "AT_ERR"
     at2sy[AT_EOA = ++at]	= "AT_EOA"
@@ -95,15 +93,18 @@ BEGIN {
 ##				increase nesting depth
 ##
 ##  Global variables:
-##	- stderr	(R) Portable stderr (pipe handle)
 ##	- nesting	(W) Nesting depth
 ##  Local variables:
-##	- fmt		(R) Printf() format
+##	- fmt		(W) Format string
+##	- msg		(W) Quoted message
 ##----------------------------------------------------------------------------
-function enter(fn,fp ,fmt) {
+function enter(fn,fp ,fmt,msg) {
     if (DEBUG) {
-	fmt = sprintf("#%%%us%%s(%%s)\n",nesting++)
-	printf fmt,"",fn,fp | stderr
+	fmt = sprintf("#%%%us%%s(%%s)",nesting++)
+					## Construct format string.
+	msg = sprintf(fmt,"",fn,fp); gsub(/'/,"&\\\\&&",msg)
+					## Construct quoted message and
+	system("echo '" msg "' >&2")	## emit it to stderr.
     }
 }
 
@@ -111,14 +112,18 @@ function enter(fn,fp ,fmt) {
 ##  trace(EX)			Trace sprintf()-formatted EXpression to stderr
 ##
 ##  Global variables:
-##	- stderr	(R) Portable stderr (pipe handle)
 ##	- nesting	(R) Nesting depth
 ##  Local variables:
-##	- fmt		(R) Printf() format
+##	- fmt		(W) Format string
+##	- msg		(W) Quoted message
 ##----------------------------------------------------------------------------
-function trace(ex ,fmt) {
+function trace(ex ,fmt,msg) {
     if (DEBUG) {
-	fmt = sprintf("#%%%us%%s\n",nesting); printf fmt,"",ex | stderr
+	fmt = sprintf("#%%%us%%s",nesting)
+					## Construct format string.
+	msg = sprintf(fmt,"",ex); gsub(/'/,"&\\\\&&",msg)
+					## Construct quoted message and
+	system("echo '" msg "' >&2")	## emit it to stderr.
     }
 }
 
@@ -128,35 +133,38 @@ function trace(ex ,fmt) {
 ##				decrease nesting depth
 ##
 ##  Global variables:
-##	- stderr	(R) Portable stderr (pipe handle)
 ##	- nesting	(W) Nesting depth
 ##  Local variables:
-##	- fmt		(R) Printf() format
+##	- fmt		(W) Format string
+##	- msg		(W) Quoted message
 ##----------------------------------------------------------------------------
-function leave(rv ,fmt) {
+function leave(rv ,fmt,msg) {
     if (DEBUG) {
-	fmt = rv ? sprintf("#%%%usreturn(%%s)\n",--nesting)		\
-		 : sprintf("#%%%usreturn%%s\n",  --nesting)
-	printf fmt,"",rv | stderr
+	fmt = rv ? sprintf("#%%%usreturn(%%s)",--nesting)		\
+		 : sprintf("#%%%usreturn%%s",  --nesting)
+					## Construct format string.
+	msg = sprintf(fmt,"",rv); gsub(/'/,"&\\\\&&",msg)
+					## Construct quoted message and
+	system("echo '" msg "' >&2")	## emit it to stderr.
     }
 }
 
 ##----------------------------------------------------------------------------
-##  error(MESSAGE,PI)		Print sprintf()-formatted MESSAGE on stderr
-##				unless PI-th pass is quiet
+##  error(MSG,PI)		Emit sprintf()-formatted error message MSG
+##				on stderr unless PI-th pass is quiet
 ##
 ##  Global variables:
-##	- stderr	(R) Portable stderr (pipe handle)
 ##	- piow2ov[PI,"n"]
 ##			(R) Per-pass command name
 ##	- piow2ov[PI,"q"]
 ##			(R) Per-pass quiet flag
 ##----------------------------------------------------------------------------
-function error(message,pi) {
+function error(msg,pi) {
     if (!piow2ov[pi,"q"]) {		## PI-th pass is quiet?
-	print piow2ov[pi,"n"] ": " message | stderr
-					## No, print MESSAGE (prefixed with
-    }					## pass's command name) on stderr.
+	sub(/^/,piow2ov[pi,"n"] ": ",msg); gsub(/'/,"&\\\\&&",msg)
+					## No, construct quoted message and
+	system("echo '" msg "' >&2")	## emit it to stderr.
+    }
 }
 
 ##----------------------------------------------------------------------------
