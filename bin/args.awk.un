@@ -32,7 +32,7 @@
 ##	- DEBUG		Debugging flag (set with '-vDEBUG=1')
 ##	- FALSE/TRUE	Boolean constants
 ##	- compatible	Compatibility mode flag
-##	- posixish	POSIX compliancy flag
+##	- posixly	POSIX compliancy flag
 ##	- ordered	Ordered output mode flag
 ##	- AT_{ERR,EOA,EOO,ARG,ONA,OOA,ORA}
 ##			Argument/option type indices returned by
@@ -368,13 +368,39 @@ function args_print() {
 
 ##----------------------------------------------------------------------------
 ##  args_getopt(CN)		Emulate getopt(1)
+##
+##  Global variables:
+##	- compatible	(W) Compatibility mode flag
+##	- posixly	(W) POSIX compliancy flag
+##	- piow2ov[PI,"n"]
+##			(W) Per-pass command name
+##	- piow2ov[PI,"u"]
+##			(W) Per-pass unquoted output flag
+##	- piow2ov[PI,"a"]
+##			(W) Per-pass alternative long options flag
+##	- piow2ov[PI,"o"]
+##			(W) Per-pass OPTSTRING count
+##	- piow2ov[PI,"q"]
+##			(W) Per-pass quiet flag
+##	- piow2ov[PI,"Q"]
+##			(W) Per-pass suppress output flag
+##	- piow2ov[PI,"s"]
+##			(W) Per-pass shell
+##	- OPTNAM	(R) Option name  parsed by getopt_shift()
+##	- OPTVAL	(R) Option value parsed by getopt_shift()
 ##----------------------------------------------------------------------------
-function args_getopt(cn ,at,O,A) {
+function args_getopt(cn ,pi,at,O,A) {
     enter("args_getopt",sprintf("cn=\"%s\"",cn))
     pi = 1				## Begin with 1st pass.
     piow2ov[pi+1,"n"] = piow2ov[pi,"n"] = cn
     trace(sprintf("piow2ov[%u,\"n\"]=piow2ov[%u,\"n\"]=\"%s\"",pi+1,pi,cn))
 					## Preset pass' command name.
+
+    if ("POSIXLY_CORRECT" in ENVIRON) {	## POSIXLY_CORRECT present in env.?
+	++posixly			## Yes, force POSIX compliancy.
+	trace(sprintf("posixly=%u",posixly))
+    }
+
     if ("GETOPT_COMPATIBLE" in ENVIRON) {
 					## GETOPT_COMPATIBLE present in env.?
 	++compatible			## Yes, force compatibility mode.
