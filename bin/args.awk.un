@@ -330,32 +330,33 @@ function unshift(arg) {
 ##----------------------------------------------------------------------------
 ##  getopt_shift(PI)		Fetch next option/argument in PI-th pass
 ##----------------------------------------------------------------------------
-function getopt_shift(pi ,on,ov,oi,at,ep) {
+function getopt_shift(pi ,arg,on,ov,oi,at,ep) {
     enter("getopt_shift",sprintf("pi=%u",pi))
-    if (++ARGI >= ARGC) {		## Arguments exhausted?
+    if (ARGI < ARGC) {			## Arguments remain?
+	arg = ARGV[ARGI++]; trace(sprintf("arg=\"%s\"",arg))
+    } else {				## Yes, fetch next argument.
 	leave(at2sy[AT_EOA]); return AT_EOA
-    }					## Yes, indicate so.
+    }					## No, indicate exhaustion!
 
-    trace(sprintf("ARGV[%u]=\"%s\"",ARGI,ARGV[ARGI]))
-    if (match(ARGV[ARGI],/^-[^-]/)) {	## Looking at short option?
-	on = substr(ARGV[ARGI],RSTART,RLENGTH)
-	ov = substr(ARGV[ARGI],RSTART+RLENGTH)
-					## Yes, split it into name/value.
+    if (match(arg,/^-[^-]/)) {		## Looking at short option?
+	on = substr(arg,RSTART,RLENGTH)	## Yes, split it into name and value.
+	trace(sprintf("on=\"%s\"",on))
+	ov = substr(arg,RSTART+RLENGTH)
 	if (oi = pion2oi[pi,on]) {	## Registered for PI-th pass?
 	    at = pioi2at[pi,oi]		## Yes, fetch argument type.
-	    if (ov) {			## Value attached?
+	    if (ov) {			## Value is "glued" to name?
 		if (at >= AT_OOA) {	## Yes, and option wants value?
 		    at = AT_ORA		## Yes, supply it.
-		} else {		## No, push back glued short options.
-		    trace(sprintf("ARGV[%u]=\"-%s\"",ARGI,ov))
-		    ARGV[ARGI--] = "-" ov
+		} else {
+		    unshift("-" ov)	## No, push glued short options back.
 		}
-	    } else {			## No value attached!
+	    } else {			## No value "glued" to name!
 		if (at <= AT_OOA) {	## Option requires value?
-		    at = AT_ONA		## No, don't supply any.
-		} else if (++ARGI < ARGC) {
-					## Another argument follows?
-		    ov = ARGV[ARGI]	## Yes, supply that as value.
+		    at = AT_ONA		## No, don't supply it.
+		} else if (ARGI < ARGC) {
+					## Arguments remain?
+		    ov = ARGV[ARGI++]	## Yes, fetch value.
+		    trace(sprintf("ov=\"%s\"",ov))
 		} else {
 		    error(sprintf("%s: Missing value!",on),pi)
 		    leave(at2sy[AT_ERR]); return AT_ERR
@@ -363,21 +364,19 @@ function getopt_shift(pi ,on,ov,oi,at,ep) {
 	    }
 	    trace(sprintf("OPTNAM=\"%s\";OPTVAL=\"%s\"",on,ov))
 	    leave(at2sy[at]); OPTNAM = on; OPTVAL = ov; return at
-	} else if (!piow2ov[pi,"a"] || (ARGV[ARGI] !~ /^(-[^-=]+)+/)) {
+	} else if (!piow2ov[pi,"a"] || (arg !~ /^(-[^-=]+)+/)) {
 					## Alternative long options allowed
 					## and option looks like that?
 	    if (!piow2ov[pi,"q"]) printf "%s: %s: Unknown option!\n",
 		piow2ov[pi,"n"],on | stderr
 	    leave(at2sy[AT_ERR]); return AT_ERR
 	}				## No, complain and indicate failure!
-	ARGV[ARGI] = "-" ARGV[ARGI]	## Fake long option.
-	trace(sprintf("ARGV[ARGI=%u]=\"%s\"",ARGI,ARGV[ARGI]))
+	arg = "-" arg			## Fake long option.
+	trace(sprintf("arg=\"%s\"",arg))
     }
-    if (match(ARGV[ARGI],/^-(-[^-=]+)+/)) {
-					## Looking at long option?
-	on = substr(ARGV[ARGI],RSTART,RLENGTH)
+    if (match(arg,/^-(-[^-=]+)+/)) {	## Looking at long option?
+	on = substr(arg,RSTART,RLENGTH)	## Yes, identify name.
 	trace(sprintf("on=\"%s\"",on))
-					## Yes, derive name.
 	if (!(oi = pion2oi[pi,on])) {	## Registered for PI-th pass?
 	    if (!piow2ov[pi,"q"]) printf "%s: %s: Unknown option!\n",
 		piow2ov[pi,"n"],on | stderr
@@ -388,22 +387,22 @@ function getopt_shift(pi ,on,ov,oi,at,ep) {
 		piow2ov[pi,"n"],on | stderr
 	    leave(at2sy[AT_ERR]); return AT_ERR
 	}				## No, complain and indicate failure!
-	at = pioi2at[pi,oi]		## Fetch argument type and unabbrevi-
-	on = pioi2on[pi,oi]		## ated name.
-	if (ep = index(ARGV[ARGI],"=")) {
-					## Value attached?
-	    if (at >= AT_OOA) {		## Option wants value?
-		at = AT_ORA; ov = substr(ARGV[ARGI],ep+1)
+	at = pioi2at[pi,oi]		## Fetch argument type and full name.
+	on = pioi2on[pi,oi]
+	if (ep = index(arg,"=")) {	## Value is "glued" to name?
+	    if (at >= AT_OOA) {		## Yes, and option wants value?
+		at = AT_ORA; ov = substr(arg,ep+1)
 	    } else {			## Yes, supply it.
 		if (!piow2ov[pi,"q"])
 		    printf "%s: %s: Excess value (ignored).\n",
 			piow2ov[pi,"n"],on | stderr
 	    }				## No, warn about excess value.
-	} else {			## No, value attached!
+	} else {			## No value "glued" to name!
 	    if (at <= AT_OOA) {		## Option requires value?
-		at = AT_ONA		## No, don't supply any.
-	    } else if (++ARGI < ARGC) {	## Another argument follows?
-		ov = ARGV[ARGI]		## Yes, supply that as value.
+		at = AT_ONA		## No, don't supply it.
+	    } else if (ARGI < ARGC) {	## Yes, and arguments remain?
+		ov = ARGV[ARGI++]	## Yes, fetch value.
+		trace(sprintf("ov=\"%s\"",ov))
 	    } else {
 		if (!piow2ov[pi,"q"]) printf "%s: %s: Missing value!\n",
 			piow2ov[pi,"n"],on | stderr
@@ -413,8 +412,8 @@ function getopt_shift(pi ,on,ov,oi,at,ep) {
 	trace(sprintf("OPTNAM=\"%s\";OPTVAL=\"%s\"",on,ov))
 	leave(at2sy[at]); OPTNAM = on; OPTVAL = ov; return at
     }
-    if (ARGV[ARGI] == "--") {		## Looking at end-of-option marker?
-	++ARGI; leave(at2sy[AT_EOO]); return AT_EOO
+    if (arg == "--") {			## Looking at end-of-option marker?
+	leave(at2sy[AT_EOO]); return AT_EOO
     }					## Yes, consume and return it.
     leave(at2sy[AT_ARG]); return AT_ARG
 }
