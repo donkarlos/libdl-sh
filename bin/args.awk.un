@@ -166,6 +166,10 @@ function error(msg,pi) {
 
 ##----------------------------------------------------------------------------
 ##  quote_sh(STRING,PI)		Conditionally sh(1)-quote STRING
+##
+##  Global variables:
+##	- piow2ov[PI,"u"]
+##			(R) Per-pass unquoted output flag
 ##----------------------------------------------------------------------------
 function quote_sh(string,pi) {
     enter("quote_sh",sprintf("string=\"%s\",pi=%u",string,pi))
