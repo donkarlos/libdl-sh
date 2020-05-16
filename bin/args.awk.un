@@ -27,6 +27,16 @@
 ##					Print error messages with error().
 ##					Also trace to stderr.
 ##			2020-05-15	Use system("echo '...' >&2").
+##					Recognize POSIX-compliant mode.
+##					Recognize scan mode prefices.
+##			2020-05-16	Emit error messages with error().
+##					Imply unquoted output in compatibility
+##					mode.
+##					Implement options `-h|--help',
+##					`-V|--version', and `-T|--test'.
+##					Eliminate ++ARGI and ARGI--.
+##					Defer entry into 2nd pass.
+##					Overhaul 2nd pass and main program.
 ##
 ##  Global constants and variables:
 ##	- DEBUG		Debugging flag (set with '-vDEBUG=1')
@@ -666,12 +676,15 @@ function args_getopt(cn ,pi,at,ac,O,A) {
 ##  Main program:
 ##----------------------------------------------------------------------------
 BEGIN {
-    if (ARGV[ARGI=1] == "print") {	## Which action?
-	args_print()			## Print arguments.
-    } else if (ARGV[ARGI] == "getopt") {
-	args_getopt(ARGV[ARGI])		## Emulate getopt(1).
+    ARGI = 1; action = ARGV[ARGI++]	## Fetch action. Which action?
+    if (action == "print") {
+	status = args_print()		## Print arguments.
+    } else if (action == "getopt") {
+	status = args_getopt(action)	## Emulate getopt(1).
     } else {
-	printf "%s: unknown action '%s'!\n",
-	    piow2ov[pi,"n"],ARGV[ARGI] | stderr
+	piow2ov[0,"n"] = ARGV[0]	## Fake 0th pass...
+	error(sprintf("unknown action '%s'!",action),0)
+	status = 2			## ...and indicate misuse!
     }
+    trace(sprintf("exit %d",status)); exit status
 }
