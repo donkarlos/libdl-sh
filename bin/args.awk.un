@@ -415,11 +415,17 @@ function getopt_shift(pi ,arg,on,ov,oi,at,ep) {
 
 ##----------------------------------------------------------------------------
 ##  args_print()		Print command line parameters
+##
+##  Global variables:
+##	- ARGC		(R) Argument count
+##	- ARGI		(W) Argument index
+##	- ARGV[ARGI]	(R) Argument vector
 ##----------------------------------------------------------------------------
 function args_print() {
-    for (ARGI = 0; ARGI < ARGC; ++ARGI)
+    for (ARGI = 0; ARGI < ARGC; ++ARGI)	## Foreach argument do...
 	printf "ARGV[%u]=\"%s\"\n",ARGI,ARGV[ARGI]
-    printf "ARGC=%u\n",ARGC; return 0
+					## Print it.
+    printf "ARGC=%u\n",ARGC; return 0	## Print argument count.
 }
 
 ##----------------------------------------------------------------------------
