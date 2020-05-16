@@ -480,6 +480,11 @@ function args_getopt(cn ,pi,at,O,A) {
 					## No, saw option '-h|--help'?
 	    ## show help		## Yes, show help and...
 	    leave("2"); return 2	## ...indicate usage error!
+	} else if (OPTNAM ~ /^(-V|--version)$/) {
+					## No, saw option '-V|--version'?
+	    printf "%s (%s) %s\n",cn,"@PACKAGE_NAME@","@PACKAGE_VERSION@"
+					## Yes, show version and...
+	    leave("0"); return 0	## ...indicate success.
 	} else if (OPTNAM ~ /^(-a|--alternative)$/) {
 					## No, saw option '-a|--alternative'?
 	    trace(sprintf("++piow2ov[pi=%u,\"a\"]=%u",pi+1,		\
