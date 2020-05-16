@@ -476,6 +476,10 @@ function args_getopt(cn ,pi,at,O,A) {
 	} else if ((at = getopt_shift(pi)) <= AT_ARG) {
 					## getopt(1) options consumed?
 	    ++pi; break			## Yes, leave 1st pass.
+	} else if (OPTNAM ~ /^(-h|--help)$/) {
+					## No, saw option '-h|--help'?
+	    ## show help		## Yes, show help and...
+	    leave("2"); return 2	## ...indicate usage error!
 	} else if (OPTNAM ~ /^(-a|--alternative)$/) {
 					## No, saw option '-a|--alternative'?
 	    trace(sprintf("++piow2ov[pi=%u,\"a\"]=%u",pi+1,		\
