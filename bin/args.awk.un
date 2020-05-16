@@ -358,7 +358,7 @@ function getopt_shift(pi ,arg,on,ov,oi,at,ep) {
 		    ov = ARGV[ARGI++]	## Yes, fetch value.
 		    trace(sprintf("ov=\"%s\"",ov))
 		} else {
-		    error(sprintf("%s: Missing value!",on),pi)
+		    error(sprintf("%s: missing value!",on),pi)
 		    leave(at2sy[AT_ERR]); return AT_ERR
 		}			## No, complain and indicate failure!
 	    }
@@ -366,9 +366,8 @@ function getopt_shift(pi ,arg,on,ov,oi,at,ep) {
 	    leave(at2sy[at]); OPTNAM = on; OPTVAL = ov; return at
 	} else if (!piow2ov[pi,"a"] || (arg !~ /^(-[^-=]+)+/)) {
 					## Alternative long options allowed
-					## and option looks like that?
-	    if (!piow2ov[pi,"q"]) printf "%s: %s: Unknown option!\n",
-		piow2ov[pi,"n"],on | stderr
+					## and option looks like such?
+	    error(sprintf("%s: unknown option!",on),pi)
 	    leave(at2sy[AT_ERR]); return AT_ERR
 	}				## No, complain and indicate failure!
 	arg = "-" arg			## Fake long option.
@@ -378,13 +377,11 @@ function getopt_shift(pi ,arg,on,ov,oi,at,ep) {
 	on = substr(arg,RSTART,RLENGTH)	## Yes, identify name.
 	trace(sprintf("on=\"%s\"",on))
 	if (!(oi = pion2oi[pi,on])) {	## Registered for PI-th pass?
-	    if (!piow2ov[pi,"q"]) printf "%s: %s: Unknown option!\n",
-		piow2ov[pi,"n"],on | stderr
+	    error(sprintf("%s: unknown option!",on),pi)
 	    leave(at2sy[AT_ERR]); return AT_ERR
 					## No, complain and indicate failure!
 	} else if (oi < 0) {		## Unambiguous?
-	    if (!piow2ov[pi,"q"]) printf "%s: %s: Ambiguous option!\n",
-		piow2ov[pi,"n"],on | stderr
+	    error(sprintf("%s: ambiguous option!",on),pi)
 	    leave(at2sy[AT_ERR]); return AT_ERR
 	}				## No, complain and indicate failure!
 	at = pioi2at[pi,oi]		## Fetch argument type and full name.
@@ -393,9 +390,7 @@ function getopt_shift(pi ,arg,on,ov,oi,at,ep) {
 	    if (at >= AT_OOA) {		## Yes, and option wants value?
 		at = AT_ORA; ov = substr(arg,ep+1)
 	    } else {			## Yes, supply it.
-		if (!piow2ov[pi,"q"])
-		    printf "%s: %s: Excess value (ignored).\n",
-			piow2ov[pi,"n"],on | stderr
+		error(sprintf("%s: excess value (ignored).",on),pi)
 	    }				## No, warn about excess value.
 	} else {			## No value "glued" to name!
 	    if (at <= AT_OOA) {		## Option requires value?
@@ -404,8 +399,7 @@ function getopt_shift(pi ,arg,on,ov,oi,at,ep) {
 		ov = ARGV[ARGI++]	## Yes, fetch value.
 		trace(sprintf("ov=\"%s\"",ov))
 	    } else {
-		if (!piow2ov[pi,"q"]) printf "%s: %s: Missing value!\n",
-			piow2ov[pi,"n"],on | stderr
+		error(sprintf("%s: missing value!",on),pi)
 		leave(at2sy[AT_ERR]); return AT_ERR
 	    }				## No, complain and indicate failure!
 	}
