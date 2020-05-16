@@ -264,7 +264,7 @@ function getopt_add_optstring(optstring,pi ,re,ow,on,at,oi) {
 ##	- di		(W) Descriptor index
 ##	- dc		(R) Descriptor count
 ##	- dv[DI]	(R) Descriptor vector
-##	- cp		(W) Colon position/Abbreviation length
+##	- cp		(W) ':' position/abbreviation length
 ##	- ow		(W) Option word
 ##	- on		(W) Option name
 ##	- at		(W) Option type
@@ -330,6 +330,24 @@ function unshift(arg) {
 
 ##----------------------------------------------------------------------------
 ##  getopt_shift(PI)		Fetch next option/argument in PI-th pass
+##
+##  Global variables:
+##	- ARGC		(R) Argument count
+##	- RSTART	(W) match() start position
+##	- RLENGTH	(W) match() length
+##	- OPTNAM	(W) Parsed option name
+##	- OPTVAL	(W) Parsed option value
+##	- at2sy[AT]	(R) Argument type -> symbol map
+##	- pion2oi[PI,ON](W) Per-pass option name -> index map
+##	- pioi2on[PI,OI](W) Per-pass option index -> name map
+##	- pioi2at[PI,OI](W) Per-pass option index -> type map
+##  Local variables:
+##	- arg		(W) Fetched argument
+##	- on		(W) Option name
+##	- ov		(W) Option value
+##	- oi		(W) Option index
+##	- at		(W) Fetched argument's type
+##	- ep		(W) '=' position
 ##----------------------------------------------------------------------------
 function getopt_shift(pi ,arg,on,ov,oi,at,ep) {
     enter("getopt_shift",sprintf("pi=%u",pi))
