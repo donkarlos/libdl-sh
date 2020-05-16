@@ -474,10 +474,9 @@ function args_getopt(cn ,pi,at,O,A) {
 	if (compatible || ((at = getopt_shift(pi)) < AT_ARG)) {
 					## In compatibility mode or
 					## 1st pass's options consumed?
-	    trace(sprintf("++pi=%u;break",++pi)); break
-					## Yes, leave 1st pass.
+	    trace("break"); break	## Yes, leave 1st pass.
 	} else if (at == AT_ARG) {	## No, saw (non-option) argument?
-	    trace(sprintf("--ARGI=%u;++pi=%u;break",--ARGI,++pi)); break
+	    trace(sprintf("--ARGI=%u;break",--ARGI)); break
 					## Yes, back argument index up and
 					## leave 1st pass.
 	} else if (OPTNAM ~ /^(-h|--help)$/) {
@@ -543,21 +542,23 @@ function args_getopt(cn ,pi,at,O,A) {
 
     if (at < AT_EOA) {			## Prior getopt_shift() failed?
 	leave("1"); return 1		## Yes, indicate failure!
-    } else if (!piow2ov[pi,"o"]) {	## Saw OPTSTRING for 2nd pass?
+    } else if (!piow2ov[pi+1,"o"]) {	## Saw OPTSTRING for 2nd pass?
 	if (ARGI < ARGC) {		## No, but arguments remain?
-	    if (!getopt_add_optstring(ARGV[ARGI++],pi)) {
+	    if (!getopt_add_optstring(ARGV[ARGI++],pi+1)) {
 					## Yes, 2nd pass's OPTSTRING added?
-		trace(sprintf("++piow2ov[pi=%u,\"o\"]=%u",pi,		\
-		    ++piow2ov[pi,"o"]))	## Yes, count OPTSTRING occurence.
+		trace(sprintf("++piow2ov[pi=%u,\"o\"]=%u",pi+1,		\
+		    ++piow2ov[pi+1,"o"]))
+					## Yes, count OPTSTRING occurence.
 	    } else {
 		leave("3"); return 3	## No, indicate internal error!
 	    }
 	} else if (!compatible) {	## No. In compatibility mode?
-	    error("missing OPTSTRING!",pi-1)
+	    error("missing OPTSTRING!",pi)
 	    leave("2"); return 2	## No, indicate usage error!
 	}
     }
 
+    trace(sprintf("++pi=%u",++pi))	## Enter 2nd pass.
     while ((at = getopt_shift(pi)) > AT_EOO) {
 					## While processing command's
 					## arguments do...
