@@ -469,6 +469,19 @@ function args_print() {
 ##			(W) Per-pass shell
 ##	- OPTNAM	(R) Option name  parsed by getopt_shift()
 ##	- OPTVAL	(R) Option value parsed by getopt_shift()
+##  Local variables:
+##	- pi		(W) Pass index (1st pass processes getopt(1) options,
+##					2nd pass processes invoker's options
+##					and emits result)
+##	- at		(W) Argument type returned by getopt_shift()
+##	- O		(W) Result's  left-hand side (LHS)
+##	- A		(W) Result's right-hand side (RHS)
+##
+##  TODO:   (1)	getopt(1) option '-h|--help' so far doesn't show usage.
+##	    (2) getopt_shift() turns out to be a kludge (particularly with re-
+##		gard to non-option argument handling). It'd better be merged
+##		with this function to ultimately attain full compatibility
+##		with util-linux's getopt(1).
 ##----------------------------------------------------------------------------
 function args_getopt(cn ,pi,at,O,A) {
     enter("args_getopt",sprintf("cn=\"%s\"",cn))
