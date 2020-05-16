@@ -91,7 +91,6 @@ BEGIN {
 ##  enter(FN,FP)		Trace entry into function FN with sprintf()-
 ##				formatted parameter list FP to stderr and
 ##				increase nesting depth
-##
 ##  Global variables:
 ##	- nesting	(W) Nesting depth
 ##  Local variables:
@@ -131,7 +130,6 @@ function trace(ex ,fmt,msg) {
 ##  leave(RV)			Trace leave from function with sprintf()-
 ##				formatted return value RV to stderr and
 ##				decrease nesting depth
-##
 ##  Global variables:
 ##	- nesting	(W) Nesting depth
 ##  Local variables:
@@ -152,7 +150,6 @@ function leave(rv ,fmt,msg) {
 ##----------------------------------------------------------------------------
 ##  error(MSG,PI)		Emit sprintf()-formatted error message MSG
 ##				on stderr unless PI-th pass is quiet
-##
 ##  Global variables:
 ##	- piow2ov[PI,"n"]
 ##			(R) Per-pass command name
