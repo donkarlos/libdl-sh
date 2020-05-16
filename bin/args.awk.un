@@ -514,8 +514,7 @@ function args_getopt(cn ,pi,at,O,A) {
 		    piow2ov[pi+1,"s"] = OPTVAL))
 					## Yes, set 2nd pass's shell.
 	    } else {
-		if (!piow2ov[pi+1,"q"]) printf "%s: '%s' is no shell!\n",
-			piow2ov[pi,"n"],OPTVAL | stderr
+		error(sprintf("invalid shell '%s'!",OPTVAL),pi)
 	    }
 	} else if (OPTNAM ~ /^(-u|--unquoted)$/) {
 					## No, saw option '-u|--unquoted'?
