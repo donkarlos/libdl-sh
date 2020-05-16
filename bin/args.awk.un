@@ -604,30 +604,52 @@ function args_getopt(cn ,pi,at,O,A) {
     }
 
     trace(sprintf("++pi=%u",++pi))	## Enter 2nd pass.
-    while ((at = getopt_shift(pi)) > AT_EOO) {
-					## While processing command's
-					## arguments do...
-	trace(sprintf("at=%d",at))
-	if (at < AT_ONA) {		## Saw argument?
-	    --ARGI			## Back argument index up.
-	    A = A " " quote_sh(ARGV[ARGI++],pi)
-					## Yes, quote and append it.
+    for (;;) {				## While in 2nd pass do...
+	if ((at = getopt_shift(pi)) < AT_ARG) {
+					## 2nd pass's options consumed?
+	    trace("break"); break	## Yes, leave 2nd pass.
+	} else if (at == AT_ARG) {	## Saw (non-option) argument?
+	    trace(sprintf("--ARGI=%u",--ARGI))
+					## Yes, back argument index up.
+	    if (ordered) {		## Output is ordered?
+		O = O quote_sh(ARGV[ARGI++],pi) " "
+		trace(sprintf("O=\"%s\"",O))
+					## Yes, fetch, quote, and append it
+	    } else {			## to LHS.
+		A = A " " quote_sh(ARGV[ARGI++],pi)
+		trace(sprintf("A=\"%s\"",A))
+					## No, fetch, quote, and append it
+	    }				## to RHS.
 	} else if (at == AT_ONA) {	## Saw option without value?
-	    O = O quote_sh(OPTNAM,pi) " "
-					## Yes, quote and append it.
+	    if (ordered) {		## Yes. Output is ordered?
+		O = O quote_sh(OPTNAM,pi) " "
+		trace(sprintf("O=\"%s\"",O))
+	    } else {			## Yes, quote and append it to LHS.
+		A = A " " quote_sh(OPTNAM,pi)
+		trace(sprintf("A=\"%s\"",A))
+	    }				## No, quote and append it to RHS.
 	} else {			## Saw option with value!
-	    O = O quote_sh(OPTNAM,pi) " " quote_sh(OPTVAL,pi) " "
-					## Quote and append it as well as
-	}				## its value.
+	    if (ordered) {		## Output is ordered?
+		O = O quote_sh(OPTNAM,pi) " " quote_sh(OPTVAL,pi) " "
+		trace(sprintf("O=\"%s\"",O))
+					## Yes, quote and append it as well as
+	    } else {			## its value to LHS.
+		A = A " " quote_sh(OPTNAM,pi) " " quote_sh(OPTVAL,pi)
+		trace(sprintf("A=\"%s\"",A))
+					## No, quote and append it as well as
+	    }				## its value to RHS.
+	}
     }
 
     if (at < AT_EOA) {			## Prior getopt_shift() failed?
 	leave("1"); return 1		## Yes, indicate failure!
     }
-    if (at == AT_EOO) while (ARGI < ARGC) A = A " " quote_sh(ARGV[ARGI++],pi)
-					## Quote and append remaining
-					## arguments.
+    while (ARGI < ARGC) {		## Foreach remaining argument do...
+	A = A " " quote_sh(ARGV[ARGI++],pi)
+	trace(sprintf("A=\"%s\"",A))	## Fetch, quote, and append it to RHS.
+    }
     if (!piow2ov[pi,"Q"]) printf "%s--%s\n",O,A
+					## Print result unless entirely quiet.
     leave("0"); return 0		## Indicate success.
 }
 
