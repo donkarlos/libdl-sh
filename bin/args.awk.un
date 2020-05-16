@@ -449,18 +449,17 @@ function args_getopt(cn ,pi,at,O,A) {
     enter("args_getopt",sprintf("cn=\"%s\"",cn))
     pi = 1				## Begin with 1st pass.
     piow2ov[pi+1,"n"] = piow2ov[pi,"n"] = cn
-    trace(sprintf("piow2ov[%u,\"n\"]=piow2ov[%u,\"n\"]=\"%s\"",pi+1,pi,cn))
-					## Preset pass' command name.
+    trace(sprintf("piow2ov[pi=%u,\"n\"]=piow2ov[pi=%u,\"n\"]=\"%s\"",	\
+	pi+1,pi,cn))			## Preset pass' command name.
 
     if ("POSIXLY_CORRECT" in ENVIRON) {	## POSIXLY_CORRECT present in env.?
-	++posixly			## Yes, force POSIX compliancy.
-	trace(sprintf("posixly=%u",posixly))
-    }
+	trace(sprintf("++posixly=%u",++posixly))
+    }					## Yes, force POSIX compliancy.
 
     if ("GETOPT_COMPATIBLE" in ENVIRON) {
 					## GETOPT_COMPATIBLE present in env.?
-	++compatible			## Yes, force compatibility mode.
-	trace(sprintf("compatible=%u",compatible))
+	trace(sprintf("++compatible=%u",++compatible))
+					## Yes, force compatibility mode.
     } else if (   getopt_add_optstring("ahl:n:o:qQs:uTV",pi)		\
 	       || getopt_add_longopts("alternative,help,longoptions:,"	\
 		    "name:,options:,quiet,quiet-output,shell:,unquoted,"\
@@ -476,42 +475,52 @@ function args_getopt(cn ,pi,at,O,A) {
 					## getopt(1) options consumed?
 	    ++pi; break			## Yes, leave 1st pass.
 	} else if (OPTNAM ~ /^(-a|--alternative)$/) {
-	    ++piow2ov[pi+1,"a"]		## Allow alternative long options.
-	    trace(sprintf("piow2ov[%u,\"a\"]=%u",pi+1,piow2ov[pi+1,"a"]))
+					## No, saw option '-a|--alternative'?
+	    trace(sprintf("++piow2ov[pi=%u,\"a\"]=%u",pi+1,		\
+		++piow2ov[pi+1,"a"]))	## Yes, allow alternative long options
+					## in 2nd pass.
 	} else if (OPTNAM ~ /^(-l|--longoptions)$/) {
+					## No, saw option '-l|--longoptions'?
 	    if (getopt_add_longopts(OPTVAL,pi+1)) {
-					## LONGOPTS added for command?
+					## Yes, 2nd pass's LONGOPTS added?
 		leave("3"); return 3	## No, indicate internal error!
 	    }
 	} else if (OPTNAM ~ /^(-n|--name)$/) {
-	    piow2ov[pi+1,"n"] = OPTVAL	## Update command name.
-	    trace(sprintf("piow2ov[%u,\"n\"]=\"%s\"",pi+1,piow2ov[pi+1,"n"]))
+					## No, saw option '-n|--name'?
+	    trace(sprintf("piow2ov[pi=%u,\"n\"]=\"%s\"",pi+1,		\
+		piow2ov[pi+1,"n"] = OPTVAL))
+					## Yes, set 2nd pass's command name.
 	} else if (OPTNAM ~ /^(-o|--options)$/) {
+					## No, saw option '-o|--options'?
 	    if (getopt_add_optstring(OPTVAL,pi+1)) {
-					## OPTSTRING added for command?
+					## Yes, 2nd pass's OPTSTRING added?
 		leave("3"); return 3	## No, indicate internal error!
 	    }
-	    ++piow2ov[pi+1,"o"]		## Count OPTSTRING occurence.
-	    trace(sprintf("piow2ov[%u,\"o\"]=%u",pi+1,piow2ov[pi+1,"o"]))
+	    trace(sprintf("++piow2ov[pi=%u,\"o\"]=%u",pi+1,		\
+		++piow2ov[pi+1,"o"]))	## Count OPTSTRING occurence.
 	} else if (OPTNAM ~ /^(-q|--quiet)$/) {
-	    ++piow2ov[pi+1,"q"]		## Become quiet.
-	    trace(sprintf("piow2ov[%u,\"q\"]=%u",pi+1,piow2ov[pi+1,"q"]))
+					## No, saw option '-q|--quiet'?
+	    trace(sprintf("++piow2ov[pi=%u,\"q\"]=%u",pi+1,		\
+		++piow2ov[pi+1,"q"]))	## Yes, make 2nd pass quiet.
 	} else if (OPTNAM ~ /^(-Q|--quiet-output)$/) {
-	    ++piow2ov[pi+1,"Q"]		## Don't print result.
-	    trace(sprintf("piow2ov[%u,\"Q\"]=%u",pi+1,piow2ov[pi+1,"Q"]))
+					## No, saw option '-Q|--quiet-output'?
+	    trace(sprintf("++piow2ov[pi=%u,\"Q\"]=%u",pi+1,		\
+		++piow2ov[pi+1,"Q"]))	## Yes, make 2nd pass entirely quiet.
 	} else if (OPTNAM ~ /^(-s|--shell)$/) {
+					## No, saw option '-s|--shell'?
 	    if (OPTVAL ~ /^([bd]?a|[ck])?sh$/) {
-		piow2ov[pi+1,"s"] = OPTVAL
-					## Update command's shell.
-		trace(sprintf("piow2ov[%u,\"s\"]=\"%s\"",pi+1,		\
-		    piow2ov[pi+1,"s"]))
+					## Yes. Valid shell specified?
+		trace(sprintf("piow2ov[pi=%u,\"s\"]=\"%s\"",pi+1,	\
+		    piow2ov[pi+1,"s"] = OPTVAL))
+					## Yes, set 2nd pass's shell.
 	    } else {
 		if (!piow2ov[pi+1,"q"]) printf "%s: '%s' is no shell!\n",
 			piow2ov[pi,"n"],OPTVAL | stderr
 	    }
 	} else if (OPTNAM ~ /^(-u|--unquoted)$/) {
-	    ++piow2ov[pi+1,"u"]		## Force unquoted output.
-	    trace(sprintf("piow2ov[%u,\"u\"]=%u",pi+1,piow2ov[pi+1,"u"]))
+					## No, saw option '-u|--unquoted'?
+	    trace(sprintf("++piow2ov[pi=%u,\"u\"]=%u",pi+1,		\
+		++piow2ov[pi+1,"u"]))	## Yes, don't quote 2nd pass's output.
 	}
     }
 
