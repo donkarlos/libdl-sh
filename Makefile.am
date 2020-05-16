@@ -22,6 +22,7 @@
 ##  WRITTEN BY:	ks	2013-02-12
 ##  CHANGED BY:	ks	2018-03-11	Import prebuilt autofinish scripts.
 ##		ks	2020-05-12	Import changelog generator.
+##		ks	2020-05-16	Import initial session stuff.
 ##
 ##  NOTE:   (1)	Update the build system with autoreconf(1).
 ##----------------------------------------------------------------------------
@@ -45,7 +46,6 @@ dist_noinst_DATA	= LICENSE
 noinst_SCRIPTS		= bin/args.awk					\
 			  bin/genchangelog				\
 			  bin/test-deb-version
-noinst_DATA		= lib/libsession.sh
 
 ##----------------------------------------------------------------------------
 ##  Distribute and install manpages:
@@ -98,7 +98,8 @@ shlib_DATA		= lib/libconf.sh				\
 			  lib/libemit.sh				\
 			  lib/libquote.sh				\
 			  lib/libundo.sh				\
-			  lib/libsafe.sh
+			  lib/libsafe.sh				\
+			  lib/libsession.sh
 man_MANS		= doc/libconf.3sh				\
 			  doc/libdl-sh.1				\
 			  doc/libdl-sh.conf.5				\

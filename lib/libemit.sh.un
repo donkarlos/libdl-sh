@@ -71,8 +71,13 @@ EOF
 		*)  return 1		;;
 	    esac'
 	    ;;
-	session-init|session-load|session-dump|session-exit)
-	    :				## Session init/load/dump/exit...
+	session-init)			## Initialize session...
+	    dl_dump "$mp" heads `
+		sed 'y/:/ /;s/^ //;s/[^ ]* /head_&/g;s/ $//' <<EOF
+$emit_heads
+EOF`	    ;;
+	session-load|session-dump|session-exit)
+	    :				## Session load/dump/exit...
 	    ;;				## ...is a no-op.
 	*)  return 2			## Anything else...
 	    ;;				## ...is misuse!
