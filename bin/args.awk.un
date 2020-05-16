@@ -474,6 +474,7 @@ function args_print() {
 ##					2nd pass processes invoker's options
 ##					and emits result)
 ##	- at		(W) Argument type returned by getopt_shift()
+##	- ac		(W) Argument count (used in POSIX-compliant mode)
 ##	- O		(W) Result's  left-hand side (LHS)
 ##	- A		(W) Result's right-hand side (RHS)
 ##
@@ -483,7 +484,7 @@ function args_print() {
 ##		with this function to ultimately attain full compatibility
 ##		with util-linux's getopt(1).
 ##----------------------------------------------------------------------------
-function args_getopt(cn ,pi,at,O,A) {
+function args_getopt(cn ,pi,at,ac,O,A) {
     enter("args_getopt",sprintf("cn=\"%s\"",cn))
     pi = 1				## Enter 1st pass.
     piow2ov[pi+1,"n"] = piow2ov[pi,"n"] = cn
@@ -603,7 +604,8 @@ function args_getopt(cn ,pi,at,O,A) {
 	}
     }
 
-    trace(sprintf("++pi=%u",++pi))	## Enter 2nd pass.
+    trace(sprintf("++pi=%u;ac=%u",++pi,ac = 0))
+					## Enter 2nd pass.
     for (;;) {				## While in 2nd pass do...
 	if ((at = getopt_shift(pi)) < AT_ARG) {
 					## 2nd pass's options consumed?
@@ -611,6 +613,9 @@ function args_getopt(cn ,pi,at,O,A) {
 	} else if (at == AT_ARG) {	## Saw (non-option) argument?
 	    trace(sprintf("--ARGI=%u",--ARGI))
 					## Yes, back argument index up.
+	    if (posixly) {		## In POSIX-compliant mode?
+		trace(sprintf("++ac=%u",++ac))
+	    }				## Yes, count argument.
 	    if (ordered) {		## Output is ordered?
 		O = O quote_sh(ARGV[ARGI++],pi) " "
 		trace(sprintf("O=\"%s\"",O))
@@ -621,15 +626,18 @@ function args_getopt(cn ,pi,at,O,A) {
 					## No, fetch, quote, and append it
 	    }				## to RHS.
 	} else if (at == AT_ONA) {	## Saw option without value?
-	    if (ordered) {		## Yes. Output is ordered?
+	    if (ordered || !ac) {	## Yes. Output is ordered or no argu-
+					## ment seen in POSIX-compliant mode?
 		O = O quote_sh(OPTNAM,pi) " "
 		trace(sprintf("O=\"%s\"",O))
 	    } else {			## Yes, quote and append it to LHS.
 		A = A " " quote_sh(OPTNAM,pi)
 		trace(sprintf("A=\"%s\"",A))
-	    }				## No, quote and append it to RHS.
+					## No, quote and append it to RHS
+	    }				## (as if it were an argument).
 	} else {			## Saw option with value!
-	    if (ordered) {		## Output is ordered?
+	    if (ordered || !ac) {	## Output is ordered or no argument
+					## seen in POSIX-compliant mode?
 		O = O quote_sh(OPTNAM,pi) " " quote_sh(OPTVAL,pi) " "
 		trace(sprintf("O=\"%s\"",O))
 					## Yes, quote and append it as well as
@@ -637,7 +645,8 @@ function args_getopt(cn ,pi,at,O,A) {
 		A = A " " quote_sh(OPTNAM,pi) " " quote_sh(OPTVAL,pi)
 		trace(sprintf("A=\"%s\"",A))
 					## No, quote and append it as well as
-	    }				## its value to RHS.
+					## its value to RHS (as if it were ar-
+	    }				## guments).
 	}
     }
 
