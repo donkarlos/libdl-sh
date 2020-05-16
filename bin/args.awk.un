@@ -220,7 +220,7 @@ function getopt_add_optstring(optstring,pi ,re,ow,on,at,oi) {
 
     re = compatible ? "^.:?:?" : "^[^-:]:?:?"
 					## Choose short option descriptor RE.
-    while (optstring) {			## While OPTSTRING is non-empty do...
+    while (optstring) {			## While OPTSTRING is not empty do...
 	if (!match(optstring,re)) {	## Looking at valid descriptor?
 	    error(sprintf("'%s' describes no short option!",optstring),pi)
 	    leave("1"); return 1	## No, complain and indicate failure!
