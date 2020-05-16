@@ -458,8 +458,10 @@ function args_getopt(cn ,pi,at,O,A) {
 
     if ("GETOPT_COMPATIBLE" in ENVIRON) {
 					## GETOPT_COMPATIBLE present in env.?
-	trace(sprintf("++compatible=%u",++compatible))
-					## Yes, force compatibility mode.
+	trace(sprintf("++compatible=%u;++piow2ov[pi=%u,\"u\"]=%u",	\
+	    ++compatible,pi+1,++piow2ov[pi+1,"u"]))
+					## Yes, force compatibility mode and
+					## imply unquoted output.
     } else if (   getopt_add_optstring("ahl:n:o:qQs:uTV",pi)		\
 	       || getopt_add_longopts("alternative,help,longoptions:,"	\
 		    "name:,options:,quiet,quiet-output,shell:,unquoted,"\
