@@ -544,6 +544,13 @@ function args_getopt(cn ,pi,at,O,A) {
 	leave("1"); return 1		## Yes, indicate failure!
     } else if (!piow2ov[pi+1,"o"]) {	## Saw OPTSTRING for 2nd pass?
 	if (ARGI < ARGC) {		## No, but arguments remain?
+	    if (!compatible && (ARGI == 2)) {
+					## Not in compatibility mode and OPT-
+					## STRING is 1st argument?
+		trace(sprintf("++compatible=%u;++piow2ov[pi=%u,\"u\"]"	\
+		    "=%u",++compatible,pi+1,++piow2ov[pi+1,"u"]))
+					## Yes, force compatibility mode and
+	    }				## imply unquoted output.
 	    if (!getopt_add_optstring(ARGV[ARGI++],pi+1)) {
 					## Yes, 2nd pass's OPTSTRING added?
 		trace(sprintf("++piow2ov[pi=%u,\"o\"]=%u",pi+1,		\
