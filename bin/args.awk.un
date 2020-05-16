@@ -485,6 +485,9 @@ function args_getopt(cn ,pi,at,O,A) {
 	    printf "%s (%s) %s\n",cn,"@PACKAGE_NAME@","@PACKAGE_VERSION@"
 					## Yes, show version and...
 	    leave("0"); return 0	## ...indicate success.
+	} else if (OPTNAM ~ /^(-T|--test)$/) {
+					## No, saw option '-V|--version'?
+	    leave("4"); return 4	## Yes, indicate modern getopt(1).
 	} else if (OPTNAM ~ /^(-a|--alternative)$/) {
 					## No, saw option '-a|--alternative'?
 	    trace(sprintf("++piow2ov[pi=%u,\"a\"]=%u",pi+1,		\
