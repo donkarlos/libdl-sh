@@ -447,7 +447,7 @@ function args_print() {
 ##----------------------------------------------------------------------------
 function args_getopt(cn ,pi,at,O,A) {
     enter("args_getopt",sprintf("cn=\"%s\"",cn))
-    pi = 1				## Begin with 1st pass.
+    pi = 1				## Enter 1st pass.
     piow2ov[pi+1,"n"] = piow2ov[pi,"n"] = cn
     trace(sprintf("piow2ov[pi=%u,\"n\"]=piow2ov[pi=%u,\"n\"]=\"%s\"",	\
 	pi+1,pi,cn))			## Preset pass' command name.
@@ -471,11 +471,15 @@ function args_getopt(cn ,pi,at,O,A) {
     }
 
     for (;;) {				## While in 1st pass do...
-	if (compatible) {		## In compatibility mode?
-	    ++ARGI; ++pi; break		## Yes, skip 1st pass entirely!
-	} else if ((at = getopt_shift(pi)) <= AT_ARG) {
-					## getopt(1) options consumed?
-	    ++pi; break			## Yes, leave 1st pass.
+	if (compatible || ((at = getopt_shift(pi)) < AT_ARG)) {
+					## In compatibility mode or
+					## 1st pass's options consumed?
+	    trace(sprintf("++pi=%u;break",++pi)); break
+					## Yes, leave 1st pass.
+	} else if (at == AT_ARG) {	## No, saw (non-option) argument?
+	    trace(sprintf("--ARGI=%u;++pi=%u;break",--ARGI,++pi)); break
+					## Yes, back argument index up and
+					## leave 1st pass.
 	} else if (OPTNAM ~ /^(-h|--help)$/) {
 					## No, saw option '-h|--help'?
 	    ## show help		## Yes, show help and...
@@ -539,12 +543,12 @@ function args_getopt(cn ,pi,at,O,A) {
 
     if (at < AT_EOA) {			## Prior getopt_shift() failed?
 	leave("1"); return 1		## Yes, indicate failure!
-    } else if (!piow2ov[pi,"o"]) {	## Any OPTSTRING seen so far?
+    } else if (!piow2ov[pi,"o"]) {	## Saw OPTSTRING for 2nd pass?
 	if (ARGI < ARGC) {		## No, but arguments remain?
 	    if (!getopt_add_optstring(ARGV[ARGI++],pi)) {
 					## Yes, 2nd pass's OPTSTRING added?
-		++piow2ov[pi,"o"]	## Yes, count OPTSTRING occurence.
-		trace(sprintf("piow2ov[pi=%u,\"o\"]=%u",pi,piow2ov[pi,"o"]))
+		trace(sprintf("++piow2ov[pi=%u,\"o\"]=%u",pi,		\
+		    ++piow2ov[pi,"o"]))	## Yes, count OPTSTRING occurence.
 	    } else {
 		leave("3"); return 3	## No, indicate internal error!
 	    }
@@ -554,12 +558,13 @@ function args_getopt(cn ,pi,at,O,A) {
 	}
     }
 
-    --ARGI; while ((at = getopt_shift(pi)) > AT_EOO) {
+    while ((at = getopt_shift(pi)) > AT_EOO) {
 					## While processing command's
 					## arguments do...
-	if (DEBUG) trace(sprintf("at=%d",at))
+	trace(sprintf("at=%d",at))
 	if (at < AT_ONA) {		## Saw argument?
-	    A = A " " quote_sh(ARGV[ARGI],pi)
+	    --ARGI			## Back argument index up.
+	    A = A " " quote_sh(ARGV[ARGI++],pi)
 					## Yes, quote and append it.
 	} else if (at == AT_ONA) {	## Saw option without value?
 	    O = O quote_sh(OPTNAM,pi) " "
@@ -569,7 +574,6 @@ function args_getopt(cn ,pi,at,O,A) {
 					## Quote and append it as well as
 	}				## its value.
     }
-    if (DEBUG) trace(sprintf("at=%d",at))
 
     if (at < AT_EOA) {			## Prior getopt_shift() failed?
 	leave("1"); return 1		## Yes, indicate failure!
