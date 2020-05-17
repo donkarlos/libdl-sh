@@ -37,6 +37,8 @@
 ##					Eliminate ++ARGI and ARGI--.
 ##					Defer entry into 2nd pass.
 ##					Overhaul 2nd pass and main program.
+##			2020-05-17	Count OPTSTRING occurences within
+##					getopt_add_optstring().
 ##
 ##  Global constants and variables:
 ##	- DEBUG		Debugging flag (set with '-vDEBUG=1')
@@ -206,6 +208,8 @@ function quote_sh(string,pi) {
 ##	- pion2oi[PI,ON](W) Per-pass option name -> index map
 ##	- pioi2on[PI,OI](W) Per-pass option index -> name map
 ##	- pioi2at[PI,OI](W) Per-pass option index -> type map
+##	- piow2ov[PI,"o"]
+##			(W) Per-pass OPTSTRING count
 ##  Local variables:
 ##	- re		(R) Mode-specific short option descriptor RE
 ##	- ow		(W) Option word
@@ -253,7 +257,9 @@ function getopt_add_optstring(optstring,pi ,re,ow,on,at,oi) {
 	optstring = substr(optstring,1+RLENGTH)
 	trace(sprintf("optstring=\"%s\"",optstring))
     }					## Consume descriptor.
-    leave("0"); return 0		## Indicate success.
+    trace(sprintf("++piow2ov[pi=%u,\"o\"]=%u",pi,++piow2ov[pi,"o"]))
+					## Count OPTSTRING occurence and
+    leave("0"); return 0		## indicate success.
 }
 
 ##----------------------------------------------------------------------------
@@ -470,7 +476,7 @@ function args_print() {
 ##	- piow2ov[PI,"a"]
 ##			(W) Per-pass alternative long options flag
 ##	- piow2ov[PI,"o"]
-##			(W) Per-pass OPTSTRING count
+##			(R) Per-pass OPTSTRING count
 ##	- piow2ov[PI,"q"]
 ##			(W) Per-pass quiet flag
 ##	- piow2ov[PI,"Q"]
@@ -531,7 +537,7 @@ function args_getopt(cn ,pi,at,ac,O,A) {
 	} else if (OPTNAM ~ /^(-h|--help)$/) {
 					## No, saw option '-h|--help'?
 	    ## show help		## Yes, show help and...
-	    leave("2"); return 2	## ...indicate usage error!
+	    leave("2"); return 2	## ...indicate "misuse"!
 	} else if (OPTNAM ~ /^(-V|--version)$/) {
 					## No, saw option '-V|--version'?
 	    printf "%s (%s) %s\n",cn,"@PACKAGE_NAME@","@PACKAGE_VERSION@"
@@ -562,8 +568,6 @@ function args_getopt(cn ,pi,at,ac,O,A) {
 					## Yes, 2nd pass's OPTSTRING added?
 		leave("3"); return 3	## No, indicate internal error!
 	    }
-	    trace(sprintf("++piow2ov[pi=%u,\"o\"]=%u",pi+1,		\
-		++piow2ov[pi+1,"o"]))	## Count OPTSTRING occurence.
 	} else if (OPTNAM ~ /^(-q|--quiet)$/) {
 					## No, saw option '-q|--quiet'?
 	    trace(sprintf("++piow2ov[pi=%u,\"q\"]=%u",pi+1,		\
@@ -600,17 +604,13 @@ function args_getopt(cn ,pi,at,ac,O,A) {
 		    "=%u",++compatible,pi+1,++piow2ov[pi+1,"u"]))
 					## Yes, force compatibility mode and
 	    }				## imply unquoted output.
-	    if (!getopt_add_optstring(ARGV[ARGI++],pi+1)) {
+	    if (getopt_add_optstring(ARGV[ARGI++],pi+1)) {
 					## Yes, 2nd pass's OPTSTRING added?
-		trace(sprintf("++piow2ov[pi=%u,\"o\"]=%u",pi+1,		\
-		    ++piow2ov[pi+1,"o"]))
-					## Yes, count OPTSTRING occurence.
-	    } else {
 		leave("3"); return 3	## No, indicate internal error!
 	    }
 	} else if (!compatible) {	## No. In compatibility mode?
 	    error("missing OPTSTRING!",pi)
-	    leave("2"); return 2	## No, indicate usage error!
+	    leave("2"); return 2	## No, indicate misuse!
 	}
     }
 
