@@ -22,6 +22,8 @@
 ##  WRITTEN BY:	ks	2013-02-12
 ##  CHANGED BY:	ks	2018-03-11	Import prebuilt autofinish scripts.
 ##		ks	2020-05-12	Import changelog generator.
+##		ks	2020-05-16	Move `conf.awk' and `args.awk' to lib-
+##					exec/.
 ##
 ##  NOTE:   (1)	Update the build system with autoreconf(1).
 ##----------------------------------------------------------------------------
@@ -42,9 +44,9 @@ dist_noinst_DATA	= LICENSE
 ##----------------------------------------------------------------------------
 ##  Finish scripts and libraries:
 ##----------------------------------------------------------------------------
-noinst_SCRIPTS		= bin/args.awk					\
-			  bin/genchangelog				\
-			  bin/test-deb-version
+noinst_SCRIPTS		= bin/genchangelog				\
+			  bin/test-deb-version				\
+			  libexec/args.awk
 noinst_DATA		= lib/libsession.sh
 
 ##----------------------------------------------------------------------------
@@ -92,7 +94,7 @@ dist_man_MANS		= doc/conf_get.3sh				\
 ##  Finish and install scripts, libraries, manpages, and package data:
 ##----------------------------------------------------------------------------
 bin_SCRIPTS		= bin/libdl-sh
-pkgdata_SCRIPTS		= lib/conf.awk
+pkgdata_SCRIPTS		= libexec/conf.awk
 shlib_DATA		= lib/libconf.sh				\
 			  lib/libdl.sh					\
 			  lib/libemit.sh				\
