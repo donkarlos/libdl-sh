@@ -221,14 +221,18 @@ function getopt_add_optstring(optstring,pi ,re,ow,on,at,oi) {
     enter("getopt_add_optstring",sprintf("optstring=\"%s\",pi=%u",	\
 	optstring,pi))
     if (optstring ~ /^\+/) {		## OPSTRING has leading '+'?
-	if (!compatible) ++posixly	## Yes, force POSIX compliancy (unless
-	sub(/^./,"",optstring)		## in compatibility mode) and consume
-					## leading '+'.
+	if (!(piow2ov[pi,"o"] || compatible)) ++posixly
+					## Yes, force POSIX compliancy (unless
+					## a prior OPTSTRING had been seen
+					## or in compatibility mode)
+	sub(/^./,"",optstring)		## and consume leading '+'.
 	trace(sprintf("posixly=%u;optstring=\"%s\"",posixly,optstring))
     } else if (optstring ~ /^-/) {	## OPSTRING has leading '-'?
-	if (!compatible) ++ordered	## Yes, force output ordering (unless
-	sub(/^./,"",optstring)		## in compatibility mode) and consume
-					## leading '-'.
+	if (!(piow2ov[pi,"o"] || !compatible)) ++ordered
+					## Yes, force ordered output (unless
+					## a prior OPTSTRING had been seen
+					## or in compatibility mode)
+	sub(/^./,"",optstring)		## and consume leading '-'.
 	trace(sprintf("ordered=%u;optstring=\"%s\"",ordered,optstring))
     }
 
