@@ -238,7 +238,7 @@ function getopt_add_optstring(optstring,pi ,re,ow,on,at,oi) {
     } else if (optstring ~ /^-/) {	## OPSTRING has leading '-'?
 	if (!(piow2ov[pi,"o"] || compatible)) {
 	    ordered = TRUE		## Yes, force ordered output (unless
-					## a prior OPTSTRING had been seen
+	    posixly = FALSE		## a prior OPTSTRING had been seen
 	}				## or in compatibility mode)
 	sub(/^./,"",optstring)		## and consume leading '-'.
     }
