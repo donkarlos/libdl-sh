@@ -46,6 +46,7 @@
 ##					opt().
 ##					Count LONGOPTS occurences within
 ##					getopt_add_longopts().
+##					Count errors.
 ##
 ##  Global constants and variables:
 ##	- DEBUG		Debugging flag (set with '-vDEBUG=1')
@@ -441,6 +442,7 @@ function args_print() {
 ##	- pi		(W) Pass index (1st pass processes getopt(1) options,
 ##					2nd pass processes invoker's options
 ##					and emits result)
+##	- ec		(W) Error count
 ##	- arg		(W) Fetched argument
 ##	- at		(W) Argument type
 ##	- on		(W) Option name
@@ -453,10 +455,10 @@ function args_print() {
 ##
 ##  TODO:   (1)	getopt(1) option '-h|--help' so far doesn't show usage.
 ##----------------------------------------------------------------------------
-function args_getopt(cn ,pi,arg,on,ov,oi,at,ep,O,A) {
+function args_getopt(cn ,pi,ec,arg,on,ov,oi,at,ep,O,A) {
     enter("args_getopt",sprintf("cn=\"%s\"",cn))
     posixly = ordered = compatible = FALSE
-    pi = 1				## Enter 1st pass.
+    pi = 1; ec = 0			## Enter 1st pass.
     set_property(pi,"n",cn); set_property(pi+1,"n",cn)
 					## Preset pass' command name.
     if ("POSIXLY_CORRECT" in ENVIRON) {	## POSIXLY_CORRECT present in env.?
@@ -491,7 +493,7 @@ function args_getopt(cn ,pi,arg,on,ov,oi,at,ep,O,A) {
 					## 2nd pass's OPTSTRING added?
 		leave("3"); return 3	## No, indicate internal error!
 	    }
-	    arg = ARGV[ARGI++]; trace(sprintf("arg=\"%s\"",arg))
+	    arg = ARGV[ARGI++]; trace(sprintf("ec=%u;arg=\"%s\"",ec,arg))
 					## Yes, fetch next argument.
 	    if (match(arg,re_option)) {	## Looking at short option?
 		on = substr(arg,RSTART,RLENGTH)
@@ -507,7 +509,7 @@ function args_getopt(cn ,pi,arg,on,ov,oi,at,ep,O,A) {
 		    unshift("-" arg)	## Yes, fake long option and give that
 		    continue		## another try.
 		} else {
-		    error(sprintf("%s: unknown option!",on),pi)
+		    ++ec; error(sprintf("%s: unknown option!",on),pi)
 		    if (ov) unshift("-" ov)
 					## No, count error, complain, push
 		    continue		## value back as short options, and
@@ -526,7 +528,7 @@ function args_getopt(cn ,pi,arg,on,ov,oi,at,ep,O,A) {
 			ov = ARGV[ARGI++]; trace(sprintf("ov=\"%s\"",ov))
 					## Yes, fetch value.
 		    } else {
-			error(sprintf("%s: missing value!",on),pi)
+			++ec; error(sprintf("%s: missing value!",on),pi)
 			trace(sprintf("at=%s",at2sy[at = AT_ERR]))
 					## No, count error, complain, and
 		    }			## indicate failure!
@@ -543,11 +545,11 @@ function args_getopt(cn ,pi,arg,on,ov,oi,at,ep,O,A) {
 		    on = pioi2on[pi,oi]	## Yes, fetch full name and option
 		    at = pioi2at[pi,oi]	## type.
 		} else if (oi < 0) {	## No, is it ambiguous?
-		    error(sprintf("%s: ambiguous option!",on),pi)
+		    ++ec; error(sprintf("%s: ambiguous option!",on),pi)
 		    continue		## Yes, complain and
 					## give next argument a try.
 		} else {		## Option is unknown!
-		    error(sprintf("%s: unknown option!",on),pi)
+		    ++ec; error(sprintf("%s: unknown option!",on),pi)
 		    continue		## Complain and
 		}			## give next argument a try.
 		if (ep) {		## Option's value "glued" to name?
@@ -567,7 +569,7 @@ function args_getopt(cn ,pi,arg,on,ov,oi,at,ep,O,A) {
 			ov = ARGV[ARGI++]; trace(sprintf("ov=\"%s\"",ov))
 					## Yes, fetch value.
 		    } else {
-			error(sprintf("%s: missing value!",on),pi)
+			++ec; error(sprintf("%s: missing value!",on),pi)
 			trace(sprintf("at=%s",at2sy[at = AT_ERR]))
 					## No, count error, complain, and
 		    }			## indicate failure!
@@ -639,7 +641,7 @@ function args_getopt(cn ,pi,arg,on,ov,oi,at,ep,O,A) {
 		    set_property(pi+1,"s",ov)
 					## Yes, set 2nd pass's shell.
 		} else {
-		    error(sprintf("invalid shell '%s'!",ov),pi)
+		    ++ec; error(sprintf("invalid shell '%s'!",ov),pi)
 		}
 	    } else if (on ~ /^(-u|--unquoted)$/) {
 					## No, saw option '-u|--unquoted'?
@@ -692,8 +694,8 @@ function args_getopt(cn ,pi,arg,on,ov,oi,at,ep,O,A) {
     }
     if (!piow2ov[pi,"Q"]) printf "%s--%s\n",O,A
 					## Print result unless entirely quiet.
-    leave("0"); return 0		## Indicate success.
-}
+    leave(sprintf("%u",(ec > 0))); return (ec > 0)
+}					## Indicate success or failure.
 
 ##----------------------------------------------------------------------------
 ##  Main program:
