@@ -46,6 +46,7 @@
 ##  Global constants and variables:
 ##	- DEBUG		Debugging flag (set with '-vDEBUG=1')
 ##	- FALSE/TRUE	Boolean constants
+##	- bv2sy[BV]	Boolean value -> symbol map
 ##	- compatible	Compatibility mode flag
 ##	- posixly	POSIX compliancy flag
 ##	- ordered	Ordered output flag
@@ -86,10 +87,9 @@
 ##  Initialization:
 #-----------------------------------------------------------------------------
 BEGIN {
-    FALSE = 0; TRUE = !FALSE		## Define booleans.
-    bv2sy[FALSE]		= "FALSE"
-    bv2sy[TRUE]			= "TRUE"
-
+    bv2sy[FALSE	= 0	]	= "FALSE"
+    bv2sy[TRUE	= !FALSE]	= "TRUE"
+					## Define booleans.
     re_option			= "^-[^-]"
     re_altlongopt		= "^(-[^-=]+)+"
     re_longopt			= "^-(-[^-=]+)+"
@@ -222,6 +222,20 @@ function inc_property(pi,ow) {
 }
 
 ##----------------------------------------------------------------------------
+##  become_compatible(PI)	Force compatibility mode for PI-th pass
+##
+##  Global variables:
+##	- compatible	(W) Compatibility mode flag
+##	- bv2sy[BV]	(R) Boolean value -> symbol map
+##	- piow2ov[PI,"u"]
+##			(R) Per-pass unquoted output flag
+##----------------------------------------------------------------------------
+function become_compatible(pi) {
+    compatible = TRUE; trace(sprintf("compatible=%s",bv2sy[compatible]))
+    inc_property(pi,"u")		## Force compatibility mode, implying
+}					## unquoted output for PI-th pass.
+
+##----------------------------------------------------------------------------
 ##  getopt_add_optstring(OPTSTRING,PI)
 ##				Add short options described by OPTSTRING to
 ##				PI-th pass
@@ -229,6 +243,7 @@ function inc_property(pi,ow) {
 ##	- compatible	(R) Compatibility mode flag
 ##	- posixly	(W) POSIX compliancy flag
 ##	- ordered	(W) Ordered output flag
+##	- bv2sy[BV]	(R) Boolean value -> symbol map
 ##	- RSTART	(W) match() start position
 ##	- RLENGTH	(W) match() length
 ##	- at2sy[AT]	(R) Argument type -> symbol map
@@ -545,9 +560,7 @@ function args_getopt(cn ,pi,at,ac,O,A) {
 
     if ("GETOPT_COMPATIBLE" in ENVIRON) {
 					## GETOPT_COMPATIBLE present in env.?
-	compatible = TRUE; trace(sprintf("compatible=%s",bv2sy[compatible]))
-	inc_property(pi+1,"u")		## Yes, force compatibility mode and
-					## imply unquoted output.
+	become_compatible(pi+1)		## Yes, force compatibility mode.
     } else if (   getopt_add_optstring("ahl:n:o:qQs:uTV",pi)		\
 	       || getopt_add_longopts("alternative,help,longoptions:,"	\
 		    "name:,options:,quiet,quiet-output,shell:,unquoted,"\
@@ -624,9 +637,7 @@ function args_getopt(cn ,pi,at,ac,O,A) {
 	    if (!compatible && (ARGI == 2)) {
 					## Not in compatibility mode and OPT-
 					## STRING is 1st argument?
-		compatible = TRUE; trace(sprintf("compatible=%s",	\
-		    bv2sy[compatible]))	## Yes, force compatibility mode and
-		inc_property(pi+1,"u")	## imply unquoted output.
+		become_compatible(pi+1)	## Yes, force compatibility mode.
 	    }
 	    if (getopt_add_optstring(ARGV[ARGI++],pi+1)) {
 					## Yes, 2nd pass's OPTSTRING added?
