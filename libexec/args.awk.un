@@ -44,6 +44,8 @@
 ##					genuine booleans.
 ##					Merge getopt_shift() into args_get-
 ##					opt().
+##					Count LONGOPTS occurences within
+##					getopt_add_longopts().
 ##
 ##  Global constants and variables:
 ##	- DEBUG		Debugging flag (set with '-vDEBUG=1')
@@ -72,6 +74,8 @@
 ##			 (uses subset AT_{ONA,OOA,ORA})
 ##	- piow2ov[PI,"a"]
 ##			Per-pass alternative long options flag
+##	- piow2ov[PI,"l"]
+##			Per-pass LONGOPTS count
 ##	- piow2ov[PI,"n"]
 ##			Per-pass command name
 ##	- piow2ov[PI,"o"]
@@ -326,6 +330,8 @@ function getopt_add_optstring(optstring,pi ,re,ow,on,at,oi) {
 ##	- pion2oi[PI,ON](W) Per-pass option name -> index map
 ##	- pioi2on[PI,OI](W) Per-pass option index -> name map
 ##	- pioi2at[PI,OI](W) Per-pass option index -> type map
+##	- piow2ov[PI,"l"]
+##			(W) Per-pass LONGOPTS count
 ##  Local variables:
 ##	- di		(W) Descriptor index
 ##	- dc		(R) Descriptor count
@@ -338,7 +344,11 @@ function getopt_add_optstring(optstring,pi ,re,ow,on,at,oi) {
 ##----------------------------------------------------------------------------
 function getopt_add_longopts(longopts,pi ,di,dc,dv,cp,ow,on,at,oi) {
     enter("getopt_add_longopts",sprintf("longopts=\"%s\",pi=%u",longopts,pi))
-    di = 0; dc = split(longopts,dv,/,/)	## Split LONGOPTS into descriptors.
+    di = 0; dc = split(longopts,dv,/,/); if (!dc) {
+					## Split LONGOPTS into descriptor(s)?
+	error("no long option descriptor(s) passed!",pi)
+	leave("1"); return 1		## No, complain and indicate failure!
+    }
     while (++di <= dc) {		## Foreach descriptor do...
 	if (!match(dv[di],/^[^-=:]+(-[^-=:]+)*:?:?$/)) {
 					## Description is valid?
@@ -380,7 +390,8 @@ function getopt_add_longopts(longopts,pi ,di,dc,dv,cp,ow,on,at,oi) {
 	    }
 	}
     }
-    leave("0"); return 0		## Indicate success.
+    inc_property(pi,"l")		## Count LONGOPTS occurence and
+    leave("0"); return 0		## indicate success.
 }
 
 ##----------------------------------------------------------------------------
