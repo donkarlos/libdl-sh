@@ -39,6 +39,7 @@
 ##					Overhaul 2nd pass and main program.
 ##			2020-05-17	Count OPTSTRING occurences within
 ##					getopt_add_optstring().
+##			2020-05-18	Use RE variables.
 ##
 ##  Global constants and variables:
 ##	- DEBUG		Debugging flag (set with '-vDEBUG=1')
@@ -84,6 +85,10 @@
 #-----------------------------------------------------------------------------
 BEGIN {
     FALSE = 0; TRUE = !FALSE		## Define booleans.
+
+    re_option			= "^-[^-]"
+    re_altlongopt		= "^(-[^-=]+)+"
+    re_longopt			= "^-(-[^-=]+)+"
 
     at				= -4	## Enumerate argument types...
     at2sy[AT_ERR = ++at]	= "AT_ERR"
@@ -377,7 +382,7 @@ function getopt_shift(pi ,arg,on,ov,oi,at,ep) {
 	leave(at2sy[AT_EOA]); return AT_EOA
     }					## No, indicate exhaustion!
 
-    if (match(arg,/^-[^-]/)) {		## Looking at short option?
+    if (match(arg,re_option)) {		## Looking at short option?
 	on = substr(arg,RSTART,RLENGTH)	## Yes, split it into name and value.
 	trace(sprintf("on=\"%s\"",on))
 	ov = substr(arg,RSTART+RLENGTH)
@@ -403,7 +408,7 @@ function getopt_shift(pi ,arg,on,ov,oi,at,ep) {
 	    }
 	    trace(sprintf("OPTNAM=\"%s\";OPTVAL=\"%s\"",on,ov))
 	    leave(at2sy[at]); OPTNAM = on; OPTVAL = ov; return at
-	} else if (!piow2ov[pi,"a"] || (arg !~ /^(-[^-=]+)+/)) {
+	} else if (!piow2ov[pi,"a"] || (arg !~ re_altlongopt)) {
 					## Alternative long options allowed
 					## and option looks like such?
 	    error(sprintf("%s: unknown option!",on),pi)
@@ -412,7 +417,7 @@ function getopt_shift(pi ,arg,on,ov,oi,at,ep) {
 	arg = "-" arg			## Fake long option.
 	trace(sprintf("arg=\"%s\"",arg))
     }
-    if (match(arg,/^-(-[^-=]+)+/)) {	## Looking at long option?
+    if (match(arg,re_longopt)) {		## Looking at long option?
 	on = substr(arg,RSTART,RLENGTH)	## Yes, identify name.
 	trace(sprintf("on=\"%s\"",on))
 	if (!(oi = pion2oi[pi,on])) {	## Registered for PI-th pass?
