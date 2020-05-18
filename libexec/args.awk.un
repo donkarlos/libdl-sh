@@ -27,7 +27,7 @@
 ##					Print error messages with error().
 ##					Also trace to stderr.
 ##			2020-05-15	Use system("echo '...' >&2").
-##					Recognize POSIX-compliant mode.
+##					Recognize POSIX compliancy mode.
 ##					Recognize scan mode prefices.
 ##			2020-05-16	Emit error messages with error().
 ##					Imply unquoted output in compatibility
@@ -42,6 +42,8 @@
 ##			2020-05-18	Use RE variables.
 ##					Make compatible, posixly, and ordered
 ##					genuine booleans.
+##					Merge getopt_shift() into args_get-
+##					opt().
 ##
 ##  Global constants and variables:
 ##	- DEBUG		Debugging flag (set with '-vDEBUG=1')
@@ -393,109 +395,6 @@ function unshift(arg) {
 }
 
 ##----------------------------------------------------------------------------
-##  getopt_shift(PI)		Fetch next option/argument in PI-th pass
-##
-##  Global variables:
-##	- ARGC		(R) Argument count
-##	- RSTART	(W) match() start position
-##	- RLENGTH	(W) match() length
-##	- OPTNAM	(W) Parsed option name
-##	- OPTVAL	(W) Parsed option value
-##	- at2sy[AT]	(R) Argument type -> symbol map
-##	- pion2oi[PI,ON](W) Per-pass option name -> index map
-##	- pioi2on[PI,OI](W) Per-pass option index -> name map
-##	- pioi2at[PI,OI](W) Per-pass option index -> type map
-##  Local variables:
-##	- arg		(W) Fetched argument
-##	- on		(W) Option name
-##	- ov		(W) Option value
-##	- oi		(W) Option index
-##	- at		(W) Fetched argument's type
-##	- ep		(W) '=' position
-##----------------------------------------------------------------------------
-function getopt_shift(pi ,arg,on,ov,oi,at,ep) {
-    enter("getopt_shift",sprintf("pi=%u",pi))
-    if (ARGI < ARGC) {			## Arguments remain?
-	arg = ARGV[ARGI++]; trace(sprintf("arg=\"%s\"",arg))
-    } else {				## Yes, fetch next argument.
-	leave(at2sy[AT_EOA]); return AT_EOA
-    }					## No, indicate exhaustion!
-
-    if (match(arg,re_option)) {		## Looking at short option?
-	on = substr(arg,RSTART,RLENGTH)	## Yes, split it into name and value.
-	trace(sprintf("on=\"%s\"",on))
-	ov = substr(arg,RSTART+RLENGTH)
-	if (oi = pion2oi[pi,on]) {	## Registered for PI-th pass?
-	    at = pioi2at[pi,oi]		## Yes, fetch argument type.
-	    if (ov) {			## Value is "glued" to name?
-		if (at >= AT_OOA) {	## Yes, and option wants value?
-		    at = AT_ORA		## Yes, supply it.
-		} else {
-		    unshift("-" ov)	## No, push glued short options back.
-		}
-	    } else {			## No value "glued" to name!
-		if (at <= AT_OOA) {	## Option requires value?
-		    at = AT_ONA		## No, don't supply it.
-		} else if (ARGI < ARGC) {
-					## Arguments remain?
-		    ov = ARGV[ARGI++]	## Yes, fetch value.
-		    trace(sprintf("ov=\"%s\"",ov))
-		} else {
-		    error(sprintf("%s: missing value!",on),pi)
-		    leave(at2sy[AT_ERR]); return AT_ERR
-		}			## No, complain and indicate failure!
-	    }
-	    trace(sprintf("OPTNAM=\"%s\";OPTVAL=\"%s\"",on,ov))
-	    leave(at2sy[at]); OPTNAM = on; OPTVAL = ov; return at
-	} else if (!piow2ov[pi,"a"] || (arg !~ re_altlongopt)) {
-					## Alternative long options allowed
-					## and option looks like such?
-	    error(sprintf("%s: unknown option!",on),pi)
-	    leave(at2sy[AT_ERR]); return AT_ERR
-	}				## No, complain and indicate failure!
-	arg = "-" arg			## Fake long option.
-	trace(sprintf("arg=\"%s\"",arg))
-    }
-    if (match(arg,re_longopt)) {		## Looking at long option?
-	on = substr(arg,RSTART,RLENGTH)	## Yes, identify name.
-	trace(sprintf("on=\"%s\"",on))
-	if (!(oi = pion2oi[pi,on])) {	## Registered for PI-th pass?
-	    error(sprintf("%s: unknown option!",on),pi)
-	    leave(at2sy[AT_ERR]); return AT_ERR
-					## No, complain and indicate failure!
-	} else if (oi < 0) {		## Unambiguous?
-	    error(sprintf("%s: ambiguous option!",on),pi)
-	    leave(at2sy[AT_ERR]); return AT_ERR
-	}				## No, complain and indicate failure!
-	at = pioi2at[pi,oi]		## Fetch argument type and full name.
-	on = pioi2on[pi,oi]
-	if (ep = index(arg,"=")) {	## Value is "glued" to name?
-	    if (at >= AT_OOA) {		## Yes, and option wants value?
-		at = AT_ORA; ov = substr(arg,ep+1)
-	    } else {			## Yes, supply it.
-		error(sprintf("%s: excess value (ignored).",on),pi)
-	    }				## No, warn about excess value.
-	} else {			## No value "glued" to name!
-	    if (at <= AT_OOA) {		## Option requires value?
-		at = AT_ONA		## No, don't supply it.
-	    } else if (ARGI < ARGC) {	## Yes, and arguments remain?
-		ov = ARGV[ARGI++]	## Yes, fetch value.
-		trace(sprintf("ov=\"%s\"",ov))
-	    } else {
-		error(sprintf("%s: missing value!",on),pi)
-		leave(at2sy[AT_ERR]); return AT_ERR
-	    }				## No, complain and indicate failure!
-	}
-	trace(sprintf("OPTNAM=\"%s\";OPTVAL=\"%s\"",on,ov))
-	leave(at2sy[at]); OPTNAM = on; OPTVAL = ov; return at
-    }
-    if (arg == "--") {			## Looking at end-of-option marker?
-	leave(at2sy[AT_EOO]); return AT_EOO
-    }					## Yes, consume and return it.
-    leave(at2sy[AT_ARG]); return AT_ARG
-}
-
-##----------------------------------------------------------------------------
 ##  args_print()		Print command line parameters
 ##
 ##  Global variables:
@@ -514,41 +413,36 @@ function args_print() {
 ##  args_getopt(CN)		Emulate getopt(1)
 ##
 ##  Global variables:
+##	- ARGI		(W) Argument index
+##	- ARGC		(R) Argument count
+##	- ARGV[ARGI]	(W) Argument vector
+##	- RSTART	(W) match() start position
+##	- RLENGTH	(W) match() length
 ##	- compatible	(W) Compatibility mode flag
 ##	- posixly	(W) POSIX compliancy flag
 ##	- ordered	(R) Ordered output flag
-##	- piow2ov[PI,"n"]
-##			(W) Per-pass command name
-##	- piow2ov[PI,"u"]
-##			(W) Per-pass unquoted output flag
-##	- piow2ov[PI,"a"]
-##			(W) Per-pass alternative long options flag
-##	- piow2ov[PI,"o"]
-##			(R) Per-pass OPTSTRING count
-##	- piow2ov[PI,"q"]
-##			(W) Per-pass quiet flag
-##	- piow2ov[PI,"Q"]
-##			(W) Per-pass suppress output flag
-##	- piow2ov[PI,"s"]
-##			(W) Per-pass shell
-##	- OPTNAM	(R) Option name  parsed by getopt_shift()
-##	- OPTVAL	(R) Option value parsed by getopt_shift()
+##	- bv2sy[BV]	(R) Boolean value -> symbol map
+##	- at2sy[AT]	(R) Argument type -> symbol map
+##	- pion2oi[PI,ON](R) Per-pass option name -> index map
+##	- pioi2on[PI,OI](R) Per-pass option index -> name map
+##	- pioi2at[PI,OI](R) Per-pass option index -> type map
 ##  Local variables:
 ##	- pi		(W) Pass index (1st pass processes getopt(1) options,
 ##					2nd pass processes invoker's options
 ##					and emits result)
-##	- at		(W) Argument type returned by getopt_shift()
-##	- ac		(W) Argument count (used in POSIX-compliant mode)
+##	- arg		(W) Fetched argument
+##	- at		(W) Argument type
+##	- on		(W) Option name
+##	- ov		(W) Option value
+##	- oi		(W) Option index
+##	- at		(W) Fetched argument's type
+##	- ep		(W) '=' position
 ##	- O		(W) Result's  left-hand side (LHS)
 ##	- A		(W) Result's right-hand side (RHS)
 ##
 ##  TODO:   (1)	getopt(1) option '-h|--help' so far doesn't show usage.
-##	    (2) getopt_shift() turns out to be a kludge (particularly with re-
-##		gard to non-option argument handling). It'd better be merged
-##		with this function to ultimately attain full compatibility
-##		with util-linux's getopt(1).
 ##----------------------------------------------------------------------------
-function args_getopt(cn ,pi,at,ac,O,A) {
+function args_getopt(cn ,pi,arg,on,ov,oi,at,ep,O,A) {
     enter("args_getopt",sprintf("cn=\"%s\"",cn))
     posixly = ordered = compatible = FALSE
     pi = 1				## Enter 1st pass.
@@ -569,129 +463,212 @@ function args_getopt(cn ,pi,at,ac,O,A) {
 	leave("3"); return 3		## No, indicate internal error!
     }
 
-    for (;;) {				## While in 1st pass do...
-	if (compatible || ((at = getopt_shift(pi)) < AT_ARG)) {
-					## In compatibility mode or
-					## 1st pass's options consumed?
-	    trace("break"); break	## Yes, leave 1st pass.
-	} else if (at == AT_ARG) {	## No, saw (non-option) argument?
-	    trace(sprintf("--ARGI=%u;break",--ARGI)); break
-					## Yes, back argument index up and
-					## leave 1st pass.
-	} else if (OPTNAM ~ /^(-h|--help)$/) {
+    for (;;) {				## While processing arguments do...
+	if (ARGI < ARGC) {		## Arguments remain?
+	    if ((pi == 1) && compatible) {
+					## In 1st pass and compatibility mode?
+		trace(sprintf("++pi=%u;continue",++pi))
+		continue		## Yes, immediately enter 2nd pass.
+	    } else if ((pi == 2) && !piow2ov[pi,"o"]) {
+					## In 2nd pass and no OPTSTRING seen?
+		if (!compatible && (ARGI == 2)) {
+					## Yes. Not in compatibility mode and
+					## looking at 1st argument?
+		    become_compatible(pi)
+		}			## Yes, force compatibility mode.
+		if (!getopt_add_optstring(ARGV[ARGI++],pi)) continue
+					## 2nd pass's OPTSTRING added?
+		leave("3"); return 3	## No, indicate internal error!
+	    }
+	    arg = ARGV[ARGI++]; trace(sprintf("arg=\"%s\"",arg))
+					## Yes, fetch next argument.
+	    if (match(arg,re_option)) {	## Looking at short option?
+		on = substr(arg,RSTART,RLENGTH)
+		ov = substr(arg,RSTART+RLENGTH)
+		trace(sprintf("on=\"%s\";ov=\"%s\"",on,ov))
+					## Yes, split it into name and value.
+		if ((oi = pion2oi[pi,on]) > 0) {
+					## Option registered for PI-th pass?
+		    at = pioi2at[pi,oi]	## Yes, fetch argument type.
+		} else if (piow2ov[pi,"a"] && (arg ~ re_altlongopt)) {
+					## Alternative long options allowed
+					## and option looks like such?
+		    unshift("-" arg)	## Yes, fake long option and give that
+		    continue		## another try.
+		} else {
+		    error(sprintf("%s: unknown option!",on),pi)
+		    if (ov) unshift("-" ov)
+					## No, count error, complain, push
+		    continue		## value back as short options, and
+		}			## give these another try.
+		if (ov) {		## Option's value "glued" to name?
+		    if (at >= AT_OOA) {	## Yes, and option wants value?
+			at = AT_ORA	## Yes, supply it.
+		    } else {
+			unshift("-" ov)	## No, push value back as options.
+		    }
+		} else {		## No value "glued" to option name!
+		    if (at <= AT_OOA) {	## But option requires value?
+			at = AT_ONA	## No, don't supply it.
+		    } else if (ARGI < ARGC) {
+					## Yes, and arguments remain?
+			ov = ARGV[ARGI++]; trace(sprintf("ov=\"%s\"",ov))
+					## Yes, fetch value.
+		    } else {
+			error(sprintf("%s: missing value!",on),pi)
+			trace(sprintf("at=%s",at2sy[at = AT_ERR]))
+					## No, count error, complain, and
+		    }			## indicate failure!
+		}
+	    } else if (match(arg,re_longopt)) {
+					## Looking at long option?
+		on = substr(arg,RSTART,RLENGTH); ep = RSTART + RLENGTH
+		trace(sprintf("on=\"%s\";ep=%u",on,ep))
+					## Yes, extract option's name.
+		if (!substr(arg,ep,1)) ep = 0
+					## Rectify '=' position.
+		if ((oi = pion2oi[pi,on]) > 0) {
+					## Option registered for PI-th pass?
+		    on = pioi2on[pi,oi]	## Yes, fetch full name and option
+		    at = pioi2at[pi,oi]	## type.
+		} else if (oi < 0) {	## No, is it ambiguous?
+		    error(sprintf("%s: ambiguous option!",on),pi)
+		    continue		## Yes, complain and
+					## give next argument a try.
+		} else {		## Option is unknown!
+		    error(sprintf("%s: unknown option!",on),pi)
+		    continue		## Complain and
+		}			## give next argument a try.
+		if (ep) {		## Option's value "glued" to name?
+		    if (at >= AT_OOA) {	## Yes, and option wants value?
+			at = AT_ORA; ov = substr(arg,ep+1)
+			trace(sprintf("at=%s;ov=\"%s\"",at2sy[at],ov))
+		    } else {		## Yes, supply it.
+			error(sprintf("%s: excess value (ignored).",on),pi)
+		    }			## No, warn about excess value.
+		} else {		## No value "glued" to option name!
+		    if (at <= AT_OOA) {	## But option requires value?
+			at = AT_ONA; ov = ""
+			trace(sprintf("at=%s;ov=\"%s\"",at2sy[at],ov))
+					## No, don't supply it.
+		    } else if (ARGI < ARGC) {
+					## Yes, and arguments remain?
+			ov = ARGV[ARGI++]; trace(sprintf("ov=\"%s\"",ov))
+					## Yes, fetch value.
+		    } else {
+			error(sprintf("%s: missing value!",on),pi)
+			trace(sprintf("at=%s",at2sy[at = AT_ERR]))
+					## No, count error, complain, and
+		    }			## indicate failure!
+		}
+	    } else if (arg == "--") {	## Looking at end-of-option marker?
+		trace(sprintf("at=%s",at2sy[at = AT_EOO]))
+	    } else {			## So it must be an argument!
+		trace(sprintf("at=%s",at2sy[at = AT_ARG]))
+	    }
+	} else {
+	    if ((pi == 2) && !piow2ov[pi,"o"] && !compatible) {
+					## Saw OPTSTRING for 2nd pass and
+					## in compatibility mode?
+		error("missing OPTSTRING!",pi); leave("2"); return 2
+	    }				## No, indicate misuse!
+	    trace(sprintf("at=%s",at2sy[at = AT_EOA]))
+	}				## Yes, indicate exhaustion!
+
+	if (at < AT_EOA) {		## An error was encountered?
+	    trace("break"); break	## Yes, abort pass!
+	} else if (pi == 1) {		## No, in 1st pass?
+	    if (at < AT_ARG) {		## 1st pass's options consumed?
+		trace(sprintf("++pi=%u;continue",++pi))
+		continue		## Yes, enter 2nd pass.
+	    } else if (at == AT_ARG) {	## No, saw (non-option) argument?
+		trace(sprintf("--ARGI=%u;++pi=%u;continue",--ARGI,++pi))
+		continue		## Yes, back argument index up and
+					## enter 2nd pass.
+	    } else if (on ~ /^(-h|--help)$/) {
 					## No, saw option '-h|--help'?
-	    ## show help		## Yes, show help and...
-	    leave("2"); return 2	## ...indicate "misuse"!
-	} else if (OPTNAM ~ /^(-V|--version)$/) {
+		## show help		## Yes, show help and...
+		leave("2"); return 2	## ...indicate "misuse"!
+	    } else if (on ~ /^(-V|--version)$/) {
 					## No, saw option '-V|--version'?
-	    printf "%s (%s) %s\n",cn,"@PACKAGE_NAME@","@PACKAGE_VERSION@"
+		printf "%s (%s) %s\n",cn,"@PACKAGE_NAME@","@PACKAGE_VERSION@"
 					## Yes, show version and...
-	    leave("0"); return 0	## ...indicate success.
-	} else if (OPTNAM ~ /^(-T|--test)$/) {
+		leave("0"); return 0	## ...indicate success.
+	    } else if (on ~ /^(-T|--test)$/) {
 					## No, saw option '-V|--version'?
-	    leave("4"); return 4	## Yes, indicate modern getopt(1).
-	} else if (OPTNAM ~ /^(-a|--alternative)$/) {
+		leave("4"); return 4	## Yes, indicate modern getopt(1).
+	    } else if (on ~ /^(-a|--alternative)$/) {
 					## No, saw option '-a|--alternative'?
-	    inc_property(pi+1,"a")	## Yes, allow alternative long options
+		inc_property(pi+1,"a")	## Yes, allow alternative long options
 					## in 2nd pass.
-	} else if (OPTNAM ~ /^(-l|--longoptions)$/) {
+	    } else if (on ~ /^(-l|--longoptions)$/) {
 					## No, saw option '-l|--longoptions'?
-	    if (getopt_add_longopts(OPTVAL,pi+1)) {
+		if (!getopt_add_longopts(ov,pi+1)) continue
 					## Yes, 2nd pass's LONGOPTS added?
 		leave("3"); return 3	## No, indicate internal error!
-	    }
-	} else if (OPTNAM ~ /^(-n|--name)$/) {
+	    } else if (on ~ /^(-n|--name)$/) {
 					## No, saw option '-n|--name'?
-	    set_property(pi+1,"n",ov)	## Yes, set 2nd pass's command name.
-	} else if (OPTNAM ~ /^(-o|--options)$/) {
+		set_property(pi+1,"n",ov)
+					## Yes, set 2nd pass's command name.
+	    } else if (on ~ /^(-o|--options)$/) {
 					## No, saw option '-o|--options'?
-	    if (getopt_add_optstring(OPTVAL,pi+1)) {
+		if (!getopt_add_optstring(ov,pi+1)) continue
 					## Yes, 2nd pass's OPTSTRING added?
 		leave("3"); return 3	## No, indicate internal error!
-	    }
-	} else if (OPTNAM ~ /^(-q|--quiet)$/) {
+	    } else if (on ~ /^(-q|--quiet)$/) {
 					## No, saw option '-q|--quiet'?
-	    inc_property(pi+1,"q")	## Yes, make 2nd pass quiet.
-	} else if (OPTNAM ~ /^(-Q|--quiet-output)$/) {
+		inc_property(pi+1,"q")	## Yes, make 2nd pass quiet.
+	    } else if (on ~ /^(-Q|--quiet-output)$/) {
 					## No, saw option '-Q|--quiet-output'?
-	    inc_property(pi+1,"Q")	## Yes, make 2nd pass entirely quiet.
-	} else if (OPTNAM ~ /^(-s|--shell)$/) {
+		inc_property(pi+1,"Q")	## Yes, make 2nd pass entirely quiet.
+	    } else if (on ~ /^(-s|--shell)$/) {
 					## No, saw option '-s|--shell'?
-	    if (OPTVAL ~ /^([bd]?a|k|t?c)?sh$/) {
+		if (ov ~ /^([bd]?a|k|t?c)?sh$/) {
 					## Yes. Valid shell specified?
-		set_property(pi+1,"s",ov)
+		    set_property(pi+1,"s",ov)
 					## Yes, set 2nd pass's shell.
-	    } else {
-		error(sprintf("invalid shell '%s'!",OPTVAL),pi)
-	    }
-	} else if (OPTNAM ~ /^(-u|--unquoted)$/) {
+		} else {
+		    error(sprintf("invalid shell '%s'!",ov),pi)
+		}
+	    } else if (on ~ /^(-u|--unquoted)$/) {
 					## No, saw option '-u|--unquoted'?
-	    inc_property(pi+1,"u")	## Yes, don't quote 2nd pass's output.
-	}
-    }
-
-    if (at < AT_EOA) {			## Prior getopt_shift() failed?
-	leave("1"); return 1		## Yes, indicate failure!
-    } else if (!piow2ov[pi+1,"o"]) {	## Saw OPTSTRING for 2nd pass?
-	if (ARGI < ARGC) {		## No, but arguments remain?
-	    if (!compatible && (ARGI == 2)) {
-					## Not in compatibility mode and OPT-
-					## STRING is 1st argument?
-		become_compatible(pi+1)	## Yes, force compatibility mode.
+		inc_property(pi+1,"u")	## Yes, don't quote 2nd pass's output.
 	    }
-	    if (getopt_add_optstring(ARGV[ARGI++],pi+1)) {
-					## Yes, 2nd pass's OPTSTRING added?
-		leave("3"); return 3	## No, indicate internal error!
-	    }
-	} else if (!compatible) {	## No. In compatibility mode?
-	    error("missing OPTSTRING!",pi)
-	    leave("2"); return 2	## No, indicate misuse!
-	}
-    }
-
-    trace(sprintf("++pi=%u;ac=%u",++pi,ac = 0))
-					## Enter 2nd pass.
-    for (;;) {				## While in 2nd pass do...
-	if ((at = getopt_shift(pi)) < AT_ARG) {
-					## 2nd pass's options consumed?
-	    trace("break"); break	## Yes, leave 2nd pass.
-	} else if (at == AT_ARG) {	## Saw (non-option) argument?
-	    trace(sprintf("--ARGI=%u",--ARGI))
-					## Yes, back argument index up.
-	    if (posixly) {		## In POSIX-compliant mode?
-		trace(sprintf("++ac=%u",++ac))
-	    }				## Yes, count argument.
-	    if (ordered) {		## Output is ordered?
-		O = O quote_sh(ARGV[ARGI++],pi) " "
-		trace(sprintf("O=\"%s\"",O))
+	} else {			## In 2nd pass!
+	    if (at < AT_ARG) {		## 2nd pass's arguments exhausted?
+		trace("break"); break
+	    } else if (at == AT_ARG) {	## No, saw (non-option) argument?
+		if (ordered) {		## Output is ordered?
+		    O = O quote_sh(arg,pi) " "; trace(sprintf("O=\"%s\"",O))
 					## Yes, fetch, quote, and append it
-	    } else {			## to LHS.
-		A = A " " quote_sh(ARGV[ARGI++],pi)
-		trace(sprintf("A=\"%s\"",A))
+		} else {		## to LHS.
+		    A = A " " quote_sh(arg,pi); trace(sprintf("A=\"%s\"",A))
 					## No, fetch, quote, and append it
-	    }				## to RHS.
-	} else if (at == AT_ONA) {	## Saw option without value?
-	    if (ordered || !ac) {	## Yes. Output is ordered or no argu-
-					## ment seen in POSIX-compliant mode?
-		O = O quote_sh(OPTNAM,pi) " "
-		trace(sprintf("O=\"%s\"",O))
-	    } else {			## Yes, quote and append it to LHS.
-		A = A " " quote_sh(OPTNAM,pi)
-		trace(sprintf("A=\"%s\"",A))
+		}			## to RHS.
+		if (posixly) {		## In POSIX compliancy mode?
+		    trace("break"); break
+					## Yes, treat remaining arguments as
+		}			## ordinary arguments.
+	    } else if ((at == AT_ONA) && (pioi2at[pi,oi] == AT_ONA)) {
+					## Saw option without value?
+		if (ordered) {		## Yes, output is ordered?
+		    O = O quote_sh(on,pi) " "; trace(sprintf("O=\"%s\"",O))
+		} else {		## Yes, quote and append it to LHS.
+		    A = A " " quote_sh(on,pi); trace(sprintf("A=\"%s\"",A))
 					## No, quote and append it to RHS
-	    }				## (as if it were an argument).
-	} else {			## Saw option with value!
-	    if (ordered || !ac) {	## Output is ordered or no argument
-					## seen in POSIX-compliant mode?
-		O = O quote_sh(OPTNAM,pi) " " quote_sh(OPTVAL,pi) " "
-		trace(sprintf("O=\"%s\"",O))
+		}			## (as if it were an argument).
+	    } else {			## Saw option with value!
+		if (ordered) {		## Output is ordered?
+		    O = O quote_sh(on,pi) " " quote_sh(ov,pi) " "
+		    trace(sprintf("O=\"%s\"",O))
 					## Yes, quote and append it as well as
-	    } else {			## its value to LHS.
-		A = A " " quote_sh(OPTNAM,pi) " " quote_sh(OPTVAL,pi)
-		trace(sprintf("A=\"%s\"",A))
+		} else {		## its value to LHS.
+		    A = A " " quote_sh(on,pi) " " quote_sh(ov,pi)
+		    trace(sprintf("A=\"%s\"",A))
 					## No, quote and append it as well as
 					## its value to RHS (as if it were ar-
-	    }				## guments).
+		}			## guments).
+	    }
 	}
     }
 
