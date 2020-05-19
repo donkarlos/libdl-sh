@@ -47,6 +47,8 @@
 ##					Count LONGOPTS occurences within
 ##					getopt_add_longopts().
 ##					Count errors.
+##			2020-05-19	Have end-of-options marker take pre-
+##					cedence over options.
 ##
 ##  Global constants and variables:
 ##	- DEBUG		Debugging flag (set with '-vDEBUG=1')
@@ -495,7 +497,10 @@ function args_getopt(cn ,pi,ec,arg,on,ov,oi,at,ep,O,A) {
 	    }
 	    arg = ARGV[ARGI++]; trace(sprintf("ec=%u;arg=\"%s\"",ec,arg))
 					## Yes, fetch next argument.
-	    if (match(arg,re_option)) {	## Looking at short option?
+	    if (arg == "--") {		## Looking at end-of-option marker?
+		trace(sprintf("at=%s",at2sy[at = AT_EOO]))
+	    } else if (match(arg,re_option)) {
+					## Looking at short option?
 		on = substr(arg,RSTART,RLENGTH)
 		ov = substr(arg,RSTART+RLENGTH)
 		trace(sprintf("on=\"%s\";ov=\"%s\"",on,ov))
@@ -574,12 +579,10 @@ function args_getopt(cn ,pi,ec,arg,on,ov,oi,at,ep,O,A) {
 					## No, count error, complain, and
 		    }			## indicate failure!
 		}
-	    } else if (arg == "--") {	## Looking at end-of-option marker?
-		trace(sprintf("at=%s",at2sy[at = AT_EOO]))
 	    } else {			## So it must be an argument!
 		trace(sprintf("at=%s",at2sy[at = AT_ARG]))
 	    }
-	} else {
+	} else {			## Arguments exhausted!
 	    if ((pi == 2) && !piow2ov[pi,"o"] && !compatible) {
 					## Saw OPTSTRING for 2nd pass and
 					## in compatibility mode?
