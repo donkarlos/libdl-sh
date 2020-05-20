@@ -667,24 +667,13 @@ function args_getopt(cn ,pi,ec,arg,on,ov,oi,at,ep,O,A) {
 		}			## ordinary arguments.
 	    } else if ((at == AT_ONA) && (pioi2at[pi,oi] == AT_ONA)) {
 					## Saw option without value?
-		if (ordered) {		## Yes, output is ordered?
-		    O = O quote_sh(on,pi) " "; trace(sprintf("O=\"%s\"",O))
-		} else {		## Yes, quote and append it to LHS.
-		    A = A " " quote_sh(on,pi); trace(sprintf("A=\"%s\"",A))
-					## No, quote and append it to RHS
-		}			## (as if it were an argument).
+		O = O quote_sh(on,pi) " "; trace(sprintf("O=\"%s\"",O))
+					## Yes, quote and append it to LHS.
 	    } else {			## Saw option with value!
-		if (ordered) {		## Output is ordered?
-		    O = O quote_sh(on,pi) " " quote_sh(ov,pi) " "
-		    trace(sprintf("O=\"%s\"",O))
+		O = O quote_sh(on,pi) " " quote_sh(ov,pi) " "
+		trace(sprintf("O=\"%s\"",O))
 					## Yes, quote and append it as well as
-		} else {		## its value to LHS.
-		    A = A " " quote_sh(on,pi) " " quote_sh(ov,pi)
-		    trace(sprintf("A=\"%s\"",A))
-					## No, quote and append it as well as
-					## its value to RHS (as if it were ar-
-		}			## guments).
-	    }
+	    }				## its value to LHS.
 	}
     }
 
