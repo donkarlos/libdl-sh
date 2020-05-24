@@ -65,7 +65,7 @@
 ##			  * ERRor,
 ##			  * End Of Arguments,
 ##			  * End Of Options ("--"),
-##			  * (non-option) ARGument,
+##			  * ordinary ARGument,
 ##			  * Option with No/Optional/Required Argument
 ##			(The latter three being the option type subset)
 ##	- at2sy[AT]	Argument type -> symbol map
@@ -604,7 +604,7 @@ function args_getopt(cn ,pi,ec,arg,on,ov,oi,at,ep,O,A) {
 	    if (at < AT_ARG) {		## 1st pass's options consumed?
 		trace(sprintf("++pi=%u;continue",++pi))
 		continue		## Yes, enter 2nd pass.
-	    } else if (at == AT_ARG) {	## No, saw (non-option) argument?
+	    } else if (at == AT_ARG) {	## No, saw ordinary argument?
 		trace(sprintf("--ARGI=%u;++pi=%u;continue",--ARGI,++pi))
 		continue		## Yes, back argument index up and
 					## enter 2nd pass.
@@ -662,8 +662,8 @@ function args_getopt(cn ,pi,ec,arg,on,ov,oi,at,ep,O,A) {
 	    }
 	} else {			## In 2nd pass!
 	    if (at < AT_ARG) {		## 2nd pass's arguments exhausted?
-		trace("break"); break
-	    } else if (at == AT_ARG) {	## No, saw (non-option) argument?
+		trace("break"); break	## Yes, leave 2nd pass.
+	    } else if (at == AT_ARG) {	## No, saw ordinary argument?
 		if (ordered) {		## Output is ordered?
 		    O = O quote_sh(arg,pi,at) " "; trace(sprintf("O=\"%s\"",O))
 					## Yes, fetch, quote, and append it
