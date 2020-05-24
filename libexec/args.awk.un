@@ -49,6 +49,8 @@
 ##					Count errors.
 ##			2020-05-19	Have end-of-options marker take pre-
 ##					cedence over options.
+##			2020-05-21	Add and implement option `-U|--unquot-
+##					ed-options.
 ##
 ##  Global constants and variables:
 ##	- DEBUG		Debugging flag (set with '-vDEBUG=1')
@@ -89,6 +91,8 @@
 ##			Per-pass suppress output flag
 ##	- piow2ov[PI,"u"]
 ##			Per-pass unquoted output flag
+##	- piow2ov[PI,"U"]
+##			Per-pass unquoted options flag
 ##	- piow2ov[PI,"s"]
 ##			Per-pass shell
 ##	- nesting	Nesting depth
@@ -195,15 +199,18 @@ function error(msg,pi) {
 }
 
 ##----------------------------------------------------------------------------
-##  quote_sh(STRING,PI)		Conditionally sh(1)-quote STRING
+##  quote_sh(STRING,PI,AT)	Conditionally sh(1)-quote STRING
 ##
 ##  Global variables:
 ##	- piow2ov[PI,"u"]
 ##			(R) Per-pass unquoted output flag
+##	- piow2ov[PI,"U"]
+##			(R) Per-pass unquoted options flag
 ##----------------------------------------------------------------------------
-function quote_sh(string,pi) {
+function quote_sh(string,pi,at) {
     enter("quote_sh",sprintf("string=\"%s\",pi=%u",string,pi))
-    if (!piow2ov[pi,"u"]) {		## Must quote STRING?
+    if (!piow2ov[pi,"u"] && (!piow2ov[pi,"U"] || (at < AT_ONA))) {
+					## Must quote STRING?
 	gsub(/'/,"&\\\\&&",string); string = "'" string "'"
     }					## Yes, do so.
     leave("\"" string "\""); return string
@@ -470,10 +477,10 @@ function args_getopt(cn ,pi,ec,arg,on,ov,oi,at,ep,O,A) {
     if ("GETOPT_COMPATIBLE" in ENVIRON) {
 					## GETOPT_COMPATIBLE present in env.?
 	become_compatible(pi+1)		## Yes, force compatibility mode.
-    } else if (   getopt_add_optstring("ahl:n:o:qQs:uTV",pi)		\
+    } else if (   getopt_add_optstring("ahl:n:o:qQs:uUTV",pi)		\
 	       || getopt_add_longopts("alternative,help,longoptions:,"	\
 		    "name:,options:,quiet,quiet-output,shell:,unquoted,"\
-		    "test,version",pi)) {
+		    "unquoted-options,test,version",pi)) {
 					## Added own options for 1st pass?
 	leave("3"); return 3		## No, indicate internal error!
     }
@@ -649,16 +656,19 @@ function args_getopt(cn ,pi,ec,arg,on,ov,oi,at,ep,O,A) {
 	    } else if (on ~ /^(-u|--unquoted)$/) {
 					## No, saw option '-u|--unquoted'?
 		inc_property(pi+1,"u")	## Yes, don't quote 2nd pass's output.
+	    } else if (on ~ /^(-U|--unquoted-options)$/) {
+					## No, saw option '-U|--unquoted-options'?
+		inc_property(pi+1,"U")	## Yes, don't quote 2nd pass's options.
 	    }
 	} else {			## In 2nd pass!
 	    if (at < AT_ARG) {		## 2nd pass's arguments exhausted?
 		trace("break"); break
 	    } else if (at == AT_ARG) {	## No, saw (non-option) argument?
 		if (ordered) {		## Output is ordered?
-		    O = O quote_sh(arg,pi) " "; trace(sprintf("O=\"%s\"",O))
+		    O = O quote_sh(arg,pi,at) " "; trace(sprintf("O=\"%s\"",O))
 					## Yes, fetch, quote, and append it
 		} else {		## to LHS.
-		    A = A " " quote_sh(arg,pi); trace(sprintf("A=\"%s\"",A))
+		    A = A " " quote_sh(arg,pi,at); trace(sprintf("A=\"%s\"",A))
 					## No, fetch, quote, and append it
 		}			## to RHS.
 		if (posixly) {		## In POSIX compliancy mode?
@@ -667,10 +677,10 @@ function args_getopt(cn ,pi,ec,arg,on,ov,oi,at,ep,O,A) {
 		}			## ordinary arguments.
 	    } else if ((at == AT_ONA) && (pioi2at[pi,oi] == AT_ONA)) {
 					## Saw option without value?
-		O = O quote_sh(on,pi) " "; trace(sprintf("O=\"%s\"",O))
+		O = O quote_sh(on,pi,at) " "; trace(sprintf("O=\"%s\"",O))
 					## Yes, quote and append it to LHS.
 	    } else {			## Saw option with value!
-		O = O quote_sh(on,pi) " " quote_sh(ov,pi) " "
+		O = O quote_sh(on,pi,at) " " quote_sh(ov,pi,AT_ARG) " "
 		trace(sprintf("O=\"%s\"",O))
 					## Yes, quote and append it as well as
 	    }				## its value to LHS.
@@ -681,7 +691,7 @@ function args_getopt(cn ,pi,ec,arg,on,ov,oi,at,ep,O,A) {
 	leave("1"); return 1		## Yes, indicate failure!
     }
     while (ARGI < ARGC) {		## Foreach remaining argument do...
-	A = A " " quote_sh(ARGV[ARGI++],pi)
+	A = A " " quote_sh(ARGV[ARGI++],pi,AT_ARG)
 	trace(sprintf("A=\"%s\"",A))	## Fetch, quote, and append it to RHS.
     }
     if (!piow2ov[pi,"Q"]) printf "%s--%s\n",O,A
