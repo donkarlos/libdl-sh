@@ -105,7 +105,6 @@ BEGIN {
 					## Define booleans.
     re_option			= "^-[^-]"
     re_altlongopt		= "^(-[^-=]+)+"
-    re_longopt			= "^-(-[^-=]+)+"
 
     at				= -4	## Enumerate argument types...
     at2sy[AT_ERR = ++at]	= "AT_ERR"
@@ -510,46 +509,7 @@ function args_getopt(cn ,pi,ec,arg,on,ov,oi,at,ep,O,A) {
 	    } else if (arg !~ /^-./) {	## Looking at ordinary argument?
 		trace(sprintf("at=%s",at2sy[at = AT_ARG]))
 					## Yes, set respective argument type.
-	    } else if (match(arg,re_option)) {
-					## Looking at short option?
-		on = substr(arg,RSTART,RLENGTH)
-		ov = substr(arg,RSTART+RLENGTH)
-		trace(sprintf("on=\"%s\";ov=\"%s\"",on,ov))
-					## Yes, split it into name and value.
-		if ((oi = pion2oi[pi,on]) > 0) {
-					## Option registered for PI-th pass?
-		    at = pioi2at[pi,oi]	## Yes, fetch argument type.
-		} else if (piow2ov[pi,"a"] && (arg ~ re_altlongopt)) {
-					## Alternative long options allowed
-					## and option looks like such?
-		    unshift("-" arg)	## Yes, fake long option and give that
-		    continue		## another try.
-		} else {
-		    ++ec; error(sprintf("%s: unknown option!",on),pi)
-		    if (ov) unshift("-" ov)
-					## No, count error, complain, push
-		    continue		## value back as short options, and
-		}			## give these another try.
-		if (ov) {		## Option's value "glued" to name?
-		    if (at >= AT_OOA) {	## Yes, and option wants value?
-			at = AT_ORA	## Yes, supply it.
-		    } else {
-			unshift("-" ov)	## No, push value back as options.
-		    }
-		} else {		## No value "glued" to option name!
-		    if (at <= AT_OOA) {	## But option requires value?
-			at = AT_ONA	## No, don't supply it.
-		    } else if (ARGI < ARGC) {
-					## Yes, and arguments remain?
-			ov = ARGV[ARGI++]; trace(sprintf("ov=\"%s\"",ov))
-					## Yes, fetch value.
-		    } else {
-			++ec; error(sprintf("%s: missing value!",on),pi)
-			trace(sprintf("at=%s",at2sy[at = AT_ERR]))
-					## No, count error, complain, and
-		    }			## indicate failure!
-		}
-	    } else if (match(arg,re_longopt)) {
+	    } else if (piow2ov[pi,"l"] && match(arg,/^--[^=]+/)) {
 					## Looking at long option?
 		on = substr(arg,RSTART,RLENGTH); ep = RSTART + RLENGTH
 		trace(sprintf("on=\"%s\";ep=%u",on,ep))
@@ -580,6 +540,45 @@ function args_getopt(cn ,pi,ec,arg,on,ov,oi,at,ep,O,A) {
 			at = AT_ONA; ov = ""
 			trace(sprintf("at=%s;ov=\"%s\"",at2sy[at],ov))
 					## No, don't supply it.
+		    } else if (ARGI < ARGC) {
+					## Yes, and arguments remain?
+			ov = ARGV[ARGI++]; trace(sprintf("ov=\"%s\"",ov))
+					## Yes, fetch value.
+		    } else {
+			++ec; error(sprintf("%s: missing value!",on),pi)
+			trace(sprintf("at=%s",at2sy[at = AT_ERR]))
+					## No, count error, complain, and
+		    }			## indicate failure!
+		}
+	    } else if (match(arg,re_option)) {
+					## Looking at short option?
+		on = substr(arg,RSTART,RLENGTH)
+		ov = substr(arg,RSTART+RLENGTH)
+		trace(sprintf("on=\"%s\";ov=\"%s\"",on,ov))
+					## Yes, split it into name and value.
+		if ((oi = pion2oi[pi,on]) > 0) {
+					## Option registered for PI-th pass?
+		    at = pioi2at[pi,oi]	## Yes, fetch argument type.
+		} else if (piow2ov[pi,"a"] && (arg ~ re_altlongopt)) {
+					## Alternative long options allowed
+					## and option looks like such?
+		    unshift("-" arg)	## Yes, fake long option and give that
+		    continue		## another try.
+		} else {
+		    ++ec; error(sprintf("%s: unknown option!",on),pi)
+		    if (ov) unshift("-" ov)
+					## No, count error, complain, push
+		    continue		## value back as short options, and
+		}			## give these another try.
+		if (ov) {		## Option's value "glued" to name?
+		    if (at >= AT_OOA) {	## Yes, and option wants value?
+			at = AT_ORA	## Yes, supply it.
+		    } else {
+			unshift("-" ov)	## No, push value back as options.
+		    }
+		} else {		## No value "glued" to option name!
+		    if (at <= AT_OOA) {	## But option requires value?
+			at = AT_ONA	## No, don't supply it.
 		    } else if (ARGI < ARGC) {
 					## Yes, and arguments remain?
 			ov = ARGV[ARGI++]; trace(sprintf("ov=\"%s\"",ov))
