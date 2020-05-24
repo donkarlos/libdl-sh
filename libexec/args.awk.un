@@ -503,9 +503,13 @@ function args_getopt(cn ,pi,ec,arg,on,ov,oi,at,ep,O,A) {
 		leave("3"); return 3	## No, indicate internal error!
 	    }
 	    arg = ARGV[ARGI++]; trace(sprintf("ec=%u;arg=\"%s\"",ec,arg))
-					## Yes, fetch next argument.
+					## Fetch next argument.
 	    if (arg == "--") {		## Looking at end-of-option marker?
 		trace(sprintf("at=%s",at2sy[at = AT_EOO]))
+					## Yes, set respective argument type.
+	    } else if (arg !~ /^-./) {	## Looking at ordinary argument?
+		trace(sprintf("at=%s",at2sy[at = AT_ARG]))
+					## Yes, set respective argument type.
 	    } else if (match(arg,re_option)) {
 					## Looking at short option?
 		on = substr(arg,RSTART,RLENGTH)
@@ -586,8 +590,6 @@ function args_getopt(cn ,pi,ec,arg,on,ov,oi,at,ep,O,A) {
 					## No, count error, complain, and
 		    }			## indicate failure!
 		}
-	    } else {			## So it must be an argument!
-		trace(sprintf("at=%s",at2sy[at = AT_ARG]))
 	    }
 	} else {			## Arguments exhausted!
 	    if ((pi == 2) && !piow2ov[pi,"o"] && !compatible) {
