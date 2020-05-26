@@ -59,6 +59,7 @@
 ##					bugs in util-linux's getopt(1) `-a'
 ##					implementation along the way... :-)
 ##			2020-05-26	Implement csh(1)-style quoting.
+##					Show usage information.
 ##
 ##  Global constants and variables:
 ##	- DEBUG		Debugging flag (set with '-vDEBUG=1')
@@ -468,10 +469,8 @@ function args_print() {
 ##	- ep		(W) '=' position
 ##	- O		(W) Result's  left-hand side (LHS)
 ##	- A		(W) Result's right-hand side (RHS)
-##	- son		(W) Short ption name
+##	- son		(W) Short option name
 ##	- lon		(W) Long option name
-##
-##  TODO:   (1)	getopt(1) option '-h|--help' so far doesn't show usage.
 ##----------------------------------------------------------------------------
 function args_getopt(cn ,pi,ec,arg,on,ov,oi,at,ep,O,A,son,lon) {
     enter("args_getopt",sprintf("cn=\"%s\"",cn))
@@ -634,7 +633,26 @@ function args_getopt(cn ,pi,ec,arg,on,ov,oi,at,ep,O,A,son,lon) {
 					## enter 2nd pass.
 	    } else if (on ~ /^(-h|--help)$/) {
 					## No, saw option '-h|--help'?
-		## show help		## Yes, show help and...
+		arg = "cat >&2 <<EOF\n\
+Usage:\n\
+ getopt OPTSTRING [ARGUMENT ...]\n\
+ getopt [OPTIONS] [--] OPTSTRING [ARGUMENT ...]\n\
+ getopt [OPTIONS] -o|--options OPTSTRING [OPTIONS] [--] [ARGUMENT ...]\n\n\
+Parse ARGUMENTs into options and arguments\n\n\
+Valid options are:\n\
+ -h, --help			Show this help and exit\n\
+ -V, --version			Show version information and exit\n\
+ -a, --alternative		Recognize altenative long options\n\
+ -l, --longoptions=LONGOPTS	Specify long options to be recognized\n\
+ -n, --name=COMMAND		Report errors on behalf of COMMAND\n\
+ -o, --options=OPTSTRING	Specify short options to be recognized\n\
+ -q, --quiet			Suppress error messages\n\
+ -Q, --quiet-output		Suppress normal output\n\
+ -s, --shell=SHELL		Use SHELL's quoting conventions (default: sh)\n\
+ -T, --test			Test for getopt(1) version\n\
+ -u, --unquoted			Don't quote output\n\
+ -U, --unquoted-options		Don't quote options in output\nEOF"
+		system(arg)		## Yes, show help and...
 		leave("2"); return 2	## ...indicate "misuse"!
 	    } else if (on ~ /^(-V|--version)$/) {
 					## No, saw option '-V|--version'?
