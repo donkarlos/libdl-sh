@@ -51,6 +51,13 @@
 ##					cedence over options.
 ##			2020-05-21	Add and implement option `-U|--unquot-
 ##					ed-options.
+##			2020-05-23	Ultimately distinguish between short
+##					and alternative long options by merg-
+##					ing option processing ([ks] It took me
+##					nearly a week to properly figure this
+##					out, discovering some "interesting"
+##					bugs in util-linux's getopt(1) `-a'
+##					implementation along the way... :-)
 ##
 ##  Global constants and variables:
 ##	- DEBUG		Debugging flag (set with '-vDEBUG=1')
@@ -103,9 +110,6 @@ BEGIN {
     bv2sy[FALSE	= 0	]	= "FALSE"
     bv2sy[TRUE	= !FALSE]	= "TRUE"
 					## Define booleans.
-    re_option			= "^-[^-]"
-    re_altlongopt		= "^(-[^-=]+)+"
-
     at				= -4	## Enumerate argument types...
     at2sy[AT_ERR = ++at]	= "AT_ERR"
     at2sy[AT_EOA = ++at]	= "AT_EOA"
@@ -460,10 +464,12 @@ function args_print() {
 ##	- ep		(W) '=' position
 ##	- O		(W) Result's  left-hand side (LHS)
 ##	- A		(W) Result's right-hand side (RHS)
+##	- son		(W) Short ption name
+##	- lon		(W) Long option name
 ##
 ##  TODO:   (1)	getopt(1) option '-h|--help' so far doesn't show usage.
 ##----------------------------------------------------------------------------
-function args_getopt(cn ,pi,ec,arg,on,ov,oi,at,ep,O,A) {
+function args_getopt(cn ,pi,ec,arg,on,ov,oi,at,ep,O,A,son,lon) {
     enter("args_getopt",sprintf("cn=\"%s\"",cn))
     posixly = ordered = compatible = FALSE
     pi = 1; ec = 0			## Enter 1st pass.
@@ -509,88 +515,101 @@ function args_getopt(cn ,pi,ec,arg,on,ov,oi,at,ep,O,A) {
 	    } else if (arg !~ /^-./) {	## Looking at ordinary argument?
 		trace(sprintf("at=%s",at2sy[at = AT_ARG]))
 					## Yes, set respective argument type.
-	    } else if (piow2ov[pi,"l"] && match(arg,/^--[^=]+/)) {
-					## Looking at long option?
-		on = substr(arg,RSTART,RLENGTH); ep = RSTART + RLENGTH
-		trace(sprintf("on=\"%s\";ep=%u",on,ep))
-					## Yes, extract option's name.
-		if (!substr(arg,ep,1)) ep = 0
-					## Rectify '=' position.
-		if ((oi = pion2oi[pi,on]) > 0) {
-					## Option registered for PI-th pass?
-		    on = pioi2on[pi,oi]	## Yes, fetch full name and option
-		    at = pioi2at[pi,oi]	## type.
-		} else if (oi < 0) {	## No, is it ambiguous?
-		    ++ec; error(sprintf("%s: ambiguous option!",on),pi)
-		    continue		## Yes, complain and
-					## give next argument a try.
-		} else {		## Option is unknown!
-		    ++ec; error(sprintf("%s: unknown option!",on),pi)
-		    continue		## Complain and
-		}			## give next argument a try.
-		if (ep) {		## Option's value "glued" to name?
-		    if (at >= AT_OOA) {	## Yes, and option wants value?
-			at = AT_ORA; ov = substr(arg,ep+1)
-			trace(sprintf("at=%s;ov=\"%s\"",at2sy[at],ov))
-		    } else {		## Yes, supply it.
-			error(sprintf("%s: excess value (ignored).",on),pi)
-		    }			## No, warn about excess value.
-		} else {		## No value "glued" to option name!
-		    if (at <= AT_OOA) {	## But option requires value?
-			at = AT_ONA; ov = ""
-			trace(sprintf("at=%s;ov=\"%s\"",at2sy[at],ov))
-					## No, don't supply it.
-		    } else if (ARGI < ARGC) {
-					## Yes, and arguments remain?
-			ov = ARGV[ARGI++]; trace(sprintf("ov=\"%s\"",ov))
-					## Yes, fetch value.
-		    } else {
-			++ec; error(sprintf("%s: missing value!",on),pi)
-			trace(sprintf("at=%s",at2sy[at = AT_ERR]))
-					## No, count error, complain, and
-		    }			## indicate failure!
+	    } else {			## Looking at option!
+		if (piow2ov[pi,"l"] && match(arg,/^--[^=]+/)) {
+					## Is it a long option?
+		    on = substr(arg,RSTART,RLENGTH); ep = RSTART + RLENGTH
+		    oi = pion2oi[pi,on]	## Yes, extract name, compute assumed
+					## '=' position, and fetch index.
+		} else if (   piow2ov[pi,"l"] && piow2ov[pi,"a"]	\
+			   && match(arg,/^-[^-][^=]*/)) {
+					## Is it maybe an alt. long option?
+		    on = substr(arg,RSTART,RLENGTH); ep = RSTART + RLENGTH
+		    son = substr(arg,RSTART,2); lon = "-" on
+					## Yes, extract name, compute assumed
+					## '=' position, and extract short/
+					## construct long option name.
+		    if (   (pion2oi[pi,son] && !pion2oi[pi,lon])	\
+			|| (   pion2oi[pi,on] && pion2oi[pi,lon]	\
+			    && (substr(arg,ep,1) != "="))) {
+					## Must be parsed as short option?
+			oi = pion2oi[pi,on = son]; RLENGTH = 2; ep = 0
+					## Yes, fetch short option's index,
+					## reduce length, and invalidate
+		    } else {		## assumed '=' position.
+			oi = pion2oi[pi,on = lon]
+					## No, fetch corresponding long op-
+		    }			## tion's index.
+		} else if (match(arg,/^-./)) {
+					## Is it a short option?
+		    on = substr(arg,RSTART,RLENGTH); ep = 0
+		    oi = pion2oi[pi,on]	## Yes, extract option's name, invali-
+					## date '=' position, and fetch index.
+		} else {		## This isn't supposed to happen!
+		    ++ec; error("OOPS! How did we get here?")
+		    leave("3"); return 3 ## Indicate internal error!
 		}
-	    } else if (match(arg,re_option)) {
-					## Looking at short option?
-		on = substr(arg,RSTART,RLENGTH)
-		ov = substr(arg,RSTART+RLENGTH)
-		trace(sprintf("on=\"%s\";ov=\"%s\"",on,ov))
-					## Yes, split it into name and value.
-		if ((oi = pion2oi[pi,on]) > 0) {
-					## Option registered for PI-th pass?
-		    at = pioi2at[pi,oi]	## Yes, fetch argument type.
-		} else if (piow2ov[pi,"a"] && (arg ~ re_altlongopt)) {
-					## Alternative long options allowed
-					## and option looks like such?
-		    unshift("-" arg)	## Yes, fake long option and give that
-		    continue		## another try.
-		} else {
-		    ++ec; error(sprintf("%s: unknown option!",on),pi)
-		    if (ov) unshift("-" ov)
-					## No, count error, complain, push
-		    continue		## value back as short options, and
-		}			## give these another try.
-		if (ov) {		## Option's value "glued" to name?
+		trace(sprintf("on=\"%s\";oi=%d;ep=%u",on,oi,ep))
+
+		if (oi < 0) {		## Option name is ambiguous?
+		    ++ec; error(sprintf("ambiguous option '%s'!",on),pi)
+		    continue		## Yes, complain and skip it!
+		} else if (!oi) {	## Option name unknown in PI-th pass?
+		    ++ec; error(sprintf("unknown option '%s'!",arg),pi)
+					## Yes, complain and skip it if it's
+		    if (ep) continue	## a long option.
+		    at = AT_ONA
+		} else {		## Option is known!
+		    at = pioi2at[pi,oi]; on = pioi2on[pi,oi]
+		}			## Fetch type and full name.
+		trace(sprintf("at=%s;on=\"%s\"",at2sy[at],on))
+
+		if (!ep) {		## Short option?
+		    ov = substr(arg,RSTART+RLENGTH)
+					## Yes, extract affixed value.
+		} else if (!substr(arg,ep)) {
+					## Long option without affixed value?
+		    ov = ""		## Yes, assume empty value.
+		} else if (substr(arg,ep,1) == "=") {
+					## Long option with affixed value?
+		    if (at == AT_ONA) {	## Yes, but it mustn't have one?
+			++ec; error(sprintf("option '%s' mustn't have "	\
+			    "value!",on),pi)
+			continue	## Yes, complain and skip it!
+		    }
+		    ov = substr(arg,ep+1)
+					## No, extract affixed value.
+		} else {		## This isn't supposed to happen!
+		    ++ec; error(sprintf("invalid option '%s'!",arg),pi)
+		    leave("3"); return 3 ## Indicate internal error!
+		}
+		trace(sprintf("ov=\"%s\"",ov))
+
+		if (ov || (ep && (substr(arg,ep,1) == "="))) {
+					## Value affixed to option?
 		    if (at >= AT_OOA) {	## Yes, and option wants value?
 			at = AT_ORA	## Yes, supply it.
-		    } else {
-			unshift("-" ov)	## No, push value back as options.
-		    }
-		} else {		## No value "glued" to option name!
-		    if (at <= AT_OOA) {	## But option requires value?
+		    } else if (!ep) {	## No, value affixed to short option?
+			unshift("-" ov); if (!oi) continue
+					## Yes, push it back as options and
+		    }			## skip option unless it is known.
+		} else {		## No value affixed to option!
+		    if (at <= AT_OOA) {	## But option wants value?
+			if (!oi) continue
 			at = AT_ONA	## No, don't supply it.
 		    } else if (ARGI < ARGC) {
 					## Yes, and arguments remain?
 			ov = ARGV[ARGI++]; trace(sprintf("ov=\"%s\"",ov))
 					## Yes, fetch value.
 		    } else {
-			++ec; error(sprintf("%s: missing value!",on),pi)
+			++ec; error(sprintf("option '%s' requires value!",on),pi)
 			trace(sprintf("at=%s",at2sy[at = AT_ERR]))
 					## No, count error, complain, and
 		    }			## indicate failure!
 		}
+		trace(sprintf("at=%s",at2sy[at]))
 	    }
-	} else {			## Arguments exhausted!
+	} else {			## No arguments remain!
 	    if ((pi == 2) && !piow2ov[pi,"o"] && !compatible) {
 					## Saw OPTSTRING for 2nd pass and
 					## in compatibility mode?
