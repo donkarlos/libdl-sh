@@ -58,6 +58,7 @@
 ##					out, discovering some "interesting"
 ##					bugs in util-linux's getopt(1) `-a'
 ##					implementation along the way... :-)
+##			2020-05-26	Implement csh(1)-style quoting.
 ##
 ##  Global constants and variables:
 ##	- DEBUG		Debugging flag (set with '-vDEBUG=1')
@@ -202,19 +203,22 @@ function error(msg,pi) {
 }
 
 ##----------------------------------------------------------------------------
-##  quote_sh(STRING,PI,AT)	Conditionally sh(1)-quote STRING
+##  quote_sh(STRING,PI,AT)	Conditionally piow2ov[PI,"s"]-quote STRING
 ##
 ##  Global variables:
 ##	- piow2ov[PI,"u"]
 ##			(R) Per-pass unquoted output flag
 ##	- piow2ov[PI,"U"]
 ##			(R) Per-pass unquoted options flag
+##	- piow2ov[PI,"s"]
+##			(R) Per-pass shell
 ##----------------------------------------------------------------------------
-function quote_sh(string,pi,at) {
+function quote_sh(string,pi,at ,re) {
     enter("quote_sh",sprintf("string=\"%s\",pi=%u",string,pi))
     if (!piow2ov[pi,"u"] && (!piow2ov[pi,"U"] || (at < AT_ONA))) {
 					## Must quote STRING?
-	gsub(/'/,"&\\\\&&",string); string = "'" string "'"
+	re = (piow2ov[pi,"s"] ~ /csh$/) ? "[!']" : "'"
+	gsub(re,"'\\\\&'",string); string = "'" string "'"
     }					## Yes, do so.
     leave("\"" string "\""); return string
 }
