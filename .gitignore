@@ -24,6 +24,7 @@
 #		ks	2020-05-12	Import changelog generator.
 #		ks	2020-05-16	Move `conf.awk' and `args.awk' to lib-
 #					exec/.
+#		ks	2020-05-27	Add universal interpreter.
 #
 #   NOTE:   (1)	Exclude patterns for tools beyond the actual build tools have
 #		been left out intentionally! Such patterns are better kept in
@@ -50,6 +51,7 @@ Makefile
 #-----------------------------------------------------------------------------
 /bin/genchangelog
 /bin/libdl-sh
+/bin/shebang
 /bin/test-deb-version
 /doc/*.[15]
 /doc/lib*.3sh

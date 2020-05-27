@@ -24,6 +24,7 @@
 ##		ks	2020-05-12	Import changelog generator.
 ##		ks	2020-05-16	Move `conf.awk' and `args.awk' to lib-
 ##					exec/.
+##		ks	2020-05-27	Add universal interpreter.
 ##
 ##  NOTE:   (1)	Update the build system with autoreconf(1).
 ##----------------------------------------------------------------------------
@@ -93,7 +94,8 @@ dist_man_MANS		= doc/conf_get.3sh				\
 ##----------------------------------------------------------------------------
 ##  Finish and install scripts, libraries, manpages, and package data:
 ##----------------------------------------------------------------------------
-bin_SCRIPTS		= bin/libdl-sh
+bin_SCRIPTS		= bin/libdl-sh					\
+			  bin/shebang
 pkgdata_SCRIPTS		= libexec/conf.awk
 shlib_DATA		= lib/libconf.sh				\
 			  lib/libdl.sh					\

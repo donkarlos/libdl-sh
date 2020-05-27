@@ -26,6 +26,7 @@ dnl					Make xz(1)-compressed distributions.
 dnl		ks	2020-05-12	Import changelog generator.
 dnl		ks	2020-05-16	Move `conf.awk' and `args.awk' to lib-
 dnl					exec/.
+dnl		ks	2020-05-27	Add universal interpreter.
 dnl
 dnl NOTE:   (1)	Update the build system with autoreconf(1).
 dnl	    (2)	AM_INIT_AUTOMAKE() already invokes AC_ARG_PROGRAM, AC_PROG_-
@@ -49,6 +50,7 @@ dnl
 AF_FINISH_FILES([
     bin/genchangelog
     bin/libdl-sh
+    bin/shebang
     bin/test-deb-version
     doc/libconf.3sh
     doc/libdl-sh.1

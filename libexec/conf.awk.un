@@ -1,8 +1,10 @@
-#! /usr/bin/awk -f
+#! /usr/bin/awk -f ##
+#! /usr/bin/env shebang
+#! nawk -f
 #-----------------------------------------------------------------------------
 #   conf.awk			- libconf.sh GIT-style config. file processor
 #
-#   Copyright (C) 2013-2015 Das Computerlabor (DCl-M)
+#   Copyright © 2013-2020 Das Computerlabor (DCl-M)
 #
 #   This library is free software; you can redistribute it and/or
 #   modify it under the terms of the GNU Lesser General Public License
@@ -24,6 +26,7 @@
 ##  CHANGED BY:	ks	2013-03-06	Attribute this to `libconf.sh'.
 ##		ks	2013-03-11	Work around mawk(1)'s misfeature of
 ##					aborting on nonexisting input files.
+##		ks	2020-05-27	Use universal interpreter.
 ##----------------------------------------------------------------------------
 ##  Initialization:
 #-----------------------------------------------------------------------------
