@@ -82,10 +82,8 @@ transform_version() {
 
     eval "`local p=; case $- in *x*) p=p;; esac; sed '
 	s/^$/#'"${BorF-B}"'#/'"$p"';t1
-	s/^0*\('"$dl_re_1n"':'"$cr_0d$cr_ED"'*'"$re_D"'\)$/#B#\1/'"$p"';t1
-	s/^0*\(0:'"$cr_0d$cr_ED"'*'"$re_D"'\)$/#B#\1/'"$p"';t1
-	s/^0*\('"$dl_re_1n"':'"$cr_0d$cr_E_"'*\)$/#B#\1/'"$p"';t1
-	s/^0*\(0:'"$cr_0d$cr_E_"'*\)$/#B#\1/'"$p"';t1
+	s/^\('"$dl_re_0n"':'"$cr_0d$cr_ED"'*'"$re_D"'\)$/#B#\1/'"$p"';t1
+	s/^\('"$dl_re_0n"':'"$cr_0d$cr_E_"'*\)$/#B#\1/'"$p"';t1
 	s/^'"$cr_0d$cr__D"'*'"$re_D"'$/#B#0:&/'"$p"';t1
 	s/^'"$cr_0d$cr___"'*$/#B#0:&/'"$p"';t1
 	s/^.*$/test/;q;:1
