@@ -82,10 +82,10 @@ transform_version() {
 
     eval "`local p=; case $- in *x*) p=p;; esac; sed '
 	s/^$/#'"${BorF-B}"'#/'"$p"';t1
-	s/^\('"$dl_re_0n"':'"$cr_0d$cr_ED"'*'"$re_D"'\)$/#B#\1/'"$p"';t1
-	s/^\('"$dl_re_0n"':'"$cr_0d$cr_E_"'*\)$/#B#\1/'"$p"';t1
-	s/^'"$cr_0d$cr__D"'*'"$re_D"'$/#B#0:&/'"$p"';t1
-	s/^'"$cr_0d$cr___"'*$/#B#0:&/'"$p"';t1
+	s/^'"$re_ED"'$/#B#&/'"$p"';t1
+	s/^'"$re_E_"'$/#B#&/'"$p"';t1
+	s/^'"$re__D"'$/#B#0:&/'"$p"';t1
+	s/^'"$re___"'$/#B#0:&/'"$p"';t1
 	s/^.*$/test/;q;:1
 	s/\([^#]\)#0*\('"$dl_re_1n"'\)\([^'"$dl_cs_0d"']*\)/\1 \2 #\3 /'"$p"';t1
 	s/\([^#]\)#0*0\([^'"$dl_cs_0d"']*\)/\1 0 #\2 /'"$p"';t1
@@ -272,7 +272,11 @@ cr_0d="[$dl_cs_0d]"			## decimal digit character range
 readonly cr_ED cr_E_ cr__D cr___ cr_0d	## constants.
 
 re_D="-$cr___*"				## Construct unanchored Debian revi-
-readonly re_D				## sion (DR) RE.
+re_ED="$dl_re_0n:$cr_0d$cr_ED*$re_D"	## sion (DR) as well as with-EP/with-
+re_E_="$dl_re_0n:$cr_0d$cr_E_*"		## DR, with-EP/sans-DR, sans-EP/with-
+re__D="$cr_0d$cr__D*$re_D"		## DR, and sans-EP/sans-DR Debian ver-
+re___="$cr_0d$cr___*"			## sion RE constants.
+readonly re_D re_ED re_E_ re__D re___
 
 compare_versions ${1+"$@"} || case $? in
     1)							 exit 1	;;
