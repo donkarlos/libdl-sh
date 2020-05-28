@@ -96,7 +96,7 @@ emit_set_head() {
 ##----------------------------------------------------------------------------
 emit_get_head() {
     case $emit_heads in
-	*:$1:*)	eval echo \"\$emit_head_$1\"	;;
+	*:$1:*)	eval 'echo "$emit_head_'"$1"'"'	;;
 	*)	return 1			;;
     esac
 }
@@ -108,7 +108,7 @@ emit() {
     local l="$1"; shift			## Fetch level.
 
     case $emit_heads in
-	*:$l:*)	eval echo \"\$emit_head_$l\$*\"	;;
-	*)	echo "$*"			;;
+	*:$l:*)	eval 'echo "$emit_head_'"$l"'$*"'	;;
+	*)	echo "$*"				;;
     esac
 }
