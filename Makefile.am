@@ -46,8 +46,7 @@ dist_noinst_DATA	= LICENSE
 ##  Finish scripts and libraries:
 ##----------------------------------------------------------------------------
 noinst_SCRIPTS		= bin/genchangelog				\
-			  bin/test-deb-version				\
-			  libexec/args.awk
+			  bin/test-deb-version
 noinst_DATA		= lib/libsession.sh
 
 ##----------------------------------------------------------------------------
@@ -96,7 +95,8 @@ dist_man_MANS		= doc/conf_get.3sh				\
 ##----------------------------------------------------------------------------
 bin_SCRIPTS		= bin/libdl-sh					\
 			  bin/shebang
-pkgdata_SCRIPTS		= libexec/conf.awk
+pkgdata_SCRIPTS		= libexec/args.awk				\
+			  libexec/conf.awk
 shlib_DATA		= lib/libconf.sh				\
 			  lib/libdl.sh					\
 			  lib/libemit.sh				\
