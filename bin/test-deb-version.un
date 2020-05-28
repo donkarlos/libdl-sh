@@ -48,28 +48,36 @@ command=`basename "$0"`; readonly command
 ##		a number (to stay compatible to dpkg(1)'s notion of UVs).
 ##
 ##  The transformation is done in three stages:
-##   #1	An empty VERSION is weighted B or F by the 1st sed(1) expr.
-##	The four VERSION syntax variants are validated with 2nd to 5th sed(1)
-##	expr., prepending "#B#" (and the default EP "0:" iff sans-EP).
-##	A malformed VERSION gets rejected with 6th sed(1) expr.
-##   #2	While shifting the 2nd '#' sentinel, ' '-separating numeric from non-
-##	numeric parts, as well as appending '_' to each non-numeric part (both
-##	done on the fly with 7th sed(1) expr.), collate non-numeric parts into
-##	lexicographic order by weighting them as follows (":1"..."t1" loop):
-##	  * '~'	is weighted A (thus << anything),
-##	  * '_'	is weighted B (thus >> '~')
-##	  * '-'	is weighted C iff it separates UV from DR
-##		(thus << any letter and especially << '+' here!),
-##	  * a letter is weighted D, and
-##	  * '+'/'-'/'.'/':' are weighted E (thus >> letters).
-##   #3	The resulting transformed VERSION (between '#' sentinels), a ' '-sepa-
-##	rated sequence of a correctly collated empty part followed by alterna-
-##	ting numeric and collated non-numeric parts, is compiled into an
-##	echo(1) command, ultimately emitting it when eval(1)uated.
+##   1.	Validation:
+##	 a) An empty VERSION is weighted B or F by the 1st sed(1) expr.
+##	 b) The four VERSION syntax variants are validated by the 2nd to 5th
+##	    sed(1) expr.s, prepending "#B#" (i.e., an empty string weighted B
+##	    (and the default EP "0:" iff VERSION is sans-EP), so that the 2nd
+##	    '#' sentinel is before the epoch number.
+##	 c) A malformed VERSION is rejected by the 6th sed(1) expr.
+##   2.	Collation (":1"..."t1" loop):
+##	 a) Numeric parts have leading zero digits stripped and are ' '-sepa-
+##	    rated from non-numeric parts by the 7th and 8th sed(1) expr.s (the
+##	    latter being a special case for zero), advancing the 2nd sentinel
+##	    before the following non-numeric part.
+##	 b) Non-numeric parts are collated into lexicographic order character-
+##	    by-character (advancing the 2nd sentinel) by the 9th..13th sed(1)
+##	    expr.s as follows:
+##	     * '~' is weighted A (thus << anything, even the empty string),
+##	     * the empty string is weighted B (thus >> '~')
+##	     * '-' is weighted C iff it separates UV from DR (thus << any let-
+##		   ter and esp. << '+' in this case!),
+##	     * any letter is weighted D, and
+##	     * '+', '-', '.', or ':' are weighted E (thus >> letters).
+##	 c) Collation ends when the 2nd sentinel has been advanced to EOL.
+##   3. Emission:
+##	The resulting transformed VERSION (between '#' sentinels) is compiled
+##	into an echo(1) command by the final sed(1) expr. (which ultimately
+##	emits the result when eval(1)uated).
 ##
 ##  By transforming VERSION in this fashion, neither special handling of empty
-##  VERSIONs nor separate processing of EP and/or DR is necessary; just follow
-##  the flow of the alternating parts, comparing
+##  VERSIONs nor separate processing of EPs and/or DRs is necessary; just go
+##  with the flow of the alternating parts, comparing
 ##    *	non-numeric parts lexicographically and
 ##    *	    numeric parts numerically.
 ##  Et voilà!
