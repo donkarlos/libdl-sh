@@ -2,7 +2,7 @@
 #-----------------------------------------------------------------------------
 #   test-deb-version		- Compare version strings like dpkg(1)
 #
-#   Copyright (C) 2016-2018 Das Computerlabor (DCl-M)
+#   Copyright © 2016-2020 Das Computerlabor (DCl-M)
 #
 #   This library is free software; you can redistribute it and/or
 #   modify it under the terms of the GNU Lesser General Public License
@@ -26,21 +26,14 @@
 ##					Suppress leading zeros in numeric
 ##					parts and use ' ' as end-of-string
 ##					marker.
+##		ks	2020-05-27	Instantiate demand-loading and use
+##					libdl.sh's CS/RE definitions.
 ##----------------------------------------------------------------------------
-##  Global variables:
+##  Initialization:
 #-----------------------------------------------------------------------------
-BS=\\ SQ=\' QB=\` QE=\'
-
-cs_ul=ABCDEFGHIJKLMNOPQRSTUVWXYZ	## Upper-case letters.
-cs_ll=abcdefghijklmnopqrstuvwxyz	## Lower-case letters.
-cs_1d=123456789				## Decimal digits without and
-cs_0d=0$cs_1d				## with '0'.
-					## UV (Upstream Vers.) character sets:
-cs_ED='-:+.~'"$cs_ul$cs_ll$cs_0d"	## - with-EP/with-DR,
-cs_E_=':+.~'"$cs_ul$cs_ll$cs_0d"	## - with-EP/sans-DR,
-cs__D='-+.~'"$cs_ul$cs_ll$cs_0d"	## - sans-EP/with-DR, or
-cs___='+.~'"$cs_ul$cs_ll$cs_0d"		## - sans-EP/sans-DR.
-re_D='-['"$cs___"']*'			## Unanchored RE for DR (Debian Rev.).
+LC_ALL=C; export LC_ALL			## Avoid locale insanities.
+command=`basename "$0"`; readonly command
+					## Determine command name.
 
 ##----------------------------------------------------------------------------
 ##  transform_version(VERSION)	Transform valid dpkg(1) VERSION
@@ -89,19 +82,19 @@ transform_version() {
 
     eval "`local p=; case $- in *x*) p=p;; esac; sed '
 	s/^$/#'"${BorF-B}"'#/'"$p"';t1
-	s/^0*\(['"$cs_1d"']['"$cs_0d"']*:['"$cs_0d"']['"$cs_ED"']*'"$re_D"'\)$/#B#\1/'"$p"';t1
-	s/^0*\(['"$cs_0d"']:['"$cs_0d"']['"$cs_ED"']*'"$re_D"'\)$/#B#\1/'"$p"';t1
-	s/^0*\(['"$cs_1d"']['"$cs_0d"']*:['"$cs_0d"']['"$cs_E_"']*\)$/#B#\1/'"$p"';t1
-	s/^0*\(['"$cs_0d"']:['"$cs_0d"']['"$cs_E_"']*\)$/#B#\1/'"$p"';t1
-	s/^['"$cs_0d"']['"$cs__D"']*'"$re_D"'$/#B#0:&/'"$p"';t1
-	s/^['"$cs_0d"']['"$cs___"']*$/#B#0:&/'"$p"';t1
+	s/^0*\('"$dl_re_1n"':'"$cr_0d$cr_ED"'*'"$re_D"'\)$/#B#\1/'"$p"';t1
+	s/^0*\(0:'"$cr_0d$cr_ED"'*'"$re_D"'\)$/#B#\1/'"$p"';t1
+	s/^0*\('"$dl_re_1n"':'"$cr_0d$cr_E_"'*\)$/#B#\1/'"$p"';t1
+	s/^0*\(0:'"$cr_0d$cr_E_"'*\)$/#B#\1/'"$p"';t1
+	s/^'"$cr_0d$cr__D"'*'"$re_D"'$/#B#0:&/'"$p"';t1
+	s/^'"$cr_0d$cr___"'*$/#B#0:&/'"$p"';t1
 	s/^.*$/test/;q;:1
-	s/\([^#]\)#0*\(['"$cs_1d"']['"$cs_0d"']*\)\([^'"$cs_0d"']*\)/\1 \2 #\3 /'"$p"';t1
-	s/\([^#]\)#0*\(['"$cs_0d"']\)\([^'"$cs_0d"']*\)/\1 \2 #\3 /'"$p"';t1
+	s/\([^#]\)#0*\('"$dl_re_1n"'\)\([^'"$dl_cs_0d"']*\)/\1 \2 #\3 /'"$p"';t1
+	s/\([^#]\)#0*0\([^'"$dl_cs_0d"']*\)/\1 0 #\2 /'"$p"';t1
 	s/\([^#]\)#~/\1A~#/'"$p"';t1
 	s/\([^#]\)# /\1B#/'"$p"';t1
 	s/\([^#]\)#-\([^-]*\)$/\1C-#\2/'"$p"';t1
-	s/\([^#]\)#\(['"$cs_ul$cs_ll"']\)/\1D\2#/'"$p"';t1
+	s/\([^#]\)#\(['"$dl_cs_al"']\)/\1D\2#/'"$p"';t1
 	s/\([^#]\)#\(.\)/\1E\2#/'"$p"';t1
 	s/^#/echo '"$SQ"'/;s/#$/'"$SQ"'/;q
     ' <<EOF
@@ -122,11 +115,11 @@ EOF`"
 ##		Substitution tracing is enabled when "set -x" is in effect.
 ##----------------------------------------------------------------------------
 compare_versions() {
-    local eqn=-eq eqs='=' nes="$BS$BS"'!=' a='\&\&' o='||'		\
+    local eqn=-eq eqs== nes="$BS$BS"'!=' a='\&\&' o='||'		\
 	  tv1 op tv2 BorF form opn ops
 
     case $# in				## Usage OK?
-	3)  if op=`expr "_$2" : '^_\(['"$cs_ll]"'*\)-nl$'`; then
+	3)  if op=`expr "_$2" : '^_\(['"$dl_cs_ll]"'*\)-nl$'`; then
 					## OPerator is "*-nl" variant?
 		BorF=F			## Yes, make empty VERSIONs become
 					## >> non-empty version.
@@ -140,7 +133,7 @@ compare_versions() {
 		ne|'!='|'<>')	form=-o opn=-ne  ops=$nes	;;
 		ge|'>=')	form=vo opn=-gt  ops="$BS$BS"'>';;
 		gt|'>>'|'>')	form=va opn=-gt  ops="$BS$BS"'>';;
-		*)		return 3		;;
+		*)		return 3			;;
 	    esac			## ...or reject unknown OPerator!
 	    tv1=`transform_version "$1"` || return 4
 					## Try to transform VERSION1.
@@ -271,8 +264,17 @@ EOF`"
 ##----------------------------------------------------------------------------
 ##  Main program:
 ##----------------------------------------------------------------------------
-LC_ALL=C; export LC_ALL			## Avoid locale insanities.
-command=`basename "$0"`
+eval "`libdl-sh load`"			## Instantiate demand-loading, defin-
+					## ing libdl.sh's CS/RE constants.
+cr_ED='[-:+.~'"$dl_cs_an]"		## Construct with-EP/with-DR, with-EP/
+cr_E_='[:+.~'"$dl_cs_an]"		## sans-DR, sans-EP/with-DR, and
+cr__D='[-+.~'"$dl_cs_an]"		## sans-EP/sans-DR upstream version
+cr___='[+.~'"$dl_cs_an]"		## (UV) character ranges as well as
+cr_0d="[$dl_cs_0d]"			## decimal digit character range
+readonly cr_ED cr_E_ cr__D cr___ cr_0d	## constants.
+
+re_D="-$cr___*"				## Construct unanchored Debian revi-
+readonly re_D				## sion (DR) RE.
 
 compare_versions ${1+"$@"} || case $? in
     1)							 exit 1	;;
