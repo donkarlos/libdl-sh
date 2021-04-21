@@ -2,7 +2,7 @@
 #-----------------------------------------------------------------------------
 #   test-deb-version		- Compare version strings like dpkg(1)
 #
-#   Copyright © 2016-2020 Das Computerlabor (DCl-M)
+#   Copyright © 2016-2021 Das Computerlabor (DCl-M)
 #
 #   This library is free software; you can redistribute it and/or
 #   modify it under the terms of the GNU Lesser General Public License
@@ -28,6 +28,7 @@
 ##					marker.
 ##		ks	2020-05-27	Instantiate demand-loading and use
 ##					libdl.sh's CS/RE definitions.
+##		ks	2021-04-21	Warn about use of obsolete operators.
 ##----------------------------------------------------------------------------
 ##  Initialization:
 #-----------------------------------------------------------------------------
@@ -131,7 +132,11 @@ compare_versions() {
 					## >> non-empty version.
 	    else			## No, make empty VERSIONs become
 		BorF=B op=$2		## << non-empty version.
-	    fi; case $op in		## Choose OPerator's compilation form
+	    fi; case $op in		## Obsolete OPerator?
+		'<'|'>')		## Yes, issue warning.
+		    echo "$command: Used with obsolete relation operator $BQ$op$SQ." >&2
+		    ;;
+	    esac; case $op in		## Choose OPerator's compilation form
 					## and (escaped) test(1) operators...
 		lt|'<<'|'<')	form=va opn=-lt  ops="$BS$BS"'<';;
 		le|'<=')	form=vo opn=-lt  ops="$BS$BS"'<';;
