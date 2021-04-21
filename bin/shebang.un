@@ -22,6 +22,8 @@
 ##
 ##  WRITTEN BY:	ks	2020-05-27
 ##  CHANGED BY:	ks	2021-04-18	Split awk(1)/nawk(1) alternatives.
+##			2021-04-21	Suppress shell error messsages while
+##					locating the locator.
 ##----------------------------------------------------------------------------
 ##  Initialization:
 #-----------------------------------------------------------------------------
@@ -40,7 +42,7 @@ eval "`sed '
 					## preter's basename and arguments.
 for locate in 'command -v' whence which; do
 					## Foreach command locator do...
-    if $locate $locate >/dev/null 2>&1; then
+    if ($locate $locate) >/dev/null 2>&1; then
 					## Does it locate itself?
 	case $interp in			## Yes. Provide alternatives...
 	    awk)    interps="$interp nawk mawk gawk"	;;
