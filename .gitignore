@@ -1,7 +1,7 @@
 #-----------------------------------------------------------------------------
 #   .gitignore			- libdl-sh git(1) exclude patterns
 #
-#   Copyright © 2013-2020 Das Computerlabor (DCl-M)
+#   Copyright © 2013-2021 Das Computerlabor (DCl-M)
 #
 #   This library is free software; you can redistribute it and/or
 #   modify it under the terms of the GNU Lesser General Public License
@@ -25,11 +25,17 @@
 #		ks	2020-05-16	Move `conf.awk' and `args.awk' to lib-
 #					exec/.
 #		ks	2020-05-27	Add universal interpreter.
+#		ks	2021-04-21	Ignore temporary stuff.
 #
 #   NOTE:   (1)	Exclude patterns for tools beyond the actual build tools have
 #		been left out intentionally! Such patterns are better kept in
 #		a global exclude pattern file. See the GIT documentation for
 #		further information about this topic.
+#-----------------------------------------------------------------------------
+#   Temporary stuff:
+#-----------------------------------------------------------------------------
+/tmp/
+
 #-----------------------------------------------------------------------------
 #   autoreconf(1) results:
 #-----------------------------------------------------------------------------
