@@ -29,6 +29,8 @@
 ##		ks	2020-05-27	Instantiate demand-loading and use
 ##					libdl.sh's CS/RE definitions.
 ##		ks	2021-04-21	Warn about use of obsolete operators.
+##					Alias obsolete operators '<'/'>' with
+##					'<='/'>=', respectively.
 ##----------------------------------------------------------------------------
 ##  Initialization:
 #-----------------------------------------------------------------------------
@@ -138,12 +140,12 @@ compare_versions() {
 		    ;;
 	    esac; case $op in		## Choose OPerator's compilation form
 					## and (escaped) test(1) operators...
-		lt|'<<'|'<')	form=va opn=-lt  ops="$BS$BS"'<';;
-		le|'<=')	form=vo opn=-lt  ops="$BS$BS"'<';;
+		lt|'<<')	form=va opn=-lt  ops="$BS$BS"'<';;
+		le|'<='|'<')	form=vo opn=-lt  ops="$BS$BS"'<';;
 		eq|'=='|'=')	form=-a opn=$eqn ops=$eqs	;;
 		ne|'!='|'<>')	form=-o opn=-ne  ops=$nes	;;
-		ge|'>=')	form=vo opn=-gt  ops="$BS$BS"'>';;
-		gt|'>>'|'>')	form=va opn=-gt  ops="$BS$BS"'>';;
+		ge|'>='|'>')	form=vo opn=-gt  ops="$BS$BS"'>';;
+		gt|'>>')	form=va opn=-gt  ops="$BS$BS"'>';;
 		*)		return 3			;;
 	    esac			## ...or reject unknown OPerator!
 	    tv1=`transform_version "$1"` || return 4
