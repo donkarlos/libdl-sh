@@ -33,6 +33,7 @@
 ##					'<='/'>=', respectively.
 ##					Simplify "-nl" variant processing.
 ##					Treat missing VERSION2 as empty.
+##		ks	2021-04-23	Catch internal errors.
 ##----------------------------------------------------------------------------
 ##  Initialization:
 #-----------------------------------------------------------------------------
@@ -265,10 +266,12 @@ compare_versions() {
 	s/^\(#-.#[^#]*\)#\([^#]*\)#\([^#]*\)#/\1test '"$SQ"'\2'"$SQ $ops $SQ"'\3'"$SQ"'/'"$p"';tp
 	s/^\(#va#[^#]*\)#\([^#]*\)#\([^#]*\)#/\1test '"$SQ"'\2'"$SQ $nes $SQ"'\3'"$SQ"' '"$a"' test '"$SQ"'\2'"$SQ $ops $SQ"'\3'"$SQ"'/'"$p"';tp
 	s/^\(#vo#[^#]*\)#\([^#]*\)#\([^#]*\)#/\1test '"$SQ"'\2'"$SQ $eqs $SQ"'\3'"$SQ"' '"$o"' test '"$SQ"'\2'"$SQ $ops $SQ"'\3'"$SQ"'/'"$p"';tp
+	s/^.*$/return 6/;q
 	:n
 	s/^\(#-a#[^#]*\)#\([^ #]*\) \([^#]*\)#\([^ #]*\) \([^#]*\)#/\1test \2 '"$opn"' \4 '"$a"' #\3#\5#/'"$p"';ts
 	s/^\(#-o#[^#]*\)#\([^ #]*\) \([^#]*\)#\([^ #]*\) \([^#]*\)#/\1test \2 '"$opn"' \4 '"$o"' #\3#\5#/'"$p"';ts
 	s/^\(#v.#[^#]*\)#\([^ #]*\) \([^#]*\)#\([^ #]*\) \([^#]*\)#/\1test \2 '"$eqn"' \4 '"$a"' { #\3#\5#; } '"$o"' test \2 '"$opn"' \4/'"$p"';ts
+	s/^.*$/return 6/;q
 	:p
 	s/^#..#//
 	' <<EOF
@@ -301,4 +304,5 @@ compare_versions ${1+"$@"} || case $? in
     3)	echo "$command: Unknown operator $QB$2$QE!" >&2; exit 2	;;
     4)	echo "$command: Invalid version $QB$1$QE!"  >&2; exit 2	;;
     5)	echo "$command: Invalid version $QB$3$QE!"  >&2; exit 2	;;
+    6)	echo "$command: Internal error!"	    >&2; exit 2	;;
 esac
