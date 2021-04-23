@@ -237,19 +237,19 @@ compare_versions() {
     ##	EXAMPLE:
     ##
     ##	compare_versions '0+0' lt '0-0'
-    ##    * transforms versions '0+0' and '0-0' into
+    ##	  * transforms versions '0+0' and '0-0' into
     ##	    tv1=`transform_version 0+0`, i.e. tv1='B 0 E:B 0 E+B 0 B' and
-    ##	    tv2=`transform_version 0-0`, i.e. tv2='B 0 E:B 0 CB 0 B', then
-    ##	  * compiles "#va##B 0 E:B 0 E+B 0 B#B 0 E:B 0 CB 0 B#" into the
+    ##	    tv2=`transform_version 0-0`, i.e. tv2='B 0 E:B 0 C-B 0 B', then
+    ##	  * compiles "#va##B 0 E:B 0 E+B 0 B#B 0 E:B 0 C-B 0 B#" into the
     ##	    test(1) sequence depicted (neatly folded to illustrate that in-
     ##      deed we must descend into, then ascend out of a valley) below:
     ##
     ##	  --.			     SHORTCUT			       .->
-    ##	   T \ test B = B     && {    TAKEN     } || test B \< B      / F
-    ##	    T \ test 0 -eq 0   && {	|      } || test 0 -lt 0     / F
+    ##	   T \ test B = B     && {    TAKEN     } || test B \< B;     / F
+    ##	    T \ test 0 -eq 0   && {	|      } || test 0 -lt 0;    / F
     ##	     T \ test E:B = E:B && {	|     } || test E:B \< E:B; / F
     ##	      T \ test 0 -eq 0   && {	v    } || test 0 -lt 0;    / F
-    ##	       F \ test E+B = CB  && { ---> } || test E+B \< CB;  / F
+    ##	       F \ test E+B = C-B && { ---> } || test E+B \< C-B; / F
     ##		  \ test 0 -eq 0   && {    } || test 0 -lt 0;    /
     ##		   \ test 'B' \!= 'B'   &&  test 'B' \< 'B';    /
     ##		    `------------------------------------------´
