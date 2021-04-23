@@ -32,6 +32,7 @@
 ##					Alias obsolete operators '<'/'>' with
 ##					'<='/'>=', respectively.
 ##					Simplify "-nl" variant processing.
+##					Treat missing VERSION2 as empty.
 ##----------------------------------------------------------------------------
 ##  Initialization:
 #-----------------------------------------------------------------------------
@@ -129,7 +130,7 @@ compare_versions() {
 	  tv1 op tv2 BorF=B form opn ops
 
     case $# in				## Usage OK?
-	3)				## Yes,...
+	[23])				## Yes,...
 	    op=`expr "_$2" : '^_\(['"$dl_cs_ll]"'*\)-nl$'` && BorF=F || op=$2
 					## Make empty VERSIONs >> any non-
 					## empty version if OPerator is
@@ -148,9 +149,10 @@ compare_versions() {
 		gt|'>>')	form=va opn=-gt  ops="$BS$BS"'>';;
 		*)		return 3			;;
 	    esac			## ...or reject unknown OPerator!
+
 	    tv1=`transform_version "$1"` || return 4
 					## Try to transform VERSION1.
-	    tv2=`transform_version "$3"` || return 5
+	    tv2=`transform_version "${3-}"` || return 5
 	    ;;				## Try to transform VERSION2.
 	*)  return 2			## No, indicate misusage!
 	    ;;
