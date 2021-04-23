@@ -297,6 +297,24 @@ EOF
 }
 
 ##----------------------------------------------------------------------------
+##  verscmp_version()		Show version and license information
+##
+##  Non-local variables:
+##	- command	(R) command name
+##----------------------------------------------------------------------------
+verscmp_version() {
+    cat <<EOF
+$command (@PACKAGE_NAME@) @PACKAGE_VERSION@
+Copyright © 2016-2021 Das Computerlabor
+License GPLv2: GNU GPL version 2 or later
+This is free software: you are free to change and redistribute it.
+There is NO WARRANTY, to the extent permitted by law.
+
+Please send bug reports to <@PACKAGE_BUGREPORT@>.
+EOF
+}
+
+##----------------------------------------------------------------------------
 ##  Main program:
 ##----------------------------------------------------------------------------
 eval "`libdl-sh load`"			## Instantiate demand-loading, defin-
