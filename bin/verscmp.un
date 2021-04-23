@@ -280,6 +280,23 @@ EOF`"
 }
 
 ##----------------------------------------------------------------------------
+##  verscmp_help()		Show help
+##
+##  Non-local variables:
+##	- command	(R) command name
+##----------------------------------------------------------------------------
+verscmp_help() {
+    cat <<EOF
+Usage: $command [OPTION ...] VERSION1 OP VERSION2
+	Compare version strings.
+
+Valid options are:
+ -h, --help		Show help
+ -V, --version		Show version information
+EOF
+}
+
+##----------------------------------------------------------------------------
 ##  Main program:
 ##----------------------------------------------------------------------------
 eval "`libdl-sh load`"			## Instantiate demand-loading, defin-
