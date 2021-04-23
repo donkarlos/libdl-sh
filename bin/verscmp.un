@@ -294,6 +294,7 @@ Usage: $command [OPTION ...] VERSION1 OP VERSION2
 Valid options are:
  -h, --help		Show help
  -V, --version		Show version information
+ -v, --verbose		Be verbose
 EOF
 }
 
@@ -322,8 +323,8 @@ EOF
     echo "$command: Legacy getopt(1) found!" >&2; exit 2
 					## Legacy; complain and abort!
 } || case $? in
-    4)	optstring=hV
-	longopts=help,version		## Modern; preset short and long
+    4)	optstring=hVv
+	longopts=help,version,verbose	## Modern; preset short and long
 	;;				## option lists.
     *)	echo "$command: Missing getopt(1)!" >&2
 	exit 2				## None at all; complain and abort!
@@ -334,11 +335,12 @@ args=`getopt -n"$command" -o"$optstring" -l"$longopts" -- ${1+"$@"}` || {
     verscmp_help >&2; exit 2		## No, show help and abort!
 }
 eval set shiftee "$args"; unset optstring longopts args
-unset TRACE action
+unset TRACE action verbose
 while shift; do				## Process parsed options...
     case $1 in
 	-h|--help)	action=help	;;
 	-V|--version)	action=version	;;
+	-v|--verbose)	verbose=y	;;
 	--)		shift; break	;;
     esac
 done; case ${action-} in
@@ -369,4 +371,6 @@ compare_versions ${1+"$@"} || case $? in
     4)	echo "$command: Invalid version $QB$1$QE!"  >&2; exit 2	;;
     5)	echo "$command: Invalid version $QB$3$QE!"  >&2; exit 2	;;
     6)	echo "$command: Internal error!"	    >&2; exit 2	;;
+esac; case ${verbose-n} in
+    y)	echo "$1 $2 $3"
 esac
