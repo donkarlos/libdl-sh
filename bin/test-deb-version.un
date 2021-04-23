@@ -31,6 +31,7 @@
 ##		ks	2021-04-21	Warn about use of obsolete operators.
 ##					Alias obsolete operators '<'/'>' with
 ##					'<='/'>=', respectively.
+##					Simplify "-nl" variant processing.
 ##----------------------------------------------------------------------------
 ##  Initialization:
 #-----------------------------------------------------------------------------
@@ -125,16 +126,15 @@ EOF`"
 ##----------------------------------------------------------------------------
 compare_versions() {
     local eqn=-eq eqs== nes="$BS$BS"'!=' a='\&\&' o='||'		\
-	  tv1 op tv2 BorF form opn ops
+	  tv1 op tv2 BorF=B form opn ops
 
     case $# in				## Usage OK?
-	3)  if op=`expr "_$2" : '^_\(['"$dl_cs_ll]"'*\)-nl$'`; then
-					## OPerator is "*-nl" variant?
-		BorF=F			## Yes, make empty VERSIONs become
-					## >> non-empty version.
-	    else			## No, make empty VERSIONs become
-		BorF=B op=$2		## << non-empty version.
-	    fi; case $op in		## Obsolete OPerator?
+	3)				## Yes,...
+	    op=`expr "_$2" : '^_\(['"$dl_cs_ll]"'*\)-nl$'` && BorF=F || op=$2
+					## Make empty VERSIONs >> any non-
+					## empty version if OPerator is
+					## "*-nl" variant.
+	    case $op in			## Obsolete OPerator?
 		'<'|'>')		## Yes, issue warning.
 		    echo "$command: Used with obsolete relation operator $BQ$op$SQ." >&2
 		    ;;
