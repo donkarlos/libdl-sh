@@ -1,6 +1,6 @@
 #! /bin/sh
 #-----------------------------------------------------------------------------
-#   test-deb-version		- Compare version strings like dpkg(1)
+#   verscmp			- Compare version strings
 #
 #   Copyright © 2016-2021 Das Computerlabor (DCl-M)
 #
@@ -21,10 +21,8 @@
 ##  AUTHOR(S):	ks	Karl Schmitz <ks@computerlabor.org>
 ##
 ##  WRITTEN BY:	ks	2016-05-17
-##  CHANGED BY:	ks	2018-02-27	Import from package `ssh-ca' (where
-##					it was known as `debverscmp').
-##					Suppress leading zeros in numeric
-##					parts and use ' ' as end-of-string
+##  CHANGED BY:	ks	2018-02-27	Suppress leading zeros in numeric
+##					parts and use ' ' as end-of-part
 ##					marker.
 ##		ks	2020-05-27	Instantiate demand-loading and use
 ##					libdl.sh's CS/RE definitions.
@@ -34,6 +32,7 @@
 ##					Simplify "-nl" variant processing.
 ##					Treat missing VERSION2 as empty.
 ##		ks	2021-04-23	Catch internal errors.
+##					Rename to `verscmp'.
 ##----------------------------------------------------------------------------
 ##  Initialization:
 #-----------------------------------------------------------------------------
@@ -42,7 +41,8 @@ command=`basename "$0"`; readonly command
 					## Determine command name.
 
 ##----------------------------------------------------------------------------
-##  transform_version(VERSION)	Transform valid dpkg(1) VERSION
+##  verscmp_collate_dpkg(VERSION)
+##				Collate valid dpkg(1) VERSION
 ##
 ##  NOTE:   (1)	Invoker must set "BorF=F" for "*-nl" operators (see dpkg(1))
 ##		to correctly collate an empty VERSION!
@@ -88,7 +88,7 @@ command=`basename "$0"`; readonly command
 ##    *	    numeric parts numerically.
 ##  Et voilà!
 ##----------------------------------------------------------------------------
-transform_version() {
+verscmp_collate_dpkg() {
     case ${BorF-B} in			## $BorF must be 'B' or 'F' (got it?).
 	B|F)		;;
 	*)  return 2	;;
@@ -151,10 +151,10 @@ compare_versions() {
 		*)		return 3			;;
 	    esac			## ...or reject unknown OPerator!
 
-	    tv1=`transform_version "$1"` || return 4
-					## Try to transform VERSION1.
-	    tv2=`transform_version "${3-}"` || return 5
-	    ;;				## Try to transform VERSION2.
+	    tv1=`verscmp_collate_dpkg "$1"` || return 4
+					## Try to collate VERSION1.
+	    tv2=`verscmp_collate_dpkg "${3-}"` || return 5
+	    ;;				## Try to collate VERSION2.
 	*)  return 2			## No, indicate misusage!
 	    ;;
     esac
@@ -239,8 +239,8 @@ compare_versions() {
     ##
     ##	compare_versions '0+0' lt '0-0'
     ##	  * transforms versions '0+0' and '0-0' into
-    ##	    tv1=`transform_version 0+0`, i.e. tv1='B 0 E:B 0 E+B 0 B' and
-    ##	    tv2=`transform_version 0-0`, i.e. tv2='B 0 E:B 0 C-B 0 B', then
+    ##	    tv1=`verscmp_collate_dpkg 0+0`, i.e. tv1='B 0 E:B 0 E+B 0 B' and
+    ##	    tv2=`verscmp_collate_dpkg 0-0`, i.e. tv2='B 0 E:B 0 C-B 0 B', then
     ##	  * compiles "#va##B 0 E:B 0 E+B 0 B#B 0 E:B 0 C-B 0 B#" into the
     ##	    test(1) sequence depicted (neatly folded to illustrate that in-
     ##      deed we must descend into, then ascend out of a valley) below:

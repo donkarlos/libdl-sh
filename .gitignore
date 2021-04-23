@@ -26,6 +26,8 @@
 #					exec/.
 #		ks	2020-05-27	Add universal interpreter.
 #		ks	2021-04-21	Ignore temporary stuff.
+#		ks	2021-04-23	Rename `test-deb-version' to `vers-
+#					cmp'.
 #
 #   NOTE:   (1)	Exclude patterns for tools beyond the actual build tools have
 #		been left out intentionally! Such patterns are better kept in
@@ -58,7 +60,7 @@ Makefile
 /bin/genchangelog
 /bin/libdl-sh
 /bin/shebang
-/bin/test-deb-version
+/bin/verscmp
 /doc/*.[15]
 /doc/lib*.3sh
 /etc/*.conf

@@ -1,7 +1,7 @@
 dnl								-*-Autoconf-*-
 dnl configure.ac		- libdl-sh Autotools configuration
 dnl
-dnl Copyright © 2013-2020 Das Computerlabor (DCl-M)
+dnl Copyright © 2013-2021 Das Computerlabor (DCl-M)
 dnl
 dnl This library is free software; you can redistribute it and/or
 dnl modify it under the terms of the GNU Lesser General Public License
@@ -27,6 +27,8 @@ dnl		ks	2020-05-12	Import changelog generator.
 dnl		ks	2020-05-16	Move `conf.awk' and `args.awk' to lib-
 dnl					exec/.
 dnl		ks	2020-05-27	Add universal interpreter.
+dnl		ks	2021-04-23	Rename `test-deb-version' to `vers-
+dnl					cmp'.
 dnl
 dnl NOTE:   (1)	Update the build system with autoreconf(1).
 dnl	    (2)	AM_INIT_AUTOMAKE() already invokes AC_ARG_PROGRAM, AC_PROG_-
@@ -51,7 +53,7 @@ AF_FINISH_FILES([
     bin/genchangelog
     bin/libdl-sh
     bin/shebang
-    bin/test-deb-version
+    bin/verscmp
     doc/libconf.3sh
     doc/libdl-sh.1
     doc/libdl-sh.conf.5

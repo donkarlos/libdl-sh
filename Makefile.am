@@ -1,7 +1,7 @@
 ##								-*-Makefile-*-
 ##  Makefile.am			- libdl-sh `Makefile.in' template
 ##
-##  Copyright © 2013-2020 Das Computerlabor (DCl-M)
+##  Copyright © 2013-2021 Das Computerlabor (DCl-M)
 ##
 ##  This library is free software; you can redistribute it and/or
 ##  modify it under the terms of the GNU Lesser General Public License
@@ -25,6 +25,8 @@
 ##		ks	2020-05-16	Move `conf.awk' and `args.awk' to lib-
 ##					exec/.
 ##		ks	2020-05-27	Add universal interpreter.
+##		ks	2021-04-23	Rename `test-deb-version' to `vers-
+##					cmp'.
 ##
 ##  NOTE:   (1)	Update the build system with autoreconf(1).
 ##----------------------------------------------------------------------------
@@ -45,8 +47,7 @@ dist_noinst_DATA	= LICENSE
 ##----------------------------------------------------------------------------
 ##  Finish scripts and libraries:
 ##----------------------------------------------------------------------------
-noinst_SCRIPTS		= bin/genchangelog				\
-			  bin/test-deb-version
+noinst_SCRIPTS		= bin/genchangelog
 noinst_DATA		= lib/libsession.sh
 
 ##----------------------------------------------------------------------------
@@ -94,7 +95,8 @@ dist_man_MANS		= doc/conf_get.3sh				\
 ##  Finish and install scripts, libraries, manpages, and package data:
 ##----------------------------------------------------------------------------
 bin_SCRIPTS		= bin/libdl-sh					\
-			  bin/shebang
+			  bin/shebang					\
+			  bin/verscmp
 pkgdata_SCRIPTS		= libexec/args.awk				\
 			  libexec/conf.awk
 shlib_DATA		= lib/libconf.sh				\
