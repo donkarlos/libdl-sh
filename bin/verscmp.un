@@ -42,6 +42,35 @@ command=`basename "$0"`; readonly command
 unset GETOPT_COMPATIBLE POSIXLY_CORRECT	## Make modern getopt(1) behave.
 
 ##----------------------------------------------------------------------------
+##  verscmp_syntax(WHAT [ARG ...)	~~~~
+##
+##  Non-local variables:
+##	- command	(R) command name
+##	- &WHAT		(W) canonical WHAT
+##----------------------------------------------------------------------------
+verscmp_syntax() {
+    case ${1+=} in
+	=)  local status=0 what="$1" fs='#' vs=, sx obsolete; shift	;;
+	*)  return 2							;;
+    esac; case $#:$what in
+	1:frontend)			## frontend FRONTEND...
+	    sx='/^#f'"$fs"'[^'"$fs"']*'"$vs$1$vs"'/{
+		s/^#.#'"$vs/$what"'=/;s/'"$vs"'.*$//;q
+	    };$!d;s/^.*$/status=1/'
+	    ;;
+	*)
+	    return 2
+	    ;;
+    esac; eval "`sed "$sx" <<EOF
+#f${fs}${vs}dpkg${vs}deb${vs}
+EOF`"; case $status:$what in
+    1:frontend)
+	echo "$command: $1: no such $what!" >&2
+	;;
+esac; return $status
+}
+
+##----------------------------------------------------------------------------
 ##  verscmp_collate_dpkg(VERSION)
 ##				Collate valid dpkg(1) VERSION
 ##
@@ -295,6 +324,8 @@ Valid options are:
  -h, --help		Show help
  -V, --version		Show version information
  -v, --verbose		Be verbose
+ -m, --mode, --frontend=FRONTEND
+			Collate VERSIONs with FRONTEND
 EOF
 }
 
@@ -323,8 +354,8 @@ EOF
     echo "$command: Legacy getopt(1) found!" >&2; exit 2
 					## Legacy; complain and abort!
 } || case $? in
-    4)	optstring=hVv
-	longopts=trace,help,version,verbose
+    4)	optstring=hVvm:
+	longopts=trace,help,version,verbose,mode:,frontend:
 					## Modern; preset short and long
 	;;				## option lists.
     *)	echo "$command: Missing getopt(1)!" >&2
@@ -336,14 +367,16 @@ args=`getopt -n"$command" -o"$optstring" -l"$longopts" -- ${1+"$@"}` || {
     verscmp_help >&2; exit 2		## No, show help and abort!
 }
 eval set shiftee "$args"; unset optstring longopts args
-unset TRACE action verbose
+unset TRACE action verbose frontend
 while shift; do				## Process parsed options...
     case $1 in
-	--trace)	TRACE='set -x'	;;
-	-h|--help)	action=help	;;
-	-V|--version)	action=version	;;
-	-v|--verbose)	verbose=y	;;
-	--)		shift; break	;;
+	--trace)	TRACE='set -x'		;;
+	-h|--help)	action=help		;;
+	-V|--version)	action=version		;;
+	-v|--verbose)	verbose=y		;;
+	-m|--mode|--frontend)
+			shift; frontend=$1	;;
+	--)		shift; break		;;
     esac
 done; case ${action-} in
     help)	verscmp_help   ; exit 0	;;
@@ -367,6 +400,9 @@ re___="$cr_0d$cr___*"			## sion RE constants.
 readonly re_D re_ED re_E_ re__D re___
 
 ${TRACE-}				## Start tracing if requested.
+verscmp_syntax frontend "${frontend-dpkg}" || exit 2
+					## Validate (and canonify) frontend
+					## or die.
 compare_versions ${1+"$@"} || case $? in
     1)							 exit 1	;;
     2)	echo "Usage: $command VERSION1 OP VERSION2" >&2; exit 2	;;
