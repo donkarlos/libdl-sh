@@ -58,13 +58,19 @@ verscmp_syntax() {
 		s/^#.#'"$vs/$what"'=/;s/'"$vs"'.*$//;q
 	    };$!d;s/^.*$/status=1/'
 	    ;;
+	1:backend)			## backend BACKEND...
+	    sx='/^#b'"$fs"'[^'"$fs"']*'"$vs$1$vs"'/{
+		s/^#.#'"$vs/$what"'=/;s/'"$vs"'.*$//;q
+	    };$!d;s/^.*$/status=1/'
+	    ;;
 	*)
 	    return 2
 	    ;;
     esac; eval "`sed "$sx" <<EOF
 #f${fs}${vs}dpkg${vs}deb${vs}
+#b${fs}${vs}t{}${vs}test${vs}
 EOF`"; case $status:$what in
-    1:frontend)
+    1:frontend|1:backend)
 	echo "$command: $1: no such $what!" >&2
 	;;
 esac; return $status
@@ -367,7 +373,7 @@ args=`getopt -n"$command" -o"$optstring" -l"$longopts" -- ${1+"$@"}` || {
     verscmp_help >&2; exit 2		## No, show help and abort!
 }
 eval set shiftee "$args"; unset optstring longopts args
-unset TRACE action verbose frontend
+unset TRACE action verbose frontend backend
 while shift; do				## Process parsed options...
     case $1 in
 	--trace)	TRACE='set -x'		;;
@@ -400,9 +406,10 @@ re___="$cr_0d$cr___*"			## sion RE constants.
 readonly re_D re_ED re_E_ re__D re___
 
 ${TRACE-}				## Start tracing if requested.
-verscmp_syntax frontend "${frontend-dpkg}" || exit 2
-					## Validate (and canonify) frontend
-					## or die.
+verscmp_syntax frontend "${frontend-dpkg}"				&&
+verscmp_syntax backend "${backend-test}" || exit 2
+					## Validate (and canonify) front- and
+					## backend or die.
 compare_versions ${1+"$@"} || case $? in
     1)							 exit 1	;;
     2)	echo "Usage: $command VERSION1 OP VERSION2" >&2; exit 2	;;
