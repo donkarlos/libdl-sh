@@ -100,7 +100,7 @@ esac
 ##	- dl_cs_0d	(R) (unbracketed) decimal digits character set
 ##	- dl_cs_al	(R) (unbracketed) ASCII letters  character set
 ##
-##  The transformation is done in three stages:
+##  VERSION is collated in three stages:
 ##   1.	Validation:
 ##	 a) An empty VERSION is weighted B or F by the 1st sed(1) expr.
 ##	 b) The four VERSION syntax variants are validated by the 2nd to 5th
@@ -128,11 +128,18 @@ esac
 ##	into an echo(1) command by the final sed(1) expr. (which ultimately
 ##	emits the result when eval(1)uated).
 ##
-##  By transforming VERSION in this fashion, neither special handling of empty
-##  VERSIONs nor separate processing of EPs and/or DRs is necessary; just go
-##  with the flow of the alternating parts, comparing
-##    *	non-numeric parts lexicographically and
-##    *	    numeric parts numerically.
+##  The collated VERSION emitted has the following properties:
+##  (1) It's a space-separated sequence of alternating (collated) non-numeric
+##	and numeric (with leading zero digits removed) parts
+##  (2) whose first part is always non-nuemric part, i.e. it matches the RE
+##	"<STR>[ <NUM> <STR>]*".
+##
+##  Consequently, neither
+##    •	special handling of empty VERSIONs nor
+##    •	special handling of EPs and/or DRs is necessary; the comparison is
+##  simply done part-by-part, comparing
+##    •	non-numeric parts lexicographically and
+##    •	    numeric parts numerically.
 ##  Et voilà!
 ##----------------------------------------------------------------------------
 verscmp_collate_dpkg() {
