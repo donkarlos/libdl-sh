@@ -29,10 +29,10 @@
 ##		ks	2021-04-21	Warn about use of obsolete operators.
 ##					Alias obsolete operators '<'/'>' with
 ##					'<='/'>=', respectively.
-##					Simplify "-nl" variant processing.
 ##					Treat missing VERSION2 as empty.
 ##		ks	2021-04-23	Catch internal errors.
 ##					Rename to `verscmp'.
+##		ks	2021-04-25	Use table-driven implementation.
 ##----------------------------------------------------------------------------
 ##  Initialization:
 #-----------------------------------------------------------------------------
@@ -50,7 +50,7 @@ unset GETOPT_COMPATIBLE POSIXLY_CORRECT	## Make modern getopt(1) behave.
 ##----------------------------------------------------------------------------
 verscmp_syntax() {
     case ${1+=} in
-	=)  local what="$1" fs='#' vs=, sx obsolete; shift	;;
+	=)  local what="$1" fs='#' vs=, sx obsolete=n; shift	;;
 	*)  return 2						;;
     esac; case $#:$what in
 	1:frontend)			## frontend FRONTEND...
@@ -73,19 +73,19 @@ verscmp_syntax() {
 	    ;;
     esac; eval "`sed "$sx" <<EOF
 #f${fs}${vs}dpkg${vs}deb${vs}
-#b${fs}${vs}t{}${vs}test${vs}${fs}lh0='test '; lh1=" ${DS}shbc ${DS}shlb ${DS}lh0" rh1="; ${DS}shrb ${DS}shbd ${DS}lh0" rh0=; readonly lh0 lh1 rh1 rh0
+#b${fs}${vs}t{}${vs}test${vs}${fs}lh0='test '; lh1=" ${DS}shbc ${DS}shlb ${DS}lh0" bh1=" ${DS}shbd ${DS}lh0" rh1="; ${DS}shrb ${DS}shbd ${DS}lh0" rh0=; readonly lh0 lh1 bh1 rh1 rh0
 #o${fs}dpkg${fs}t{}${fs}${vs}lt${vs}<<${vs}${fs}form="${DS}2" sop=${DS}slt nop=${DS}nlt
-#o${fs}dpkg${fs}t{}${fs}${vs}lt${vs}lt-nl${vs}${fs}form="${DS}2" sop=${DS}slt nop=${DS}nlt BorF=F
+#o${fs}dpkg${fs}t{}${fs}${vs}lt-nl${vs}${fs}form="${DS}2" sop=${DS}slt nop=${DS}nlt BorF=F
 #o${fs}dpkg${fs}t{}${fs}${vs}le${vs}<=${vs}${fs}form="${DS}2|" sop=${DS}slt nop=${DS}nlt
-#o${fs}dpkg${fs}t{}${fs}${vs}le${vs}le-nl${vs}${fs}form="${DS}2|" sop=${DS}slt nop=${DS}nlt BorF=F
-#o${fs}dpkg${fs}t{}${fs}${vs}le${vs}<${vs}${fs}form="${DS}2|" sop=${DS}slt nop=${DS}nlt obs=y
+#o${fs}dpkg${fs}t{}${fs}${vs}le-nl${vs}${fs}form="${DS}2|" sop=${DS}slt nop=${DS}nlt BorF=F
+#o${fs}dpkg${fs}t{}${fs}${vs}le${vs}<${vs}${fs}form="${DS}2|" sop=${DS}slt nop=${DS}nlt obsolete=y
 #o${fs}dpkg${fs}t{}${fs}${vs}eq${vs}eq-nl${vs}==${vs}=${vs}${fs}form=t sop=${DS}seq nop=${DS}neq
 #o${fs}dpkg${fs}t{}${fs}${vs}ne${vs}ne-nl${vs}!=${vs}<>${vs}${fs}form=t sop=${DS}sne nop=${DS}nne
 #o${fs}dpkg${fs}t{}${fs}${vs}ge${vs}>=${vs}${fs}form="${DS}2|" sop=${DS}sgt nop=${DS}ngt
-#o${fs}dpkg${fs}t{}${fs}${vs}ge${vs}ge-nl${vs}${fs}form="${DS}2|" sop=${DS}sgt nop=${DS}ngt BorF=F
-#o${fs}dpkg${fs}t{}${fs}${vs}ge${vs}>${vs}${fs}form="${DS}2|" sop=${DS}sgt nop=${DS}ngt obs=y
+#o${fs}dpkg${fs}t{}${fs}${vs}ge-nl${vs}${fs}form="${DS}2|" sop=${DS}sgt nop=${DS}ngt BorF=F
+#o${fs}dpkg${fs}t{}${fs}${vs}ge${vs}>${vs}${fs}form="${DS}2|" sop=${DS}sgt nop=${DS}ngt obsolete=y
 #o${fs}dpkg${fs}t{}${fs}${vs}gt${vs}>>${vs}${fs}form="${DS}2" sop=${DS}sgt nop=${DS}ngt
-#o${fs}dpkg${fs}t{}${fs}${vs}gt${vs}gt-nl${vs}${fs}form="${DS}2" sop=${DS}sgt nop=${DS}ngt
+#o${fs}dpkg${fs}t{}${fs}${vs}gt-nl${vs}${fs}form="${DS}2" sop=${DS}sgt nop=${DS}ngt
 EOF`" || case $what in
     frontend|backend)
 	echo "$command: $1: no such $what!" >&2; return 1
@@ -93,6 +93,9 @@ EOF`" || case $what in
     operator)
 	echo "$command: $3: no such $what!" >&2; return 1
 	;;
+esac; case $obsolete in			## OPerator obsolete?
+    y)	echo "$command: $3: obsolete relation operator (use $QB$operator$QE instead)." >&2
+	;;				## Yes, issue warning.
 esac
 }
 
@@ -280,39 +283,26 @@ shbc="$BS&$BS&"	  shbd='||'	 shlb='{'	shrb='}'
 readonly shbc shbd shlb shrb		## Preset string, numeric, and boolean
 					## operators as well as left and right
 					## braces.
+slt="$BS$BS"'<'	sle="$BS$BS"'<=' seq='='
+sgt="$BS$BS"'>'	sge="$BS$BS"'>=' sne="$BS$BS"'!='
+nlt=-lt		nle=-le		 neq=-eq
+ngt=-gt		nge=-ge		 nne=-ne
+readonly slt sle seq sgt sge sne nlt nle neq ngt nge nne
+					## Preset string and numeric compari-
+					## son operators.
 ${TRACE-}				## Start tracing if requested.
 case $- in *x*) p=p;; *) p=;; esac	## Prepare sed(1) tracing.
 
-unset lh0 lh1 rh1 rh0
+unset lh0 lh1 bh1 rh1 rh0 operator form sop nop BorF
 verscmp_syntax frontend "${frontend-dpkg}"				&&
 verscmp_syntax backend "${backend-test}" || exit 2
 					## Validate (and canonify) front- and
 					## backend or die.
-eqn=-eq eqs== nes="$BS$BS"'!=' a='\&\&' o='||' BorF=B
-
 case $# in				## Usage OK?
     [23])				## Yes,...
-	op=`expr "_$2" : '^_\(['"$dl_cs_ll]"'*\)-nl$'` && BorF=F || op=$2
-					## Make empty VERSIONs >> any non-
-					## empty version if OPerator is
-					## "*-nl" variant.
-	case $op in			## Obsolete OPerator?
-	    '<'|'>')			## Yes, issue warning.
-		echo "$command: Used with obsolete relation operator $BQ$op$SQ." >&2
-		;;
-	esac; case $op in		## Choose OPerator's compilation form
-					## and (escaped) test(1) operators...
-	    lt|'<<')	    form=va opn=-lt  ops="$BS$BS"'<'	;;
-	    le|'<='|'<')    form=vo opn=-lt  ops="$BS$BS"'<'	;;
-	    eq|'=='|'=')    form=-a opn=$eqn ops=$eqs		;;
-	    ne|'!='|'<>')   form=-o opn=-ne  ops=$nes		;;
-	    ge|'>='|'>')    form=vo opn=-gt  ops="$BS$BS"'>'	;;
-	    gt|'>>')	    form=va opn=-gt  ops="$BS$BS"'>'	;;
-	    *)	echo "$command: Unknown operator $QB$2$QE!" >&2
-		exit 2			## ...or reject unknown OPerator!
-		;;
-	esac
-
+	verscmp_syntax operator "$frontend" "$backend" "$2" || exit 2
+					## Validate (and canonify) operator
+					## or die.
 	tv1=`verscmp_collate_dpkg "$1"` || {
 	    echo "$command: Invalid version $QB$1$QE!" >&2; exit 2
 	}				## Collate VERSION1 or die.
@@ -424,23 +414,29 @@ esac
 ##	       and does so		      but can't do so
 ##------------------------------------------------------------------------
 eval "`sed '
-    :s
-    s/^\(#-a#[^#]*\)#\([^ #]*\) \([^#]*\)#\([^ #]*\) \([^#]*\)#/\1test \2 '"$ops"' \4 '"$a"' #\3#\5#/'"$p"';tn
-    s/^\(#-o#[^#]*\)#\([^ #]*\) \([^#]*\)#\([^ #]*\) \([^#]*\)#/\1test \2 '"$ops"' \4 '"$o"' #\3#\5#/'"$p"';tn
-    s/^\(#v.#[^#]*\)#\([^ #]*\) \([^#]*\)#\([^ #]*\) \([^#]*\)#/\1test \2 '"$eqs"' \4 '"$a"' { #\3#\5#; } '"$o"' test \2 '"$ops"' \4/'"$p"';tn
-    s/^\(#-.#[^#]*\)#\([^#]*\)#\([^#]*\)#/\1test '"$SQ"'\2'"$SQ $ops $SQ"'\3'"$SQ"'/'"$p"';tp
-    s/^\(#va#[^#]*\)#\([^#]*\)#\([^#]*\)#/\1test '"$SQ"'\2'"$SQ $nes $SQ"'\3'"$SQ"' '"$a"' test '"$SQ"'\2'"$SQ $ops $SQ"'\3'"$SQ"'/'"$p"';tp
-    s/^\(#vo#[^#]*\)#\([^#]*\)#\([^#]*\)#/\1test '"$SQ"'\2'"$SQ $eqs $SQ"'\3'"$SQ"' '"$o"' test '"$SQ"'\2'"$SQ $ops $SQ"'\3'"$SQ"'/'"$p"';tp
+    '"${p:+$p;}"':s
+    s/^\(#t#[^#]*\)#\([^#]*\)#\([^#]*\)#/\1'"$SQ"'\2'"$SQ $sop $SQ"'\3'"$SQ"'/'"$p"';tp
+					## Compile equivalence relation.
+    s/^\(#t{}[^#]*#[^#]*\)#\([^ #]*\) \([^#]*\)#\([^ #]*\) \([^#]*\)#/\1\2 '"$seq"' \4'"$lh1"'#\3#\5#'"$rh1"'\2 '"$sop"' \4/'"$p"';tn
+					## Compile order relation (with both
+					## collated versions having more than
+					## one part left).
+    s/^\(#t{}|#[^#]*\)#\([^#]*\)#\([^#]*\)#/\1'"$SQ"'\2'"$SQ $seq $SQ"'\3'"$SQ$bh1$SQ"'\2'"$SQ $sop $SQ"'\3'"$SQ"'/'"$p"';tp
+    s/^\(#t{}#[^#]*\)#\([^#]*\)#\([^#]*\)#/\1'"$SQ"'\2'"$SQ $sop $SQ"'\3'"$SQ"'/'"$p"';tp
+					## Compile order relation (with at
+					## least one collated version having
+					## only one part left).
     s/^.*$/status=6; test/;q
     :n
-    s/^\(#-a#[^#]*\)#\([^ #]*\) \([^#]*\)#\([^ #]*\) \([^#]*\)#/\1test \2 '"$opn"' \4 '"$a"' #\3#\5#/'"$p"';ts
-    s/^\(#-o#[^#]*\)#\([^ #]*\) \([^#]*\)#\([^ #]*\) \([^#]*\)#/\1test \2 '"$opn"' \4 '"$o"' #\3#\5#/'"$p"';ts
-    s/^\(#v.#[^#]*\)#\([^ #]*\) \([^#]*\)#\([^ #]*\) \([^#]*\)#/\1test \2 '"$eqn"' \4 '"$a"' { #\3#\5#; } '"$o"' test \2 '"$opn"' \4/'"$p"';ts
+    s/^\(#t{}[^#]*#[^#]*\)#\([^ #]*\) \([^#]*\)#\([^ #]*\) \([^#]*\)#/\1\2 '"$neq"' \4'"$lh1"'#\3#\5#'"$rh1"'\2 '"$nop"' \4/'"$p"';ts
+					## Compile order relation (with both
+					## collated versions having more than
+					## one part left).
     s/^.*$/status=6; test/;q
     :p
-    s/^#..#//
+    s/^#[^#]*#//
     ' <<EOF
-#$form##$tv1#$tv2#
+#$form#$lh0#$tv1#$tv2#$rh0
 EOF`" || case $?:${status-0} in
     1:6)    echo "$command: Internal error!" >&2; exit 2;;
     *)	    exit $?					;;
