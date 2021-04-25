@@ -54,12 +54,12 @@ verscmp_syntax() {
 	*)  return 2						;;
     esac; case $#:$what in
 	1:frontend)			## frontend FRONTEND...
-	    sx='/^#f'"$fs"'[^'"$fs"']*'"$vs$1$vs"'/{
+	    sx='/^#f'"$fs"'[^'"$fs"']*'"$vs$1$vs"'/{'"${p:+;$p}"'
 		s/^#.'"$fs$vs/$what"'=/;s/'"$vs"'.*$//;q
 	    };$!d;s/^.*$/test/'
 	    ;;
 	1:backend)			## backend BACKEND...
-	    sx='/^#b'"$fs"'[^'"$fs"']*'"$vs$1$vs"'/{
+	    sx='/^#b'"$fs"'[^'"$fs"']*'"$vs$1$vs"'/{'"${p:+;$p}"'
 		s/^#.'"$fs$vs/$what"'=/;s/'"$vs"'.*$//;q
 	    };$!d;s/^.*$/test/'
 	    ;;
