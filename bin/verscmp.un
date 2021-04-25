@@ -167,171 +167,6 @@ EOF`"
 }
 
 ##----------------------------------------------------------------------------
-##  compare_versions(VERSION1 OP VERSION2)
-##				Compare dpkg(1) versions VERSION1 and VERSION2
-##				with comparison OPerator and return status re-
-##				presenting comparison result
-##
-##  NOTE:   (1)	Shield from broken Solaris sed(1) by placing labels at EOL!
-##	    (2)	Though technically the leading '#' sentinel isn't necessary,
-##		it enables tracing intermediate substitutions done by sed(1),
-##		as the surrounding "eval `...`" perceives them as comments.
-##		Substitution tracing is enabled when "set -x" is in effect.
-##----------------------------------------------------------------------------
-compare_versions() {
-    local eqn=-eq eqs== nes="$BS$BS"'!=' a='\&\&' o='||'		\
-	  tv1 op tv2 BorF=B form opn ops
-
-    case $# in				## Usage OK?
-	[23])				## Yes,...
-	    op=`expr "_$2" : '^_\(['"$dl_cs_ll]"'*\)-nl$'` && BorF=F || op=$2
-					## Make empty VERSIONs >> any non-
-					## empty version if OPerator is
-					## "*-nl" variant.
-	    case $op in			## Obsolete OPerator?
-		'<'|'>')		## Yes, issue warning.
-		    echo "$command: Used with obsolete relation operator $BQ$op$SQ." >&2
-		    ;;
-	    esac; case $op in		## Choose OPerator's compilation form
-					## and (escaped) test(1) operators...
-		lt|'<<')	form=va opn=-lt  ops="$BS$BS"'<';;
-		le|'<='|'<')	form=vo opn=-lt  ops="$BS$BS"'<';;
-		eq|'=='|'=')	form=-a opn=$eqn ops=$eqs	;;
-		ne|'!='|'<>')	form=-o opn=-ne  ops=$nes	;;
-		ge|'>='|'>')	form=vo opn=-gt  ops="$BS$BS"'>';;
-		gt|'>>')	form=va opn=-gt  ops="$BS$BS"'>';;
-		*)		return 3			;;
-	    esac			## ...or reject unknown OPerator!
-
-	    tv1=`verscmp_collate_dpkg "$1"` || return 4
-					## Try to collate VERSION1.
-	    tv2=`verscmp_collate_dpkg "${3-}"` || return 5
-	    ;;				## Try to collate VERSION2.
-	*)  return 2			## No, indicate misusage!
-	    ;;
-    esac
-
-    ##------------------------------------------------------------------------
-    ##	While compiling the comparison into a test(1) sequence, sed(1)'s pat-
-    ##	tern space generally has the form
-    ##	  "#"<FO>"#"<DE>"#"<TV1>"#"<TV2>"#"<AS>
-    ##	where
-    ##	  * <FO> is the chosen compilation form, i.e.
-    ##	    "-a" for linear '&&' form (OPerator  "eq"),
-    ##	    "-o" for linear '||' form (OPerator  "ne"),
-    ##	    "va" for valley '&&' form (OPerators "lt"/"gt"), and
-    ##	    "vo" for valley '||' form (OPerators "le"/"ge"),
-    ##	  * <DE> is the DEscending test(1) sequence compiled so far,
-    ##	  * <TV1> and <TV2> are the transformed versions' parts not compiled
-    ##	    so far (in particular
-    ##	      <TV1_Si>=<1Si>[" "<1Ni+1>" "<1Si+1>...] and
-    ##	      <TV2_Si>=<2Si>[" "<2Ni+1>" "<2Si+1>...]
-    ##	    when compiling the i-th string (non-numeric) part), or
-    ##	      <TV1_Ni>=<1Ni>" "<1Si>[" "<1Ni+1>" "<1Si+1>...] and
-    ##	      <TV2_Ni>=<2Ni>" "<2Si>[" "<2Ni+1>" "<2Si+1>...]
-    ##      when compiling the i-th numeric part, and finally
-    ##	  * <AS> is the AScending test(1) sequence compiled so far.
-    ##	Initially (i=0), the pattern space (except for empty VERSIONs, see
-    ##	below) is
-    ##	  "#"<FO>"#"<DE_N0>"#"<TV1_N0>"#"<TV2_N1>"#"<AS_N0>,
-    ##	with <DE_N0>=<AS_N0>="", so the non-numeric part pair <1S0>/<2S0>
-    ##	is compiled first.
-    ##
-    ##	A numeric part pair <1Ni>/<2Ni> is compiled according to chosen form:
-    ##	  * For linear '&&' form (OP "eq") in particular,
-    ##	    <DE_Si>=<DE_Ni>"test "<1Ni>" $opn "<2Ni>" $a " and
-    ##	    <AS_Si>=<AS_Ni>="".
-    ##	  * For linear '||' form (OP "ne") in particular,
-    ##	    <DE_Si>=<DE_Ni>"test "<1Ni>" $opn "<2Ni>" $o " and
-    ##	    <AS_Si>=<AS_Ni>="".
-    ##	  * For both valley forms (OPs "lt"/"le"/"ge"/"gt") in particular,
-    ##	    <DE_Si>=<DE_Ni>"test "<1Ni>" $eqn "<2Ni>" $a { " and
-    ##	    <AS_Si>="; } $o test "<1Ni>" $opn "<2Ni><AS_Ni>.
-    ##	Field pair <1Ni>/<2Ni> is consumed, so the pattern space becomes
-    ##	  "#"<FO>"#"<DE_Si>"#"<TV1_Si>"#"<TV2_Si>"#"<AS_Si>.
-    ##
-    ##	If both <1Si> and <2Si> are followed by
-    ##	<1Ni+1>" "<1Si+1> and <2Ni+1>" "<2Si+1> respectively, the string
-    ##	part pair <1Si>/<2Si> is compiled analoguous to numeric part pairs:
-    ##	  * For linear '&&' form (OP "eq") in particular,
-    ##	    <DE_Ni+1>=<DE_Si>"test "<1Si>" $ops "<2Si>" $a " and
-    ##	    <AS_Ni+1>=<AS_Si>="".
-    ##	  * For linear '||' form (OP "ne") in particular,
-    ##	    <DE_Ni+1>=<DE_Si>"test "<1Si>" $ops "<2Si>" $o " and
-    ##	    <AS_Ni+1>=<AS_Si>="".
-    ##	  * For both valley forms (OPs "lt"/"le"/"ge"/"gt") in particular,
-    ##	    <DE_Ni+1>=<DE_Si>"test "<1Si>" $eqs "<2Si>" $a { " and
-    ##	    <AS_Ni+1>="; } $o test "<1Si>" $ops "<2Si><AS_Si>.
-    ##	Again, the part pair is consumed, so the pattern space becomes
-    ##	  "#"<FO>"#"<DE_Ni+1>"#"<TV1_Ni+1>"#"<TV2_Ni+1>"#"<AS_Ni+1>
-    ##	and compilation continues with numeric part pair <1Ni+1>/<2Ni+1>.
-    ##
-    ##	Otherwise (<1Ni+1> not following or <2Ni+1> not following), the string
-    ##	tail pair <TV1_Si>/<TV2_Si> is compiled by different rules:
-    ##	  * For linear forms (OPs "eq"/"ne") in particular,
-    ##	    <DE_Ni+1>=<DE_Si>"test $SQ"<TV1_Si>"$SQ $ops $SQ"<TV2_Si>"$SQ"
-    ##	    and
-    ##	    <AS_Ni+1>=<AS_Si>="".
-    ##	  * For valley '&&' form (OPs "lt"/"gt") in particular,
-    ##	    <DE_Ni+1>=<DE_Si>"test $SQ"<TV1_Si>"$SQ $nes $SQ"<TV2_Si>"$SQ $a "
-    ##	    and
-    ##	    <AS_Ni+1>="test $SQ"<TV1_Si>"$SQ $ops $SQ"<TV2_Si>"$SQ"<AS_Si>.
-    ##	  * For valley '||' form (OPs "le"/"ge") in particular,
-    ##	    <DE_Ni+1>=<DE_Si>"test $SQ"<TV1_Si>"$SQ $eqs $SQ"<TV2_Si>"$SQ $o "
-    ##	    and
-    ##	    <AS_Ni+1>="test "<TV1_Si>" $ops "<TV2_Si><AS_Si>.
-    ##	Since what remains of both transformed versions is consumed now, the
-    ##	3rd to 5th '#' separators are also consumed (glueing the <DE> and <AS>
-    ##	parts together), so the pattern space becomes:
-    ##	  "#"<FO>"#"<DE_Ni+1><AS_Ni+1>.
-    ##  Finally stripping the leading "#"<FO>"" yields the test(1) sequence
-    ##  that gets evaluated.
-    ##
-    ##	EXAMPLE:
-    ##
-    ##	compare_versions '0+0' lt '0-0'
-    ##	  * transforms versions '0+0' and '0-0' into
-    ##	    tv1=`verscmp_collate_dpkg 0+0`, i.e. tv1='B 0 E:B 0 E+B 0 B' and
-    ##	    tv2=`verscmp_collate_dpkg 0-0`, i.e. tv2='B 0 E:B 0 C-B 0 B', then
-    ##	  * compiles "#va##B 0 E:B 0 E+B 0 B#B 0 E:B 0 C-B 0 B#" into the
-    ##	    test(1) sequence depicted (neatly folded to illustrate that in-
-    ##      deed we must descend into, then ascend out of a valley) below:
-    ##
-    ##	  --.			     SHORTCUT			       .->
-    ##	   T \ test B = B     && {    TAKEN     } || test B \< B;     / F
-    ##	    T \ test 0 -eq 0   && {	|      } || test 0 -lt 0;    / F
-    ##	     T \ test E:B = E:B && {	|     } || test E:B \< E:B; / F
-    ##	      T \ test 0 -eq 0   && {	v    } || test 0 -lt 0;    / F
-    ##	       F \ test E+B = C-B && { ---> } || test E+B \< C-B; / F
-    ##		  \ test 0 -eq 0   && {    } || test 0 -lt 0;    /
-    ##		   \ test 'B' \!= 'B'   &&  test 'B' \< 'B';    /
-    ##		    `------------------------------------------´
-    ##	  (<-- DEscending sequence -->)    (<--- AScending sequence ---->)
-    ##	       ought to ensure "ne"		ought to ensure "lt"
-    ##		   and does so			  but can't do so
-    ##------------------------------------------------------------------------
-    eval "`sed '
-	:s
-	s/^\(#-a#[^#]*\)#\([^ #]*\) \([^#]*\)#\([^ #]*\) \([^#]*\)#/\1test \2 '"$ops"' \4 '"$a"' #\3#\5#/'"$p"';tn
-	s/^\(#-o#[^#]*\)#\([^ #]*\) \([^#]*\)#\([^ #]*\) \([^#]*\)#/\1test \2 '"$ops"' \4 '"$o"' #\3#\5#/'"$p"';tn
-	s/^\(#v.#[^#]*\)#\([^ #]*\) \([^#]*\)#\([^ #]*\) \([^#]*\)#/\1test \2 '"$eqs"' \4 '"$a"' { #\3#\5#; } '"$o"' test \2 '"$ops"' \4/'"$p"';tn
-	s/^\(#-.#[^#]*\)#\([^#]*\)#\([^#]*\)#/\1test '"$SQ"'\2'"$SQ $ops $SQ"'\3'"$SQ"'/'"$p"';tp
-	s/^\(#va#[^#]*\)#\([^#]*\)#\([^#]*\)#/\1test '"$SQ"'\2'"$SQ $nes $SQ"'\3'"$SQ"' '"$a"' test '"$SQ"'\2'"$SQ $ops $SQ"'\3'"$SQ"'/'"$p"';tp
-	s/^\(#vo#[^#]*\)#\([^#]*\)#\([^#]*\)#/\1test '"$SQ"'\2'"$SQ $eqs $SQ"'\3'"$SQ"' '"$o"' test '"$SQ"'\2'"$SQ $ops $SQ"'\3'"$SQ"'/'"$p"';tp
-	s/^.*$/return 6/;q
-	:n
-	s/^\(#-a#[^#]*\)#\([^ #]*\) \([^#]*\)#\([^ #]*\) \([^#]*\)#/\1test \2 '"$opn"' \4 '"$a"' #\3#\5#/'"$p"';ts
-	s/^\(#-o#[^#]*\)#\([^ #]*\) \([^#]*\)#\([^ #]*\) \([^#]*\)#/\1test \2 '"$opn"' \4 '"$o"' #\3#\5#/'"$p"';ts
-	s/^\(#v.#[^#]*\)#\([^ #]*\) \([^#]*\)#\([^ #]*\) \([^#]*\)#/\1test \2 '"$eqn"' \4 '"$a"' { #\3#\5#; } '"$o"' test \2 '"$opn"' \4/'"$p"';ts
-	s/^.*$/return 6/;q
-	:p
-	s/^#..#//
-	' <<EOF
-#$form##$tv1#$tv2#
-EOF`"
-}
-
-##----------------------------------------------------------------------------
 ##  verscmp_help()		Show help
 ##
 ##  Non-local variables:
@@ -389,7 +224,7 @@ args=`getopt -n"$command" -o"$optstring" -l"$longopts" -- ${1+"$@"}` || {
     verscmp_help >&2; exit 2		## No, show help and abort!
 }
 eval set shiftee "$args"; unset optstring longopts args
-unset TRACE action verbose frontend backend
+unset TRACE status action verbose frontend backend
 while shift; do				## Process parsed options...
     case $1 in
 	--trace)	TRACE='set -x'		;;
@@ -428,13 +263,162 @@ verscmp_syntax frontend "${frontend-dpkg}"				&&
 verscmp_syntax backend "${backend-test}" || exit 2
 					## Validate (and canonify) front- and
 					## backend or die.
-compare_versions ${1+"$@"} || case $? in
-    1)							 exit 1	;;
-    2)	echo "Usage: $command VERSION1 OP VERSION2" >&2; exit 2	;;
-    3)	echo "$command: Unknown operator $QB$2$QE!" >&2; exit 2	;;
-    4)	echo "$command: Invalid version $QB$1$QE!"  >&2; exit 2	;;
-    5)	echo "$command: Invalid version $QB$3$QE!"  >&2; exit 2	;;
-    6)	echo "$command: Internal error!"	    >&2; exit 2	;;
+eqn=-eq eqs== nes="$BS$BS"'!=' a='\&\&' o='||' BorF=B
+
+case $# in				## Usage OK?
+    [23])				## Yes,...
+	op=`expr "_$2" : '^_\(['"$dl_cs_ll]"'*\)-nl$'` && BorF=F || op=$2
+					## Make empty VERSIONs >> any non-
+					## empty version if OPerator is
+					## "*-nl" variant.
+	case $op in			## Obsolete OPerator?
+	    '<'|'>')			## Yes, issue warning.
+		echo "$command: Used with obsolete relation operator $BQ$op$SQ." >&2
+		;;
+	esac; case $op in		## Choose OPerator's compilation form
+					## and (escaped) test(1) operators...
+	    lt|'<<')	    form=va opn=-lt  ops="$BS$BS"'<'	;;
+	    le|'<='|'<')    form=vo opn=-lt  ops="$BS$BS"'<'	;;
+	    eq|'=='|'=')    form=-a opn=$eqn ops=$eqs		;;
+	    ne|'!='|'<>')   form=-o opn=-ne  ops=$nes		;;
+	    ge|'>='|'>')    form=vo opn=-gt  ops="$BS$BS"'>'	;;
+	    gt|'>>')	    form=va opn=-gt  ops="$BS$BS"'>'	;;
+	    *)	echo "$command: Unknown operator $QB$2$QE!" >&2
+		exit 2			## ...or reject unknown OPerator!
+		;;
+	esac
+
+	tv1=`verscmp_collate_dpkg "$1"` || {
+	    echo "$command: Invalid version $QB$1$QE!" >&2; exit 2
+	}				## Collate VERSION1 or die.
+	tv2=`verscmp_collate_dpkg "${3-}"` || {
+	    echo "$command: Invalid version $QB${3-}$QE!" >&2; exit 2
+	}				## Collate VERSION2 or die.
+	;;
+    *)  verscmp_help >&2; exit 2	## No, indicate abuse!
+	;;
+esac
+
+##------------------------------------------------------------------------
+##  While compiling the comparison into a test(1) sequence, sed(1)'s pat-
+##  tern space generally has the form
+##    "#"<FO>"#"<DE>"#"<TV1>"#"<TV2>"#"<AS>
+##  where
+##    • <FO> is the chosen compilation form, i.e.
+##      "-a" for linear '&&' form (OPerator  "eq"),
+##      "-o" for linear '||' form (OPerator  "ne"),
+##      "va" for valley '&&' form (OPerators "lt"/"gt"), and
+##      "vo" for valley '||' form (OPerators "le"/"ge"),
+##    • <DE> is the DEscending test(1) sequence compiled so far,
+##    • <TV1> and <TV2> are the transformed versions' parts not compiled
+##      so far (in particular
+##        <TV1_Si>=<1Si>[" "<1Ni+1>" "<1Si+1>...] and
+##        <TV2_Si>=<2Si>[" "<2Ni+1>" "<2Si+1>...]
+##      when compiling the i-th string (non-numeric) part), or
+##        <TV1_Ni>=<1Ni>" "<1Si>[" "<1Ni+1>" "<1Si+1>...] and
+##        <TV2_Ni>=<2Ni>" "<2Si>[" "<2Ni+1>" "<2Si+1>...]
+##      when compiling the i-th numeric part, and finally
+##    • <AS> is the AScending test(1) sequence compiled so far.
+##  Initially (i=0), the pattern space (except for empty VERSIONs, see
+##  below) is
+##    "#"<FO>"#"<DE_N0>"#"<TV1_N0>"#"<TV2_N1>"#"<AS_N0>,
+##  with <DE_N0>=<AS_N0>="", so the non-numeric part pair <1S0>/<2S0>
+##  is compiled first.
+##
+##  A numeric part pair <1Ni>/<2Ni> is compiled according to chosen form:
+##    • For linear '&&' form (OP "eq") in particular,
+##      <DE_Si>=<DE_Ni>"test "<1Ni>" $opn "<2Ni>" $a " and
+##      <AS_Si>=<AS_Ni>="".
+##    • For linear '||' form (OP "ne") in particular,
+##      <DE_Si>=<DE_Ni>"test "<1Ni>" $opn "<2Ni>" $o " and
+##      <AS_Si>=<AS_Ni>="".
+##    • For both valley forms (OPs "lt"/"le"/"ge"/"gt") in particular,
+##      <DE_Si>=<DE_Ni>"test "<1Ni>" $eqn "<2Ni>" $a { " and
+##      <AS_Si>="; } $o test "<1Ni>" $opn "<2Ni><AS_Ni>.
+##  Field pair <1Ni>/<2Ni> is consumed, so the pattern space becomes
+##    "#"<FO>"#"<DE_Si>"#"<TV1_Si>"#"<TV2_Si>"#"<AS_Si>.
+##
+##  If both <1Si> and <2Si> are followed by
+##  <1Ni+1>" "<1Si+1> and <2Ni+1>" "<2Si+1> respectively, the string
+##  part pair <1Si>/<2Si> is compiled analoguous to numeric part pairs:
+##    • For linear '&&' form (OP "eq") in particular,
+##      <DE_Ni+1>=<DE_Si>"test "<1Si>" $ops "<2Si>" $a " and
+##      <AS_Ni+1>=<AS_Si>="".
+##    • For linear '||' form (OP "ne") in particular,
+##      <DE_Ni+1>=<DE_Si>"test "<1Si>" $ops "<2Si>" $o " and
+##      <AS_Ni+1>=<AS_Si>="".
+##    • For both valley forms (OPs "lt"/"le"/"ge"/"gt") in particular,
+##      <DE_Ni+1>=<DE_Si>"test "<1Si>" $eqs "<2Si>" $a { " and
+##      <AS_Ni+1>="; } $o test "<1Si>" $ops "<2Si><AS_Si>.
+##  Again, the part pair is consumed, so the pattern space becomes
+##    "#"<FO>"#"<DE_Ni+1>"#"<TV1_Ni+1>"#"<TV2_Ni+1>"#"<AS_Ni+1>
+##  and compilation continues with numeric part pair <1Ni+1>/<2Ni+1>.
+##
+##  Otherwise (<1Ni+1> not following or <2Ni+1> not following), the string
+##  tail pair <TV1_Si>/<TV2_Si> is compiled by different rules:
+##    • For linear forms (OPs "eq"/"ne") in particular,
+##      <DE_Ni+1>=<DE_Si>"test $SQ"<TV1_Si>"$SQ $ops $SQ"<TV2_Si>"$SQ"
+##      and
+##      <AS_Ni+1>=<AS_Si>="".
+##    • For valley '&&' form (OPs "lt"/"gt") in particular,
+##      <DE_Ni+1>=<DE_Si>"test $SQ"<TV1_Si>"$SQ $nes $SQ"<TV2_Si>"$SQ $a "
+##      and
+##      <AS_Ni+1>="test $SQ"<TV1_Si>"$SQ $ops $SQ"<TV2_Si>"$SQ"<AS_Si>.
+##    • For valley '||' form (OPs "le"/"ge") in particular,
+##      <DE_Ni+1>=<DE_Si>"test $SQ"<TV1_Si>"$SQ $eqs $SQ"<TV2_Si>"$SQ $o "
+##      and
+##      <AS_Ni+1>="test "<TV1_Si>" $ops "<TV2_Si><AS_Si>.
+##  Since what remains of both transformed versions is consumed now, the
+##  3rd to 5th '#' separators are also consumed (glueing the <DE> and <AS>
+##  parts together), so the pattern space becomes:
+##    "#"<FO>"#"<DE_Ni+1><AS_Ni+1>.
+##  Finally stripping the leading "#"<FO>"" yields the test(1) sequence
+##  that gets evaluated.
+##
+##  EXAMPLE:
+##
+##  compare_versions '0+0' lt '0-0'
+##    • transforms versions '0+0' and '0-0' into
+##      tv1=`verscmp_collate_dpkg 0+0`, i.e. tv1='B 0 E:B 0 E+B 0 B' and
+##      tv2=`verscmp_collate_dpkg 0-0`, i.e. tv2='B 0 E:B 0 C-B 0 B', then
+##    • compiles "#va##B 0 E:B 0 E+B 0 B#B 0 E:B 0 C-B 0 B#" into the
+##      test(1) sequence depicted (neatly folded to illustrate that in-
+##      deed we must descend into, then ascend out of a valley) below:
+##
+##    --.			 SHORTCUT			   .->
+##     T \ test B = B     && {    TAKEN     } || test B \< B;     / F
+##      T \ test 0 -eq 0   && {     |      } || test 0 -lt 0;    / F
+##       T \ test E:B = E:B && {    |     } || test E:B \< E:B; / F
+##        T \ test 0 -eq 0   && {   v    } || test 0 -lt 0;    / F
+##         F \ test E+B = C-B && { ---> } || test E+B \< C-B; / F
+##	      \ test 0 -eq 0   && {    } || test 0 -lt 0;    /
+##	       \ test 'B' \!= 'B'   &&  test 'B' \< 'B';    /
+##		`------------------------------------------´
+##    (<-- DEscending sequence -->)    (<--- AScending sequence ---->)
+##	   ought to ensure "ne"		    ought to ensure "lt"
+##	       and does so		      but can't do so
+##------------------------------------------------------------------------
+eval "`sed '
+    :s
+    s/^\(#-a#[^#]*\)#\([^ #]*\) \([^#]*\)#\([^ #]*\) \([^#]*\)#/\1test \2 '"$ops"' \4 '"$a"' #\3#\5#/'"$p"';tn
+    s/^\(#-o#[^#]*\)#\([^ #]*\) \([^#]*\)#\([^ #]*\) \([^#]*\)#/\1test \2 '"$ops"' \4 '"$o"' #\3#\5#/'"$p"';tn
+    s/^\(#v.#[^#]*\)#\([^ #]*\) \([^#]*\)#\([^ #]*\) \([^#]*\)#/\1test \2 '"$eqs"' \4 '"$a"' { #\3#\5#; } '"$o"' test \2 '"$ops"' \4/'"$p"';tn
+    s/^\(#-.#[^#]*\)#\([^#]*\)#\([^#]*\)#/\1test '"$SQ"'\2'"$SQ $ops $SQ"'\3'"$SQ"'/'"$p"';tp
+    s/^\(#va#[^#]*\)#\([^#]*\)#\([^#]*\)#/\1test '"$SQ"'\2'"$SQ $nes $SQ"'\3'"$SQ"' '"$a"' test '"$SQ"'\2'"$SQ $ops $SQ"'\3'"$SQ"'/'"$p"';tp
+    s/^\(#vo#[^#]*\)#\([^#]*\)#\([^#]*\)#/\1test '"$SQ"'\2'"$SQ $eqs $SQ"'\3'"$SQ"' '"$o"' test '"$SQ"'\2'"$SQ $ops $SQ"'\3'"$SQ"'/'"$p"';tp
+    s/^.*$/status=6; test/;q
+    :n
+    s/^\(#-a#[^#]*\)#\([^ #]*\) \([^#]*\)#\([^ #]*\) \([^#]*\)#/\1test \2 '"$opn"' \4 '"$a"' #\3#\5#/'"$p"';ts
+    s/^\(#-o#[^#]*\)#\([^ #]*\) \([^#]*\)#\([^ #]*\) \([^#]*\)#/\1test \2 '"$opn"' \4 '"$o"' #\3#\5#/'"$p"';ts
+    s/^\(#v.#[^#]*\)#\([^ #]*\) \([^#]*\)#\([^ #]*\) \([^#]*\)#/\1test \2 '"$eqn"' \4 '"$a"' { #\3#\5#; } '"$o"' test \2 '"$opn"' \4/'"$p"';ts
+    s/^.*$/status=6; test/;q
+    :p
+    s/^#..#//
+    ' <<EOF
+#$form##$tv1#$tv2#
+EOF`" || case $?:${status-0} in
+    1:6)    echo "$command: Internal error!" >&2; exit 2;;
+    *)	    exit $?					;;
 esac; case ${verbose-n} in
     y)	echo "$1 $2 $3"
 esac
