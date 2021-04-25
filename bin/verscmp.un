@@ -63,15 +63,35 @@ verscmp_syntax() {
 		s/^#.'"$fs$vs/$what"'=/;s/'"$vs"'[^'"$fs"']*'"$fs"'/ /;q
 	    };$!d;s/^.*$/test/'
 	    ;;
+	3:operator)			## operator FRONTEND BACKEND OPERATOR...
+	    sx='/^#o'"$fs$1$fs$2$fs"'[^'"$fs"']*'"$vs$3$vs"'/{'"${p:+;$p}"'
+		s/^#.'"$fs"'[^'"$fs"']*'"$fs"'[^'"$fs"']*'"$fs$vs/$what"'=/;s/'"$vs"'[^'"$fs"']*'"$fs"'/ /;q
+	    };$!d;s/^.*$/test/'
+	    ;;
 	*)				## Anything else...
 	    return 2			## is abuse!
 	    ;;
     esac; eval "`sed "$sx" <<EOF
 #f${fs}${vs}dpkg${vs}deb${vs}
 #b${fs}${vs}t{}${vs}test${vs}${fs}lh0='test '; lh1=" ${DS}shbc ${DS}shlb ${DS}lh0" rh1="; ${DS}shrb ${DS}shbd ${DS}lh0" rh0=; readonly lh0 lh1 rh1 rh0
+#o${fs}dpkg${fs}t{}${fs}${vs}lt${vs}<<${vs}${fs}form="${DS}2" sop=${DS}slt nop=${DS}nlt
+#o${fs}dpkg${fs}t{}${fs}${vs}lt${vs}lt-nl${vs}${fs}form="${DS}2" sop=${DS}slt nop=${DS}nlt BorF=F
+#o${fs}dpkg${fs}t{}${fs}${vs}le${vs}<=${vs}${fs}form="${DS}2|" sop=${DS}slt nop=${DS}nlt
+#o${fs}dpkg${fs}t{}${fs}${vs}le${vs}le-nl${vs}${fs}form="${DS}2|" sop=${DS}slt nop=${DS}nlt BorF=F
+#o${fs}dpkg${fs}t{}${fs}${vs}le${vs}<${vs}${fs}form="${DS}2|" sop=${DS}slt nop=${DS}nlt obs=y
+#o${fs}dpkg${fs}t{}${fs}${vs}eq${vs}eq-nl${vs}==${vs}=${vs}${fs}form=t sop=${DS}seq nop=${DS}neq
+#o${fs}dpkg${fs}t{}${fs}${vs}ne${vs}ne-nl${vs}!=${vs}<>${vs}${fs}form=t sop=${DS}sne nop=${DS}nne
+#o${fs}dpkg${fs}t{}${fs}${vs}ge${vs}>=${vs}${fs}form="${DS}2|" sop=${DS}sgt nop=${DS}ngt
+#o${fs}dpkg${fs}t{}${fs}${vs}ge${vs}ge-nl${vs}${fs}form="${DS}2|" sop=${DS}sgt nop=${DS}ngt BorF=F
+#o${fs}dpkg${fs}t{}${fs}${vs}ge${vs}>${vs}${fs}form="${DS}2|" sop=${DS}sgt nop=${DS}ngt obs=y
+#o${fs}dpkg${fs}t{}${fs}${vs}gt${vs}>>${vs}${fs}form="${DS}2" sop=${DS}sgt nop=${DS}ngt
+#o${fs}dpkg${fs}t{}${fs}${vs}gt${vs}gt-nl${vs}${fs}form="${DS}2" sop=${DS}sgt nop=${DS}ngt
 EOF`" || case $what in
     frontend|backend)
 	echo "$command: $1: no such $what!" >&2; return 1
+	;;
+    operator)
+	echo "$command: $3: no such $what!" >&2; return 1
 	;;
 esac
 }
