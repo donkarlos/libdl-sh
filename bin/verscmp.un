@@ -50,18 +50,18 @@ unset GETOPT_COMPATIBLE POSIXLY_CORRECT	## Make modern getopt(1) behave.
 ##----------------------------------------------------------------------------
 verscmp_syntax() {
     case ${1+=} in
-	=)  local status=0 what="$1" fs='#' vs=, sx obsolete; shift	;;
-	*)  return 2							;;
+	=)  local what="$1" fs='#' vs=, sx obsolete; shift	;;
+	*)  return 2						;;
     esac; case $#:$what in
 	1:frontend)			## frontend FRONTEND...
 	    sx='/^#f'"$fs"'[^'"$fs"']*'"$vs$1$vs"'/{
 		s/^#.'"$fs$vs/$what"'=/;s/'"$vs"'.*$//;q
-	    };$!d;s/^.*$/status=1/'
+	    };$!d;s/^.*$/test/'
 	    ;;
 	1:backend)			## backend BACKEND...
 	    sx='/^#b'"$fs"'[^'"$fs"']*'"$vs$1$vs"'/{
 		s/^#.'"$fs$vs/$what"'=/;s/'"$vs"'.*$//;q
-	    };$!d;s/^.*$/status=1/'
+	    };$!d;s/^.*$/test/'
 	    ;;
 	*)				## Anything else...
 	    return 2			## is abuse!
@@ -69,11 +69,11 @@ verscmp_syntax() {
     esac; eval "`sed "$sx" <<EOF
 #f${fs}${vs}dpkg${vs}deb${vs}
 #b${fs}${vs}t{}${vs}test${vs}
-EOF`"; case $status:$what in
-    1:frontend|1:backend)
-	echo "$command: $1: no such $what!" >&2
+EOF`" || case $what in
+    frontend|backend)
+	echo "$command: $1: no such $what!" >&2; return 1
 	;;
-esac; return $status
+esac
 }
 
 ##----------------------------------------------------------------------------
