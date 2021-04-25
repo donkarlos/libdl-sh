@@ -55,16 +55,16 @@ verscmp_syntax() {
     esac; case $#:$what in
 	1:frontend)			## frontend FRONTEND...
 	    sx='/^#f'"$fs"'[^'"$fs"']*'"$vs$1$vs"'/{
-		s/^#.#'"$vs/$what"'=/;s/'"$vs"'.*$//;q
+		s/^#.'"$fs$vs/$what"'=/;s/'"$vs"'.*$//;q
 	    };$!d;s/^.*$/status=1/'
 	    ;;
 	1:backend)			## backend BACKEND...
 	    sx='/^#b'"$fs"'[^'"$fs"']*'"$vs$1$vs"'/{
-		s/^#.#'"$vs/$what"'=/;s/'"$vs"'.*$//;q
+		s/^#.'"$fs$vs/$what"'=/;s/'"$vs"'.*$//;q
 	    };$!d;s/^.*$/status=1/'
 	    ;;
-	*)
-	    return 2
+	*)				## Anything else...
+	    return 2			## is abuse!
 	    ;;
     esac; eval "`sed "$sx" <<EOF
 #f${fs}${vs}dpkg${vs}deb${vs}
