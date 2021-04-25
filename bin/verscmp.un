@@ -130,7 +130,7 @@ verscmp_collate_dpkg() {
 	*)  return 2	;;
     esac
 
-    eval "`local p=; case $- in *x*) p=p;; esac; sed '
+    eval "`sed '
 	s/^$/#'"${BorF-B}"'#/'"$p"';t1
 	s/^'"$re_ED"'$/#B#&/'"$p"';t1
 	s/^'"$re_E_"'$/#B#&/'"$p"';t1
@@ -294,7 +294,7 @@ compare_versions() {
     ##	       ought to ensure "ne"		ought to ensure "lt"
     ##		   and does so			  but can't do so
     ##------------------------------------------------------------------------
-    eval "`local p=; case $- in *x*) p=p;; esac; sed '
+    eval "`sed '
 	:s
 	s/^\(#-a#[^#]*\)#\([^ #]*\) \([^#]*\)#\([^ #]*\) \([^#]*\)#/\1test \2 '"$ops"' \4 '"$a"' #\3#\5#/'"$p"';tn
 	s/^\(#-o#[^#]*\)#\([^ #]*\) \([^#]*\)#\([^ #]*\) \([^#]*\)#/\1test \2 '"$ops"' \4 '"$o"' #\3#\5#/'"$p"';tn
@@ -406,6 +406,8 @@ re___="$cr_0d$cr___*"			## sion RE constants.
 readonly re_D re_ED re_E_ re__D re___
 
 ${TRACE-}				## Start tracing if requested.
+case $- in *x*) p=p;; *) p=;; esac	## Prepare sed(1) tracing.
+
 verscmp_syntax frontend "${frontend-dpkg}"				&&
 verscmp_syntax backend "${backend-test}" || exit 2
 					## Validate (and canonify) front- and
