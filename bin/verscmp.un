@@ -143,11 +143,11 @@ esac
 ##  Et voilà!
 ##----------------------------------------------------------------------------
 verscmp_collate_dpkg() {
-    case ${1+=}:${BorF-B} in		## Usage OK?
+    case ${1+=}:${BorF=B} in		## Usage OK?
 	=:[BF])		;;		## Yes.
 	*)  return 2	;;		## No, indicate abuse!
     esac; eval "`sed '
-	s/^$/#'"${BorF-B}"'#/'"$p"';t1
+	s/^$/#'"$BorF"'#/'"$p"';t1
 	s/^'"$re_ED"'$/#B#&/'"$p"';t1
 	s/^'"$re_E_"'$/#B#&/'"$p"';t1
 	s/^'"$re__D"'$/#B#0:&/'"$p"';t1
