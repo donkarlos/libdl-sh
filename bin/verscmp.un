@@ -55,7 +55,9 @@ verscmp_syntax() {
     esac; case $#:$what in
 	1:frontend)			## frontend FRONTEND...
 	    sx='/^#f'"$fs"'[^'"$fs"']*'"$vs$1$vs"'/{'"${p:+;$p}"'
-		s/^#.'"$fs$vs/$what"'=/;s/'"$vs"'.*$//;q
+		s/'"$SQ"'/&'"$BS$BS"'&&/g
+		s/^#.'"$fs$vs/$what=$SQ"'/
+		s/'"$vs"'.*$//;s/$/'"$SQ"'/;q
 	    };$!d;s/^.*$/test/'
 	    ;;
 	1:backend)			## backend BACKEND...
