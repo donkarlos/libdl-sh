@@ -50,7 +50,7 @@ unset GETOPT_COMPATIBLE POSIXLY_CORRECT	## Make modern getopt(1) behave.
 ##----------------------------------------------------------------------------
 verscmp_syntax() {
     case ${1+=} in
-	=)  local what="$1" fs='%' vs=, sx obsolete=n; shift	;;
+	=)  local what="$1" fs='%' vs=, sx obsolete; shift	;;
 	*)  return 2						;;
     esac; case $#:$what in
 	1:frontend)			## frontend FRONTEND...
@@ -74,7 +74,14 @@ verscmp_syntax() {
 	    ;;
 	3:operator)			## operator FRONTEND BACKEND OPERATOR...
 	    sx='/^#o'"$fs$1$fs$2$fs"'[^'"$fs"']*'"$vs$3$vs"'/{'"${p:+;$p}"'
-		s/^#.'"$fs"'[^'"$fs"']*'"$fs"'[^'"$fs"']*'"$fs$vs/$what"'=/;s/'"$vs"'[^'"$fs"']*'"$fs"'/ /;q
+		s/'"$SQ"'/&'"$BS$BS"'&&/g
+		s/^#.'"$fs"'[^'"$fs"']*'"$fs"'[^'"$fs"']*'"$fs$vs/$what=$SQ"'/
+		s/'"$vs"'[^'"$fs"']*'"$fs"'/'"$SQ"' form='"$SQ"'/
+		s/'"$fs"'/'"$SQ"' sop='"$SQ"'/
+		s/'"$fs"'/'"$SQ"' nop='"$SQ"'/
+		s/'"$fs"'/'"$SQ"' BorF='"$SQ"'/
+		s/'"$fs"'/'"$SQ"' obsolete='"$SQ"'/
+		s/'"$fs"'.*$//;s/$/'"$SQ"'; readonly form sop nop/;q
 	    };$!d;s/^.*$/test/'
 	    ;;
 	*)				## Anything else...
@@ -83,18 +90,18 @@ verscmp_syntax() {
     esac; eval "`sed "$sx" <<EOF
 #f${fs}${vs}dpkg${vs}deb${vs}
 #b${fs}${vs}test${vs}${fs}test ${fs} $shbc $shlb test ${fs} $shbd test ${fs}; $shrb $shbd test ${fs}
-#o${fs}dpkg${fs}t{}${fs}${vs}lt${vs}<<${vs}${fs}form="${DS}2" sop=${DS}slt nop=${DS}nlt
-#o${fs}dpkg${fs}t{}${fs}${vs}lt-nl${vs}${fs}form="${DS}2" sop=${DS}slt nop=${DS}nlt BorF=F
-#o${fs}dpkg${fs}t{}${fs}${vs}le${vs}<=${vs}${fs}form="${DS}2|" sop=${DS}slt nop=${DS}nlt
-#o${fs}dpkg${fs}t{}${fs}${vs}le-nl${vs}${fs}form="${DS}2|" sop=${DS}slt nop=${DS}nlt BorF=F
-#o${fs}dpkg${fs}t{}${fs}${vs}le${vs}<${vs}${fs}form="${DS}2|" sop=${DS}slt nop=${DS}nlt obsolete=y
-#o${fs}dpkg${fs}t{}${fs}${vs}eq${vs}eq-nl${vs}==${vs}=${vs}${fs}form=t sop=${DS}seq nop=${DS}neq
-#o${fs}dpkg${fs}t{}${fs}${vs}ne${vs}ne-nl${vs}!=${vs}<>${vs}${fs}form=t sop=${DS}sne nop=${DS}nne
-#o${fs}dpkg${fs}t{}${fs}${vs}ge${vs}>=${vs}${fs}form="${DS}2|" sop=${DS}sgt nop=${DS}ngt
-#o${fs}dpkg${fs}t{}${fs}${vs}ge-nl${vs}${fs}form="${DS}2|" sop=${DS}sgt nop=${DS}ngt BorF=F
-#o${fs}dpkg${fs}t{}${fs}${vs}ge${vs}>${vs}${fs}form="${DS}2|" sop=${DS}sgt nop=${DS}ngt obsolete=y
-#o${fs}dpkg${fs}t{}${fs}${vs}gt${vs}>>${vs}${fs}form="${DS}2" sop=${DS}sgt nop=${DS}ngt
-#o${fs}dpkg${fs}t{}${fs}${vs}gt-nl${vs}${fs}form="${DS}2" sop=${DS}sgt nop=${DS}ngt
+#o${fs}dpkg${fs}test${fs}${vs}lt${vs}<<${vs}			${fs}tb-${fs}$slt${fs}$nlt${fs}B${fs}n
+#o${fs}dpkg${fs}test${fs}${vs}lt-nl${vs}			${fs}tb-${fs}$slt${fs}$nlt${fs}F${fs}n
+#o${fs}dpkg${fs}test${fs}${vs}le${vs}<=${vs}			${fs}tbd${fs}$slt${fs}$nlt${fs}B${fs}n
+#o${fs}dpkg${fs}test${fs}${vs}le-nl${vs}			${fs}tbd${fs}$slt${fs}$nlt${fs}F${fs}n
+#o${fs}dpkg${fs}test${fs}${vs}le${vs}<${vs}			${fs}tbd${fs}$slt${fs}$nlt${fs}B${fs}y
+#o${fs}dpkg${fs}test${fs}${vs}eq${vs}eq-nl${vs}==${vs}=${vs}	${fs}t--${fs}$seq${fs}$neq${fs}B${fs}n
+#o${fs}dpkg${fs}test${fs}${vs}ne${vs}ne-nl${vs}!=${vs}<>${vs}	${fs}t--${fs}$sne${fs}$nne${fs}B${fs}n
+#o${fs}dpkg${fs}test${fs}${vs}ge${vs}>=${vs}			${fs}tbd${fs}$sgt${fs}$ngt${fs}B${fs}n
+#o${fs}dpkg${fs}test${fs}${vs}ge-nl${vs}			${fs}tbd${fs}$sgt${fs}$ngt${fs}F${fs}n
+#o${fs}dpkg${fs}test${fs}${vs}ge${vs}>${vs}			${fs}tbd${fs}$sgt${fs}$ngt${fs}B${fs}y
+#o${fs}dpkg${fs}test${fs}${vs}gt${vs}>>${vs}			${fs}tb-${fs}$sgt${fs}$ngt${fs}B${fs}n
+#o${fs}dpkg${fs}test${fs}${vs}gt-nl${vs}			${fs}tb-${fs}$sgt${fs}$ngt${fs}B${fs}n
 EOF`" || case $what in
     frontend|backend)
 	echo "$command: $1: no such $what!" >&2; return 1
@@ -424,27 +431,27 @@ esac
 ##------------------------------------------------------------------------
 eval "`sed '
     '"${p:+$p;}"':s
-    s/^\(#t#[^#]*\)#\([^#]*\)#\([^#]*\)#/\1'"$SQ"'\2'"$SQ $sop $SQ"'\3'"$SQ"'/'"$p"';tp
+    s/^\(#.--#[^#]*\)#\([^#]*\)#\([^#]*\)#/\1'"$SQ"'\2'"$SQ $sop $SQ"'\3'"$SQ"'/'"$p"';tp
 					## Compile equivalence relation.
-    s/^\(#t{}[^#]*#[^#]*\)#\([^ #]*\) \([^#]*\)#\([^ #]*\) \([^#]*\)#/\1\2 '"$seq"' \4'"$lh1"'#\3#\5#'"$rh1"'\2 '"$sop"' \4/'"$p"';tn
+    s/^\(#.b.#[^#]*\)#\([^ #]*\) \([^#]*\)#\([^ #]*\) \([^#]*\)#/\1\2 '"$seq"' \4'"$lh1"'#\3#\5#'"$rh1"'\2 '"$sop"' \4/'"$p"';tn
 					## Compile order relation (with both
 					## collated versions having more than
 					## one part left).
-    s/^\(#t{}|#[^#]*\)#\([^#]*\)#\([^#]*\)#/\1'"$SQ"'\2'"$SQ $seq $SQ"'\3'"$SQ$bh1$SQ"'\2'"$SQ $sop $SQ"'\3'"$SQ"'/'"$p"';tp
-    s/^\(#t{}#[^#]*\)#\([^#]*\)#\([^#]*\)#/\1'"$SQ"'\2'"$SQ $sop $SQ"'\3'"$SQ"'/'"$p"';tp
+    s/^\(#.bd#[^#]*\)#\([^#]*\)#\([^#]*\)#/\1'"$SQ"'\2'"$SQ $seq $SQ"'\3'"$SQ$bh1$SQ"'\2'"$SQ $sop $SQ"'\3'"$SQ"'/'"$p"';tp
+    s/^\(#.b-#[^#]*\)#\([^#]*\)#\([^#]*\)#/\1'"$SQ"'\2'"$SQ $sop $SQ"'\3'"$SQ"'/'"$p"';tp
 					## Compile order relation (with at
 					## least one collated version having
 					## only one part left).
     s/^.*$/status=6; test/;q
     :n
-    s/^\(#t{}[^#]*#[^#]*\)#\([^ #]*\) \([^#]*\)#\([^ #]*\) \([^#]*\)#/\1\2 '"$neq"' \4'"$lh1"'#\3#\5#'"$rh1"'\2 '"$nop"' \4/'"$p"';ts
+    s/^\(.b.#[^#]*\)#\([^ #]*\) \([^#]*\)#\([^ #]*\) \([^#]*\)#/\1\2 '"$neq"' \4'"$lh1"'#\3#\5#'"$rh1"'\2 '"$nop"' \4/'"$p"';ts
 					## Compile order relation (with both
 					## collated versions having more than
 					## one part left).
     s/^.*$/status=6; test/;q
     :p
     s/^#[^#]*#//
-    ' <<EOF
+' <<EOF
 #$form#$lh0#$tv1#$tv2#$rh0
 EOF`" || case $?:${status-0} in
     1:6)    echo "$command: Internal error!" >&2; exit 2;;
