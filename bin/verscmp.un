@@ -458,5 +458,5 @@ EOF`" || case $?:${status-0} in
     1:6)    echo "$command: Internal error!" >&2; exit 2;;
     *)	    exit $?					;;
 esac; case ${verbose-n} in
-    y)	echo "$1 $2 $3"
+    y)	echo "$1 $operator $3"
 esac
