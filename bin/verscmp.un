@@ -223,6 +223,8 @@ Valid options are:
  -v, --verbose		Be verbose
  -m, --mode, --frontend=FRONTEND
 			Collate VERSIONs with FRONTEND
+     --target, --backend=BACKEND
+			Compile with BACKEND
 EOF
 }
 
@@ -253,6 +255,7 @@ EOF
 } || case $? in
     4)	optstring=hVvm:
 	longopts=trace,help,version,verbose,mode:,frontend:
+	longopts=$longopts,target:,backend:
 					## Modern; preset short and long
 	;;				## option lists.
     *)	echo "$command: Missing getopt(1)!" >&2
@@ -273,6 +276,8 @@ while shift; do				## Process parsed options...
 	-v|--verbose)	verbose=y		;;
 	-m|--mode|--frontend)
 			shift; frontend=$1	;;
+	--target|--backend)
+			shift; backend=$1	;;
 	--)		shift; break		;;
     esac
 done; case ${action-} in
