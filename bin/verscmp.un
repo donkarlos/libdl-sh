@@ -109,8 +109,9 @@ EOF`" || case $what in
     operator)
 	echo "$command: $3: no such $what!" >&2; return 1
 	;;
-esac; case $obsolete in			## OPerator obsolete?
-    y)	echo "$command: $3: obsolete relation operator (use $QB$operator$QE instead)." >&2
+esac; case ${obsolete-n}:$what in
+    y:operator)				## Obsolete operator?
+	echo "$command: $3: obsolete relation operator (use $QB$operator$QE instead)." >&2
 	;;				## Yes, issue warning.
 esac
 }
