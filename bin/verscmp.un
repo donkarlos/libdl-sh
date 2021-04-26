@@ -62,7 +62,14 @@ verscmp_syntax() {
 	    ;;
 	1:backend)			## backend BACKEND...
 	    sx='/^#b'"$fs"'[^'"$fs"']*'"$vs$1$vs"'/{'"${p:+;$p}"'
-		s/^#.'"$fs$vs/$what"'=/;s/'"$vs"'[^'"$fs"']*'"$fs"'/ /;q
+		s/'"$SQ"'/&'"$BS$BS"'&&/g
+		s/^#.'"$fs$vs/$what=$SQ"'/
+		s/'"$vs"'[^'"$fs"']*'"$fs"'/'"$SQ"' lh0='"$SQ"'/
+		s/'"$fs"'/'"$SQ"' lh1='"$SQ"'/
+		s/'"$fs"'/'"$SQ"' bh1='"$SQ"'/
+		s/'"$fs"'/'"$SQ"' rh1='"$SQ"'/
+		s/'"$fs"'/'"$SQ"' rh0='"$SQ"'/
+		s/'"$fs"'.*$//;s/$/'"$SQ"'; readonly lh0 lh1 bh1 rh1 rh0/;q
 	    };$!d;s/^.*$/test/'
 	    ;;
 	3:operator)			## operator FRONTEND BACKEND OPERATOR...
@@ -75,7 +82,7 @@ verscmp_syntax() {
 	    ;;
     esac; eval "`sed "$sx" <<EOF
 #f${fs}${vs}dpkg${vs}deb${vs}
-#b${fs}${vs}t{}${vs}test${vs}${fs}lh0='test '; lh1=" ${DS}shbc ${DS}shlb ${DS}lh0" bh1=" ${DS}shbd ${DS}lh0" rh1="; ${DS}shrb ${DS}shbd ${DS}lh0" rh0=; readonly lh0 lh1 bh1 rh1 rh0
+#b${fs}${vs}test${vs}${fs}test ${fs} $shbc $shlb test ${fs} $shbd test ${fs}; $shrb $shbd test ${fs}
 #o${fs}dpkg${fs}t{}${fs}${vs}lt${vs}<<${vs}${fs}form="${DS}2" sop=${DS}slt nop=${DS}nlt
 #o${fs}dpkg${fs}t{}${fs}${vs}lt-nl${vs}${fs}form="${DS}2" sop=${DS}slt nop=${DS}nlt BorF=F
 #o${fs}dpkg${fs}t{}${fs}${vs}le${vs}<=${vs}${fs}form="${DS}2|" sop=${DS}slt nop=${DS}nlt
