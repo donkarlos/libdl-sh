@@ -50,7 +50,7 @@ unset GETOPT_COMPATIBLE POSIXLY_CORRECT	## Make modern getopt(1) behave.
 ##----------------------------------------------------------------------------
 verscmp_syntax() {
     case ${1+=} in
-	=)  local what="$1" fs='#' vs=, sx obsolete=n; shift	;;
+	=)  local what="$1" fs='%' vs=, sx obsolete=n; shift	;;
 	*)  return 2						;;
     esac; case $#:$what in
 	1:frontend)			## frontend FRONTEND...
