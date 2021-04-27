@@ -94,33 +94,42 @@ verscmp_syntax() {
 	    ;;
     esac; eval "`sed "$sx" <<EOF
 #f${fs}${vs}dpkg${vs}deb${vs}	 ${fs}d
+#f${fs}${vs}stow${vs}stowpkg${vs}${fs}s
 #b${fs}${vs}test${vs}${fs}${fs}test ${fs} $shbc $shlb test ${fs} $shbd test ${fs}; $shrb $shbd test ${fs}
 #b${fs}${vs}expr${vs}${fs}s${fs}expr ${fs} >$BS/dev$BS/null $shbc $shlb expr ${fs}${fs} >$BS/dev$BS/null; $shrb $shbd expr ${fs} >/dev/null
 #b${fs}${vs}fast${vs}${fs}s${fs}expr ${fs} $exbc $exlb ${fs}${fs} $exrb $exbd ${fs} >/dev/null
-#o${fs}${vs}dpkg${vs}${fs}${vs}test${vs}	  ${fs}${vs}lt${vs}<<${vs}		   ${fs}tb-${fs}$slt${fs}$nlt
-#o${fs}${vs}dpkg${vs}${fs}${vs}test${vs}	  ${fs}${vs}lt-nl${vs}			   ${fs}tb-${fs}$slt${fs}$nlt${fs}F
-#o${fs}${vs}dpkg${vs}${fs}${vs}test${vs}	  ${fs}${vs}le${vs}<=${vs}		   ${fs}tbd${fs}$slt${fs}$nlt
-#o${fs}${vs}dpkg${vs}${fs}${vs}test${vs}	  ${fs}${vs}le-nl${vs}			   ${fs}tbd${fs}$slt${fs}$nlt${fs}F
-#o${fs}${vs}dpkg${vs}${fs}${vs}test${vs}	  ${fs}${vs}le${vs}<${vs}		   ${fs}tbd${fs}$slt${fs}$nlt${fs}${fs}y
-#o${fs}${vs}dpkg${vs}${fs}${vs}test${vs}	  ${fs}${vs}eq${vs}eq-nl${vs}==${vs}=${vs} ${fs}t--${fs}$seq${fs}$neq
-#o${fs}${vs}dpkg${vs}${fs}${vs}test${vs}	  ${fs}${vs}ne${vs}ne-nl${vs}!=${vs}<>${vs}${fs}t--${fs}$sne${fs}$nne
-#o${fs}${vs}dpkg${vs}${fs}${vs}test${vs}	  ${fs}${vs}ge${vs}>=${vs}		   ${fs}tbd${fs}$sgt${fs}$ngt
-#o${fs}${vs}dpkg${vs}${fs}${vs}test${vs}	  ${fs}${vs}ge-nl${vs}			   ${fs}tbd${fs}$sgt${fs}$ngt${fs}F
-#o${fs}${vs}dpkg${vs}${fs}${vs}test${vs}	  ${fs}${vs}ge${vs}>${vs}		   ${fs}tbd${fs}$sgt${fs}$ngt${fs}${fs}y
-#o${fs}${vs}dpkg${vs}${fs}${vs}test${vs}	  ${fs}${vs}gt${vs}>>${vs}		   ${fs}tb-${fs}$sgt${fs}$ngt
-#o${fs}${vs}dpkg${vs}${fs}${vs}test${vs}	  ${fs}${vs}gt-nl${vs}			   ${fs}tb-${fs}$sgt${fs}$ngt${fs}F
-#o${fs}${vs}dpkg${vs}${fs}${vs}expr${vs}fast${vs}${fs}${vs}lt${vs}<<${vs}		   ${fs}eb-${fs}$slt${fs}$slt
-#o${fs}${vs}dpkg${vs}${fs}${vs}expr${vs}fast${vs}${fs}${vs}lt-nl${vs}			   ${fs}eb-${fs}$slt${fs}$slt${fs}F
-#o${fs}${vs}dpkg${vs}${fs}${vs}expr${vs}fast${vs}${fs}${vs}le${vs}<=${vs}		   ${fs}eb-${fs}$slt${fs}$sle
-#o${fs}${vs}dpkg${vs}${fs}${vs}expr${vs}fast${vs}${fs}${vs}le-nl${vs}			   ${fs}eb-${fs}$slt${fs}$sle${fs}F
-#o${fs}${vs}dpkg${vs}${fs}${vs}expr${vs}fast${vs}${fs}${vs}le${vs}<${vs}		   ${fs}eb-${fs}$slt${fs}$sle${fs}${fs}y
-#o${fs}${vs}dpkg${vs}${fs}${vs}expr${vs}fast${vs}${fs}${vs}eq${vs}eq-nl${vs}==${vs}=${vs} ${fs}e--${fs}$seq${fs}$seq
-#o${fs}${vs}dpkg${vs}${fs}${vs}expr${vs}fast${vs}${fs}${vs}ne${vs}ne-nl${vs}!=${vs}<>${vs}${fs}e--${fs}$sne${fs}$sne
-#o${fs}${vs}dpkg${vs}${fs}${vs}expr${vs}fast${vs}${fs}${vs}ge${vs}>=${vs}		   ${fs}eb-${fs}$sgt${fs}$sge
-#o${fs}${vs}dpkg${vs}${fs}${vs}expr${vs}fast${vs}${fs}${vs}ge-nl${vs}			   ${fs}eb-${fs}$sgt${fs}$sge${fs}F
-#o${fs}${vs}dpkg${vs}${fs}${vs}expr${vs}fast${vs}${fs}${vs}ge${vs}>${vs}		   ${fs}eb-${fs}$sgt${fs}$sge${fs}${fs}y
-#o${fs}${vs}dpkg${vs}${fs}${vs}expr${vs}fast${vs}${fs}${vs}gt${vs}>>${vs}		   ${fs}eb-${fs}$sgt${fs}$sgt
-#o${fs}${vs}dpkg${vs}${fs}${vs}expr${vs}fast${vs}${fs}${vs}gt-nl${vs}			   ${fs}eb-${fs}$sgt${fs}$sgt${fs}F
+#o${fs}${vs}dpkg${vs}	      ${fs}${vs}test${vs}	  ${fs}${vs}lt${vs}<<${vs}		   ${fs}tb-${fs}$slt${fs}$nlt
+#o${fs}${vs}stow${vs}	      ${fs}${vs}test${vs}	  ${fs}${vs}lt${vs}<${vs}		   ${fs}tb-${fs}$slt${fs}$nlt
+#o${fs}${vs}dpkg${vs}	      ${fs}${vs}test${vs}	  ${fs}${vs}lt-nl${vs}			   ${fs}tb-${fs}$slt${fs}$nlt${fs}F
+#o${fs}${vs}dpkg${vs}stow${vs}${fs}${vs}test${vs}	  ${fs}${vs}le${vs}<=${vs}		   ${fs}tbd${fs}$slt${fs}$nlt
+#o${fs}${vs}dpkg${vs}	      ${fs}${vs}test${vs}	  ${fs}${vs}le-nl${vs}			   ${fs}tbd${fs}$slt${fs}$nlt${fs}F
+#o${fs}${vs}dpkg${vs}	      ${fs}${vs}test${vs}	  ${fs}${vs}le${vs}<${vs}		   ${fs}tbd${fs}$slt${fs}$nlt${fs}${fs}y
+#o${fs}${vs}dpkg${vs}	      ${fs}${vs}test${vs}	  ${fs}${vs}eq${vs}eq-nl${vs}==${vs}=${vs} ${fs}t--${fs}$seq${fs}$neq
+#o${fs}${vs}stow${vs}	      ${fs}${vs}test${vs}	  ${fs}${vs}eq${vs}==${vs}		   ${fs}t--${fs}$seq${fs}$neq
+#o${fs}${vs}dpkg${vs}	      ${fs}${vs}test${vs}	  ${fs}${vs}ne${vs}ne-nl${vs}!=${vs}<>${vs}${fs}t--${fs}$sne${fs}$nne
+#o${fs}${vs}stow${vs}	      ${fs}${vs}test${vs}	  ${fs}${vs}ne${vs}!=${vs}		   ${fs}t--${fs}$sne${fs}$nne
+#o${fs}${vs}dpkg${vs}stow${vs}${fs}${vs}test${vs}	  ${fs}${vs}ge${vs}>=${vs}		   ${fs}tbd${fs}$sgt${fs}$ngt
+#o${fs}${vs}dpkg${vs}	      ${fs}${vs}test${vs}	  ${fs}${vs}ge-nl${vs}			   ${fs}tbd${fs}$sgt${fs}$ngt${fs}F
+#o${fs}${vs}dpkg${vs}	      ${fs}${vs}test${vs}	  ${fs}${vs}ge${vs}>${vs}		   ${fs}tbd${fs}$sgt${fs}$ngt${fs}${fs}y
+#o${fs}${vs}dpkg${vs}	      ${fs}${vs}test${vs}	  ${fs}${vs}gt${vs}>>${vs}		   ${fs}tb-${fs}$sgt${fs}$ngt
+#o${fs}${vs}stow${vs}	      ${fs}${vs}test${vs}	  ${fs}${vs}gt${vs}>${vs}		   ${fs}tb-${fs}$sgt${fs}$ngt
+#o${fs}${vs}dpkg${vs}	      ${fs}${vs}test${vs}	  ${fs}${vs}gt-nl${vs}			   ${fs}tb-${fs}$sgt${fs}$ngt${fs}F
+#o${fs}${vs}dpkg${vs}	      ${fs}${vs}expr${vs}fast${vs}${fs}${vs}lt${vs}<<${vs}		   ${fs}eb-${fs}$slt${fs}$slt
+#o${fs}${vs}stow${vs}	      ${fs}${vs}expr${vs}fast${vs}${fs}${vs}lt${vs}<${vs}		   ${fs}eb-${fs}$slt${fs}$slt
+#o${fs}${vs}dpkg${vs}	      ${fs}${vs}expr${vs}fast${vs}${fs}${vs}lt-nl${vs}			   ${fs}eb-${fs}$slt${fs}$slt${fs}F
+#o${fs}${vs}dpkg${vs}stow${vs}${fs}${vs}expr${vs}fast${vs}${fs}${vs}le${vs}<=${vs}		   ${fs}eb-${fs}$slt${fs}$sle
+#o${fs}${vs}dpkg${vs}	      ${fs}${vs}expr${vs}fast${vs}${fs}${vs}le-nl${vs}			   ${fs}eb-${fs}$slt${fs}$sle${fs}F
+#o${fs}${vs}dpkg${vs}	      ${fs}${vs}expr${vs}fast${vs}${fs}${vs}le${vs}<${vs}		   ${fs}eb-${fs}$slt${fs}$sle${fs}${fs}y
+#o${fs}${vs}dpkg${vs}	      ${fs}${vs}expr${vs}fast${vs}${fs}${vs}eq${vs}eq-nl${vs}==${vs}=${vs} ${fs}e--${fs}$seq${fs}$seq
+#o${fs}${vs}stow${vs}	      ${fs}${vs}expr${vs}fast${vs}${fs}${vs}eq${vs}==${vs}		   ${fs}e--${fs}$seq${fs}$seq
+#o${fs}${vs}dpkg${vs}	      ${fs}${vs}expr${vs}fast${vs}${fs}${vs}ne${vs}ne-nl${vs}!=${vs}<>${vs}${fs}e--${fs}$sne${fs}$sne
+#o${fs}${vs}stow${vs}	      ${fs}${vs}expr${vs}fast${vs}${fs}${vs}ne${vs}!=${vs}		   ${fs}e--${fs}$sne${fs}$sne
+#o${fs}${vs}dpkg${vs}stow${vs}${fs}${vs}expr${vs}fast${vs}${fs}${vs}ge${vs}>=${vs}		   ${fs}eb-${fs}$sgt${fs}$sge
+#o${fs}${vs}dpkg${vs}	      ${fs}${vs}expr${vs}fast${vs}${fs}${vs}ge-nl${vs}			   ${fs}eb-${fs}$sgt${fs}$sge${fs}F
+#o${fs}${vs}dpkg${vs}	      ${fs}${vs}expr${vs}fast${vs}${fs}${vs}ge${vs}>${vs}		   ${fs}eb-${fs}$sgt${fs}$sge${fs}${fs}y
+#o${fs}${vs}dpkg${vs}	      ${fs}${vs}expr${vs}fast${vs}${fs}${vs}gt${vs}>>${vs}		   ${fs}eb-${fs}$sgt${fs}$sgt
+#o${fs}${vs}stow${vs}	      ${fs}${vs}expr${vs}fast${vs}${fs}${vs}gt${vs}>${vs}		   ${fs}eb-${fs}$sgt${fs}$sgt
+#o${fs}${vs}dpkg${vs}	      ${fs}${vs}expr${vs}fast${vs}${fs}${vs}gt-nl${vs}			   ${fs}eb-${fs}$sgt${fs}$sgt${fs}F
 EOF`" || case $what in
     frontend|backend)
 	echo "$command: $1: no such $what!" >&2; return 1
@@ -212,6 +221,7 @@ verscmp_collate_dpkg() {
 	s/^#d#\('"$re_E_"'\)$/#B#\1/'"$p"';t1
 	s/^#d#\('"$re__D"'\)$/#B#0:\1/'"$p"';t1
 	s/^#d#\('"$re___"'\)$/#B#0:\1/'"$p"';t1
+	s/^#s#\('"$re___"'\)$/#B#\1/'"$p"';t1
 	s/^.*$/test/;q;:1
 	s/\([^#]\)#0*\('"$dl_re_1n"'\)\([^'"$dl_cs_0d"']*\)/\1 \2 #\3 /'"$p"';t1
 	s/\([^#]\)#0*0\([^'"$dl_cs_0d"']*\)/\1 0 #\2 /'"$p"';t1
