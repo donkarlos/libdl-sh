@@ -95,30 +95,31 @@ verscmp_syntax() {
 #f${fs}${vs}dpkg${vs}deb${vs}
 #b${fs}${vs}test${vs}${fs}${fs}test ${fs} $shbc $shlb test ${fs} $shbd test ${fs}; $shrb $shbd test ${fs}
 #b${fs}${vs}expr${vs}${fs}s${fs}expr ${fs} >$BS/dev$BS/null $shbc $shlb expr ${fs}${fs} >$BS/dev$BS/null; $shrb $shbd expr ${fs} >/dev/null
-#o${fs}dpkg${fs}${vs}test${vs}	${fs}${vs}lt${vs}<<${vs}			${fs}tb-${fs}$slt${fs}$nlt
-#o${fs}dpkg${fs}${vs}test${vs}	${fs}${vs}lt-nl${vs}				${fs}tb-${fs}$slt${fs}$nlt${fs}F
-#o${fs}dpkg${fs}${vs}test${vs}	${fs}${vs}le${vs}<=${vs}			${fs}tbd${fs}$slt${fs}$nlt
-#o${fs}dpkg${fs}${vs}test${vs}	${fs}${vs}le-nl${vs}				${fs}tbd${fs}$slt${fs}$nlt${fs}F
-#o${fs}dpkg${fs}${vs}test${vs}	${fs}${vs}le${vs}<${vs}				${fs}tbd${fs}$slt${fs}$nlt${fs}${fs}y
-#o${fs}dpkg${fs}${vs}test${vs}	${fs}${vs}eq${vs}eq-nl${vs}==${vs}=${vs}	${fs}t--${fs}$seq${fs}$neq
-#o${fs}dpkg${fs}${vs}test${vs}	${fs}${vs}ne${vs}ne-nl${vs}!=${vs}<>${vs}	${fs}t--${fs}$sne${fs}$nne
-#o${fs}dpkg${fs}${vs}test${vs}	${fs}${vs}ge${vs}>=${vs}			${fs}tbd${fs}$sgt${fs}$ngt
-#o${fs}dpkg${fs}${vs}test${vs}	${fs}${vs}ge-nl${vs}				${fs}tbd${fs}$sgt${fs}$ngt${fs}F
-#o${fs}dpkg${fs}${vs}test${vs}	${fs}${vs}ge${vs}>${vs}				${fs}tbd${fs}$sgt${fs}$ngt${fs}${fs}y
-#o${fs}dpkg${fs}${vs}test${vs}	${fs}${vs}gt${vs}>>${vs}			${fs}tb-${fs}$sgt${fs}$ngt
-#o${fs}dpkg${fs}${vs}test${vs}	${fs}${vs}gt-nl${vs}				${fs}tb-${fs}$sgt${fs}$ngt${fs}F
-#o${fs}dpkg${fs}${vs}expr${vs}	${fs}${vs}lt${vs}<<${vs}			${fs}eb-${fs}$slt${fs}$slt
-#o${fs}dpkg${fs}${vs}expr${vs}	${fs}${vs}lt-nl${vs}				${fs}eb-${fs}$slt${fs}$slt${fs}F
-#o${fs}dpkg${fs}${vs}expr${vs}	${fs}${vs}le${vs}<=${vs}			${fs}eb-${fs}$slt${fs}$sle
-#o${fs}dpkg${fs}${vs}expr${vs}	${fs}${vs}le-nl${vs}				${fs}eb-${fs}$slt${fs}$sle${fs}F
-#o${fs}dpkg${fs}${vs}expr${vs}	${fs}${vs}le${vs}<${vs}				${fs}eb-${fs}$slt${fs}$sle${fs}${fs}y
-#o${fs}dpkg${fs}${vs}expr${vs}	${fs}${vs}eq${vs}eq-nl${vs}==${vs}=${vs}	${fs}e--${fs}$seq${fs}$seq
-#o${fs}dpkg${fs}${vs}expr${vs}	${fs}${vs}ne${vs}ne-nl${vs}!=${vs}<>${vs}	${fs}e--${fs}$sne${fs}$sne
-#o${fs}dpkg${fs}${vs}expr${vs}	${fs}${vs}ge${vs}>=${vs}			${fs}eb-${fs}$sgt${fs}$sge
-#o${fs}dpkg${fs}${vs}expr${vs}	${fs}${vs}ge-nl${vs}				${fs}eb-${fs}$sgt${fs}$sge${fs}F
-#o${fs}dpkg${fs}${vs}expr${vs}	${fs}${vs}ge${vs}>${vs}				${fs}eb-${fs}$sgt${fs}$sge${fs}${fs}y
-#o${fs}dpkg${fs}${vs}expr${vs}	${fs}${vs}gt${vs}>>${vs}			${fs}eb-${fs}$sgt${fs}$sgt
-#o${fs}dpkg${fs}${vs}expr${vs}	${fs}${vs}gt-nl${vs}				${fs}eb-${fs}$sgt${fs}$sgt${fs}F
+#b${fs}${vs}fast${vs}${fs}s${fs}expr ${fs} $exbc $exlb ${fs}${fs} $exrb $exbd ${fs} >/dev/null
+#o${fs}dpkg${fs}${vs}test${vs}		${fs}${vs}lt${vs}<<${vs}			${fs}tb-${fs}$slt${fs}$nlt
+#o${fs}dpkg${fs}${vs}test${vs}		${fs}${vs}lt-nl${vs}				${fs}tb-${fs}$slt${fs}$nlt${fs}F
+#o${fs}dpkg${fs}${vs}test${vs}		${fs}${vs}le${vs}<=${vs}			${fs}tbd${fs}$slt${fs}$nlt
+#o${fs}dpkg${fs}${vs}test${vs}		${fs}${vs}le-nl${vs}				${fs}tbd${fs}$slt${fs}$nlt${fs}F
+#o${fs}dpkg${fs}${vs}test${vs}		${fs}${vs}le${vs}<${vs}				${fs}tbd${fs}$slt${fs}$nlt${fs}${fs}y
+#o${fs}dpkg${fs}${vs}test${vs}		${fs}${vs}eq${vs}eq-nl${vs}==${vs}=${vs}	${fs}t--${fs}$seq${fs}$neq
+#o${fs}dpkg${fs}${vs}test${vs}		${fs}${vs}ne${vs}ne-nl${vs}!=${vs}<>${vs}	${fs}t--${fs}$sne${fs}$nne
+#o${fs}dpkg${fs}${vs}test${vs}		${fs}${vs}ge${vs}>=${vs}			${fs}tbd${fs}$sgt${fs}$ngt
+#o${fs}dpkg${fs}${vs}test${vs}		${fs}${vs}ge-nl${vs}				${fs}tbd${fs}$sgt${fs}$ngt${fs}F
+#o${fs}dpkg${fs}${vs}test${vs}		${fs}${vs}ge${vs}>${vs}				${fs}tbd${fs}$sgt${fs}$ngt${fs}${fs}y
+#o${fs}dpkg${fs}${vs}test${vs}		${fs}${vs}gt${vs}>>${vs}			${fs}tb-${fs}$sgt${fs}$ngt
+#o${fs}dpkg${fs}${vs}test${vs}		${fs}${vs}gt-nl${vs}				${fs}tb-${fs}$sgt${fs}$ngt${fs}F
+#o${fs}dpkg${fs}${vs}expr${vs}fast${vs}	${fs}${vs}lt${vs}<<${vs}			${fs}eb-${fs}$slt${fs}$slt
+#o${fs}dpkg${fs}${vs}expr${vs}fast${vs}	${fs}${vs}lt-nl${vs}				${fs}eb-${fs}$slt${fs}$slt${fs}F
+#o${fs}dpkg${fs}${vs}expr${vs}fast${vs}	${fs}${vs}le${vs}<=${vs}			${fs}eb-${fs}$slt${fs}$sle
+#o${fs}dpkg${fs}${vs}expr${vs}fast${vs}	${fs}${vs}le-nl${vs}				${fs}eb-${fs}$slt${fs}$sle${fs}F
+#o${fs}dpkg${fs}${vs}expr${vs}fast${vs}	${fs}${vs}le${vs}<${vs}				${fs}eb-${fs}$slt${fs}$sle${fs}${fs}y
+#o${fs}dpkg${fs}${vs}expr${vs}fast${vs}	${fs}${vs}eq${vs}eq-nl${vs}==${vs}=${vs}	${fs}e--${fs}$seq${fs}$seq
+#o${fs}dpkg${fs}${vs}expr${vs}fast${vs}	${fs}${vs}ne${vs}ne-nl${vs}!=${vs}<>${vs}	${fs}e--${fs}$sne${fs}$sne
+#o${fs}dpkg${fs}${vs}expr${vs}fast${vs}	${fs}${vs}ge${vs}>=${vs}			${fs}eb-${fs}$sgt${fs}$sge
+#o${fs}dpkg${fs}${vs}expr${vs}fast${vs}	${fs}${vs}ge-nl${vs}				${fs}eb-${fs}$sgt${fs}$sge${fs}F
+#o${fs}dpkg${fs}${vs}expr${vs}fast${vs}	${fs}${vs}ge${vs}>${vs}				${fs}eb-${fs}$sgt${fs}$sge${fs}${fs}y
+#o${fs}dpkg${fs}${vs}expr${vs}fast${vs}	${fs}${vs}gt${vs}>>${vs}			${fs}eb-${fs}$sgt${fs}$sgt
+#o${fs}dpkg${fs}${vs}expr${vs}fast${vs}	${fs}${vs}gt-nl${vs}				${fs}eb-${fs}$sgt${fs}$sgt${fs}F
 EOF`" || case $what in
     frontend|backend)
 	echo "$command: $1: no such $what!" >&2; return 1
@@ -319,7 +320,9 @@ re___="$cr_0d$cr___*"			## sion RE constants.
 readonly re_D re_ED re_E_ re__D re___
 
 shbc="$BS&$BS&"	  shbd='||'	 shlb='{'	shrb='}'
-readonly shbc shbd shlb shrb		## Preset string, numeric, and boolean
+exbc="$BS$BS$BS&" exbd="$BS$BS|" exlb="$BS$BS("	exrb="$BS$BS)"
+readonly shbc shbd shlb shrb exbc exbd exlb exrb
+					## Preset string, numeric, and boolean
 					## operators as well as left and right
 					## braces.
 slt="$BS$BS"'<'	sle="$BS$BS"'<=' seq='='
