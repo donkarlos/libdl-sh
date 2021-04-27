@@ -150,6 +150,7 @@ esac
 ##
 ##  Non-local variables:
 ##	- p		(R) 's///' print modifier for sed(1) tracing
+##	- ftag		(R) ~~~~
 ##	- BorF		(R) see describtion below
 ##	- re_ED		(R) unanchored with-EP/with-DR version RE
 ##	- re_E_		(R) unanchored with-EP/sans-DR version RE
@@ -206,11 +207,11 @@ verscmp_collate_dpkg() {
 	=:[BF])		;;		## Yes.
 	*)  return 2	;;		## No, indicate abuse!
     esac; eval "`sed '
-	s/^$/#'"$BorF"'#/'"$p"';t1
-	s/^'"$re_ED"'$/#B#&/'"$p"';t1
-	s/^'"$re_E_"'$/#B#&/'"$p"';t1
-	s/^'"$re__D"'$/#B#0:&/'"$p"';t1
-	s/^'"$re___"'$/#B#0:&/'"$p"';t1
+	s/^#d#$/#'"$BorF"'#/'"$p"';t1
+	s/^#d#\('"$re_ED"'\)$/#B#\1/'"$p"';t1
+	s/^#d#\('"$re_E_"'\)$/#B#\1/'"$p"';t1
+	s/^#d#\('"$re__D"'\)$/#B#0:\1/'"$p"';t1
+	s/^#d#\('"$re___"'\)$/#B#0:\1/'"$p"';t1
 	s/^.*$/test/;q;:1
 	s/\([^#]\)#0*\('"$dl_re_1n"'\)\([^'"$dl_cs_0d"']*\)/\1 \2 #\3 /'"$p"';t1
 	s/\([^#]\)#0*0\([^'"$dl_cs_0d"']*\)/\1 0 #\2 /'"$p"';t1
@@ -221,7 +222,7 @@ verscmp_collate_dpkg() {
 	s/\([^#]\)#\(.\)/\1E\2#/'"$p"';t1
 	s/^#/echo '"$SQ"'/;s/#$/'"$SQ"'/;q
     ' <<EOF
-$1
+#$ftag#$1
 EOF`"
 }
 
@@ -336,7 +337,7 @@ readonly slt sle seq sgt sge sne nlt nle neq ngt nge nne
 ${TRACE-}				## Start tracing if requested.
 case $- in *x*) p=p;; *) p=;; esac	## Prepare sed(1) tracing.
 
-unset lh0 lh1 bh1 rh1 rh0 operator form sop nop BorF
+unset ftag lh0 lh1 bh1 rh1 rh0 operator form sop nop BorF
 verscmp_syntax frontend "${frontend-dpkg}"				&&
 verscmp_syntax backend "${backend-test}" || exit 2
 					## Validate (and canonify) front- and
