@@ -467,7 +467,7 @@ eval "`sed '
 					## only one part left).
     s/^.*$/status=6; test/;q
     :n
-    s/^\(.b.#[^#]*\)#\([^ #]*\) \([^#]*\)#\([^ #]*\) \([^#]*\)#/\1\2 '"$neq"' \4'"$lh1"'#\3#\5#'"$rh1"'\2 '"$nop"' \4/'"$p"';ts
+    s/^\(#.b.#[^#]*\)#\([^ #]*\) \([^#]*\)#\([^ #]*\) \([^#]*\)#/\1\2 '"$neq"' \4'"$lh1"'#\3#\5#'"$rh1"'\2 '"$nop"' \4/'"$p"';ts
 					## Compile order relation (with both
 					## collated versions having more than
 					## one part left).
