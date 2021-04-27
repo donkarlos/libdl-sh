@@ -57,7 +57,8 @@ verscmp_syntax() {
 	    sx='/^#f'"$fs"'[^'"$fs"']*'"$vs$1$vs"'/{'"${p:+;$p}"'
 		s/'"$SQ"'/&'"$BS$BS"'&&/g'"$p"'
 		s/^#.'"$fs$vs/#$what=$SQ"'/'"$p"'
-		s/'"$vs"'.*$//'"$p"';s/$/'"$SQ"'/'"$p"'
+		s/'"$vs"'[^'"$fs"']*'"$fs"'/'"$SQ"' ftag='"$SQ"'/'"$p"'
+		s/'"$fs"'.*$//'"$p"';s/$/'"$SQ"'; readonly ftag/'"$p"'
 		s/^#//;q
 	    };$!d;s/^.*$/test/'
 	    ;;
@@ -92,7 +93,7 @@ verscmp_syntax() {
 	    return 2			## is abuse!
 	    ;;
     esac; eval "`sed "$sx" <<EOF
-#f${fs}${vs}dpkg${vs}deb${vs}
+#f${fs}${vs}dpkg${vs}deb${vs}	 ${fs}d
 #b${fs}${vs}test${vs}${fs}${fs}test ${fs} $shbc $shlb test ${fs} $shbd test ${fs}; $shrb $shbd test ${fs}
 #b${fs}${vs}expr${vs}${fs}s${fs}expr ${fs} >$BS/dev$BS/null $shbc $shlb expr ${fs}${fs} >$BS/dev$BS/null; $shrb $shbd expr ${fs} >/dev/null
 #b${fs}${vs}fast${vs}${fs}s${fs}expr ${fs} $exbc $exlb ${fs}${fs} $exrb $exbd ${fs} >/dev/null
