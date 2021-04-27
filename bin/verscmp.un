@@ -94,7 +94,7 @@ verscmp_syntax() {
     esac; eval "`sed "$sx" <<EOF
 #f${fs}${vs}dpkg${vs}deb${vs}
 #b${fs}${vs}test${vs}${fs}${fs}test ${fs} $shbc $shlb test ${fs} $shbd test ${fs}; $shrb $shbd test ${fs}
-#b${fs}${vs}expr${vs}${fs}s${fs}expr ${fs} >$BS/dev$BS/null $shbc $shlb expr ${fs} >$BS/dev$BS/null $shbd expr ${fs} >$BS/dev$BS/null; $shrb $shbd expr ${fs} >/dev/null
+#b${fs}${vs}expr${vs}${fs}s${fs}expr ${fs} >$BS/dev$BS/null $shbc $shlb expr ${fs}${fs} >$BS/dev$BS/null; $shrb $shbd expr ${fs} >/dev/null
 #o${fs}dpkg${fs}test${fs}${vs}lt${vs}<<${vs}			${fs}tb-${fs}$slt${fs}$nlt${fs}B${fs}n
 #o${fs}dpkg${fs}test${fs}${vs}lt-nl${vs}			${fs}tb-${fs}$slt${fs}$nlt${fs}F${fs}n
 #o${fs}dpkg${fs}test${fs}${vs}le${vs}<=${vs}			${fs}tbd${fs}$slt${fs}$nlt${fs}B${fs}n
@@ -109,14 +109,14 @@ verscmp_syntax() {
 #o${fs}dpkg${fs}test${fs}${vs}gt-nl${vs}			${fs}tb-${fs}$sgt${fs}$ngt${fs}B${fs}n
 #o${fs}dpkg${fs}expr${fs}${vs}lt${vs}<<${vs}			${fs}eb-${fs}$slt${fs}$slt${fs}B${fs}n
 #o${fs}dpkg${fs}expr${fs}${vs}lt-nl${vs}			${fs}eb-${fs}$slt${fs}$slt${fs}F${fs}n
-#o${fs}dpkg${fs}expr${fs}${vs}le${vs}<=${vs}			${fs}ebd${fs}$slt${fs}$slt${fs}B${fs}n
-#o${fs}dpkg${fs}expr${fs}${vs}le-nl${vs}			${fs}ebd${fs}$slt${fs}$slt${fs}F${fs}n
-#o${fs}dpkg${fs}expr${fs}${vs}le${vs}<${vs}			${fs}ebd${fs}$slt${fs}$slt${fs}B${fs}y
+#o${fs}dpkg${fs}expr${fs}${vs}le${vs}<=${vs}			${fs}eb-${fs}$slt${fs}$sle${fs}B${fs}n
+#o${fs}dpkg${fs}expr${fs}${vs}le-nl${vs}			${fs}eb-${fs}$slt${fs}$sle${fs}F${fs}n
+#o${fs}dpkg${fs}expr${fs}${vs}le${vs}<${vs}			${fs}eb-${fs}$slt${fs}$sle${fs}B${fs}y
 #o${fs}dpkg${fs}expr${fs}${vs}eq${vs}eq-nl${vs}==${vs}=${vs}	${fs}e--${fs}$seq${fs}$seq${fs}B${fs}n
 #o${fs}dpkg${fs}expr${fs}${vs}ne${vs}ne-nl${vs}!=${vs}<>${vs}	${fs}e--${fs}$sne${fs}$sne${fs}B${fs}n
-#o${fs}dpkg${fs}expr${fs}${vs}ge${vs}>=${vs}			${fs}ebd${fs}$sgt${fs}$sgt${fs}B${fs}n
-#o${fs}dpkg${fs}expr${fs}${vs}ge-nl${vs}			${fs}ebd${fs}$sgt${fs}$sgt${fs}F${fs}n
-#o${fs}dpkg${fs}expr${fs}${vs}ge${vs}>${vs}			${fs}ebd${fs}$sgt${fs}$sgt${fs}B${fs}y
+#o${fs}dpkg${fs}expr${fs}${vs}ge${vs}>=${vs}			${fs}eb-${fs}$sgt${fs}$sge${fs}B${fs}n
+#o${fs}dpkg${fs}expr${fs}${vs}ge-nl${vs}			${fs}eb-${fs}$sgt${fs}$sge${fs}F${fs}n
+#o${fs}dpkg${fs}expr${fs}${vs}ge${vs}>${vs}			${fs}eb-${fs}$sgt${fs}$sge${fs}B${fs}y
 #o${fs}dpkg${fs}expr${fs}${vs}gt${vs}>>${vs}			${fs}eb-${fs}$sgt${fs}$sgt${fs}B${fs}n
 #o${fs}dpkg${fs}expr${fs}${vs}gt-nl${vs}			${fs}eb-${fs}$sgt${fs}$sgt${fs}B${fs}n
 EOF`" || case $what in
@@ -461,7 +461,8 @@ eval "`sed '
 					## collated versions having more than
 					## one part left).
     s/^\(#.bd#[^#]*\)#\([^#]*\)#\([^#]*\)#/\1'"$SQ"'\2'"$SQ $seq $SQ"'\3'"$SQ$bh1$SQ"'\2'"$SQ $sop $SQ"'\3'"$SQ"'/'"$p"';tp
-    s/^\(#.b-#[^#]*\)#\([^#]*\)#\([^#]*\)#/\1'"$SQ"'\2'"$SQ $sop $SQ"'\3'"$SQ"'/'"$p"';tp
+    s/^\(#eb-#[^#]*\)#\([^#]*\)#\([^#]*\)#/\1'"$SQ"'\2'"$SQ $nop $SQ"'\3'"$SQ"'/'"$p"';tp
+    s/^\(#tb-#[^#]*\)#\([^#]*\)#\([^#]*\)#/\1'"$SQ"'\2'"$SQ $sop $SQ"'\3'"$SQ"'/'"$p"';tp
 					## Compile order relation (with at
 					## least one collated version having
 					## only one part left).
