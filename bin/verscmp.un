@@ -56,34 +56,34 @@ verscmp_syntax() {
 	1:frontend)			## frontend FRONTEND...
 	    sx='/^#f'"$fs"'[^'"$fs"']*'"$vs$1$vs"'/{'"${p:+;$p}"'
 		s/'"$SQ"'/&'"$BS$BS"'&&/g'"$p"'
-		s/^#.'"$fs$vs/#$what=$SQ"'/
-		s/'"$vs"'.*$//;s/$/'"$SQ"'/
+		s/^#.'"$fs$vs/#$what=$SQ"'/'"$p"'
+		s/'"$vs"'.*$//'"$p"';s/$/'"$SQ"'/'"$p"'
 		s/^#//;q
 	    };$!d;s/^.*$/test/'
 	    ;;
 	1:backend)			## backend BACKEND...
 	    sx='/^#b'"$fs"'[^'"$fs"']*'"$vs$1$vs"'/{'"${p:+;$p}"'
 		s/'"$SQ"'/&'"$BS$BS"'&&/g'"$p"'
-		s/^#.'"$fs$vs/#$what=$SQ"'/
-		s/'"$vs"'[^'"$fs"']*'"$fs"'/'"$SQ"' lh0='"$SQ"'/
-		s/'"$fs"'/'"$SQ"' lh1='"$SQ"'/
-		s/'"$fs"'/'"$SQ"' bh1='"$SQ"'/
-		s/'"$fs"'/'"$SQ"' rh1='"$SQ"'/
-		s/'"$fs"'/'"$SQ"' rh0='"$SQ"'/
-		s/'"$fs"'.*$//;s/$/'"$SQ"'; readonly lh0 lh1 bh1 rh1 rh0/
+		s/^#.'"$fs$vs/#$what=$SQ"'/'"$p"'
+		s/'"$vs"'[^'"$fs"']*'"$fs"'/'"$SQ"' lh0='"$SQ"'/'"$p"'
+		s/'"$fs"'/'"$SQ"' lh1='"$SQ"'/'"$p"'
+		s/'"$fs"'/'"$SQ"' bh1='"$SQ"'/'"$p"'
+		s/'"$fs"'/'"$SQ"' rh1='"$SQ"'/'"$p"'
+		s/'"$fs"'/'"$SQ"' rh0='"$SQ"'/'"$p"'
+		s/'"$fs"'.*$//'"$p"';s/$/'"$SQ"'; readonly lh0 lh1 bh1 rh1 rh0/'"$p"'
 		s/^#//;q
 	    };$!d;s/^.*$/test/'
 	    ;;
 	3:operator)			## operator FRONTEND BACKEND OPERATOR...
 	    sx='/^#o'"$fs$1$fs$2$fs"'[^'"$fs"']*'"$vs$3$vs"'/{'"${p:+;$p}"'
 		s/'"$SQ"'/&'"$BS$BS"'&&/g'"$p"'
-		s/^#.'"$fs"'[^'"$fs"']*'"$fs"'[^'"$fs"']*'"$fs$vs/#$what=$SQ"'/
-		s/'"$vs"'[^'"$fs"']*'"$fs"'/'"$SQ"' form='"$SQ"'/
-		s/'"$fs"'/'"$SQ"' sop='"$SQ"'/
-		s/'"$fs"'/'"$SQ"' nop='"$SQ"'/
-		s/'"$fs"'/'"$SQ"' BorF='"$SQ"'/
-		s/'"$fs"'/'"$SQ"' obsolete='"$SQ"'/
-		s/'"$fs"'.*$//;s/$/'"$SQ"'; readonly form sop nop/
+		s/^#.'"$fs"'[^'"$fs"']*'"$fs"'[^'"$fs"']*'"$fs$vs/#$what=$SQ"'/'"$p"'
+		s/'"$vs"'[^'"$fs"']*'"$fs"'/'"$SQ"' form='"$SQ"'/'"$p"'
+		s/'"$fs"'/'"$SQ"' sop='"$SQ"'/'"$p"'
+		s/'"$fs"'/'"$SQ"' nop='"$SQ"'/'"$p"'
+		s/'"$fs"'/'"$SQ"' BorF='"$SQ"'/'"$p"'
+		s/'"$fs"'/'"$SQ"' obsolete='"$SQ"'/'"$p"'
+		s/'"$fs"'.*$//'"$p"';s/$/'"$SQ"'; readonly form sop nop/'"$p"'
 		s/^#//;q
 	    };$!d;s/^.*$/test/'
 	    ;;
