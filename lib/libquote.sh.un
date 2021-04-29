@@ -38,8 +38,11 @@
 quote_package='@PACKAGE_TARNAME@'	## Define source package name/version.
 quote_version='@PACKAGE_VERSION@'
 quote_api=0				## Define API version.
-quote_sh_sx=':0'"$NL"'$!{;N;b0'"$NL"'};s/'"$SQ"'/&'"$BS$BS"'&&/g;s/^/'"$SQ"'/;s/$/'"$SQ"'/'
-readonly quote_package quote_version quote_api quote_sh_sx
+quote_sx_ml=':n'"$NL"'$!{;N;bn'"$NL"'}'
+quote_sx_sh='s/'"$SQ"'/&'"$BS$BS"'&&/g;s/^/'"$SQ"'/;s/$/'"$SQ"'/'
+					## Define sed(1) expression chunks.
+
+readonly quote_package quote_version quote_api quote_sx_ml quote_sx_sh
 
 ##----------------------------------------------------------------------------
 ##  quote_meta(META [ARG ...])	Perform META operation (with ARGs)
@@ -94,7 +97,7 @@ quote_sh() {
     case $BASH in
 	?*) echo "$SQ${1//\'/\'\\\'\'}$SQ"
 	    ;;
-	*)  sed "$quote_sh_sx" <<EOF
+	*)  sed "$quote_sx_ml;$quote_sx_sh" <<EOF
 $1
 EOF
 	    ;;
@@ -117,7 +120,7 @@ quote_command() {
 	*)  for arg in ${1+"$@"}; do case $arg in
 		*\<*|*\>*)
 		    cmd="$cmd $arg"			;;
-		*)  cmd="$cmd `sed "$quote_sh_sx" <<EOF
+		*)  cmd="$cmd `sed "$quote_sx_ml;$quote_sx_sh" <<EOF
 $arg
 EOF`"							;;
 	    esac; done	;;
