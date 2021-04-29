@@ -27,12 +27,18 @@
 ##		ks	2020-05-27	Add universal interpreter.
 ##		ks	2021-04-23	Rename `test-deb-version' to `vers-
 ##					cmp'.
+##		ks	2021-04-28	Import GNU Autotest-based test suite.
 ##
 ##  NOTE:   (1)	Update the build system with autoreconf(1).
 ##----------------------------------------------------------------------------
 ##  Initialization:
 ##----------------------------------------------------------------------------
 include $(top_srcdir)/auto/autofinish.am
+
+MISSING			= $(SHELL) $(top_srcdir)/auto/missing
+AUTOM4TE		= $(MISSING) autom4te
+AUTOTEST		= $(AUTOM4TE) --language=autotest
+AUTOTESTFLAGS		= -I $(top_srcdir)/tests
 
 ##----------------------------------------------------------------------------
 ##  Extra primaries:
@@ -113,4 +119,39 @@ man_MANS		= doc/libconf.3sh				\
 			  doc/libundo.3sh				\
 			  doc/libsafe.3sh
 sysconf_DATA		= etc/libdl-sh.conf
+
+##----------------------------------------------------------------------------
+##  Build, run, and distribute test suite:
+##----------------------------------------------------------------------------
+TESTSUITE 		= $(srcdir)/testsuite
+TESTSUITE_AT		= $(TESTSUITE).at
+
+EXTRA_DIST		= $(TESTSUITE_AT)				\
+			  $(TESTSUITE)					\
+			  $(srcdir)/tests/package.m4
+
+$(srcdir)/tests/package.m4: $(top_srcdir)/configure.ac
+	:;{ 								\
+	echo 'm4_define([AT_PACKAGE_NAME], [$(PACKAGE_NAME)])' &&	\
+	echo 'm4_define([AT_PACKAGE_TARNAME], [$(PACKAGE_TARNAME)])' &&	\
+	echo 'm4_define([AT_PACKAGE_VERSION], [$(PACKAGE_VERSION)])' && \
+	echo 'm4_define([AT_PACKAGE_STRING], [$(PACKAGE_STRING)])' &&	\
+	echo 'm4_define([AT_PACKAGE_BUGREPORT], [$(PACKAGE_BUGREPORT)])' && \
+	echo 'm4_define([AT_PACKAGE_URL] [$(PACKAGE_URL)])';		\
+	} >$@
+
+$(TESTSUITE):		$(TESTSUITE_AT) $(srcdir)/tests/package.m4
+	$(AUTOTEST) $(AUTOTESTFLAGS) -o $@.tmp $@.at && mv $@.tmp $@ || rm -f $@.tmp
+
+check-local: 		tests/atconfig tests/atlocal $(TESTSUITE)
+	$(SHELL) $(TESTSUITE) $(TESTSUITEFLAGS) -C tests
+
+installcheck-local:	tests/atconfig tests/atlocal $(TESTSUITE)
+	$(SHELL) $(TESTSUITE) AUTOTEST_PATH=$(bindir) $(TESTSUITEFLAGS) -C tests
+
+clean-local:
+	test -f $(TESTSUITE) && $(SHELL) $(TESTSUITE) -C tests --clean || :
+
+distclean-local:
+	rm -f tests/atconfig
 

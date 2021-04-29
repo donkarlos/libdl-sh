@@ -29,6 +29,7 @@ dnl					exec/.
 dnl		ks	2020-05-27	Add universal interpreter.
 dnl		ks	2021-04-23	Rename `test-deb-version' to `vers-
 dnl					cmp'.
+dnl		ks	2021-04-28	Import GNU Autotest-based test suite.
 dnl
 dnl NOTE:   (1)	Update the build system with autoreconf(1).
 dnl	    (2)	AM_INIT_AUTOMAKE() already invokes AC_ARG_PROGRAM, AC_PROG_-
@@ -43,8 +44,9 @@ AC_PREREQ([2.61])
 AC_CONFIG_SRCDIR([bin/libdl-sh.un])
 AC_CONFIG_AUX_DIR([auto])
 AC_CONFIG_MACRO_DIRS([auto])
-AM_INIT_AUTOMAKE([foreign no-define dist-xz no-dist-gzip 1.13])
+AM_INIT_AUTOMAKE([1.13 foreign no-define dist-xz no-dist-gzip])
 AF_INIT([auto/gensubst])
+AC_CONFIG_TESTDIR([tests], [bin:tests])
 
 dnl
 dnl Generate output files:
@@ -71,6 +73,7 @@ AF_FINISH_FILES([
     lib/libundo.sh
     libexec/args.awk
     libexec/conf.awk
+    tests/atlocal
 ])
 AC_CONFIG_FILES([
     Makefile
