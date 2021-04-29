@@ -155,11 +155,12 @@ EOF
 }
 
 ##----------------------------------------------------------------------------
-##  quote_rs(STRING [DELIMITER])
-##				Quote STRING for use as RE substitution
+##  quote_rs(STRING [DELIMITER=/])
+##				Quote STRING for use as sed(1) 's///' substi-
+##				tution
 ##----------------------------------------------------------------------------
 quote_rs() {
-    sed "$quote_sxl_rs$2$quote_sxr_rs" <<EOF
+    sed "$quote_sxl_rs${2-/}$quote_sxr_rs" <<EOF
 $1
 EOF
 }

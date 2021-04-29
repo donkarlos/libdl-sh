@@ -1,7 +1,7 @@
 .\"								-*- nroff -*-
 .\" libquote.3sh		- libquote(3sh) manual page
 .\"
-.\" Copyright (C) 2015-2016 Das Computerlabor (DCl-M)
+.\" Copyright © 2015-2021 Das Computerlabor (DCl-M)
 .\"
 .\" This library is free software; you can redistribute it and/or
 .\" modify it under the terms of the GNU Lesser General Public License
@@ -25,10 +25,12 @@
 .\#		ks	2016-05-24	Add 'meta get package/version'.
 .\#					Use 'meta get apis' separator ';'.
 .\#		ks	2016-11-04	Add quote_{re,ere,rs}().
+.\#		ks	2021-04-29	Document quote_rs()'s new DELIMITER
+.\#					default.
 .\#
 .\# NOTE: (1)	Please adjust below date whenever revising the manual page.
 .\#		vvvvvv
-.TH libquote 3SH 2016-11-04 "@PACKAGE_TARNAME@ @PACKAGE_VERSION@" "Shell Programming"
+.TH libquote 3SH 2021-04-29 "@PACKAGE_TARNAME@ @PACKAGE_VERSION@" "Shell Programming"
 
 .SH NAME
 quote_sh, quote_command, quote_re, quote_ere, quote_rs, quote_grep,
@@ -45,7 +47,7 @@ quote_egrep, quote_sed, quote_meta \- String quoting
 .br
 \fBquote_ere\fP \fISTRING\fP [\fIDELIMITER\fP]
 .br
-\fBquote_rs\fP \fISTRING\fP [\fIDELIMITER\fP]
+\fBquote_rs\fP \fISTRING\fP [\fIDELIMITER\fP=/]
 .br
 \fBquote_grep\fP \fISTRING\fP
 .br
@@ -86,12 +88,12 @@ Quote \fISTRING\fP so that all characters special in "modern"/"extended" REs
 output. For use in \fBegrep\fP(1) search patterns, omit \fIDELIMITER\fP.
 
 .TP
-\fBquote_rs\fP \fISTRING\fP [\fIDELIMITER\fP]
+\fBquote_rs\fP \fISTRING\fP [\fIDELIMITER\fP=/]
 Quote \fISTRING\fP so that all characters special in RE substitutions (e.g.,
 right-hand sides of \fBsed\fP(1) \fBs///\fP statements) are quoted with
-backslashes, and write that to standard output. For use in \fBsed\fP(1)
-substitutions, specify the \fIDELIMITER\fP surrounding it (usually '/') so
-that it'll be quoted, too.
+backslashes, and write that to standard output. As this type of quoting is
+almost always used for \fBsed\fP(1) substitutions, the default \fIDELIMITER\fP
+is '/').
 
 .TP
 \fBquote_grep\fP \fISTRING\fP
