@@ -139,7 +139,7 @@ EOF`"							;;
 ##				Quote STRING for use as obsolete/basic RE
 ##----------------------------------------------------------------------------
 quote_re() {
-    sed "$quote_sxl_re$2$quote_sxr_re" <<EOF
+    sed "$quote_sxl_re${2-}$quote_sxr_re" <<EOF
 $1
 EOF
 }
@@ -149,7 +149,7 @@ EOF
 ##				Quote STRING for use as modern/extended RE
 ##----------------------------------------------------------------------------
 quote_ere() {
-    sed 's/[]'"$2"'^\.(|)?*+{}$[]/'"$BS$BS"'&/g' <<EOF
+    sed 's/[]'"${2-}"'^\.(|)?*+{}$[]/'"$BS$BS"'&/g' <<EOF
 $1
 EOF
 }
