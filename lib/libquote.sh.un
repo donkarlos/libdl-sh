@@ -40,9 +40,14 @@ quote_version='@PACKAGE_VERSION@'
 quote_api=0				## Define API version.
 quote_sx_ml=':n'"$NL"'$!{;N;bn'"$NL"'}'
 quote_sx_sh='s/'"$SQ"'/&'"$BS$BS"'&&/g;s/^/'"$SQ"'/;s/$/'"$SQ"'/'
+quote_sxl_re='s/[]'
+quote_sxr_re='^\.*$[]/'"$BS$BS"'&/g'
+quote_sxl_rs='s/[\&'
+quote_sxr_rs=']/'"$BS$BS"'&/g'
 					## Define sed(1) expression chunks.
 
-readonly quote_package quote_version quote_api quote_sx_ml quote_sx_sh
+readonly quote_package quote_version quote_api quote_sx_ml quote_sx_sh	\
+	 quote_sxl_re quote_sxr_re quote_sxl_rs quote_sxr_rs
 
 ##----------------------------------------------------------------------------
 ##  quote_meta(META [ARG ...])	Perform META operation (with ARGs)
@@ -134,7 +139,7 @@ EOF`"							;;
 ##				Quote STRING for use as obsolete/basic RE
 ##----------------------------------------------------------------------------
 quote_re() {
-    sed 's/[]'"$2"'^\.*$[]/'"$BS$BS"'&/g' <<EOF
+    sed "$quote_sxl_re$2$quote_sxr_re" <<EOF
 $1
 EOF
 }
@@ -154,7 +159,7 @@ EOF
 ##				Quote STRING for use as RE substitution
 ##----------------------------------------------------------------------------
 quote_rs() {
-    sed 's/['"$2"'&\]/'"$BS$BS"'&/g' <<EOF
+    sed "$quote_sxl_rs$2$quote_sxr_rs" <<EOF
 $1
 EOF
 }
