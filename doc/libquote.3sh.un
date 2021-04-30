@@ -27,18 +27,21 @@
 .\#		ks	2016-11-04	Add quote_{re,ere,rs}().
 .\#		ks	2021-04-29	Document quote_rs()'s new DELIMITER
 .\#					default.
+.\#		ks	2021-04-30	Document universal quoter quote().
 .\#
 .\# NOTE: (1)	Please adjust below date whenever revising the manual page.
 .\#		vvvvvv
-.TH libquote 3SH 2021-04-29 "@PACKAGE_TARNAME@ @PACKAGE_VERSION@" "Shell Programming"
+.TH libquote 3SH 2021-04-30 "@PACKAGE_TARNAME@ @PACKAGE_VERSION@" "Shell Programming"
 
 .SH NAME
-quote_sh, quote_command, quote_re, quote_ere, quote_rs, quote_grep,
+quote, quote_sh, quote_command, quote_re, quote_ere, quote_rs, quote_grep,
 quote_egrep, quote_sed, quote_meta \- String quoting
 
 .SH SYNOPSIS
 \fBdl_load quote\fP
 
+\fBquote\fP [\fISTYLE\fP [\fIDELIMITER\fP]] ... \fISTRING\fP]
+.br
 \fBquote_sh\fP \fISTRING\fP
 .br
 \fBquote_command\fP \fICOMMAND\fP [\fIARGUMENT\fP|\fIREDIRECTION\fP ...]
@@ -63,6 +66,64 @@ quote arbitrary strings for POSIX shells, \fBgrep\fP(1) variants, and
 \fBsed\fP(1).
 
 .SH FUNCTIONS
+.TP 4
+\fBquote\fP [\fISTYLE\fP [\fIDELIMITER\fP]] ... \fISTRING\fP]
+Universally quote \fISTRING\fP by constructing a \fBsed\fP(1) expression
+from the \fISTYLE\fPs (and where appropriate, \fIDELIMITER\fPs) passed as
+arguments, then applying the constructed \fBsed\fP(1) expression to
+\fISTRING\fP, thus writing the result to standard output.
+
+In essence, \fBquote\fP is quite capable of exerting multiple styles of
+quoting (in the order of the \fISTYLE\fPs given) during a single
+invocation.
+
+Currently, the following \fISTYLE\fPs are implemented:
+.RS 4
+.TP 4
+\(bu \fBre\fP [\fIDELIMITER\fP]
+Exert a round of quoting that escapes all characters special to
+"obsolete"/"basic" REs with backslashes (see \fBquote_re\fP below).
+
+.TP
+\(bu \fBrs\fP [\fIDELIMITER\fP]
+Exert a round of quoting that escapes all characters special to right-hand
+sides of \fBsed\fP(1) \fBs///\fP statements) with backslashes (see
+\fBquote_rs\fP below).
+
+Note that contrary to \fBquote_rs\fP, there is no default \fIDELIMITER\fP,
+i.e. it must be passed explicitly.
+
+.TP
+\(bu \fBsh\fP
+Exert a round of quoting that escapes single quotes and then wraps the outcome
+into single quotes, thus quoting any characters special to POSIX shells
+that occur in \fISTRING\fP (see \fBquote_sh\fP below).
+
+Note that contrary to \fBquote_sh\fP, this style abstains from quoting
+unless it is really necessary.
+.RE
+
+.RS 4
+When no \fISTYLE\fPs are passed to \fBquote\fP, it defaults to one round of
+shell quoting, i.e. invoking
+
+.in +4
+\fBquote\fP \fISTRING\fP
+.in -4
+
+is equivalent to invoking
+
+.in +4
+\fBquote sh\fP \fISTRING\fP.
+.in -4
+
+When no arguments whatsoever are passed to \fBquote\fP, nothing is written
+to standard output.
+
+For simple examples of how to use this function, see section \fBEXAMPLES\fP
+below.
+.RE
+
 .TP 4
 \fBquote_sh\fP \fISTRING\fP
 Quote \fISTRING\fP for POSIX shells and write that to standard output.
@@ -161,16 +222,33 @@ of \fBlibquote.sh\fP provide \fBquote_sh\fP(3sh), you'd invoke:
 
 .SH EXAMPLES
 To exactly \fBgrep\fP(1) those lines within \fIPATHNAME\fP that start with
-$pattern (whether it contains special characters or not), you'd invoke:
+\fB$pattern\fP (whether it contains special characters or not), you'd invoke:
 
 .in +4
-\fBgrep '^'"`quote_grep "$pattern"`"\fP \fIPATHNAME\fP
+\fBgrep '^'"`quote_re "$pattern"`"\fP \fIPATHNAME\fP.
+.in -4
+
+Alternatively, you could use \fBquote\fP(3sh) as follows:
+
+.in +4
+\fBgrep '^'"`quote re "$pattern"`"\fP \fIPATHNAME\fP
 .in -4
 
 To do the same with \fBsed\fP(1), you'd invoke
 
 .in +4
-\fBsed '/^'"`quote_sed "$pattern"`"'/!d'\fP \fIPATHNAME\fP
+\fBsed '/^'"`quote_sed "$pattern"`"'/!d'\fP \fIPATHNAME\fP,
+.in -4
+
+or
+.in +4
+\fBsed '/^'"`quote_re "$pattern" /`"'/!d'\fP \fIPATHNAME\fP,
+.in -4
+
+or even
+
+.in +4
+\fBsed '/^'"`quote re / "$pattern"`"'/!d'\fP \fIPATHNAME\fP
 .in -4
 
 instead.

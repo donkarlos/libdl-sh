@@ -2,7 +2,7 @@
 #-----------------------------------------------------------------------------
 #   libquote.sh			- String quoting library
 #
-#   Copyright © 2013-2020 Das Computerlabor (DCl-M)
+#   Copyright © 2013-2021 Das Computerlabor (DCl-M)
 #
 #   This library is free software; you can redistribute it and/or
 #   modify it under the terms of the GNU Lesser General Public License
@@ -32,22 +32,26 @@
 ##		ks	2020-05-12	Limit valid 'meta session' operations.
 ##					Make 'meta get apis FORMAT' properly
 ##					handle namespace rule-exempted names.
+##		ks	2021-04-29	Add universal quoter quote().
 ##----------------------------------------------------------------------------
 ##  Global variables:
 #-----------------------------------------------------------------------------
 quote_package='@PACKAGE_TARNAME@'	## Define source package name/version.
 quote_version='@PACKAGE_VERSION@'
 quote_api=0				## Define API version.
+quote_cs_sh=']^?*~! 	${}()<|>&;#'"$BQ$DQ$SQ$BS"'['
 quote_sx_ml=':n'"$NL"'$!{;N;bn'"$NL"'}'
 quote_sx_sh='s/'"$SQ"'/&'"$BS$BS"'&&/g;s/^/'"$SQ"'/;s/$/'"$SQ"'/'
 quote_sxl_re='s/[]'
 quote_sxr_re='^\.*$[]/'"$BS$BS"'&/g'
 quote_sxl_rs='s/[\&'
 quote_sxr_rs=']/'"$BS$BS"'&/g'
+quote_sx_nl='s/'"$BS$NL"'/'"$BS$BS"'&/g'
 					## Define sed(1) expression chunks.
 
-readonly quote_package quote_version quote_api quote_sx_ml quote_sx_sh	\
-	 quote_sxl_re quote_sxr_re quote_sxl_rs quote_sxr_rs
+readonly quote_package quote_version quote_api quote_cs_sh quote_sx_ml	\
+	 quote_sx_sh quote_sxl_re quote_sxr_re quote_sxl_rs quote_sxr_rs\
+	 quote_sx_nl
 
 ##----------------------------------------------------------------------------
 ##  quote_meta(META [ARG ...])	Perform META operation (with ARGs)
@@ -70,6 +74,7 @@ quote_meta() {
 	    sed "$sx" <<EOF
 a${ms}$quote_api
 f${ms}$quote_api${ms}meta(META [ARG ...])${ms}2-
+F${ms}$quote_api${ms}quote([STYLE [DELIMITER]] ... STRING])${ms}0-
 f${ms}$quote_api${ms}sh(STRING)${ms}1
 f${ms}$quote_api${ms}command(COMMAND [ARGUMENT|REDIRECTION ...])${ms}1-
 f${ms}$quote_api${ms}re(STRING [DELIMITER])${ms}1-2
@@ -94,6 +99,78 @@ EOF
 	    ;;				## ...is misuse!
     esac
 }
+
+##----------------------------------------------------------------------------
+##  quote([[STYLE [DELIMITER]] ... STRING])
+##				Universally quote STRING
+##
+##  Non-local variables:
+##	- quote_cs_sh	(R) Special sh(1) character set
+##	- quote_sx_ml	(R) ~~~~
+##	- quote_sx_sh	(R) ~~~~
+##	- quote_sxl_re	(R) ~~~~
+##	- quote_sxr_re	(R) ~~~~
+##	- quote_sxl_rs	(R) ~~~~
+##	- quote_sxr_rs	(R) ~~~~
+##	- quote_sx_nl	(R) ~~~~
+##----------------------------------------------------------------------------
+quote() {
+    local n st de string i=0 sx
+
+    set shiftee ${1+"$@"}		## Let initial shift always succeed.
+    while shift ${n-}; do		## Foreach STyle do...
+	case ${2+2}${1+1}_${1+1$1_}${2+2$2_}${3+3} in
+					## What are we looking at?
+	    21_1r[es]_2_3|21_1r[es]_2?_3)
+					## Style re/rs with DElimiter...
+		n=2 st=$1 de=$2		## Fetch STyle and DEimiter.
+		;;
+##	    21_1r[es]_2r[es]_3|21_1r[es]_2sh_3)
+##					## Style re/rs sans DElimiter...
+##		n=1 st=$1 de=		## Fetch STyle and assume empty
+##		;;			## DElimiter.
+##	    21_1r[es]_2??*_3)		## Style re/rs with invalid DElim-
+##		return 2		## iter...
+##		;;			## Indicate abuse!
+	    21_1*_2*_*)			## Style without DElimiter...
+		n=1 st=$1 de=		## Fetch STyle and (for safety)
+		;;			## assume empty DElimiter.
+	    1_1*_)			## STRING...
+		n=1 string=$1		## Fetch STRING, yet immediately exert
+		case ${st+=} in		## quoting rounds if some STyle had
+		    =)	break	;;	## been fetched before.
+		esac
+		;;
+	    _)				## No more arguments...
+		break			## Exert quoting rounds.
+		;;
+	    *)				## Should never happen...
+		return 3		## Indicate internal error!
+		;;
+	esac; case ${st-sh} in		## Which STyle had been fetched?
+	    re)				## Basic RE...
+		sx="${sx+$sx;}$quote_sxl_re${de-}$quote_sxr_re;$quote_sx_nl"
+					## Append sed(1) expr. for another
+		;;			## round of basic RE quoting.
+	    rs)				## 's///' right-hand side...
+		sx="${sx+$sx;}$quote_sxl_rs${de-}$quote_sxr_rs;$quote_sx_nl"
+					## Append sed(1) expr. for another
+		;;			## round of right-hand side quoting.
+	    sh)				## Bourne shell...
+		sx="${sx+$sx;}:p$i"; i=`expr $i + 1`
+		sx="$sx$NL"'/^$/bq'"$i$NL"'/'"$BS$NL"'/bq'"$i"
+		sx="$sx$NL"'/['"$quote_cs_sh"']/!bp'"$i$NL"':q'"$i$NL$quote_sx_sh"
+					## Append sed(1) expr. for another
+		;;			## round of shell quoting.
+	    *)				## Unknown STyle...
+		return 2		## Indicate abuse!
+		;;
+	esac
+    done; sed "$quote_sx_ml;${sx+$sx;}:p$i$NL"'/^$/d' <<EOF
+${string-}
+EOF
+					## Exert quoting rounds to STRING in
+}					## one go!
 
 ##----------------------------------------------------------------------------
 ##  quote_sh(STRING)		Quote STRING for sh(1)
