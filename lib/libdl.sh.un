@@ -2,7 +2,7 @@
 #-----------------------------------------------------------------------------
 #   libdl.sh			- Demand-loading library
 #
-#   Copyright © 2013-2020 Das Computerlabor (DCl-M)
+#   Copyright © 2013-2021 Das Computerlabor (DCl-M)
 #
 #   This library is free software; you can redistribute it and/or
 #   modify it under the terms of the GNU Lesser General Public License
@@ -40,6 +40,7 @@
 ##		ks	2020-05-12	Become aware of relocated installa-
 ##					tions.
 ##					Limit valid 'meta session' operations.
+##		ks	2021-05-01	'-u'-harden dl_meta().
 ##
 ##  NOTE:   (1)	To avoid cluttering code, this library is exempted from need-
 ##		ing namespace prefixes for its special character definitions.
@@ -80,8 +81,8 @@ unset dl_destdir dl_atloads dl_session	## Discard spurious environment.
 dl_meta() {
     local mp=dl_			## Set meta prefix.
 
-    case $1-$2 in			## Which META operation?
-	get-apis)			## Inquire APIs...
+    case ${2+=}${1+$1-}${2-} in		## Which META operation?
+	=get-apis)			## Inquire APIs...
 	    local sx ms=\;
 	    local fa='/^a'"$ms"'/!d;s///' da=';s/([^)'"$ms"'(]*)//'	\
 		  ff='/^F'"$ms"'/{;s///;t2;};/^f'"$ms"'/!d;s///'	\
@@ -127,14 +128,14 @@ r${ms}$dl_api${ms}re_1n
 r${ms}$dl_api${ms}re_0n
 EOF
 	    ;;
-	get-package|get-version|get-api|get-libpath|get-loaded|		\
-	get-destdir|get-session)	## Inquire internal variable...
+	=get-package|=get-version|=get-api|=get-libpath|=get-loaded|	\
+	=get-destdir|=get-session)	## Inquire internal variable...
 	    eval 'case ${'"$mp$2"'+=} in
 		=)  echo "$'"$mp$2"'"	;;
 		*)  return 1		;;
 	    esac'
 	    ;;
-	pre-libpath)			## Prepend to library search path...
+	=pre-libpath)			## Prepend to library search path...
 	    case ${3+=} in		## One or more path items given?
 		=)  local ifs vs=$2 items= item; shift 2
 		    ifs=$IFS; IFS=:; set shiftee $*; shift; IFS=$ifs
@@ -149,14 +150,19 @@ EOF
 		    ;;
 	    esac
 	    ;;
-	set-session)			## Set session ID...
-	    eval "$mp$2"'=$3'
+	=set-session)			## Set session ID...
+	    case ${3+=} in		## Usage OK?
+		=)  eval "$mp$2"'=$3'	## Yes, set session ID.
+		    ;;
+		*)  return 2		## No, indicate abuse!
+		    ;;
+	    esac
 	    ;;
-	session-init|session-load|session-dump|session-exit)
+	=session-init|=session-load|=session-dump|=session-exit)
 	    :				## Session init/load/dump/exit...
 	    ;;				## ...is a no-op.
 	*)  return 2			## Anything else...
-	    ;;				## ...is misuse!
+	    ;;				## ...is abuse!
     esac
 }
 

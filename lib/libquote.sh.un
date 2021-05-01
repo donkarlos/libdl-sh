@@ -33,6 +33,7 @@
 ##					Make 'meta get apis FORMAT' properly
 ##					handle namespace rule-exempted names.
 ##		ks	2021-04-29	Add universal quoter quote().
+##		ks	2021-05-01	'-u'-harden quote_meta().
 ##----------------------------------------------------------------------------
 ##  Global variables:
 #-----------------------------------------------------------------------------
@@ -59,8 +60,8 @@ readonly quote_package quote_version quote_api quote_cs_sh quote_sx_ml	\
 quote_meta() {
     local mp=quote_			## Set meta prefix.
 
-    case $1-$2 in			## Which META operation?
-	get-apis)			## Inquire APIs...
+    case ${2+=}${1+$1-}${2-} in		## Which META operation?
+	=get-apis)			## Inquire APIs...
 	    local sx ms=\;
 	    local fa='/^a'"$ms"'/!d;s///' da=';s/([^)'"$ms"'(]*)//'	\
 		  ff='/^F'"$ms"'/{;s///;t2;};/^f'"$ms"'/!d;s///'	\
@@ -85,18 +86,18 @@ f${ms}$quote_api${ms}egrep(STRING)${ms}1
 f${ms}$quote_api${ms}sed(STRING [DELIMITER=/])${ms}1-2
 EOF
 	    ;;
-	get-package|get-version|get-api)
+	=get-package|=get-version|=get-api)
 					## Inquire internal variable...
 	    eval 'case ${'"$mp$2"'+=} in
 		=)  echo "$'"$mp$2"'"	;;
 		*)  return 1		;;
 	    esac'
 	    ;;
-	session-init|session-load|session-dump|session-exit)
+	=session-init|=session-load|=session-dump|=session-exit)
 	    :				## Session init/load/dump/exit...
 	    ;;				## ...is a no-op.
 	*)  return 2			## Anything else...
-	    ;;				## ...is misuse!
+	    ;;				## ...is abuse!
     esac
 }
 

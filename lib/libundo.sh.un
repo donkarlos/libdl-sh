@@ -2,7 +2,7 @@
 #-----------------------------------------------------------------------------
 #   libundo.sh			- Undo stack management library
 #
-#   Copyright © 2013-2020 Das Computerlabor (DCl-M)
+#   Copyright © 2013-2021 Das Computerlabor (DCl-M)
 #
 #   This library is free software; you can redistribute it and/or
 #   modify it under the terms of the GNU Lesser General Public License
@@ -35,6 +35,7 @@
 ##		ks	2020-05-12	Limit valid 'meta session' operations.
 ##					Make 'meta get apis FORMAT' properly
 ##					handle namespace rule-exempted names.
+##		ks	2021-05-01	'-u'-harden undo_meta().
 ##----------------------------------------------------------------------------
 ##  Global variables:
 #-----------------------------------------------------------------------------
@@ -52,8 +53,8 @@ readonly undo_re_tag undo_package undo_version
 undo_meta() {
     local mp=undo_			## Set meta prefix.
 
-    case $1-$2 in			## Which META operation?
-	get-apis)			## Inquire APIs...
+    case ${2+=}${1+$1-}${2-} in		## Which META operation?
+	=get-apis)			## Inquire APIs...
 	    local sx ms=\;
 	    local fa='/^a'"$ms"'/!d;s///' da=';s/([^)'"$ms"'(]*)//'	\
 		  ff='/^F'"$ms"'/{;s///;t2;};/^f'"$ms"'/!d;s///'	\
@@ -81,26 +82,26 @@ f${ms}1${ms}pull(MARK [TAG] | TAG | [COUNT=1])${ms}0-2
 f${ms}1${ms}drop(MARK [TAG] | TAG | [COUNT=1])${ms}0-2
 EOF
 	    ;;
-	get-package|get-version|get-api|get-0tag)
+	=get-package|=get-version|=get-api|=get-0tag)
 					## Inquire internal variable...
 	    eval 'case ${'"$mp$2"'+=} in
 		=)  echo "$'"$mp$2"'"	;;
 		*)  return 1		;;
 	    esac'
 	    ;;
-	set-api)			## Set and freeze API...
-	    ${mp}meta get apis api | fgrep -qxe "$3" || return 1
+	=set-api)			## Set and freeze API...
+	    ${mp}meta get apis api | fgrep -qxe "${3-}" || return 1
 	    eval "$mp$2"'=$3; readonly '"$mp$2"
 	    ;;
-	set-0tag)			## Set cleanups tag...
-	    expr "_$3" : "_$undo_re_tag"'$' >/dev/null || return 1
+	=set-0tag)			## Set cleanups tag...
+	    expr "_${3-}" : "_$undo_re_tag"'$' >/dev/null || return 1
 	    eval "$mp$2"'=$3'		## ...after making sure it's a tag.
 	    ;;
-	session-init|session-load|session-dump|session-exit)
+	=session-init|=session-load|=session-dump|=session-exit)
 	    :				## Session init/load/dump/exit...
 	    ;;				## ...is a no-op.
 	*)  return 2			## Anything else...
-	    ;;				## ...is misuse!
+	    ;;				## ...is abuse!
     esac
 }
 
