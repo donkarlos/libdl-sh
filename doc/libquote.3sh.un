@@ -185,11 +185,11 @@ output.
 Inquire information about available API versions and write them to standard
 output. The information written depends on the output \fIFORMAT\fP:
 .RS 4
-.IP \(em 2
+.IP \(bu 2
 \fBapi\fP (the default format) represents each API version by a line
 containing \fIVERSION\fP.
 
-.IP \(em
+.IP \(bu
 \fBfull\fP represents each function within each API version by a line of three
 semicolon-separated fields: \fIVERSION\fP, \fISIGNATURE\fP, and \fIARGCS\fP,
 where the second has the format \fINAME\fP\fB(\fP\fIARGS\fP\fB)\fP and the
@@ -204,7 +204,7 @@ be represented by the following two lines:
 \fB0;quote_sed(STRING [DELIMITER=/]);1-2\fP
 .in -4
 
-.IP \(em
+.IP \(bu
 \fBlist\fP is similar to \fBfull\fP, except that \fB(\fP\fIARGS\fP\fB)\fP in
 the second field is omitted (i.e., just the function name is shown)
 .RE
