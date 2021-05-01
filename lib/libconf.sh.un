@@ -60,6 +60,7 @@ conf_meta() {
 	    esac
 	    local fa='/^a'"$ms"'/!d;s///' da=';s/([^)'"$ms"'(]*)//'	\
 		  ff='/^F'"$ms"'/{;s///;t2;};/^f'"$ms"'/!d;s///'	\
+		  fr='/^R'"$ms"'/{;s///;t2;};/^r'"$ms"'/!d;s///'	\
 		  p2=';s/'"$ms"'/&'"$mp"'/;:2'
 	    case ${conf_api-0}:$mf in	## Which format?
 		0:brief)
@@ -68,6 +69,7 @@ conf_meta() {
 		*:api)	sx="$fa"		;;
 		*:full)	sx="$ff$p2${4+;$4}"	;;
 		*:list)	sx="$ff$p2$da${4+;$4}"	;;
+		2:r/o)	sx="$fr$p2${4+;$4}"	;;
 		*:*)	return 1		;;
 	    esac
 	    sed "$sx" <<EOF

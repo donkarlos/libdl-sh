@@ -58,11 +58,13 @@ undo_meta() {
 	    local sx ms=\;
 	    local fa='/^a'"$ms"'/!d;s///' da=';s/([^)'"$ms"'(]*)//'	\
 		  ff='/^F'"$ms"'/{;s///;t2;};/^f'"$ms"'/!d;s///'	\
+		  fr='/^R'"$ms"'/{;s///;t2;};/^r'"$ms"'/!d;s///'	\
 		  p2=';s/'"$ms"'/&'"$mp"'/;:2'
 	    case ${3-api} in		## Which format?
 		api)	sx="$fa"		;;
 		full)   sx="$ff$p2${4+;$4}"	;;
 		list)	sx="$ff$p2$da${4+;$4}"	;;
+		r/o)	sx="$fr$p2${4+;$4}"	;;
 		*)	return 1		;;
 	    esac
 	    sed "$sx" <<EOF

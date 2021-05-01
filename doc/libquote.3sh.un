@@ -31,7 +31,7 @@
 .\#
 .\# NOTE: (1)	Please adjust below date whenever revising the manual page.
 .\#		vvvvvv
-.TH libquote 3SH 2021-04-30 "@PACKAGE_TARNAME@ @PACKAGE_VERSION@" "Shell Programming"
+.TH libquote 3SH 2021-05-01 "@PACKAGE_TARNAME@ @PACKAGE_VERSION@" "Shell Programming"
 
 .SH NAME
 quote, quote_sh, quote_command, quote_re, quote_ere, quote_rs, quote_grep,
@@ -206,17 +206,21 @@ be represented by the following two lines:
 
 .IP \(bu
 \fBlist\fP is similar to \fBfull\fP, except that \fB(\fP\fIARGS\fP\fB)\fP in
-the second field is omitted (i.e., just the function name is shown)
+the second field is omitted (i.e., just the function name is shown).
+
+.IP \(bu
+\fBr/o\fP represents each read-only public variable within each API version
+by a line of two semicolon-separated fields: \fIVERSION\fP and \fINAME\fP.
 .RE
 
 .RS 4
-For output formats \fBfull\fP and \fBlist\fP, the resulting output format may
-be further tailored by \fISEDEX\fP, a sequence of \fBsed\fP(1) commands. Thus,
-if you want to know which API versions (analogous to output format \fBapi\fP)
-of \fBlibquote.sh\fP provide \fBquote_sh\fP(3sh), you'd invoke:
+For output formats \fBfull\fP, \fBlist\fP, and \fBr/o\fP the resulting output
+format may be further tailored by \fISEDEX\fP, a sequence of \fBsed\fP(1)
+commands. Thus, if you want to know which API versions (analogous to output
+format \fBapi\fP) of \fBlibquote.sh\fP provide \fBquote_sh\fP(3sh), you'd invoke
 
 .in +4
-\fBquote_meta get apis list '/;quote_sh;/!d;s/;.*$//'\fP
+\fBquote_meta get apis list '/;quote_sh;/!d;s/;.*$//'\fP.
 .in -4
 .RE
 

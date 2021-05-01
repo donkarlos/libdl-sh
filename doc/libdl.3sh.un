@@ -1,7 +1,7 @@
 .\"								-*- nroff -*-
 .\" libdl.3sh			- libdl(3sh) manual page
 .\"
-.\" Copyright © 2013-2020 Das Computerlabor (DCl-M)
+.\" Copyright © 2013-2021 Das Computerlabor (DCl-M)
 .\"
 .\" This library is free software; you can redistribute it and/or
 .\" modify it under the terms of the GNU Lesser General Public License
@@ -37,7 +37,7 @@
 .\#
 .\# NOTE: (1)	Please adjust below date whenever revising the manual page.
 .\#		vvvvvv
-.TH LIBDL 3SH 2020-05-03 "@PACKAGE_TARNAME@ @PACKAGE_VERSION@" "Shell Programming"
+.TH LIBDL 3SH 2021-05-01 "@PACKAGE_TARNAME@ @PACKAGE_VERSION@" "Shell Programming"
 
 .SH NAME
 dl_atload, dl_load, dl_atexit, dl_exit, dl_which, dl_dump, dl_meta
@@ -159,7 +159,7 @@ represented by the following two lines:
 
 .IP \(bu
 \fBlist\fP is similar to \fBfull\fP, except that \fB(\fP\fIARGS\fP\fB)\fP in
-the second field is omitted (i.e., just the function name is shown)
+the second field is omitted (i.e., just the function name is shown).
 
 .IP \(bu
 \fBr/o\fP represents each read-only public variable (see section \fBPUBLIC
@@ -178,10 +178,10 @@ line:
 For output formats \fBfull\fP, \fBlist\fP, and \fBr/o\fP the resulting output
 format may be further tailored by \fISEDEX\fP, a sequence of \fBsed\fP(1)
 commands. Thus, if you want to know which API versions (analogous to output
-format \fBapi\fP) of \fBlibdl.sh\fP provide \fBdl_atload\fP(3sh), you'd invoke:
+format \fBapi\fP) of \fBlibdl.sh\fP provide \fBdl_atload\fP(3sh), you'd invoke
 
 .in +4
-\fBdl_meta get apis list '/;dl_atload;/!d;s/;.*$//'\fP
+\fBdl_meta get apis list '/;dl_atload;/!d;s/;.*$//'\fP.
 .in -4
 .RE
 
