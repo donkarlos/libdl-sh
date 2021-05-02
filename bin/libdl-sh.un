@@ -33,10 +33,20 @@
 ##----------------------------------------------------------------------------
 ##  Initialization:
 #-----------------------------------------------------------------------------
-LC_ALL=C; export LC_ALL			## Avoid locale insanities.
+case ${LC_ALL+=} in			## Preserve LC_ALL setting...
+    =)	lc_all=$LC_ALL	;;
+    *)	unset lc_all	;;
+esac; LC_ALL=C; export LC_ALL		## ...and avoid locale insanities.
 command=`basename "$0"`; readonly command
 					## Determine command name.
-unset GETOPT_COMPATIBLE POSIXLY_CORRECT	## ...make modern getopt(1) behave.
+case ${GETOPT_COMPATIBLE+=} in		## Preserve GETOPT_COMPATIBLE and...
+    =)	getopt_compatible=$GETOPT_COMPATIBLE	;;
+    *)	unset getopt_compatible			;;
+esac; case ${POSIXLY_CORRECT+=} in	## POSIXLY_CORRECT settings and...
+    =)	posixly_correct=$POSIXLY_CORRECT	;;
+    *)	unset posixly_correct			;;
+esac; unset GETOPT_COMPATIBLE POSIXLY_CORRECT
+					## ...make modern getopt(1) behave.
 
 ##----------------------------------------------------------------------------
 ##  include(CONF ...)		Parse demand-loading configuration file(s)
@@ -183,8 +193,19 @@ EOF
 					## cated installation and augment LSP
 					## so that it's searched first.
 	}; case ${1+_$1} in		## COMMAND given?
-	    _?*)    exec "$@"	;;	## Yes, execute it.
-	    *)	    exit 127	;;	## No, indicate failure!
+	    _?*)			## Yes, restore environment...
+		case ${lc_all+=} in
+		    =)  LC_ALL=$lc_all
+			export LC_ALL		;;
+		    *)  unset LC_ALL		;;
+		esac; case ${getopt_compatible+=} in
+		    =)  GETOPT_COMPATIBLE=$getopt_compatible
+			export GETOPT_COMPATIBLE;;
+		esac; case ${posixly_correct+=} in
+		    =)  POSIXLY_CORRECT=$posixly_correct
+			export POSIXLY_CORRECT	;;
+		esac; exec "$@"	;;	## ... and execute it.
+	    *)	exit 127	;;	## No, indicate failure!
 	esac
 	;;
     echo)				## Emit installation path(s)...
