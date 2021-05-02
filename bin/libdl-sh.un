@@ -2,7 +2,7 @@
 #-----------------------------------------------------------------------------
 #   libdl-sh			- libdl.sh Demand-loading helper
 #
-#   Copyright © 2013-2020 Das Computerlabor (DCl-M)
+#   Copyright © 2013-2021 Das Computerlabor (DCl-M)
 #
 #   This library is free software; you can redistribute it and/or
 #   modify it under the terms of the GNU Lesser General Public License
@@ -29,10 +29,19 @@
 ##		ks	2018-02-26	Add 'exec' action.
 ##		ks	2020-05-12	Make libdl.sh aware of relocated in-
 ##					stallations in 'exec' action.
+##		ks	2021-05-02	Add command line parsing.
+##----------------------------------------------------------------------------
+##  Initialization:
+#-----------------------------------------------------------------------------
+LC_ALL=C; export LC_ALL			## Avoid locale insanities.
+command=`basename "$0"`; readonly command
+					## Determine command name.
+unset GETOPT_COMPATIBLE POSIXLY_CORRECT	## ...make modern getopt(1) behave.
+
 ##----------------------------------------------------------------------------
 ##  include(CONF ...)		Parse demand-loading configuration file(s)
 ##				into list of library search path items
-#-----------------------------------------------------------------------------
+##----------------------------------------------------------------------------
 include() {
     local line
 
@@ -56,9 +65,72 @@ include() {
 }
 
 ##----------------------------------------------------------------------------
+##  libdl_sh_help()		Show help
+##
+##  Non-local variables:
+##	- command	(R) command name
+##----------------------------------------------------------------------------
+libdl_sh_help() {
+    cat <<EOF
+Usage: $command [OPTION ...] ACTION [ARG ...]
+
+Valid options are:
+ -h, --help	Show help
+ -V, --version	Show version information
+
+Valid actions are:
+ load		Print command that loads libdl.sh
+ path		Print library search path
+ exec COMMAND [ARG ...]
+		Execute COMMAND in suitable environment
+ echo NAME ...	Print installation path(s) named NAME
+EOF
+}
+
+##----------------------------------------------------------------------------
+##  libdl_sh_version()		Show version and license information
+##
+##  Non-local variables:
+##	- command	(R) command name
+##----------------------------------------------------------------------------
+libdl_sh_version() {
+    cat <<EOF
+$command (@PACKAGE_NAME@) @PACKAGE_VERSION@
+Copyright © 2016-2021 Das Computerlabor
+License GPLv2: GNU GPL version 2 or later
+This is free software: you are free to change and redistribute it.
+There is NO WARRANTY, to the extent permitted by law.
+
+Please send bug reports to <@PACKAGE_BUGREPORT@>.
+EOF
+}
+
+##----------------------------------------------------------------------------
 ##  Main program:
 ##----------------------------------------------------------------------------
-case $1 in				## Which action?
+(getopt -T) >/dev/null 2>&1 && {	## What getopt(1) are dealing with?
+    echo "$command: Legacy getopt(1) found!" >&2; exit 2
+					## Legacy; complain and abort!
+} || case $? in
+    4)	optstring=hV			## Modern: preset short and long
+	longopts=help,version		## option lists.
+	;;
+    *)	echo "$command: Missing getopt(1)!" >&2
+	exit 2				## None at all: complain and abort!
+	;;
+esac
+args=`getopt -n"$command" -o"$optstring" -l"$longopts" -- ${1+"$@"}` || {
+					## Options parsed?
+    libdl_sh_help >&2; exit 2		## No, show help and abort!
+}
+eval set shiftee "$args"; unset optstring longopts args
+while shift; do				## Process parsed options...
+    case $1 in
+	-h|--help)	libdl_sh_help   ; exit 0;;
+	-V|--version)	libdl_sh_version; exit 0;;
+	--)		shift; break		;;
+    esac
+done; case ${1-usage} in		## Which action?
     load)				## Emit command to load libdl.sh...
 	BS=\\ SQ=\'; for item in `	## Is it present on preliminary LSP?
 	    IFS=:; echo $LIBDL_SH_LIBRARY_PATH @shlibdir@
@@ -128,7 +200,6 @@ EOF
 	done				## valid, bail out if not.
 	;;
     *)
-	echo "$0: Unknown action \`$1'!" >&2
-	exit 2
+	libdl_sh_help >&2; exit 2
 	;;
 esac
