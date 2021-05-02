@@ -95,13 +95,13 @@ and unsetting it:
 \fBconf_put\fP \fIITEM\fP\fB=\fP \fICFPN\fP
 .in -4
 
-does the first, whereas
+does the former, whereas
 
 .in +4
 \fBconf_put\fP \fIITEM\fP \fICFPN\fP
 .in -4
 
-does the latter.
+does the latter!
 
 .TP
 \fBconf_meta\fP \fIMETA\fP [\fIARG\fP ...]
@@ -178,11 +178,12 @@ to be migrated to API version 2).
 .TP 4
 \fBconf_getenv\fP \fIVARIABLE\fP \fIITEM\fP[\fB=\fP\fIVALUE\fP] \fICFPN\fP ...
 Unless (environment) \fIVARIABLE\fP is set, behave like \fBconf_get\fP.
-Otherwise, write ${\fIVARIABLE\fP} to standard output, so that it essentially
-overrides \fIITEM\fP's configured value. In general, simply replaced by
+Otherwise, write \fB${\fP\fIVARIABLE\fP\fB}\fP to standard output, so that it
+essentially overrides \fIITEM\fP's configured value. In general, you may
+simply replace it by
 
 .in +4
-\fBecho "${\fP\fIVARIABLE\fP\fB-`conf_get\fP \fIITEM\fP[\fB=\fP\fIVALUE\fP] \fICFPN\fP ...\fB`}"\fP
+\fBecho "${\fP\fIVARIABLE\fP\fB-`conf_get\fP \fIITEM\fP[\fB=\fP\fIVALUE\fP] \fICFPN\fP ...\fB`}"\fP,
 .in -4
 
 but variable assignments like, e.g.
