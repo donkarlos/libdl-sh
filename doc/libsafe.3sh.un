@@ -195,6 +195,7 @@ invoke
 .RE
 
 .SH SEE ALSO
+.BR umask (2),
 .BR dl_load (3sh),
 .BR undo_init (3sh),
 .BR undo_push (3sh).
