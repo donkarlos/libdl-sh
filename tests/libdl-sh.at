@@ -29,6 +29,7 @@ AT_BANNER([Demand-loading helper libdl-sh(1)])
 
 AT_SETUP(['libdl-sh exec' prepends to $PATH at all?])
 AT_CHECK([dnl
+set -eu
 case `libdl-sh exec -- /bin/sh -c 'echo "$PATH"'` in
     ?*:$PATH)
 	;;
@@ -40,6 +41,7 @@ AT_CLEANUP
 
 AT_SETUP(['libdl-sh exec' prepends ${builddir}/bin to $PATH?])
 AT_CHECK([dnl
+set -eu
 case :$PATH: in
     *:$abs_top_builddir/bin:*)
 	case `libdl-sh exec -- /bin/sh -c 'echo "$PATH"'` in
@@ -55,6 +57,7 @@ AT_CLEANUP
 
 AT_SETUP(['libdl-sh load' honours $LIBDL_SH_LIBRARY_PATH?])
 AT_CHECK([dnl
+set -eu
 SQ=\'
 case `LIBDL_SH_LIBRARY_PATH=$abs_top_builddir/lib libdl-sh load` in
     '. '"$SQ$abs_top_builddir"'/lib/libdl.sh'"$SQ"' || exit 127')
@@ -67,6 +70,7 @@ AT_CLEANUP
 
 AT_SETUP(['eval "`libdl-sh load`"' loads libdl.sh?])
 AT_CHECK([dnl
+set -eu
 LIBDL_SH_LIBRARY_PATH=$abs_top_builddir/lib; export LIBDL_SH_LIBRARY_PATH
 eval "`libdl-sh load`"
 ], 0, [ignore], [ignore])
