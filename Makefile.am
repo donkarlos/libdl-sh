@@ -72,6 +72,7 @@ dist_man_MANS		= doc/conf_get.3sh				\
 			  doc/dl_load.3sh				\
 			  doc/dl_meta.3sh				\
 			  doc/dl_which.3sh				\
+			  doc/quote.3sh					\
 			  doc/quote_command.3sh				\
 			  doc/quote_egrep.3sh				\
 			  doc/quote_ere.3sh				\
