@@ -29,6 +29,7 @@
 ##					cmp'.
 ##		ks	2021-04-28	Import GNU Autotest-based test suite.
 ##		ks	2021-05-03	Move complete test suite to tests/.
+##					Spin off libdl-sh(1) tests.
 ##
 ##  NOTE:   (1)	Update the build system with autoreconf(1).
 ##----------------------------------------------------------------------------
@@ -129,7 +130,8 @@ TESTSUITE_AT		= $(TESTSUITE).at
 
 EXTRA_DIST		= $(TESTSUITE_AT)				\
 			  $(TESTSUITE)					\
-			  $(srcdir)/tests/package.m4
+			  $(srcdir)/tests/package.m4			\
+			  tests/libdl-sh.at
 
 $(srcdir)/tests/package.m4: $(top_srcdir)/configure.ac
 	:;{ 								\
@@ -141,7 +143,9 @@ $(srcdir)/tests/package.m4: $(top_srcdir)/configure.ac
 	echo 'm4_define([AT_PACKAGE_URL] [$(PACKAGE_URL)])';		\
 	} >$@
 
-$(TESTSUITE):		$(TESTSUITE_AT) $(srcdir)/tests/package.m4
+$(TESTSUITE):		$(TESTSUITE_AT)					\
+			$(srcdir)/tests/package.m4			\
+			tests/libdl-sh.at
 	$(AUTOTEST) $(AUTOTESTFLAGS) -o $@.tmp $@.at && mv $@.tmp $@ || rm -f $@.tmp
 
 check-local: 		tests/atconfig tests/atlocal $(TESTSUITE)

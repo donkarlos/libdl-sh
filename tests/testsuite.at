@@ -21,6 +21,7 @@ dnl AUTHOR(S):	ks	Karl Schmitz <ks@computerlabor.org>
 dnl
 dnl WRITTEN BY:	ks	2021-04-28
 dnl CHANGED BY:	ks	2021-05-03	Move complete test suite to tests/.
+dnl					Spin off libdl-sh(1) tests.
 dnl
 dnl Initialization:
 dnl
@@ -28,52 +29,7 @@ AT_INIT()
 AT_COLOR_TESTS
 
 dnl
-dnl Test group 'Demand-loading helper libdl-sh(1)'
+dnl Include libdl-sh(1) tests:
 dnl
-AT_BANNER([Demand-loading helper libdl-sh(1)])
-
-AT_SETUP([libdl-sh exec prepends to PATH?])
-AT_CHECK([dnl
-case `libdl-sh exec -- /bin/sh -c 'echo "$PATH"'` in
-    ?*:$PATH)
-	;;
-    *)	exit 1
-	;;
-esac
-], 0, [ignore], [ignore])
-AT_CLEANUP
-
-AT_SETUP([libdl-sh exec prepends build bin/ to PATH?])
-AT_CHECK([dnl
-case :$PATH: in
-    *:$abs_top_builddir/bin:*)
-	case `libdl-sh exec -- /bin/sh -c 'echo "$PATH"'` in
-	    $abs_top_builddir/bin:$PATH)
-		;;
-	    *)	exit 1
-		;;
-	esac
-	;;
-esac
-], 0, [ignore], [ignore])
-AT_CLEANUP
-
-AT_SETUP([libdl-sh load respects LIBDL_SH_LIBRARY_PATH?])
-AT_CHECK([dnl
-SQ=\'
-case `LIBDL_SH_LIBRARY_PATH=$abs_top_builddir/lib libdl-sh load` in
-    '. '"$SQ$abs_top_builddir"'/lib/libdl.sh'"$SQ"' || exit 127')
-	;;
-    *)	exit 1
-	;;
-esac
-], 0, [ignore], [ignore])
-AT_CLEANUP
-
-AT_SETUP([eval "`libdl-sh load`" loads libdl.sh?])
-AT_CHECK([dnl
-LIBDL_SH_LIBRARY_PATH=$abs_top_builddir/lib; export LIBDL_SH_LIBRARY_PATH
-eval "`libdl-sh load`"
-], 0, [ignore], [ignore])
-AT_CLEANUP
+m4_include([libdl-sh.at])
 
