@@ -42,8 +42,8 @@ AT_CLEANUP
 AT_SETUP(['libdl-sh exec' prepends ${builddir}/bin to $PATH?])
 AT_CHECK([dnl
 set -eu
-case :$PATH: in
-    *:$abs_top_builddir/bin:*)
+case :$PATH: in				## Triggered by 'check-local:'?
+    *:$abs_top_builddir/bin:*)		## Yes...
 	case `libdl-sh exec -- /bin/sh -c 'echo "$PATH"'` in
 	    $abs_top_builddir/bin:$PATH)
 		;;
@@ -59,10 +59,16 @@ AT_SETUP(['libdl-sh load' honours $LIBDL_SH_LIBRARY_PATH?])
 AT_CHECK([dnl
 set -eu
 SQ=\'
-case `LIBDL_SH_LIBRARY_PATH=$abs_top_builddir/lib libdl-sh load` in
-    '. '"$SQ$abs_top_builddir"'/lib/libdl.sh'"$SQ"' || exit 127')
-	;;
-    *)	exit 1
+case :$PATH: in				## Triggered by 'check-local:'?
+    *:$abs_top_builddir/bin:*)		## Yes...
+	LIBDL_SH_LIBRARY_PATH=$abs_top_builddir/lib
+	export LIBDL_SH_LIBRARY_PATH
+	case `libdl-sh load` in
+	    '. '"$SQ$abs_top_builddir"'/lib/libdl.sh'"$SQ"' || exit 127')
+		;;
+	    *)	exit 1
+		;;
+	esac
 	;;
 esac
 ], 0, [ignore], [ignore])
@@ -71,7 +77,12 @@ AT_CLEANUP
 AT_SETUP(['eval "`libdl-sh load`"' loads libdl.sh?])
 AT_CHECK([dnl
 set -eu
-LIBDL_SH_LIBRARY_PATH=$abs_top_builddir/lib; export LIBDL_SH_LIBRARY_PATH
+case :$PATH: in				## Triggered by 'check-local:'?
+    *:$abs_top_builddir/bin:*)		## Yes...
+	LIBDL_SH_LIBRARY_PATH=$abs_top_builddir/lib
+	export LIBDL_SH_LIBRARY_PATH
+	;;
+esac
 eval "`libdl-sh load`"
 ], 0, [ignore], [ignore])
 AT_CLEANUP
