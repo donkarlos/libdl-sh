@@ -29,6 +29,7 @@
 #		ks	2021-04-23	Rename `test-deb-version' to `vers-
 #					cmp'.
 #		ks	2021-04-28	Import GNU Autotest-based test suite.
+#		ks	2021-05-03	Move complete test suite to tests/.
 #
 #   NOTE:   (1)	Exclude patterns for tools beyond the actual build tools have
 #		been left out intentionally! Such patterns are better kept in
@@ -70,7 +71,7 @@ Makefile
 /libexec/*.awk
 /tests/atlocal
 /tests/package.m4
-/testsuite
+/tests/testsuite
 
 #-----------------------------------------------------------------------------
 #   testsuite(1) results:

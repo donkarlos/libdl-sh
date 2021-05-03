@@ -28,6 +28,7 @@
 ##		ks	2021-04-23	Rename `test-deb-version' to `vers-
 ##					cmp'.
 ##		ks	2021-04-28	Import GNU Autotest-based test suite.
+##		ks	2021-05-03	Move complete test suite to tests/.
 ##
 ##  NOTE:   (1)	Update the build system with autoreconf(1).
 ##----------------------------------------------------------------------------
@@ -123,7 +124,7 @@ sysconf_DATA		= etc/libdl-sh.conf
 ##----------------------------------------------------------------------------
 ##  Build, run, and distribute test suite:
 ##----------------------------------------------------------------------------
-TESTSUITE 		= $(srcdir)/testsuite
+TESTSUITE 		= $(srcdir)/tests/testsuite
 TESTSUITE_AT		= $(TESTSUITE).at
 
 EXTRA_DIST		= $(TESTSUITE_AT)				\

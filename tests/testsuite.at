@@ -20,7 +20,7 @@ dnl
 dnl AUTHOR(S):	ks	Karl Schmitz <ks@computerlabor.org>
 dnl
 dnl WRITTEN BY:	ks	2021-04-28
-dnl CHANGED BY:
+dnl CHANGED BY:	ks	2021-05-03	Move complete test suite to tests/.
 dnl
 dnl Initialization:
 dnl
@@ -34,7 +34,7 @@ AT_BANNER([Demand-loading helper libdl-sh(1)])
 
 AT_SETUP([libdl-sh exec prepends to PATH?])
 AT_CHECK([dnl
-case `libdl-sh exec /bin/sh -c 'echo "$PATH"'` in
+case `libdl-sh exec -- /bin/sh -c 'echo "$PATH"'` in
     ?*:$PATH)
 	;;
     *)	exit 1
@@ -47,7 +47,7 @@ AT_SETUP([libdl-sh exec prepends build bin/ to PATH?])
 AT_CHECK([dnl
 case :$PATH: in
     *:$abs_top_builddir/bin:*)
-	case `libdl-sh exec /bin/sh -c 'echo "$PATH"'` in
+	case `libdl-sh exec -- /bin/sh -c 'echo "$PATH"'` in
 	    $abs_top_builddir/bin:$PATH)
 		;;
 	    *)	exit 1
