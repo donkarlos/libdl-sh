@@ -22,6 +22,7 @@ dnl
 dnl WRITTEN BY:	ks	2021-04-28
 dnl CHANGED BY:	ks	2021-05-03	Move complete test suite to tests/.
 dnl					Spin off libdl-sh(1) tests.
+dnl					Add libdl.sh tests.
 dnl
 dnl Initialization:
 dnl
@@ -32,4 +33,9 @@ dnl
 dnl Include libdl-sh(1) tests:
 dnl
 m4_include([libdl-sh.at])
+
+dnl
+dnl Include libdl.sh tests:
+dnl
+m4_include([libdl.sh.at])
 

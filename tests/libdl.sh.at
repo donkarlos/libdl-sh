@@ -1,0 +1,188 @@
+dnl								-*-Autotest-*-
+dnl libdl.sh.at			- libdl.sh tests
+dnl
+dnl Copyright © 2021 Das Computerlabor (DCl-M)
+dnl
+dnl This library is free software; you can redistribute it and/or
+dnl modify it under the terms of the GNU Lesser General Public License
+dnl as published by the Free Software Foundation; either
+dnl version 2.1 of the License, or (at your option) any later version.
+dnl
+dnl This library is distributed in the hope that it will be useful,
+dnl but WITHOUT ANY WARRANTY; without even the implied warranty of
+dnl MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+dnl Lesser General Public License for more details.
+dnl
+dnl You should have received a copy of the GNU Lesser General Public License
+dnl along with this library; if not, write to the Free Software Founda-
+dnl tion, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
+dnl
+dnl AUTHOR(S):	ks	Karl Schmitz <ks@computerlabor.org>
+dnl
+dnl WRITTEN BY:	ks	2021-05-03
+dnl CHANGED BY:	ks
+dnl
+dnl Test group 'Demand-loading library libdl.sh'
+dnl
+AT_BANNER([Demand-loading library libdl.sh])
+
+AT_SETUP(['dl_meta get' inquiries give expected results?])
+AT_DATA([expout], [[#dl_meta get api
+1
+#dl_meta get apis
+1
+#dl_meta get loaded
+:dl:
+#dl_meta get apis api
+1
+#dl_meta get apis full
+1;dl_meta(META [ARG ...]);2-
+1;dl_warn(WHAT INVO [ARG ...]);2-
+1;dl_dump(MP VS ...);2-
+1;dl_split(WORD IFS &FIELD ...);3-
+1;dl_which(LIB);1
+1;dl_atload(HOOK);1
+1;dl_load(LIB ...);1-
+1;dl_atexit(HOOK);1
+1;dl_exit([STATUS=$?]);0-1
+#dl_meta get apis list
+1;dl_meta;2-
+1;dl_warn;2-
+1;dl_dump;2-
+1;dl_split;3-
+1;dl_which;1
+1;dl_atload;1
+1;dl_load;1-
+1;dl_atexit;1
+1;dl_exit;0-1
+#dl_meta get apis r/o
+1;BQ
+1;DQ
+1;SQ
+1;BS
+1;CS
+1;DS
+1;HS
+1;QB
+1;QE
+1;CR
+1;NL
+1;dl_cs_ul
+1;dl_cs_ll
+1;dl_cs_1d
+1;dl_cs_0d
+1;dl_cs_al
+1;dl_cs_an
+1;dl_re_id
+1;dl_re_1n
+1;dl_re_0n
+]])
+
+AT_CHECK([dnl
+set -eu
+case :$PATH: in				## Triggered by 'check-local:'?
+    *:$abs_top_builddir/bin:*)		## Yes...
+	LIBDL_SH_LIBRARY_PATH=$abs_top_builddir/lib
+	export LIBDL_SH_LIBRARY_PATH
+	;;
+esac
+eval "`libdl-sh load`"
+case `dl_meta get package`_`dl_meta get version` in
+    ${PACKAGE_TARNAME}_${PACKAGE_VERSION})
+	:	;;
+    *)	test	;;
+esac && for meta in							\
+    'get api' 'get apis' 'get loaded'					\
+    'get apis api' 'get apis full' 'get apis list' 'get apis r/o'
+do
+    echo '#dl_meta '"$meta"; dl_meta $meta
+done
+], 0, [expout], [ignore])
+AT_CLEANUP
+
+AT_SETUP(['dl_meta get apis' honours 4th argument?])
+AT_DATA([expout], [dnl
+#dl_meta get apis full
+1
+#dl_meta get apis list
+1
+#dl_meta get apis r/o
+BQ
+DQ
+SQ
+BS
+CS
+DS
+HS
+QB
+QE
+CR
+NL
+dl_cs_ul
+dl_cs_ll
+dl_cs_1d
+dl_cs_0d
+dl_cs_al
+dl_cs_an
+dl_re_id
+dl_re_1n
+dl_re_0n
+])
+
+AT_CHECK([dnl
+set -eu
+case :$PATH: in				## Triggered by 'check-local:'?
+    *:$abs_top_builddir/bin:*)		## Yes...
+	LIBDL_SH_LIBRARY_PATH=$abs_top_builddir/lib
+	export LIBDL_SH_LIBRARY_PATH
+	;;
+esac
+eval "`libdl-sh load`"
+api=`dl_meta get api`
+for meta in 'get apis full' 'get apis list' 'get apis r/o'; do
+    case $meta in
+	*full)	sx='/;dl_atload(/!d;s/;.*$//'	;;
+	*list)	sx='/;dl_atload;/!d;s/;.*$//'	;;
+	*r/o)	sx='/^'"$api"';/!d;s///'	;;
+    esac
+    echo '#dl_meta '"$meta"; dl_meta $meta "$sx"
+done
+], 0, [expout], [ignore])
+AT_CLEANUP
+
+AT_SETUP(['dl_meta get apis r/o' constants defined?])
+AT_CHECK([dnl
+set -eu
+case :$PATH: in				## Triggered by 'check-local:'?
+    *:$abs_top_builddir/bin:*)		## Yes...
+	LIBDL_SH_LIBRARY_PATH=$abs_top_builddir/lib
+	export LIBDL_SH_LIBRARY_PATH
+	;;
+esac
+eval "`libdl-sh load`"
+status=0 api=`dl_meta get api`
+for name in `dl_meta get apis r/o '/^'"$api"';/!d;s///'`; do
+    eval 'case ${'"$name"'+=} in
+	=)		;;
+	*)  status=1	;;
+    esac'
+done; exit $status
+], 0, [ignore], [ignore])
+AT_CLEANUP
+
+AT_SETUP(['dl_meta get apis r/o' constants readonly?])
+AT_CHECK([dnl
+set -eu
+case :$PATH: in				## Triggered by 'check-local:'?
+    *:$abs_top_builddir/bin:*)		## Yes...
+	LIBDL_SH_LIBRARY_PATH=$abs_top_builddir/lib
+	export LIBDL_SH_LIBRARY_PATH
+	;;
+esac
+eval "`libdl-sh load`"
+status=0 api=`dl_meta get api`
+for name in `dl_meta get apis r/o '/^'"$api"';/!d;s///'`; do
+    (eval "$name=") >/dev/null 2>&1 && status=1
+done; exit $status
+], 0, [ignore], [ignore])
+AT_CLEANUP

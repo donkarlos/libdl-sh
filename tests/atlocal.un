@@ -21,9 +21,12 @@
 ##  AUTHOR(S):	ks	Karl Schmitz <ks@computerlabor.org>
 ##
 ##  WRITTEN BY:	ks	2021-04-28
-##  CHANGED BY:
+##  CHANGED BY:	ks	2021-05-03	Define PACKAGE_TARNAME and
+##					PACKAGE_VERSION.
 #-----------------------------------------------------------------------------
+PACKAGE_TARNAME=@PACKAGE_TARNAME@
+PACKAGE_VERSION=@PACKAGE_VERSION@
 bindir=@bindir@
 libdir=@shlibdir@
-sysconfdir=@sysconfdir@
 pkgdatadir=@pkgdatadir@
+sysconfdir=@sysconfdir@
