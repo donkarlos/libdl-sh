@@ -301,13 +301,16 @@ EOF`; shift; IFS=$ifs			## Split combined library search path.
 ##  dl_atload(HOOK)		Register load-time hook
 ##----------------------------------------------------------------------------
 dl_atload() {
-    expr "$#=${1-}" : "1=$dl_re_id$DS" >/dev/null || return 2
-					## Indicate misuse unless HOOK was
-					## passed and is formally correct.
-    case ${dl_atloads+=} in		## 1st invocation?
-	=)  dl_atloads="$1 $DQ${DS}lib$DQ && $dl_atloads"
+    local hook
+
+    case ${1+=} in			## Usage OK?
+	=)  hook=`expr "_$1" : '_\('"$dl_re_id"'\)$'` || return 1
+			;;		## Yes, try to validate HOOK.
+	*)  return 2	;;		## No, indicate abuse!
+    esac; case ${dl_atloads+=} in	## 1st invocation?
+	=)  dl_atloads="$hook $DQ${DS}lib$DQ && $dl_atloads"
 	    ;;				## No, register load-time hook.
-	*)  dl_atloads="$1 $DQ${DS}lib$DQ || dl_exit 127"
+	*)  dl_atloads="$hook $DQ${DS}lib$DQ || dl_exit 127"
 					## Yes, register load-time hook with
 					## failure handling and...
 	    local lib=dl; eval "$dl_atloads"
@@ -344,10 +347,14 @@ dl_load() {
 ##  dl_atexit(HOOK)		Register exit-time hook
 ##----------------------------------------------------------------------------
 dl_atexit() {
-    expr "$#=${1-}" : "1=$dl_re_id$DS" >/dev/null || return 2
-					## Indicate misuse unless HOOK was
-					## passed and is formally correct.
-    dl_atexits="$1 ${DS}status; $dl_atexits"
+    local hook
+
+    case ${1+=} in			## Usage OK?
+	=)  hook=`expr "_$1" : '_\('"$dl_re_id"'\)$'` || return 1
+			;;		## Yes, try to validate HOOK.
+	*)  return 2	;;		## No, indicate abuse!
+    esac
+    dl_atexits="$hook ${DS}status; $dl_atexits"
 }					## Register exit-time hook.
 
 ##----------------------------------------------------------------------------
