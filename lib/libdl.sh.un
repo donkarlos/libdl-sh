@@ -324,10 +324,16 @@ dl_atload() {
 dl_load() {
     local lib needed path
 
-    case $dl_needed in
-	'') path=$PATH; PATH=$dl_libpath$PATH	;;
-    esac				## Augment path when necessary.
-    for lib in ${1+"$@"}; do		## Foreach demanded library do...
+    case ${1+=}${dl_needed+:$dl_needed} in
+					## Usage OK/Augment path?
+	=:) path=$PATH; PATH=$dl_libpath$PATH
+	    ;;				## Yes/Yes: Save and augment path.
+	=:*);;				## Yes/No.
+	=)  return 3			## Yes, but $dl_needed unset...
+	    ;;				## Indicate internal error!
+	*)  return 2			## No...
+	    ;;				## No, indicate abuse!
+    esac; for lib in "$@"; do		## Foreach demanded LIBrary do...
 	case $dl_loaded$dl_needed in	## Is it already loaded or needed?
 	    *:$lib:*)			## Yes, skip it.
 		;;
@@ -337,9 +343,8 @@ dl_load() {
 		eval "${dl_atloads-:}"	## No, mark it as needed, load it,
 		;;			## mark it as loaded, and invoke load-
 	esac				## time hooks.
-    done
-    case $dl_needed in
-	'') PATH=$path	;;		## Restore path when necessary.
+    done; case ${dl_needed+:$dl_needed} in
+	:)  PATH=$path	;;		## Restore path when necessary.
     esac
 }
 
