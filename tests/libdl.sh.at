@@ -26,6 +26,29 @@ dnl Test group 'Demand-loading library libdl.sh'
 dnl
 AT_BANNER([Demand-loading library libdl.sh])
 
+dnl
+dnl Check if libdl.sh's initialization code catches "signal" 0/EXIT by
+dnl appropriately invoking dl_exit().
+dnl
+AT_SETUP(['eval "`libdl-sh load`"' catches EXIT?])
+AT_CHECK([dnl
+set -eu					## Employ strict execution environment
+					## to ensure 'set -u' resilience.
+case :$PATH: in				## Triggered by 'check-local:'?
+    *:$abs_top_builddir/bin:*)		## Yes, export suitable LSP.
+	LIBDL_SH_LIBRARY_PATH=$abs_top_builddir/lib
+	export LIBDL_SH_LIBRARY_PATH
+	;;
+esac
+eval "`libdl-sh load`"			## Load libdl.sh or die.
+trap | sed 's/ EXIT$/ 0/;/ 0$/!d;s/^\(trap\) --/\1/;'
+					## Emit 0/EXIT trap setting (if any)
+					## and demodernize it.
+], 0, [dnl				## And the winner is...
+trap 'dl_exit $?' 0
+], [ignore])
+AT_CLEANUP
+
 AT_SETUP(['dl_meta get' inquiries give expected results?])
 AT_DATA([expout], [[#dl_meta get api
 1
