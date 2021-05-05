@@ -49,26 +49,71 @@ trap 'dl_exit $?' 0
 ], [ignore])
 AT_CLEANUP
 
+dnl
+dnl Check if dl_meta() inquiries
+dnl   -	get package
+dnl   -	get version
+dnl   -	get api
+dnl   -	get apis
+dnl   -	get loaded
+dnl   -	get apis api
+dnl   -	get apis full
+dnl   -	get apis list
+dnl   -	get apis r/o
+dnl produce expected results.
+dnl
+dnl NOTE:   (1)	The first two of them can't be checked by the 'for' loop
+dnl		because GNU Autotest implements any form of expected output
+dnl		by means of quoted here scripts, thus making parameter
+dnl		substitutions impossible! |-(
+dnl	    (2)	As a side effect, this check also ensures that libdl.sh
+dnl		supports only one API version which at the same time is
+dnl		the default API version.
+dnl	    (3)	The double brackets within the expected output provide "just
+dnl		the right amount" of m4(1) quoting.
+dnl
 AT_SETUP(['dl_meta get' inquiries give expected results?])
-AT_DATA([expout], [[#dl_meta get api
+AT_CHECK([dnl
+set -eu					## Employ strict execution environment
+					## to ensure 'set -u' resilience.
+case :$PATH: in				## Triggered by 'check-local:'?
+    *:$abs_top_builddir/bin:*)		## Yes, export suitable LSP.
+	LIBDL_SH_LIBRARY_PATH=$abs_top_builddir/lib
+	export LIBDL_SH_LIBRARY_PATH
+	;;
+esac
+eval "`libdl-sh load`"			## Load libdl.sh or die.
+case `dl_meta get package`_`dl_meta get version` in
+    ${PACKAGE_TARNAME}_${PACKAGE_VERSION})
+	:	;;			## See note (1).
+    *)	test	;;
+esac && for meta in							\
+    'get api' 'get apis' 'get loaded'					\
+    'get apis api' 'get apis full' 'get apis list' 'get apis r/o'
+do
+    echo 'dl_meta '"$meta" && dl_meta $meta
+					## Emit tag and inquiry result.
+done
+], 0, [dnl				## And the winner is...
+dl_meta get api
 1
-#dl_meta get apis
+dl_meta get apis
 1
-#dl_meta get loaded
+dl_meta get loaded
 :dl:
-#dl_meta get apis api
+dl_meta get apis api
 1
-#dl_meta get apis full
-1;dl_meta(META [ARG ...]);2-
-1;dl_warn(WHAT INVO [ARG ...]);2-
+dl_meta get apis full
+1;dl_meta(META [[ARG ...]]);2-
+1;dl_warn(WHAT INVO [[ARG ...]]);2-
 1;dl_dump(MP VS ...);2-
 1;dl_split(WORD IFS &FIELD ...);3-
 1;dl_which(LIB);1
 1;dl_atload(HOOK);1
 1;dl_load(LIB ...);1-
 1;dl_atexit(HOOK);1
-1;dl_exit([STATUS=$?]);0-1
-#dl_meta get apis list
+1;dl_exit([[STATUS=$?]]);0-1
+dl_meta get apis list
 1;dl_meta;2-
 1;dl_warn;2-
 1;dl_dump;2-
@@ -78,7 +123,7 @@ AT_DATA([expout], [[#dl_meta get api
 1;dl_load;1-
 1;dl_atexit;1
 1;dl_exit;0-1
-#dl_meta get apis r/o
+dl_meta get apis r/o
 1;BQ
 1;DQ
 1;SQ
@@ -99,28 +144,7 @@ AT_DATA([expout], [[#dl_meta get api
 1;dl_re_id
 1;dl_re_1n
 1;dl_re_0n
-]])
-
-AT_CHECK([dnl
-set -eu
-case :$PATH: in				## Triggered by 'check-local:'?
-    *:$abs_top_builddir/bin:*)		## Yes...
-	LIBDL_SH_LIBRARY_PATH=$abs_top_builddir/lib
-	export LIBDL_SH_LIBRARY_PATH
-	;;
-esac
-eval "`libdl-sh load`"
-case `dl_meta get package`_`dl_meta get version` in
-    ${PACKAGE_TARNAME}_${PACKAGE_VERSION})
-	:	;;
-    *)	test	;;
-esac && for meta in							\
-    'get api' 'get apis' 'get loaded'					\
-    'get apis api' 'get apis full' 'get apis list' 'get apis r/o'
-do
-    echo '#dl_meta '"$meta"; dl_meta $meta
-done
-], 0, [expout], [ignore])
+], [ignore])
 AT_CLEANUP
 
 AT_SETUP(['dl_meta get apis' honours 4th argument?])
