@@ -147,13 +147,40 @@ dl_meta get apis r/o
 ], [ignore])
 AT_CLEANUP
 
+dnl
+dnl Check if dl_meta() inquiries
+dnl   -	get apis full
+dnl   -	get apis list
+dnl   -	get apis r/o
+dnl hounour (i.e., apply) the extra sed(1) expression passed as 4th argument.
+dnl
 AT_SETUP(['dl_meta get apis' honours 4th argument?])
-AT_DATA([expout], [dnl
-#dl_meta get apis full
+AT_CHECK([dnl
+set -eu					## Employ strict execution environment
+					## to ensure 'set -u' resilience.
+case :$PATH: in				## Triggered by 'check-local:'?
+    *:$abs_top_builddir/bin:*)		## Yes, export suitable LSP.
+	LIBDL_SH_LIBRARY_PATH=$abs_top_builddir/lib
+	export LIBDL_SH_LIBRARY_PATH
+	;;
+esac
+eval "`libdl-sh load`"			## Load libdl.sh or die.
+api=`dl_meta get api`			## Inquire default API version.
+for meta in 'get apis full' 'get apis list' 'get apis r/o'; do
+    case $meta in
+	*full)	sx='/;dl_atload(/!d;s/;.*$//'	;;
+	*list)	sx='/;dl_atload;/!d;s/;.*$//'	;;
+	*r/o)	sx='/^'"$api"';/!d;s///'	;;
+    esac
+    echo 'dl_meta '"$meta" && dl_meta $meta "$sx"
+					## Emit tag and inquiry result.
+done
+], 0, [dnl				## And the winner is...
+dl_meta get apis full
 1
-#dl_meta get apis list
+dl_meta get apis list
 1
-#dl_meta get apis r/o
+dl_meta get apis r/o
 BQ
 DQ
 SQ
@@ -174,27 +201,7 @@ dl_cs_an
 dl_re_id
 dl_re_1n
 dl_re_0n
-])
-
-AT_CHECK([dnl
-set -eu
-case :$PATH: in				## Triggered by 'check-local:'?
-    *:$abs_top_builddir/bin:*)		## Yes...
-	LIBDL_SH_LIBRARY_PATH=$abs_top_builddir/lib
-	export LIBDL_SH_LIBRARY_PATH
-	;;
-esac
-eval "`libdl-sh load`"
-api=`dl_meta get api`
-for meta in 'get apis full' 'get apis list' 'get apis r/o'; do
-    case $meta in
-	*full)	sx='/;dl_atload(/!d;s/;.*$//'	;;
-	*list)	sx='/;dl_atload;/!d;s/;.*$//'	;;
-	*r/o)	sx='/^'"$api"';/!d;s///'	;;
-    esac
-    echo '#dl_meta '"$meta"; dl_meta $meta "$sx"
-done
-], 0, [expout], [ignore])
+], [ignore])
 AT_CLEANUP
 
 AT_SETUP(['dl_meta get apis r/o' constants defined?])
