@@ -105,7 +105,7 @@ dl_meta get apis api
 1
 dl_meta get apis full
 1;dl_meta(META [[ARG ...]]);2-
-1;dl_warn(WHAT INVO [[ARG ...]]);2-
+1;dl_warn(WHAT INVO [[ARG ...]]);2-5
 1;dl_dump(MP VS ...);2-
 1;dl_split(WORD IFS &FIELD ...);3-
 1;dl_which(LIB);1
@@ -115,7 +115,7 @@ dl_meta get apis full
 1;dl_exit([[STATUS=$?]]);0-1
 dl_meta get apis list
 1;dl_meta;2-
-1;dl_warn;2-
+1;dl_warn;2-5
 1;dl_dump;2-
 1;dl_split;3-
 1;dl_which;1
@@ -391,7 +391,7 @@ for signature in ${1+"$@"}; do		## Foreach parsed signature (see note
 done
 ], 0, [dnl				## And the winner is...
 name=dl_meta min=2 max=
-name=dl_warn min=2 max=
+name=dl_warn min=2 max=5
 name=dl_dump min=2 max=
 name=dl_split min=3 max=
 name=dl_which min=1 max=1

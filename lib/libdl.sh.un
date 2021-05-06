@@ -41,6 +41,7 @@
 ##					tions.
 ##					Limit valid 'meta session' operations.
 ##		ks	2021-05-01	'-u'-harden dl_meta().
+##		ks	2021-05-06	Make dl_warn() indicate usage errors.
 ##
 ##  NOTE:   (1)	To avoid cluttering code, this library is exempted from need-
 ##		ing namespace prefixes for its special character definitions.
@@ -98,7 +99,7 @@ dl_meta() {
 	    sed "$sx" <<EOF
 a${ms}$dl_api
 f${ms}$dl_api${ms}meta(META [ARG ...])${ms}2-
-f${ms}$dl_api${ms}warn(WHAT INVO [ARG ...])${ms}2-
+f${ms}$dl_api${ms}warn(WHAT INVO [ARG ...])${ms}2-5
 f${ms}$dl_api${ms}dump(MP VS ...)${ms}2-
 f${ms}$dl_api${ms}split(WORD IFS &FIELD ...)${ms}3-
 f${ms}$dl_api${ms}which(LIB)${ms}1
@@ -172,7 +173,11 @@ EOF
 ##				features and abort application if necessary
 ##----------------------------------------------------------------------------
 dl_warn() {
-    eval "`sed '
+    case ${6+6}${2+2} in		## Usage OK?
+	2)  ;;				## Yes.
+	*)  return 2			## No, indicate abuse!
+	    ;;
+    esac; eval "`sed '
 	:0
 	$!{
 	    N;s/'"$BS$NL"'/'"$BS$BS"'n/;b0
