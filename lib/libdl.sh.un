@@ -40,8 +40,9 @@
 ##		ks	2020-05-12	Become aware of relocated installa-
 ##					tions.
 ##					Limit valid 'meta session' operations.
-##		ks	2021-05-01	'-u'-harden dl_meta().
+##		ks	2021-05-01	'set -u'-harden dl_meta().
 ##		ks	2021-05-06	Make dl_warn() indicate usage errors.
+##					'set -u'-harden dl_warn().
 ##
 ##  NOTE:   (1)	To avoid cluttering code, this library is exempted from need-
 ##		ing namespace prefixes for its special character definitions.
@@ -194,11 +195,11 @@ EOF`"					## If possible, derive library and
 	    cat >&2 <<EOF		## [WREL CREL]
 $invo; CAUTION!
 Function invoked without API version of lib$lib.sh being selected before,
-which is required since release $3. I presume the application still wants
+which is required since release ${3-WREL}. I presume the application still wants
 to use a withdrawn API version. To prevent serious damage, the application
 is terminated now!
 
-Downgrade package $package to release $4 to make the application
+Downgrade package $package to release ${4-CREL} to make the application
 work again.
 EOF
 	    exit 127
@@ -206,26 +207,26 @@ EOF
 	rel-dpr-func)			## Release deprecated function...
 	    cat >&2 <<EOF		## [DREL WREL CREL]
 $invo; WARNING:
-Function deprecated since release $3, to be withdrawn by release $4.
+Function deprecated since release ${3-DREL}, to be withdrawn by release ${4-WREL}.
 See lib$lib(3SH) for suggestions on how to migrate your application or
-downgrade package $package to release $5.
+downgrade package $package to release ${5-CREL}.
 EOF
 	    return 0
 	    ;;
 	api-wdr-func)			## API version withdrew function...
 	    cat >&2 <<EOF		## [WAPI CAPI]
 $invo; WARNING:
-Function withdrawn from API version $3 of lib$lib.sh.
+Function withdrawn from API version ${3-WAPI} of lib$lib.sh.
 See lib$lib(3SH) for suggestions on how to migrate your application or
-stay with (probably deprecated) API version $4 for the time being.
+stay with (probably deprecated) API version ${4-CAPI} for the time being.
 EOF
 	    ;;
 	rel-wdr-meta)			## Release withdrew meta operation...
 	    cat >&2 <<EOF		## [WREL CREL]
 $invo; WARNING:
-Meta operation withdrawn since release $3.
+Meta operation withdrawn since release ${3-WREL}.
 See lib$lib(3SH) for suggestions on how to migrate your application or
-downgrade package $package to release $4.
+downgrade package $package to release ${4-CREL}.
 EOF
 	    ;;
 	*)				## Catch-all...
