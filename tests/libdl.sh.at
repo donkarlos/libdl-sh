@@ -457,3 +457,65 @@ dl_atexit test_atexit			## Register exit-time hook.
 test_atexit(0)
 ], [ignore])
 AT_CLEANUP
+
+dnl
+dnl Check if EXIT trap handler dl_exit() arranges to ignore "signal" EXIT
+dnl before triggering registered exit-time hooks.
+dnl
+AT_SETUP([dl_exit() ignores EXIT   before hooks?])
+AT_CHECK([dnl
+set -eu					## Employ strict execution environment
+					## to ensure 'set -u' resilience.
+test_atexit() {
+    echo "test_atexit($status)"		## Emit exit-time hooks's trace and
+					## demodernized EXIT trap setting.
+    trap | sed 's/ EXIT$/ 0/;/ 0$/!d;s/^\(trap\) --/\1/;'
+}
+
+case :$PATH: in				## Triggered by 'check-local:'?
+    *:$abs_top_builddir/bin:*)		## Yes, export suitable LSP.
+	LIBDL_SH_LIBRARY_PATH=$abs_top_builddir/lib
+	export LIBDL_SH_LIBRARY_PATH
+	;;
+esac
+eval "`libdl-sh load`"			## Load libdl.sh or die.
+dl_atexit test_atexit			## Register exit-time hook.
+], 0, [dnl				## And the winner is...
+test_atexit(0)
+trap '' 0
+], [ignore])
+AT_CLEANUP
+
+dnl
+dnl Check if EXIT trap handler dl_exit() relaxes execution environment by
+dnl disabling sh(1) options errexit and nounset before triggering registered
+dnl exit-time hooks.
+dnl
+dnl NOTE:   (1)	The double brackets within the exit-time hook guard against
+dnl		m4(1)underquoting.
+dnl
+AT_SETUP([dl_exit() does 'set +eu' before hooks?])
+AT_CHECK([dnl
+set -eu					## Employ strict execution environment
+					## to ensure 'set -u' resilience.
+test_atexit() {
+    echo "test_atexit($status)"		## Emit exit-time hooks's trace and
+					## extracted 'set -eu' setting.
+    sed 's/[[^eu]]//g' <<EOF
+$-
+EOF
+}
+
+case :$PATH: in				## Triggered by 'check-local:'?
+    *:$abs_top_builddir/bin:*)		## Yes, export suitable LSP.
+	LIBDL_SH_LIBRARY_PATH=$abs_top_builddir/lib
+	export LIBDL_SH_LIBRARY_PATH
+	;;
+esac
+eval "`libdl-sh load`"			## Load libdl.sh or die.
+dl_atexit test_atexit			## Register exit-time hook.
+], 0, [dnl				## And the winner is...
+test_atexit(0)
+
+], [ignore])
+AT_CLEANUP
