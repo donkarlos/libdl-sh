@@ -299,3 +299,38 @@ dl_re_1n
 dl_re_0n
 ], [ignore])
 AT_CLEANUP
+
+dnl
+dnl Check if the special characters reported by dl_meta() inquiry get apis r/o
+dnl (for the default API version) get through to libdl.sh unharmed by stupid
+dnl build tools, stupid editors, or layer 8 problems. ;-)
+dnl
+dnl NOTE:   (1)	The most likely candidate to get screwed up is CR, since it's
+dnl		definition became pretty invisible now. That's why we check
+dnl		against 'od -bc' reference output!
+dnl
+AT_SETUP([libdl.sh's special characters unharmed?])
+AT_CHECK([dnl
+set -eu					## Employ strict execution environment
+					## to ensure 'set -u' resilience.
+case :$PATH: in				## Triggered by 'check-local:'?
+    *:$abs_top_builddir/bin:*)		## Yes, export suitable LSP.
+	LIBDL_SH_LIBRARY_PATH=$abs_top_builddir/lib
+	export LIBDL_SH_LIBRARY_PATH
+	;;
+esac
+eval "`libdl-sh load`"			## Load libdl.sh or die.
+api=`dl_meta get api`			## Inquire default API version.
+specials=
+for name in `dl_meta get apis r/o '/^'"$api"';\(..\)$/!d;s//\1/'`; do
+					## Foreach special character do...
+    eval 'specials=$specials${'"$name"'-.}'
+done; od -bc <<EOF
+$specials
+EOF
+], 0, [dnl				## And the winner is...
+0000000 140 042 047 134 043 044 041 140 047 015 012 012
+          `   "   '   \   #   $   !   `   '  \r  \n  \n
+0000014
+], [ignore])
+AT_CLEANUP
