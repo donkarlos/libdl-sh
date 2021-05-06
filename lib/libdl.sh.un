@@ -43,6 +43,8 @@
 ##		ks	2021-05-01	'set -u'-harden dl_meta().
 ##		ks	2021-05-06	Make dl_warn() indicate usage errors.
 ##					'set -u'-harden dl_warn().
+##					Work around nasty (GNU) sed(1) regres-
+##					sion affecting dl_warn().
 ##
 ##  NOTE:   (1)	To avoid cluttering code, this library is exempted from need-
 ##		ing namespace prefixes for its special character definitions.
@@ -179,12 +181,11 @@ dl_warn() {
 	*)  return 2			## No, indicate abuse!
 	    ;;
     esac; eval "`sed '
-	:0
-	$!{
-	    N;s/'"$BS$NL"'/'"$BS$BS"'n/;b0
-	};s/'"$SQ"'/&'"$BS$BS"'&&/g;/^\('"$dl_re_id"'\);/{
-	    s//local lib=\1 invo='"$SQ"'\1/
-	    s/$/'"$SQ"' package='"$DQ$BQ"'\1_meta get package'"$BQ$DQ"'/;bp
+	:0'"$NL"'$!{;N;b0'"$NL"'}
+	s/'"$BS$NL"'/'"$BS$BS"'n/g
+	s/'"$SQ"'/&'"$BS$BS"'&&/g
+	/^'"$dl_re_id"';/{
+	    s/^\([^;]*\);\(.*\)$/local lib=\1 invo='"$SQ"'\1\2'"$SQ"' package='"$DQ$BQ"'\1_meta get package'"$BQ$DQ"'/;bp
 	};s/^/local lib=LIB invo='"$SQ"'/;s/$/'"$SQ"' package=PACKAGE/;:p
     ' <<EOF
 $2
