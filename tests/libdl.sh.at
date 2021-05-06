@@ -376,7 +376,7 @@ for signature in ${1+"$@"}; do		## Foreach parsed signature (see note
     echo "$signature" && eval "$signature" || exit 1
 					## Emit signature and split it.
     case $name in			## Function exempted?
-	dl_warn|dl_dump|dl_split|dl_which|dl_exit)
+	dl_dump|dl_split|dl_which|dl_exit)
 	    ;;				## Yes.
 	*)				## No, make passes at function.
 	    args= n=0; while test "$n" -lt "$min"; do

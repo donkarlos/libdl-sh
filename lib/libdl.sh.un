@@ -184,7 +184,7 @@ dl_warn() {
 	s/'"$BS$NL"'/'"$BS$BS"'n/g
 	s/'"$SQ"'/&'"$BS$BS"'&&/g
 	/^'"$dl_re_id"';/{
-	    s/^\([^;]*\);\(.*\)$/lib=\1 invo='"$SQ"'\1\2'"$SQ"' package='"$BQ"'\1_meta get package'"$BQ"'/;bp
+	    s/^\([^;]*\);\(.*\)$/lib=\1 invo='"$SQ"'\1\2'"$SQ"' package='"$BQ"'\1_meta get package || echo PACKAGE'"$BQ"'/;bp
 	};s/^/lib=LIB invo='"$SQ"'/;s/$/'"$SQ"' package=PACKAGE/;:p
     ' <<EOF
 $2
