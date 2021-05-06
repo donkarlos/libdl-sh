@@ -432,3 +432,28 @@ echo "$test_atload_trace"		## Emit resulting trace.
 :dl:
 ], [ignore])
 AT_CLEANUP
+
+dnl
+dnl Check if dl_atexit() registers an exit-time hook and if it's triggered by
+dnl "signal" 0/EXIT's handler dl_exit().
+dnl
+AT_SETUP([dl_atexit() registers exit-time hook?])
+AT_CHECK([dnl
+set -eu					## Employ strict execution environment
+					## to ensure 'set -u' resilience.
+test_atexit() {
+    echo "test_atexit($status)"
+}
+
+case :$PATH: in				## Triggered by 'check-local:'?
+    *:$abs_top_builddir/bin:*)		## Yes, export suitable LSP.
+	LIBDL_SH_LIBRARY_PATH=$abs_top_builddir/lib
+	export LIBDL_SH_LIBRARY_PATH
+	;;
+esac
+eval "`libdl-sh load`"			## Load libdl.sh or die.
+dl_atexit test_atexit			## Register exit-time hook.
+], 0, [dnl				## And the winner is...
+test_atexit(0)
+], [ignore])
+AT_CLEANUP
