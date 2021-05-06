@@ -401,3 +401,34 @@ name=dl_atexit min=1 max=1
 name=dl_exit min=0 max=1
 ], [ignore])
 AT_CLEANUP
+
+dnl
+dnl Check if dl_atload() registers and triggers a load-time hook.
+dnl
+dnl NOTE:   (1)	This test exploits the fact that on its 1st succesful invoca-
+dnl		tion, dl_atload() feigns libd.sh's "load time" and triggers
+dnl		the just-registered HOOK. Hence this quality gets exercised,
+dnl		too!
+dnl
+AT_SETUP([dl_atload() registers load-time hook?])
+AT_CHECK([dnl
+set -eu					## Employ strict execution environment
+					## to ensure 'set -u' resilience.
+test_atload_trace=:			## Initialize hook's trace.
+test_atload() {
+    test_atload_trace=$test_atload_trace$1:
+}
+
+case :$PATH: in				## Triggered by 'check-local:'?
+    *:$abs_top_builddir/bin:*)		## Yes, export suitable LSP.
+	LIBDL_SH_LIBRARY_PATH=$abs_top_builddir/lib
+	export LIBDL_SH_LIBRARY_PATH
+	;;
+esac
+eval "`libdl-sh load`"			## Load libdl.sh or die.
+dl_atload test_atload			## Register load-time hook.
+echo "$test_atload_trace"		## Emit resulting trace.
+], 0, [dnl				## And the winner is...
+:dl:
+], [ignore])
+AT_CLEANUP
