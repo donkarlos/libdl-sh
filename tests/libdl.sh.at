@@ -204,24 +204,52 @@ dl_re_0n
 ], [ignore])
 AT_CLEANUP
 
+dnl
+dnl Check if the constants reported by dl_meta() inquiry get apis r/o (for the
+dnl default API version) are actually defined after loading libdl.sh.
+dnl
 AT_SETUP(['dl_meta get apis r/o' constants defined?])
 AT_CHECK([dnl
-set -eu
+set -eu					## Employ strict execution environment
+					## to ensure 'set -u' resilience.
 case :$PATH: in				## Triggered by 'check-local:'?
-    *:$abs_top_builddir/bin:*)		## Yes...
+    *:$abs_top_builddir/bin:*)		## Yes, export suitable LSP.
 	LIBDL_SH_LIBRARY_PATH=$abs_top_builddir/lib
 	export LIBDL_SH_LIBRARY_PATH
 	;;
 esac
-eval "`libdl-sh load`"
-status=0 api=`dl_meta get api`
+eval "`libdl-sh load`"			## Load libdl.sh or die.
+status=0				## Assume success and inquire
+api=`dl_meta get api`			## default API version.
 for name in `dl_meta get apis r/o '/^'"$api"';/!d;s///'`; do
+					## Foreach constant do...
     eval 'case ${'"$name"'+=} in
-	=)		;;
+	=)  echo "$name";;
 	*)  status=1	;;
-    esac'
-done; exit $status
-], 0, [ignore], [ignore])
+    esac'				## Assume failure if it's unset. :-(
+done; exit $status			## Indicate success or failure.
+], 0, [dnl				## And the winner is...
+BQ
+DQ
+SQ
+BS
+CS
+DS
+HS
+QB
+QE
+CR
+NL
+dl_cs_ul
+dl_cs_ll
+dl_cs_1d
+dl_cs_0d
+dl_cs_al
+dl_cs_an
+dl_re_id
+dl_re_1n
+dl_re_0n
+], [ignore])
 AT_CLEANUP
 
 AT_SETUP(['dl_meta get apis r/o' constants readonly?])
