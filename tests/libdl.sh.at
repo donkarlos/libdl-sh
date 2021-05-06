@@ -519,3 +519,36 @@ test_atexit(0)
 
 ], [ignore])
 AT_CLEANUP
+
+dnl
+dnl Now that we've established that load- and exit-time hooks work:
+dnl Top it off and check if dl_load() successfully loads another library.
+dnl
+AT_SETUP([dl_load() loads another library?])
+AT_CHECK([dnl
+set -eu					## Employ strict execution environment
+					## to ensure 'set -u' resilience.
+test_atload_trace=:
+test_atload() {
+    test_atload_trace=$test_atload_trace$1:
+}
+
+test_atexit() {
+    echo "test_atexit($status)"
+    echo "$test_atload_trace"
+}
+
+case :$PATH: in				## Triggered by 'check-local:'?
+    *:$abs_top_builddir/bin:*)		## Yes...
+	LIBDL_SH_LIBRARY_PATH=$abs_top_builddir/lib
+	export LIBDL_SH_LIBRARY_PATH
+	;;
+esac
+eval "`libdl-sh load`"
+dl_atload test_atload && dl_atexit test_atexit
+dl_load quote
+], 0, [dnl
+test_atexit(0)
+:dl:quote:
+], [ignore])
+AT_CLEANUP
