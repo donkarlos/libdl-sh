@@ -177,16 +177,15 @@ EOF
 ##----------------------------------------------------------------------------
 dl_warn() {
     case ${6+6}${2+2} in		## Usage OK?
-	2)  ;;				## Yes.
-	*)  return 2			## No, indicate abuse!
-	    ;;
+	2)  local lib invo package  ;;	## Yes, declare local variables.
+	*)  return 2		    ;;	## No, indicate abuse!
     esac; eval "`sed '
 	:0'"$NL"'$!{;N;b0'"$NL"'}
 	s/'"$BS$NL"'/'"$BS$BS"'n/g
 	s/'"$SQ"'/&'"$BS$BS"'&&/g
 	/^'"$dl_re_id"';/{
-	    s/^\([^;]*\);\(.*\)$/local lib=\1 invo='"$SQ"'\1\2'"$SQ"' package='"$DQ$BQ"'\1_meta get package'"$BQ$DQ"'/;bp
-	};s/^/local lib=LIB invo='"$SQ"'/;s/$/'"$SQ"' package=PACKAGE/;:p
+	    s/^\([^;]*\);\(.*\)$/lib=\1 invo='"$SQ"'\1\2'"$SQ"' package='"$BQ"'\1_meta get package'"$BQ"'/;bp
+	};s/^/lib=LIB invo='"$SQ"'/;s/$/'"$SQ"' package=PACKAGE/;:p
     ' <<EOF
 $2
 EOF`"					## If possible, derive library and
