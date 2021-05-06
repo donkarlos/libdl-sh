@@ -334,3 +334,70 @@ EOF
 0000014
 ], [ignore])
 AT_CLEANUP
+
+dnl
+dnl Check if the functions reported by dl_meta() inquiry get apis list (for
+dnl the default API version) indicate usage errors (i.e., return 2) when in-
+dnl voked with insufficient arguments.
+dnl
+dnl NOTE:   (1)	The test is driven by the inquiry's 3rd field reported,
+dnl		which is parsed into $min and $max by the extra sed(1) ex-
+dnl		pression with the alleged no-op 's/^//;t0;:0' making sure
+dnl		that the following 'tp' statements actually distinguish be-
+dnl		tween the 3rd field's three numeric range forms.
+dnl	    (2)	Currently, dl_warn(), dl_dump(), dl_split(), and dl_which()
+dnl		are exempted because they aren't up to standard yet. As soon as
+dnl		that's remedied, their exemption will be voided.
+dnl	    (3)	Since at this point load- and exit-time haven't been tested,
+dnl		testing dl_exit() here would be pointless, wherefore it'll
+dnl		stay exempted.
+dnl
+AT_SETUP([libdl.sh functions indicate usage errors?])
+AT_CHECK([dnl
+set -eu					## Employ strict execution environment
+					## to ensure 'set -u' resilience.
+case :$PATH: in				## Triggered by 'check-local:'?
+    *:$abs_top_builddir/bin:*)		## Yes, export suitable LSP.
+	LIBDL_SH_LIBRARY_PATH=$abs_top_builddir/lib
+	export LIBDL_SH_LIBRARY_PATH
+	;;
+esac
+eval "`libdl-sh load`"			## Load libdl.sh or die.
+api=`dl_meta get api`			## Inquire default API version.
+ifs=$IFS; IFS=$NL; set shiftee `dl_meta get apis list 's/^//;t0
+	:0
+        s/^'"$api"';\('"$dl_re_id"'\);\('"$dl_re_0n"'\)-\('"$dl_re_1n"'\)$/name=\1 min=\2 max=\3/;tp
+        s/^'"$api"';\('"$dl_re_id"'\);\('"$dl_re_0n"'\)-$/name=\1 min=\2 max=/;tp
+        s/^'"$api"';\('"$dl_re_id"'\);\('"$dl_re_0n"'\)$/name=\1 min=\2 max=\2/;tp
+        s/^.*$/test/;:p
+'`; shift; IFS=$ifs
+for signature in ${1+"$@"}; do		## Foreach parsed signature (see note
+					## (1)) do...
+    echo "$signature" && eval "$signature" || exit 1
+					## Emit signature and split it.
+    case $name in			## Function exempted?
+	dl_warn|dl_dump|dl_split|dl_which|dl_exit)
+	    ;;				## Yes.
+	*)				## No, make passes at function.
+	    args= n=0; while test "$n" -lt "$min"; do
+		$name $args && exit 1 || case $? in
+		    2)		;;
+		    *)  exit 1	;;
+		esac
+		n=`expr $n + 1`; args="$args $n"
+	    done
+	    ;;
+    esac
+done
+], 0, [dnl				## And the winner is...
+name=dl_meta min=2 max=
+name=dl_warn min=2 max=
+name=dl_dump min=2 max=
+name=dl_split min=3 max=
+name=dl_which min=1 max=1
+name=dl_atload min=1 max=1
+name=dl_load min=1 max=
+name=dl_atexit min=1 max=1
+name=dl_exit min=0 max=1
+], [ignore])
+AT_CLEANUP
