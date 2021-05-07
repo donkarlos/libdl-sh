@@ -44,6 +44,7 @@ dnl					'set -u'-harden dl_warn().
 dnl					Add test group [dl_load() loads
 dnl					another library?].
 dnl		ks	2021-05-07	Always expect no error output.
+dnl					'set -u'-harden dl_split().
 dnl
 dnl Test group 'Demand-loading library libdl.sh'
 dnl
@@ -374,9 +375,9 @@ dnl		which is parsed into $min and $max by the extra sed(1) ex-
 dnl		pression with the alleged no-op 's/^//;t0;:0' making sure
 dnl		that the following 'tp' statements actually distinguish be-
 dnl		tween the 3rd field's three numeric range forms.
-dnl	    (2)	Currently, dl_dump(), dl_split(), and dl_which()
-dnl		are exempted because they aren't up to standard yet. As soon as
-dnl		that's remedied, their exemption will be voided.
+dnl	    (2)	Currently, dl_dump() and dl_which() are exempted because they
+dnl		aren't up to standard yet. As soon as that's remedied, their
+dnl		exemption will be voided.
 dnl	    (3)	Since at this point load- and exit-time haven't been tested,
 dnl		testing dl_exit() here would be pointless, wherefore it'll
 dnl		stay exempted.
@@ -405,7 +406,7 @@ for signature in ${1+"$@"}; do		## Foreach parsed signature (see note
     echo "$signature" && eval "$signature" || exit 1
 					## Emit signature and split it.
     case $name in			## Function exempted?
-	dl_dump|dl_split|dl_which|dl_exit)
+	dl_dump|dl_which|dl_exit)
 	    ;;				## Yes.
 	*)				## No, make passes at function.
 	    args= n=0; while test "$n" -lt "$min"; do

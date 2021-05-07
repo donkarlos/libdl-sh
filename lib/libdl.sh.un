@@ -45,6 +45,7 @@
 ##					'set -u'-harden dl_warn().
 ##					Work around nasty (GNU) sed(1) regres-
 ##					sion affecting dl_warn().
+##		ks	2021-05-07	'set -u'-harden dl_split().
 ##
 ##  NOTE:   (1)	To avoid cluttering code, this library is exempted from need-
 ##		ing namespace prefixes for its special character definitions.
@@ -269,11 +270,10 @@ EOF
 ##				Split WORD by IFS into FIELDs
 ##----------------------------------------------------------------------------
 dl_split() {
-    local word="$1" nifs="$2" oifs
-
     case ${3+=} in			## At least one &FIELD given?
-	=)  shift 2	;;		## Yes, drop WORD and IFS.
-	*)  return 2	;;		## No, indicate usage error.
+	=)  local word="$1" nifs="$2" oifs
+	    shift 2	;;		## Yes, fetch WORD and IFS.
+	*)  return 2	;;		## No, indicate abuse!
     esac; eval "`awk '
 	BEGIN {
 	    print "oifs=$IFS; IFS=$nifs; set shiftee $word; IFS=$oifs"
