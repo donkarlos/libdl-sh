@@ -46,6 +46,7 @@
 ##					Work around nasty (GNU) sed(1) regres-
 ##					sion affecting dl_warn().
 ##		ks	2021-05-07	'set -u'-harden dl_split().
+##					'set -u'-harden dl_dump().
 ##
 ##  NOTE:   (1)	To avoid cluttering code, this library is exempted from need-
 ##		ing namespace prefixes for its special character definitions.
@@ -250,10 +251,16 @@ EOF
 ##  NOTE:   (1)	The invoker is responsible for redirecting standard output!
 ##----------------------------------------------------------------------------
 dl_dump() {
+    case ${2+=}${1-} in			## Usage OK/meta prefix basically OK?
+	=?*_)	local mp="$1" vs;;	## Y/Y: Fetch meta prefix.
+	=*)	return 1	;;	## Y/N: Indicate failure!
+	*)	return 2	;;	## N/?: Indicate abuse!
+    esac
+
     local sx0=':0'"$NL"'$!{;N;b0'"$NL"'};s/'"$SQ"'/&'"$BS$BS"'&&/g;s/^/'\
-	  sx1='='"$SQ"'/;s/$/'"$SQ"'/' mp="$1" vs; shift
+	  sx1='='"$SQ"'/;s/$/'"$SQ"'/'
 					## Fetch meta prefix.
-    for vs in ${1+"$@"}; do		## Foreach stem do...
+    shift; for vs in ${1+"$@"}; do	## Foreach stem do...
 	eval 'case ${'"$mp$vs"'+=} in
 	    =)	sed "$sx0$mp$vs$sx1" <<EOF
 $'"$mp$vs"'
