@@ -45,8 +45,8 @@
 ##					'set -u'-harden dl_warn().
 ##					Work around nasty (GNU) sed(1) regres-
 ##					sion affecting dl_warn().
-##		ks	2021-05-07	'set -u'-harden dl_split().
-##					'set -u'-harden dl_dump().
+##		ks	2021-05-07	'set -u'-harden dl_split(), dl_dump(),
+##					and dl_which().
 ##
 ##  NOTE:   (1)	To avoid cluttering code, this library is exempted from need-
 ##		ing namespace prefixes for its special character definitions.
@@ -304,9 +304,10 @@ EOF`"
 ##  dl_which(LIB)		Locate LIBrary on library search path
 ##----------------------------------------------------------------------------
 dl_which() {
-    local ifs lib="$1" item
-
-    ifs=$IFS; IFS=:; set shiftee `sed '
+    case ${1+=} in			## Usage OK?
+	=)  local ifs lib="$1" item ;;	## Yes, fetch LIB.
+	*)  return 2		    ;;	## No, indicate abuse!
+    esac; ifs=$IFS; IFS=:; set shiftee `sed '
 	s/^/:/;s/$/:/;:1		## Let empty items explicitly refer
 	s/::/:.:/g;t1			## to '.' on the combined library
 	s/^://;s/:$//			## search path.
