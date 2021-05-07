@@ -20,7 +20,11 @@ dnl
 dnl AUTHOR(S):	ks	Karl Schmitz <ks@computerlabor.org>
 dnl
 dnl WRITTEN BY:	ks	2021-05-03
-dnl CHANGED BY:	ks
+dnl CHANGED BY:	ks	2021-05-04	Execute libdl-sh(1) tests under
+dnl					strict (i.e., 'set -eu') conditions.
+dnl					Don't augment LSP during install
+dnl					checks.
+dnl		ks	2021-05-07	Always expect no error output.
 dnl
 dnl Test group 'Demand-loading helper libdl-sh(1)'
 dnl
@@ -36,7 +40,8 @@ case `libdl-sh exec -- /bin/sh -c 'echo "$PATH"'` in
     *)	exit 1
 	;;
 esac
-], 0, [ignore], [ignore])
+], 0, [ignore], [dnl
+])
 AT_CLEANUP
 
 AT_SETUP(['libdl-sh exec' prepends ${builddir}/bin to $PATH?])
@@ -52,7 +57,8 @@ case :$PATH: in				## Triggered by 'check-local:'?
 	esac
 	;;
 esac
-], 0, [ignore], [ignore])
+], 0, [ignore], [dnl
+])
 AT_CLEANUP
 
 AT_SETUP(['libdl-sh load' honours $LIBDL_SH_LIBRARY_PATH?])
@@ -71,7 +77,8 @@ case :$PATH: in				## Triggered by 'check-local:'?
 	esac
 	;;
 esac
-], 0, [ignore], [ignore])
+], 0, [ignore], [dnl
+])
 AT_CLEANUP
 
 AT_SETUP(['eval "`libdl-sh load`"' loads libdl.sh?])
@@ -84,5 +91,6 @@ case :$PATH: in				## Triggered by 'check-local:'?
 	;;
 esac
 eval "`libdl-sh load`"
-], 0, [ignore], [ignore])
+], 0, [ignore], [dnl
+])
 AT_CLEANUP
