@@ -48,9 +48,17 @@
 ##
 ##  NOTE:   (1)	To avoid cluttering code, this library is exempted from need-
 ##		ing namespace prefixes for its special character definitions.
+##	    (2)	The below line assigning special characters MUST contain an
+##		embedded \r (ASCII CR)! Because there are editors may get
+##		wrong ideas about such content (like, e.g. KDE's Advanced Text
+##		Editor kate(1)), the test suite checks for this. Should the
+##		particular test fail while running the test suite, you need
+##		to restore the embedded \r with a different editor (like,
+##		e.g. vi(1)) and re-run the test suite.
 ##----------------------------------------------------------------------------
 ##  Define special characters:
-#-----------------------------------------------------------------------------
+##							  .- see note (2)
+#---------------------------------------------------------v-------------------
 BQ=\` DQ=\" SQ=\' BS=\\ CS=\# DS=\$ HS=\! QB=\` QE=\' CR='' NL='
 '
 readonly BQ DQ SQ BS CS DS HS QB QE CR NL
