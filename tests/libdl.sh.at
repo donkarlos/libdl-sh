@@ -20,7 +20,30 @@ dnl
 dnl AUTHOR(S):	ks	Karl Schmitz <ks@computerlabor.org>
 dnl
 dnl WRITTEN BY:	ks	2021-05-03
-dnl CHANGED BY:	ks
+dnl CHANGED BY:	ks	2021-05-05	Add test group ['eval "`libdl-sh
+dnl					load`"' catches EXIT?].
+dnl					Enhance test group ['dl_meta get'
+dnl					inquiries give expected results?].
+dnl					Enhance test group ['dl_meta get apis'
+dnl					honours 4th argument?].
+dnl		ks	2021-05-06	Enhance test group ['dl_meta get apis
+dnl					r/o' constants defined?].
+dnl					Enhance test group ['dl_meta get apis
+dnl					r/o' constants readonly?].
+dnl					Add test group [libdl.sh's special
+dnl					characters unharmed?].
+dnl					Add test group [libdl.sh functions
+dnl					indicate usage errors?].
+dnl					Add test group [dl_atload() registers
+dnl					load-time hook?].
+dnl					Add test group [dl_atexit() registers
+dnl					exit-time hook?].
+dnl					Add test group [dl_exit() ignores EXIT
+dnl					before hooks?].
+dnl					'set -u'-harden dl_warn().
+dnl					Add test group [dl_load() loads
+dnl					another library?].
+dnl		ks	2021-05-07	Always expect no error output.
 dnl
 dnl Test group 'Demand-loading library libdl.sh'
 dnl
@@ -46,7 +69,8 @@ trap | sed 's/ EXIT$/ 0/;/ 0$/!d;s/^\(trap\) --/\1/;'
 					## and demodernize it.
 ], 0, [dnl				## And the winner is...
 trap 'dl_exit $?' 0
-], [ignore])
+], [dnl
+])
 AT_CLEANUP
 
 dnl
@@ -144,7 +168,8 @@ dl_meta get apis r/o
 1;dl_re_id
 1;dl_re_1n
 1;dl_re_0n
-], [ignore])
+], [dnl
+])
 AT_CLEANUP
 
 dnl
@@ -201,7 +226,8 @@ dl_cs_an
 dl_re_id
 dl_re_1n
 dl_re_0n
-], [ignore])
+], [dnl
+])
 AT_CLEANUP
 
 dnl
@@ -249,7 +275,8 @@ dl_cs_an
 dl_re_id
 dl_re_1n
 dl_re_0n
-], [ignore])
+], [dnl
+])
 AT_CLEANUP
 
 dnl
@@ -272,7 +299,7 @@ status=0				## Assume success and inquire
 api=`dl_meta get api`			## default API version.
 for name in `dl_meta get apis r/o '/^'"$api"';/!d;s///'`; do
 					## Foreach constant do...
-    (eval "$name=") && status=1 || echo "$name"
+    (eval "$name=" 2>/dev/null) && status=1 || echo "$name"
 					## Assume failure if we set it in a
 					## subshell environment. 8-O
 done; exit $status
@@ -297,7 +324,8 @@ dl_cs_an
 dl_re_id
 dl_re_1n
 dl_re_0n
-], [ignore])
+], [dnl
+])
 AT_CLEANUP
 
 dnl
@@ -332,7 +360,8 @@ EOF
 0000000 140 042 047 134 043 044 041 140 047 015 012 012
           `   "   '   \   #   $   !   `   '  \r  \n  \n
 0000014
-], [ignore])
+], [dnl
+])
 AT_CLEANUP
 
 dnl
@@ -345,7 +374,7 @@ dnl		which is parsed into $min and $max by the extra sed(1) ex-
 dnl		pression with the alleged no-op 's/^//;t0;:0' making sure
 dnl		that the following 'tp' statements actually distinguish be-
 dnl		tween the 3rd field's three numeric range forms.
-dnl	    (2)	Currently, dl_warn(), dl_dump(), dl_split(), and dl_which()
+dnl	    (2)	Currently, dl_dump(), dl_split(), and dl_which()
 dnl		are exempted because they aren't up to standard yet. As soon as
 dnl		that's remedied, their exemption will be voided.
 dnl	    (3)	Since at this point load- and exit-time haven't been tested,
@@ -399,7 +428,8 @@ name=dl_atload min=1 max=1
 name=dl_load min=1 max=
 name=dl_atexit min=1 max=1
 name=dl_exit min=0 max=1
-], [ignore])
+], [dnl
+])
 AT_CLEANUP
 
 dnl
@@ -430,7 +460,8 @@ dl_atload test_atload			## Register load-time hook.
 echo "$test_atload_trace"		## Emit resulting trace.
 ], 0, [dnl				## And the winner is...
 :dl:
-], [ignore])
+], [dnl
+])
 AT_CLEANUP
 
 dnl
@@ -455,7 +486,8 @@ eval "`libdl-sh load`"			## Load libdl.sh or die.
 dl_atexit test_atexit			## Register exit-time hook.
 ], 0, [dnl				## And the winner is...
 test_atexit(0)
-], [ignore])
+], [dnl
+])
 AT_CLEANUP
 
 dnl
@@ -483,7 +515,8 @@ dl_atexit test_atexit			## Register exit-time hook.
 ], 0, [dnl				## And the winner is...
 test_atexit(0)
 trap '' 0
-], [ignore])
+], [dnl
+])
 AT_CLEANUP
 
 dnl
@@ -517,7 +550,8 @@ dl_atexit test_atexit			## Register exit-time hook.
 ], 0, [dnl				## And the winner is...
 test_atexit(0)
 
-], [ignore])
+], [dnl
+])
 AT_CLEANUP
 
 dnl
@@ -550,5 +584,6 @@ dl_load quote
 ], 0, [dnl
 test_atexit(0)
 :dl:quote:
-], [ignore])
+], [dnl
+])
 AT_CLEANUP
