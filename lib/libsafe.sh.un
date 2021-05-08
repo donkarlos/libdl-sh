@@ -31,7 +31,9 @@
 ##		ks	2020-05-12	Limit valid 'meta session' operations.
 ##					Make 'meta get apis FORMAT' properly
 ##					handle namespace rule-exempted names.
-##		ks	2021-05-01	'-u'-harden safe_meta().
+##		ks	2021-05-01	'set -u'-harden safe_meta().
+##		ks	2021-05-08	Make 'safe_meta get apis' SEDEX
+##					labels portable.
 ##----------------------------------------------------------------------------
 ##  Global variables:
 #-----------------------------------------------------------------------------
@@ -54,16 +56,16 @@ safe_meta() {
     case ${2+=}${1+$1-}${2-} in		## Which META operation?
 	=get-apis)			## Inquire APIs...
 	    local sx ms=\;
-	    local fa='/^a'"$ms"'/!d;s///' da=';s/([^)'"$ms"'(]*)//'	\
-		  ff='/^F'"$ms"'/{;s///;t2;};/^f'"$ms"'/!d;s///'	\
-		  fr='/^R'"$ms"'/{;s///;t2;};/^r'"$ms"'/!d;s///'	\
+	    local fa='/^a'"$ms"'/!d;s///' da='s/([^)'"$ms"'(]*)//'	\
+		  ff='/^F'"$ms"'/{;s///;t2'"$NL"'};/^f'"$ms"'/!d;s///'	\
+		  fr='/^R'"$ms"'/{;s///;t2'"$NL"'};/^r'"$ms"'/!d;s///'	\
 		  p2=';s/'"$ms"'/&'"$mp"'/;:2'
 	    case ${3-api} in		## Which format?
-		api)	sx="$fa"		;;
-		full)   sx="$ff$p2${4+;$4}"	;;
-		list)	sx="$ff$p2$da${4+;$4}"	;;
-		r/o)	sx="$fr$p2${4+;$4}"	;;
-		*)	return 1		;;
+		api)	sx="$fa"			;;
+		full)	sx="$ff$p2${4+$NL$4}"		;;
+		list)	sx="$ff$p2$NL$da${4+;$4}"	;;
+		r/o)	sx="$fr$p2${4+$NL$4}"		;;
+		*)	return 1			;;
 	    esac
 	    sed "$sx" <<EOF
 a${ms}$safe_api
