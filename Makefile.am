@@ -31,6 +31,7 @@
 ##		ks	2021-05-03	Move complete test suite to tests/.
 ##					Spin off libdl-sh(1) tests.
 ##					Add libdl.sh tests.
+##			2021-05-08	Add libquote.sh tests.
 ##
 ##  NOTE:   (1)	Update the build system with autoreconf(1).
 ##----------------------------------------------------------------------------
@@ -134,7 +135,8 @@ EXTRA_DIST		= $(TESTSUITE_AT)				\
 			  $(TESTSUITE)					\
 			  $(srcdir)/tests/package.m4			\
 			  tests/libdl-sh.at				\
-			  tests/libdl.sh.at
+			  tests/libdl.sh.at				\
+			  tests/libquote.sh.at
 
 $(srcdir)/tests/package.m4: $(top_srcdir)/configure.ac
 	:;{ 								\
@@ -149,7 +151,8 @@ $(srcdir)/tests/package.m4: $(top_srcdir)/configure.ac
 $(TESTSUITE):		$(TESTSUITE_AT)					\
 			$(srcdir)/tests/package.m4			\
 			tests/libdl-sh.at				\
-			tests/libdl.sh.at
+			tests/libdl.sh.at				\
+			tests/libquote.sh.at
 	$(AUTOTEST) $(AUTOTESTFLAGS) -o $@.tmp $@.at && mv $@.tmp $@ || rm -f $@.tmp
 
 check-local: 		tests/atconfig tests/atlocal $(TESTSUITE)

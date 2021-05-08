@@ -1,0 +1,209 @@
+dnl								-*-Autotest-*-
+dnl libquote.sh.at		- libquote.sh tests
+dnl
+dnl Copyright © 2021 Das Computerlabor (DCl-M)
+dnl
+dnl This library is free software; you can redistribute it and/or
+dnl modify it under the terms of the GNU Lesser General Public License
+dnl as published by the Free Software Foundation; either
+dnl version 2.1 of the License, or (at your option) any later version.
+dnl
+dnl This library is distributed in the hope that it will be useful,
+dnl but WITHOUT ANY WARRANTY; without even the implied warranty of
+dnl MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+dnl Lesser General Public License for more details.
+dnl
+dnl You should have received a copy of the GNU Lesser General Public License
+dnl along with this library; if not, write to the Free Software Founda-
+dnl tion, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
+dnl
+dnl AUTHOR(S):	ks	Karl Schmitz <ks@computerlabor.org>
+dnl
+dnl WRITTEN BY:	ks	2021-05-08
+dnl CHANGED BY:
+dnl
+dnl Test group 'String quoting library libquote.sh'
+dnl
+AT_BANNER([String quoting library libquote.sh])
+
+dnl
+dnl Check if quote_meta() inquiries
+dnl   -	get package
+dnl   -	get version
+dnl   -	get api
+dnl   -	get apis
+dnl   -	get apis api
+dnl   -	get apis full
+dnl   -	get apis list
+dnl   -	get apis r/o
+dnl produce expected results.
+dnl
+dnl NOTE:   (1)	The first two of them can't be checked by the 'for' loop
+dnl		because GNU Autotest implements any form of expected output
+dnl		by means of quoted here scripts, thus making parameter
+dnl		substitutions impossible! |-(
+dnl	    (2)	As a side effect, this check also ensures that libquote.sh
+dnl		supports only one API version which at the same time is
+dnl		the default API version.
+dnl	    (3)	The double brackets within the expected output provide "just
+dnl		the right amount" of m4(1) quoting.
+dnl
+AT_SETUP(['quote_meta get' inquiries give expected results?])
+AT_CHECK([dnl
+set -eu					## Employ strict execution environment
+					## to ensure 'set -u' resilience.
+case :$PATH: in				## Triggered by 'check-local:'?
+    *:$abs_top_builddir/bin:*)		## Yes, export suitable LSP.
+	LIBDL_SH_LIBRARY_PATH=$abs_top_builddir/lib
+	export LIBDL_SH_LIBRARY_PATH
+	;;
+esac
+eval "`libdl-sh load`"; dl_load quote	## Load libdl.sh and libquote.sh or die.
+case `quote_meta get package`_`quote_meta get version` in
+    ${PACKAGE_TARNAME}_${PACKAGE_VERSION})
+	:	;;			## See note (1).
+    *)	test	;;
+esac && for meta in							\
+    'get api' 'get apis'						\
+    'get apis api' 'get apis full' 'get apis list' 'get apis r/o'
+do
+    echo 'quote_meta '"$meta" && quote_meta $meta
+					## Emit tag and inquiry result.
+done
+], 0, [dnl				## And the winner is...
+quote_meta get api
+0
+quote_meta get apis
+0
+quote_meta get apis api
+0
+quote_meta get apis full
+0;quote_meta(META [[ARG ...]]);2-
+0;quote([[[STYLE [DELIMITER]] ... STRING]]);0-
+0;quote_sh(STRING);1
+0;quote_command(COMMAND [[ARGUMENT|REDIRECTION ...]]);1-
+0;quote_re(STRING [[DELIMITER]]);1-2
+0;quote_ere(STRING [[DELIMITER]]);1-2
+0;quote_rs(STRING [[DELIMITER]]);1-2
+0;quote_grep(STRING);1
+0;quote_egrep(STRING);1
+0;quote_sed(STRING [[DELIMITER=/]]);1-2
+quote_meta get apis list
+0;quote_meta;2-
+0;quote;0-
+0;quote_sh;1
+0;quote_command;1-
+0;quote_re;1-2
+0;quote_ere;1-2
+0;quote_rs;1-2
+0;quote_grep;1
+0;quote_egrep;1
+0;quote_sed;1-2
+quote_meta get apis r/o
+], [dnl
+])
+AT_CLEANUP
+
+dnl
+dnl Check if quote_meta() inquiries
+dnl   -	get apis full
+dnl   -	get apis list
+dnl   -	get apis r/o
+dnl hounour (i.e., apply) the extra sed(1) expression passed as 4th argument.
+dnl
+AT_SETUP(['quote_meta get apis' honours 4th argument?])
+AT_CHECK([dnl
+set -eu					## Employ strict execution environment
+					## to ensure 'set -u' resilience.
+case :$PATH: in				## Triggered by 'check-local:'?
+    *:$abs_top_builddir/bin:*)		## Yes, export suitable LSP.
+	LIBDL_SH_LIBRARY_PATH=$abs_top_builddir/lib
+	export LIBDL_SH_LIBRARY_PATH
+	;;
+esac
+eval "`libdl-sh load`"; dl_load quote	## Load libdl.sh and libquote.sh or die.
+api=`quote_meta get api`		## Inquire default API version.
+for meta in 'get apis full' 'get apis list' 'get apis r/o'; do
+    case $meta in
+	*full)	sx='/;quote_sh(/!d;s/;.*$//'	;;
+	*list)	sx='/;quote_sh;/!d;s/;.*$//'	;;
+	*r/o)	sx='/^'"$api"';/!d;s///'	;;
+    esac
+    echo 'quote_meta '"$meta" && quote_meta $meta "$sx"
+					## Emit tag and inquiry result.
+done
+], 0, [dnl				## And the winner is...
+quote_meta get apis full
+0
+quote_meta get apis list
+0
+quote_meta get apis r/o
+], [dnl
+])
+AT_CLEANUP
+
+dnl
+dnl Check if the functions reported by quote_meta() inquiry get apis list (for
+dnl the default API version) indicate usage errors (i.e., return 2) when in-
+dnl voked with insufficient arguments.
+dnl
+dnl NOTE:   (1)	The test is driven by the inquiry's 3rd field reported,
+dnl		which is parsed into $min and $max by the extra sed(1) ex-
+dnl		pression with the alleged no-op 's/^//;t0;:0' making sure
+dnl		that the following 'tp' statements actually distinguish be-
+dnl		tween the 3rd field's three numeric range forms.
+dnl	    (2)	Since up to this point load- and exit-time hooks hadn't been
+dnl		tested, testing quote_exit() now would be pointless, wherefore
+dnl		it'll stay exempted!
+dnl
+AT_SETUP([libquote.sh functions indicate usage errors?])
+AT_CHECK([dnl
+set -eu					## Employ strict execution environment
+					## to ensure 'set -u' resilience.
+case :$PATH: in				## Triggered by 'check-local:'?
+    *:$abs_top_builddir/bin:*)		## Yes, export suitable LSP.
+	LIBDL_SH_LIBRARY_PATH=$abs_top_builddir/lib
+	export LIBDL_SH_LIBRARY_PATH
+	;;
+esac
+eval "`libdl-sh load`"; dl_load quote	## Load libdl.sh and libquote.sh or die.
+api=`quote_meta get api`		## Inquire default API version.
+ifs=$IFS; IFS=$NL; set shiftee `quote_meta get apis list 's/^//;t0
+	:0
+        s/^'"$api"';\('"$dl_re_id"'\);\('"$dl_re_0n"'\)-\('"$dl_re_1n"'\)$/name=\1 min=\2 max=\3/;tp
+        s/^'"$api"';\('"$dl_re_id"'\);\('"$dl_re_0n"'\)-$/name=\1 min=\2 max=/;tp
+        s/^'"$api"';\('"$dl_re_id"'\);\('"$dl_re_0n"'\)$/name=\1 min=\2 max=\2/;tp
+        s/^.*$/test/;:p
+'`; shift; IFS=$ifs
+for signature in ${1+"$@"}; do		## Foreach parsed signature (see note
+					## (1)) do...
+    echo "$signature" && eval "$signature" || exit 1
+					## Emit signature and split it.
+    case $name in			## Function exempted?
+	dl_exit)			## Yes.
+	    ;;
+	*)				## No, make passes at function.
+	    args= n=0; while test "$n" -lt "$min"; do
+		$name $args && exit 1 || case $? in
+		    2)		;;
+		    *)  exit 1	;;
+		esac
+		n=`expr $n + 1`; args="$args $n"
+	    done
+	    ;;
+    esac
+done
+], 0, [dnl				## And the winner is...
+name=quote_meta min=2 max=
+name=quote min=0 max=
+name=quote_sh min=1 max=1
+name=quote_command min=1 max=
+name=quote_re min=1 max=2
+name=quote_ere min=1 max=2
+name=quote_rs min=1 max=2
+name=quote_grep min=1 max=1
+name=quote_egrep min=1 max=1
+name=quote_sed min=1 max=2
+], [dnl
+])
+AT_CLEANUP
