@@ -43,6 +43,10 @@ quote_package='@PACKAGE_TARNAME@'	## Define source package name/version.
 quote_version='@PACKAGE_VERSION@'
 quote_api=0				## Define API version.
 quote_cs_sh=']^?*~! 	${}()<|>&;#'"$BQ$DQ$SQ$BS"'['
+quote_cs_sh0=']})>?*~!	 $|&;#'"$BQ$DQ$SQ$BS$CR"'<({['
+quote_cs_sh1=']})>?*!	 $|&;#'"$BQ$DQ$SQ$BS$CR"'<({['
+					## Define sh(1) special character set
+					## (with/sans tilde).
 quote_sx_ml=':n'"$NL"'$!{;N;bn'"$NL"'}'
 quote_sx_sh='s/'"$SQ"'/&'"$BS$BS"'&&/g;s/^/'"$SQ"'/;s/$/'"$SQ"'/'
 quote_sxl_re='s/[]'
@@ -55,6 +59,7 @@ quote_sx_nl='s/'"$BS$NL"'/'"$BS$BS"'&/g'
 readonly quote_package quote_version quote_api quote_cs_sh quote_sx_ml	\
 	 quote_sx_sh quote_sxl_re quote_sxr_re quote_sxl_rs quote_sxr_rs\
 	 quote_sx_nl
+readonly quote_cs_sh0 quote_cs_sh1
 
 ##----------------------------------------------------------------------------
 ##  quote_meta(META [ARG ...])	Perform META operation (with ARGs)
@@ -179,14 +184,22 @@ EOF
 
 ##----------------------------------------------------------------------------
 ##  quote_sh(STRING)		Quote STRING for sh(1)
+##
+##  Non-local variables:
+##	- quote_cs_sh1	(R) Special sh(1) character set sans tilde
 ##----------------------------------------------------------------------------
 quote_sh() {
-    case $BASH in
-	?*) echo "$SQ${1//\'/\'\\\'\'}$SQ"
-	    ;;
-	*)  sed "$quote_sx_ml;$quote_sx_sh" <<EOF
+    case ${2+2}${1+1} in		## Usage OK?
+	1)  sed '
+		:N'"$NL"'$!{;N;bN'"$NL"'}
+		/^$/bq'"$NL"'/^~/bq'"$NL"'/'"$BS$NL"'/bq
+		/['"$quote_cs_sh1"']/!q;:q
+		s/'"$SQ"'/&'"$BS$BS"'&&/g;s/^/'"$SQ"'/;s/$/'"$SQ"'/
+	    ' <<EOF
 $1
 EOF
+	    ;;				## Yes, quote for sh(1).
+	*)  return 2			## No, indicate abuse!
 	    ;;
     esac
 }
