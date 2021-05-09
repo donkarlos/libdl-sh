@@ -43,6 +43,9 @@
 ##					egrep(), and quote_sed().
 ##					Introduce style aliases ore, bre,
 ##					ors, and brs.
+##					Overhaul quote(), adding style 'ere
+##					[DELIMITER]' with alias mre.
+##					quote_meta(): Publish r/o variables.
 ##----------------------------------------------------------------------------
 ##  Global variables:
 #-----------------------------------------------------------------------------
@@ -95,6 +98,13 @@ f${ms}$quote_api${ms}rs(STRING [DELIMITER])${ms}1-2
 f${ms}$quote_api${ms}grep(STRING)${ms}1
 f${ms}$quote_api${ms}egrep(STRING)${ms}1
 f${ms}$quote_api${ms}sed(STRING [DELIMITER=/])${ms}1-2
+r${ms}$quote_api${ms}csl_sh
+r${ms}$quote_api${ms}csr_sh
+r${ms}$quote_api${ms}csl_bre
+r${ms}$quote_api${ms}csr_bre
+r${ms}$quote_api${ms}csl_ere
+r${ms}$quote_api${ms}csr_ere
+r${ms}$quote_api${ms}cs_brs
 EOF
 	    ;;
 	=get-package|=get-version|=get-api)

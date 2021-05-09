@@ -20,7 +20,7 @@ dnl
 dnl AUTHOR(S):	ks	Karl Schmitz <ks@computerlabor.org>
 dnl
 dnl WRITTEN BY:	ks	2021-05-08
-dnl CHANGED BY:
+dnl CHANGED BY:	ks	2021-05-09	quote_meta(): Publish r/o variables.
 dnl
 dnl Test group 'String quoting library libquote.sh'
 dnl
@@ -100,6 +100,13 @@ quote_meta get apis list
 0;quote_egrep;1
 0;quote_sed;1-2
 quote_meta get apis r/o
+0;quote_csl_sh
+0;quote_csr_sh
+0;quote_csl_bre
+0;quote_csr_bre
+0;quote_csl_ere
+0;quote_csr_ere
+0;quote_cs_brs
 ], [dnl
 ])
 AT_CLEANUP
@@ -138,6 +145,13 @@ quote_meta get apis full
 quote_meta get apis list
 0
 quote_meta get apis r/o
+quote_csl_sh
+quote_csr_sh
+quote_csl_bre
+quote_csr_bre
+quote_csl_ere
+quote_csr_ere
+quote_cs_brs
 ], [dnl
 ])
 AT_CLEANUP
