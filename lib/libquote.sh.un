@@ -160,9 +160,10 @@ quote() {
 		n=1 st=$1 de=		## Fetch style and (just in case)
 		;;			## assume empty delimiter.
 	    1_1*_)			## STRING...
-		n=1 string=$1		## Fetch string and let sed(1) do its
-		case ${st+=} in		## thing if some style had
-		    =)	break	;;	## been fetched before.
+		string=$1		## Fetch string.
+		case ${st+=} in		## Already saw some style?
+		    =)	break	;;	## Yes, let sed(1) do its thing!
+		    *)	n=1	;;	## No, append implicit 'sh' pass.
 		esac
 		;;
 	    _)				## No (more) arguments...
