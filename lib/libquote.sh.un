@@ -49,10 +49,9 @@
 quote_package='@PACKAGE_TARNAME@'	## Define source package name/version.
 quote_version='@PACKAGE_VERSION@'
 quote_api=0				## Define API version.
-quote_cs_sh0=']})>?*~!	 $|&;#'"$BQ$DQ$SQ$BS$CR"'<({['
-quote_cs_sh1=']})>?*!	 $|&;#'"$BQ$DQ$SQ$BS$CR"'<({['
-					## Define sh(1) special character set
-					## (with/sans tilde).
+quote_csl_sh=']})>?*'	quote_csr_sh='! 	$|&;#'"$BQ$DQ$SQ$BS$CR"'<({['
+					## Define sh(1) spec. character set's
+					## (sans '~') left/right halves.
 quote_csl_bre0=']^'	quote_csr_bre0='\.*$['
 quote_csl_bre1=']'	quote_csr_bre1='\.*['
 					## Define obsolete/basic RE special
@@ -61,12 +60,12 @@ quote_csl_bre1=']'	quote_csr_bre1='\.*['
 quote_csl_ere0=']})^'	quote_csr_ere0='\.*|?+$({['
 quote_csl_ere1=']})'	quote_csr_ere1='\.*|?+({['
 					## Same for modern/extended REs.
-quote_cs_brs='\&'			## Define 's///' statement substitu-
-					## tion's special character set.
-readonly quote_package quote_version quote_api quote_cs_sh0		\
-	 quote_cs_sh1 quote_csl_bre0 quote_csr_bre0 quote_csl_bre1	\
-	 quote_csr_bre1 quote_csl_ere0 quote_csr_ere0 quote_csl_ere1	\
-	 quote_csr_ere1 quote_cs_brs
+quote_cs_brs='\&'			## Define 's///' right-hand side
+					## special character set.
+readonly quote_package quote_version quote_api quote_csl_sh quote_csr_sh\
+	 quote_csl_bre0 quote_csr_bre0 quote_csl_bre1 quote_csr_bre1	\
+	 quote_csl_ere0 quote_csr_ere0 quote_csl_ere1 quote_csr_ere1	\
+	 quote_cs_brs
 
 ##----------------------------------------------------------------------------
 ##  quote_meta(META [ARG ...])	Perform META operation (with ARGs)
@@ -125,7 +124,8 @@ EOF
 ##	- quote_csl_bre1(R) Special BRE character set sans caret and dollar,
 ##	- quote_csr_bre1(R) left- and right-hand side
 ##	- quote_cs_brs	(R) Special 's///' right-hand side character set
-##	- quote_cs_sh1	(R) Special sh(1) character set sans tilde
+##	- quote_csl_sh	(R) Special sh(1) character set sans '~',
+##	- quote_csr_sh	(R) left and right half
 ##----------------------------------------------------------------------------
 quote() {
     local n st de string pass=1 cs sx=':N'"$NL"'$!{;N;bN'"$NL"'}'
@@ -169,8 +169,8 @@ quote() {
 					## Append "smart BRS quoting" state-
 		;;			## ments.
 	    sh)				## Bourne shell...
-		sx="$sx$NL"'/^$/bq'"$pass$NL"'/^~/bq'"$pass$NL"'/'"$BS$NL"'/bq'"$pass$NL"'/['"$quote_cs_sh1"']/!be'"$pass"
-		sx="$sx$NL"':q'"$pass$NL"'s/'"$SQ"'/&'"$BS$BS"'&&/g;s/^/'"$SQ"'/;s/$/'"$SQ"'/;:e'"$pass"
+		cs=$quote_csl_sh$quote_csr_sh
+		sx="$sx$NL"'/^$/bq'"$pass$NL"'/^~/bq'"$pass$NL"'/'"$BS$NL"'/bq'"$pass$NL"'/['"$cs"']/!be'"$pass$NL"':q'"$pass$NL"'s/'"$SQ"'/&'"$BS$BS"'&&/g;s/^/'"$SQ"'/;s/$/'"$SQ"'/;:e'"$pass"
 		pass=`expr $pass + 1`	## Append "smart sh(1) quoting" state-
 		;;			## ments.
 	    *)	return 2		## Unknown style...
@@ -185,14 +185,15 @@ EOF
 ##  quote_sh(STRING)		Quote STRING for sh(1)
 ##
 ##  Non-local variables:
-##	- quote_cs_sh1	(R) Special sh(1) character set sans tilde
+##	- quote_csl_sh	(R) Special sh(1) character set sans '~',
+##	- quote_csr_sh	(R) left and right half
 ##----------------------------------------------------------------------------
 quote_sh() {
     case ${2+2}${1+1} in		## Usage OK?
 	1)  sed '
 		:N'"$NL"'$!{;N;bN'"$NL"'}
 		/^$/bq'"$NL"'/^~/bq'"$NL"'/'"$BS$NL"'/bq
-		/['"$quote_cs_sh1"']/!q;:q
+		/['"$quote_csl_sh$quote_csr_sh"']/!q;:q
 		s/'"$SQ"'/&'"$BS$BS"'&&/g;s/^/'"$SQ"'/;s/$/'"$SQ"'/
 	    ' <<EOF
 $1
