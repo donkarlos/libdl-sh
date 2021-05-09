@@ -47,6 +47,11 @@ quote_cs_sh0=']})>?*~!	 $|&;#'"$BQ$DQ$SQ$BS$CR"'<({['
 quote_cs_sh1=']})>?*!	 $|&;#'"$BQ$DQ$SQ$BS$CR"'<({['
 					## Define sh(1) special character set
 					## (with/sans tilde).
+quote_csl_bre0=']^'	quote_csr_bre0='\.*$['
+quote_csl_bre1=']'	quote_csr_bre1='\.*['
+					## Define obsolete/basic RE special
+					## character set's left/right sides
+					## (with/sans caret and dollar).
 quote_sx_ml=':n'"$NL"'$!{;N;bn'"$NL"'}'
 quote_sx_sh='s/'"$SQ"'/&'"$BS$BS"'&&/g;s/^/'"$SQ"'/;s/$/'"$SQ"'/'
 quote_sxl_re='s/[]'
@@ -59,7 +64,8 @@ quote_sx_nl='s/'"$BS$NL"'/'"$BS$BS"'&/g'
 readonly quote_package quote_version quote_api quote_cs_sh quote_sx_ml	\
 	 quote_sx_sh quote_sxl_re quote_sxr_re quote_sxl_rs quote_sxr_rs\
 	 quote_sx_nl
-readonly quote_cs_sh0 quote_cs_sh1
+readonly quote_cs_sh0 quote_cs_sh1 quote_csl_bre0 quote_csr_bre0	\
+	 quote_csl_bre1	quote_csr_bre1
 
 ##----------------------------------------------------------------------------
 ##  quote_meta(META [ARG ...])	Perform META operation (with ARGs)
@@ -228,9 +234,19 @@ quote_command() {
 ##				Quote STRING for use as obsolete/basic RE
 ##----------------------------------------------------------------------------
 quote_re() {
-    sed "$quote_sxl_re${2-}$quote_sxr_re" <<EOF
+    case ${3+3}${2+2$2_}${1+1} in	## Usage OK/delimiter OK?
+	2?_1|1)				## Y/Y: Quote basic RE.
+	    sed '
+		:N'"$NL"'$!{;N;bN'"$NL"'}
+		s/['"$quote_csl_bre1${2-}$quote_csr_bre1"']/\\&/g
+		s/^^/\\&/;s/$$/\\&/;s/'"$BS$NL"'/\\&/g
+	    ' <<EOF
 $1
 EOF
+			;;
+	2*) return 1	;;		## Y/N: Indicate failure!
+	*)  return 2	;;		## N/?: Indicate abuse!
+    esac
 }
 
 ##----------------------------------------------------------------------------
