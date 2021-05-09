@@ -55,6 +55,8 @@ quote_csl_bre1=']'	quote_csr_bre1='\.*['
 quote_csl_ere0=']})^'	quote_csr_ere0='\.*|?+$({['
 quote_csl_ere1=']})'	quote_csr_ere1='\.*|?+({['
 					## Same for modern/extended REs.
+quote_cs_brs='\&'			## Define 's///' statement substitu-
+					## tion's special character set.
 quote_sx_ml=':n'"$NL"'$!{;N;bn'"$NL"'}'
 quote_sx_sh='s/'"$SQ"'/&'"$BS$BS"'&&/g;s/^/'"$SQ"'/;s/$/'"$SQ"'/'
 quote_sxl_re='s/[]'
@@ -69,7 +71,7 @@ readonly quote_package quote_version quote_api quote_cs_sh quote_sx_ml	\
 	 quote_sx_nl
 readonly quote_cs_sh0 quote_cs_sh1 quote_csl_bre0 quote_csr_bre0	\
 	 quote_csl_bre1	quote_csr_bre1 quote_csl_ere0 quote_csr_ere0	\
-	 quote_csl_ere1	quote_csr_ere1
+	 quote_csl_ere1	quote_csr_ere1 quote_cs_brs
 
 ##----------------------------------------------------------------------------
 ##  quote_meta(META [ARG ...])	Perform META operation (with ARGs)
@@ -279,9 +281,19 @@ EOF
 ##				tution
 ##----------------------------------------------------------------------------
 quote_rs() {
-    sed "$quote_sxl_rs${2-/}$quote_sxr_rs" <<EOF
+    case ${3+3}${2+2$2_}${1+1} in	## Usage OK/delimiter OK?
+	2?_1|1)				## Y/Y: Quote 's///' substitution.
+	    sed '
+		:N'"$NL"'$!{;N;bN'"$NL"'}
+		s/['"$quote_cs_brs${2-/}"']/\\&/g
+		s/'"$BS$NL"'/\\&/g
+	    ' <<EOF
 $1
 EOF
+			;;
+	2*) return 1	;;		## Y/N: Indicate failure!
+	*)  return 2	;;		## N/?: Indicate abuse!
+    esac
 }
 
 ##----------------------------------------------------------------------------
