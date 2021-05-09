@@ -144,7 +144,7 @@ EOF
 ##	- quote_sx_nl	(R) ~~~~
 ##----------------------------------------------------------------------------
 quote() {
-    local n st de string i=0 sx
+    local n st de string pass=1 sx
 
     set shiftee ${1+"$@"}		## Let initial shift always succeed.
     while shift ${n-}; do		## Foreach style do...
@@ -182,16 +182,15 @@ quote() {
 					## Append sed(1) expr. for another
 		;;			## round of right-hand side quoting.
 	    sh)				## Bourne shell...
-		sx="${sx+$sx;}:p$i"; i=`expr $i + 1`
-		sx="$sx$NL"'/^$/bq'"$i$NL"'/'"$BS$NL"'/bq'"$i"
-		sx="$sx$NL"'/['"$quote_cs_sh"']/!bp'"$i$NL"':q'"$i$NL$quote_sx_sh"
-					## Append sed(1) expr. for another
+		sx="${sx+$sx;}"'/^$/bq'"$pass$NL"'/'"$BS$NL"'/bq'"$pass"
+		sx="$sx$NL"'/['"$quote_cs_sh"']/!be'"$pass$NL"':q'"$pass$NL$quote_sx_sh;:e'"$pass"
+		pass=`expr $pass + 1`	## Append sed(1) expr. for another
 		;;			## round of shell quoting.
-	    *)				## Unknown STyle...
+	    *)				## Unknown style...
 		return 2		## Indicate abuse!
 		;;
 	esac
-    done; sed "$quote_sx_ml;${sx+$sx;}:p$i$NL"'/^$/d' <<EOF
+    done; sed "$quote_sx_ml;${sx+$sx;}"'/^$/d' <<EOF
 ${string-}
 EOF
 }					## Ultimately, do the dirty deed. ;-)
