@@ -23,8 +23,10 @@ dnl WRITTEN BY:	ks	2021-05-08
 dnl CHANGED BY:	ks	2021-05-09	quote_meta(): Publish r/o variables.
 dnl		ks	2021-05-09	Import test group ['dl_load quote'
 dnl					loads libquote.sh?] from libdl.sh.at.
-dnl					Add test group ['quote_meta get apis
-dnl					r/o' constants defined?].
+dnl					Add test groups ['quote_meta get apis
+dnl					r/o' constants defined?] and ['quote_-
+dnl					meta get apis r/o' constants read-
+dnl					only?].
 dnl
 dnl Test group 'String quoting library libquote.sh'
 dnl
@@ -218,6 +220,42 @@ for name in `quote_meta get apis r/o '/^'"$api"';/!d;s///'`; do
 	*)  status=1	;;
     esac'				## Assume failure if it's unset. :-(
 done; exit $status			## Indicate success or failure.
+], 0, [dnl				## And the winner is...
+quote_csl_sh
+quote_csr_sh
+quote_csl_bre
+quote_csr_bre
+quote_csl_ere
+quote_csr_ere
+quote_cs_brs
+], [dnl
+])
+AT_CLEANUP
+
+dnl
+dnl Check if the constants reported by quote_meta() inquiry get apis r/o (for
+dnl the default API version) are actually readonly after loading libquote.sh
+dnl by trying to set them in a subshell environment.
+dnl
+AT_SETUP(['quote_meta get apis r/o' constants readonly?])
+AT_CHECK([dnl
+set -eu					## Employ strict execution environment
+					## to ensure 'set -u' resilience.
+case :$PATH: in				## Triggered by 'check-local:'?
+    *:$abs_top_builddir/bin:*)		## Yes, export suitable LSP.
+	LIBDL_SH_LIBRARY_PATH=$abs_top_builddir/lib
+	export LIBDL_SH_LIBRARY_PATH
+	;;
+esac
+eval "`libdl-sh load`"; dl_load quote	## Load libdl.sh and libquote.sh or die.
+status=0				## Assume success and inquire
+api=`quote_meta get api`			## default API version.
+for name in `quote_meta get apis r/o '/^'"$api"';/!d;s///'`; do
+					## Foreach constant do...
+    (eval "$name=" 2>/dev/null) && status=1 || echo "$name"
+					## Assume failure if we set it in a
+					## subshell environment. 8-O
+done; exit $status
 ], 0, [dnl				## And the winner is...
 quote_csl_sh
 quote_csr_sh
