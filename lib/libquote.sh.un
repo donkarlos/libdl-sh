@@ -86,7 +86,7 @@ quote_meta() {
 	    sed "$sx" <<EOF
 a${ms}$quote_api
 f${ms}$quote_api${ms}meta(META [ARG ...])${ms}2-
-F${ms}$quote_api${ms}quote([STYLE [DELIMITER]] ... STRING])${ms}0-
+F${ms}$quote_api${ms}quote([[STYLE [DELIMITER]] ... STRING])${ms}0-
 f${ms}$quote_api${ms}sh(STRING)${ms}1
 f${ms}$quote_api${ms}command(COMMAND [ARGUMENT|REDIRECTION ...])${ms}1-
 f${ms}$quote_api${ms}re(STRING [DELIMITER])${ms}1-2
