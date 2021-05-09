@@ -28,10 +28,12 @@
 .\#		ks	2021-04-29	Document quote_rs()'s new DELIMITER
 .\#					default.
 .\#		ks	2021-04-30	Document universal quoter quote().
+.\#		ks	2021-05-09	Introduce style aliases ore, bre,
+.\#					ors, and brs.
 .\#
 .\# NOTE: (1)	Please adjust below date whenever revising the manual page.
 .\#		vvvvvv
-.TH libquote 3SH 2021-05-01 "@PACKAGE_TARNAME@ @PACKAGE_VERSION@" "Shell Programming"
+.TH libquote 3SH 2021-05-09 "@PACKAGE_TARNAME@ @PACKAGE_VERSION@" "Shell Programming"
 
 .SH NAME
 quote, quote_sh, quote_command, quote_re, quote_ere, quote_rs, quote_grep,
@@ -80,12 +82,12 @@ invocation.
 Currently, the following \fISTYLE\fPs are implemented:
 .RS 4
 .TP 4
-\(bu \fBre\fP [\fIDELIMITER\fP]
+\(bu \fBore\fP|\fBbre\fP|\fBre\fP [\fIDELIMITER\fP]
 Exert a round of quoting that escapes all characters special to
 "obsolete"/"basic" REs with backslashes (see \fBquote_re\fP below).
 
 .TP
-\(bu \fBrs\fP [\fIDELIMITER\fP]
+\(bu \fBors\fP|\fBbrs\fP|\fBrs\fP [\fIDELIMITER\fP]
 Exert a round of quoting that escapes all characters special to right-hand
 sides of \fBsed\fP(1) \fBs///\fP statements) with backslashes (see
 \fBquote_rs\fP below).

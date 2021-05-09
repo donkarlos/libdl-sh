@@ -41,6 +41,8 @@
 ##					quote_rs().
 ##					'set -u'-harden quote_grep(), quote_-
 ##					egrep(), and quote_sed().
+##					Introduce style aliases ore, bre,
+##					ors, and brs.
 ##----------------------------------------------------------------------------
 ##  Global variables:
 #-----------------------------------------------------------------------------
@@ -148,8 +150,10 @@ quote() {
     while shift ${n-}; do		## Foreach style do...
 	case ${2+2}${1+1}_${1+1$1_}${2+2$2_}${3+3} in
 					## What are we looking at?
-	    21_1r[es]_2_3|21_1r[es]_2?_3)
-					## Style re/rs with delimiter...
+	    21_1[bo]r[es]_2?_3|21_1r[es]_2?_3|				\
+	    21_1[bo]r[es]_2_3 |21_1r[es]_2_3 )
+					## Style ([bo]?r[es]) with de-
+					## limiter...
 		n=2 st=$1 de=$2		## Fetch style and delimiter.
 		;;
 	    21_1*_2*_*)			## Style without delimiter...
@@ -167,12 +171,12 @@ quote() {
 	    *)				## Not really, but if...
 		return 3		## Indicate internal error!
 		;;
-	esac; case ${st-sh} in		## Which STyle had been fetched?
-	    re)				## Basic RE...
+	esac; case ${st-sh} in		## Which style had been fetched?
+	    ore|bre|re)			## Obsolete/Basic RE...
 		sx="${sx+$sx;}$quote_sxl_re${de-}$quote_sxr_re;$quote_sx_nl"
 					## Append sed(1) expr. for another
 		;;			## round of basic RE quoting.
-	    rs)				## 's///' right-hand side...
+	    ors|brs|rs)			## 's///' right-hand side...
 		sx="${sx+$sx;}$quote_sxl_rs${de-}$quote_sxr_rs;$quote_sx_nl"
 					## Append sed(1) expr. for another
 		;;			## round of right-hand side quoting.
