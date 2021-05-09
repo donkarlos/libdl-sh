@@ -36,6 +36,10 @@
 ##		ks	2021-05-01	'set -u'-harden quote_meta().
 ##		ks	2021-05-08	Make 'quote_meta get apis' SEDEX
 ##					labels portable.
+##		ks	2021-05-09	Overhaul quote_sh(), quote_command(),
+##					quote_re(), quote_ere(), and
+##					quote_rs().
+##					'set -u'-harden quote_grep().
 ##----------------------------------------------------------------------------
 ##  Global variables:
 #-----------------------------------------------------------------------------
@@ -300,7 +304,10 @@ EOF
 ##  quote_grep(STRING)		Quote STRING for grep(1)
 ##----------------------------------------------------------------------------
 quote_grep() {
-    quote_re "$1"
+    case ${2+2}${1+1} in		## Usage OK?
+	1)  quote_re "$1"   ;;		## Yes, let quote_re() do the work.
+	*)  return 2	    ;;		## No, indicate abuse!
+    esac
 }
 
 ##----------------------------------------------------------------------------
