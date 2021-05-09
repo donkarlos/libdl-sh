@@ -119,6 +119,8 @@ EOF
 ##  Non-local variables:
 ##	- quote_csl_bre	(R) Special BRE character set sans '^' and '$',
 ##	- quote_csr_bre	(R) left and right half
+##	- quote_csl_ere	(R) Special ERE character set sans '^' and '$',
+##	- quote_csr_ere	(R) left and right half
 ##	- quote_cs_brs	(R) Special 's///' right-hand side character set
 ##	- quote_csl_sh	(R) Special sh(1) character set sans '~',
 ##	- quote_csr_sh	(R) left and right half
@@ -131,9 +133,9 @@ quote() {
     while shift ${n-}; do		## Foreach style do...
 	case ${2+2}${1+1}_${1+1$1_}${2+2$2_}${3+3} in
 					## What are we looking at?
-	    21_1[bo]r[es]_2?_3|21_1r[es]_2?_3|				\
-	    21_1[bo]r[es]_2_3 |21_1r[es]_2_3 )
-					## Style ([bo]?r[es]) with de-
+	    21_1[bo]r[es]_2?_3|21_1r[es]_2?_3|21_1[em]re_2?_3|		\
+	    21_1[bo]r[es]_2_3 |21_1r[es]_2_3 |21_1[em]re_2_3)
+					## Style ([bo]?r[es]|[em]re) with de-
 					## limiter...
 		n=2 st=$1 de=$2		## Fetch style and delimiter.
 		;;
@@ -158,6 +160,11 @@ quote() {
 		cs=$quote_csl_bre${de-}$quote_csr_bre
 		sx="$sx$NL"'s/['"$cs"']/\\&/g;s/^^/\\&/;s/$$/\\&/;s/'"$BS$NL"'/\\&/g'
 					## Append "smart BRE quoting" state-
+		;;			## ments.
+	    mre|ere)			## Modern/Extended RE...
+		cs=$quote_csl_ere${de-}$quote_csr_ere
+		sx="$sx$NL"'s/['"$cs"']/\\&/g;s/^^/\\&/;s/$$/\\&/;s/'"$BS$NL"'/\\&/g'
+					## Append "smart ERE quoting" state-
 		;;			## ments.
 	    ors|brs|rs)			## 's///' right-hand side...
 		cs=$quote_cs_brs${de-}
