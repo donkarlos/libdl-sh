@@ -21,10 +21,46 @@ dnl AUTHOR(S):	ks	Karl Schmitz <ks@computerlabor.org>
 dnl
 dnl WRITTEN BY:	ks	2021-05-08
 dnl CHANGED BY:	ks	2021-05-09	quote_meta(): Publish r/o variables.
+dnl		ks	2021-05-09	Import test group ['dl_load quote'
+dnl					loads libquote.sh?] from libdl.sh.at.
 dnl
 dnl Test group 'String quoting library libquote.sh'
 dnl
 AT_BANNER([String quoting library libquote.sh])
+
+dnl
+dnl Check if 'dl_load quote' loads libquote.sh
+dnl
+AT_SETUP(['dl_load quote' loads libquote.sh?])
+AT_CHECK([dnl
+set -eu					## Employ strict execution environment
+					## to ensure 'set -u' resilience.
+test_atload_trace=:			## Initialize load-time hook's trace.
+test_atload() {				## Declare load-time hook.
+    test_atload_trace=$test_atload_trace$1:
+}
+
+test_atexit() {				## Declare exit-time hook.
+    echo "test_atexit($status)"
+    echo "$test_atload_trace"
+}
+
+case :$PATH: in				## Triggered by 'check-local:'?
+    *:$abs_top_builddir/bin:*)		## Yes, export suitable LSP.
+	LIBDL_SH_LIBRARY_PATH=$abs_top_builddir/lib
+	export LIBDL_SH_LIBRARY_PATH
+	;;
+esac
+eval "`libdl-sh load`"			## Load libdl.sh or die.
+dl_atload test_atload && dl_atexit test_atexit
+dl_load quote				## Register hooks and load
+					## libquote.sh.
+], 0, [dnl				## And the winner is...
+test_atexit(0)
+:dl:quote:
+], [dnl
+])
+AT_CLEANUP
 
 dnl
 dnl Check if quote_meta() inquiries

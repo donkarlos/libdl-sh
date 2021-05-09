@@ -46,6 +46,8 @@ dnl					another library?].
 dnl		ks	2021-05-07	Always expect no error output.
 dnl					'set -u'-harden dl_split(), dl_dump(),
 dnl					and dl_which().
+dnl		ks	2021-05-09	Export test group [dl_load() loads
+dnl					another library?] to libquote.sh.at.
 dnl
 dnl Test group 'Demand-loading library libdl.sh'
 dnl
@@ -549,40 +551,6 @@ dl_atexit test_atexit			## Register exit-time hook.
 ], 0, [dnl				## And the winner is...
 test_atexit(0)
 
-], [dnl
-])
-AT_CLEANUP
-
-dnl
-dnl Now that we've established that load- and exit-time hooks work:
-dnl Top it off and check if dl_load() successfully loads another library.
-dnl
-AT_SETUP([dl_load() loads another library?])
-AT_CHECK([dnl
-set -eu					## Employ strict execution environment
-					## to ensure 'set -u' resilience.
-test_atload_trace=:
-test_atload() {
-    test_atload_trace=$test_atload_trace$1:
-}
-
-test_atexit() {
-    echo "test_atexit($status)"
-    echo "$test_atload_trace"
-}
-
-case :$PATH: in				## Triggered by 'check-local:'?
-    *:$abs_top_builddir/bin:*)		## Yes...
-	LIBDL_SH_LIBRARY_PATH=$abs_top_builddir/lib
-	export LIBDL_SH_LIBRARY_PATH
-	;;
-esac
-eval "`libdl-sh load`"
-dl_atload test_atload && dl_atexit test_atexit
-dl_load quote
-], 0, [dnl
-test_atexit(0)
-:dl:quote:
 ], [dnl
 ])
 AT_CLEANUP
