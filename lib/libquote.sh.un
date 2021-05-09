@@ -39,7 +39,8 @@
 ##		ks	2021-05-09	Overhaul quote_sh(), quote_command(),
 ##					quote_re(), quote_ere(), and
 ##					quote_rs().
-##					'set -u'-harden quote_grep().
+##					'set -u'-harden quote_grep() and
+##					quote_egrep().
 ##----------------------------------------------------------------------------
 ##  Global variables:
 #-----------------------------------------------------------------------------
@@ -314,7 +315,10 @@ quote_grep() {
 ##  quote_egrep(STRING)		Quote STRING for egrep(1)
 ##----------------------------------------------------------------------------
 quote_egrep() {
-    quote_ere "$1"
+    case ${2+2}${1+1} in		## Usage OK?
+	1)  quote_ere "$1"  ;;		## Yes, let quote_ere() do the work.
+	*)  return 2	    ;;		## No, indicate abuse!
+    esac
 }
 
 ##----------------------------------------------------------------------------
