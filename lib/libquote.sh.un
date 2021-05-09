@@ -152,13 +152,6 @@ quote() {
 					## Style re/rs with DElimiter...
 		n=2 st=$1 de=$2		## Fetch STyle and DEimiter.
 		;;
-##	    21_1r[es]_2r[es]_3|21_1r[es]_2sh_3)
-##					## Style re/rs sans DElimiter...
-##		n=1 st=$1 de=		## Fetch STyle and assume empty
-##		;;			## DElimiter.
-##	    21_1r[es]_2??*_3)		## Style re/rs with invalid DElim-
-##		return 2		## iter...
-##		;;			## Indicate abuse!
 	    21_1*_2*_*)			## Style without DElimiter...
 		n=1 st=$1 de=		## Fetch STyle and (for safety)
 		;;			## assume empty DElimiter.
