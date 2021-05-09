@@ -49,7 +49,6 @@
 quote_package='@PACKAGE_TARNAME@'	## Define source package name/version.
 quote_version='@PACKAGE_VERSION@'
 quote_api=0				## Define API version.
-quote_cs_sh=']^?*~! 	${}()<|>&;#'"$BQ$DQ$SQ$BS"'['
 quote_cs_sh0=']})>?*~!	 $|&;#'"$BQ$DQ$SQ$BS$CR"'<({['
 quote_cs_sh1=']})>?*!	 $|&;#'"$BQ$DQ$SQ$BS$CR"'<({['
 					## Define sh(1) special character set
@@ -64,19 +63,10 @@ quote_csl_ere1=']})'	quote_csr_ere1='\.*|?+({['
 					## Same for modern/extended REs.
 quote_cs_brs='\&'			## Define 's///' statement substitu-
 					## tion's special character set.
-quote_sx_sh='s/'"$SQ"'/&'"$BS$BS"'&&/g;s/^/'"$SQ"'/;s/$/'"$SQ"'/'
-quote_sxl_re='s/[]'
-quote_sxr_re='^\.*$[]/'"$BS$BS"'&/g'
-quote_sxl_rs='s/[\&'
-quote_sxr_rs=']/'"$BS$BS"'&/g'
-quote_sx_nl='s/'"$BS$NL"'/'"$BS$BS"'&/g'
-					## Define sed(1) expression chunks.
-
-readonly quote_package quote_version quote_api quote_cs_sh quote_sx_sh	\
-	 quote_sxl_re quote_sxr_re quote_sxl_rs quote_sxr_rs quote_sx_nl\
-	 quote_cs_sh0 quote_cs_sh1 quote_csl_bre0 quote_csr_bre0	\
-	 quote_csl_bre1	quote_csr_bre1 quote_csl_ere0 quote_csr_ere0	\
-	 quote_csl_ere1	quote_csr_ere1 quote_cs_brs
+readonly quote_package quote_version quote_api quote_cs_sh0		\
+	 quote_cs_sh1 quote_csl_bre0 quote_csr_bre0 quote_csl_bre1	\
+	 quote_csr_bre1 quote_csl_ere0 quote_csr_ere0 quote_csl_ere1	\
+	 quote_csr_ere1 quote_cs_brs
 
 ##----------------------------------------------------------------------------
 ##  quote_meta(META [ARG ...])	Perform META operation (with ARGs)
@@ -132,17 +122,15 @@ EOF
 ##				Universally quote STRING
 ##
 ##  Non-local variables:
-##	- quote_cs_sh	(R) Special sh(1) character set
-##	- quote_sx_sh	(R) ~~~~
-##	- quote_sxl_re	(R) ~~~~
-##	- quote_sxr_re	(R) ~~~~
-##	- quote_sxl_rs	(R) ~~~~
-##	- quote_sxr_rs	(R) ~~~~
-##	- quote_sx_nl	(R) ~~~~
+##	- quote_csl_bre1(R) Special BRE character set sans caret and dollar,
+##	- quote_csr_bre1(R) left- and right-hand side
+##	- quote_cs_brs	(R) Special 's///' right-hand side character set
+##	- quote_cs_sh1	(R) Special sh(1) character set sans tilde
 ##----------------------------------------------------------------------------
 quote() {
-    local n st de string pass=1 sx=':N'"$NL"'$!{;N;bN'"$NL"'}'
-
+    local n st de string pass=1 cs sx=':N'"$NL"'$!{;N;bN'"$NL"'}'
+					## Preset sed(1) expr. with "read all
+					## lines into pattern buffer" loop.
     set shiftee ${1+"$@"}		## Let initial shift always succeed.
     while shift ${n-}; do		## Foreach style do...
 	case ${2+2}${1+1}_${1+1$1_}${2+2$2_}${3+3} in
@@ -171,21 +159,22 @@ quote() {
 		;;
 	esac; case ${st-sh} in		## Which style had been fetched?
 	    ore|bre|re)			## Obsolete/Basic RE...
-		sx="${sx+$sx;}$quote_sxl_re${de-}$quote_sxr_re;$quote_sx_nl"
-					## Append sed(1) expr. for another
-		;;			## round of basic RE quoting.
+		cs=$quote_csl_bre1${de-}$quote_csr_bre1
+		sx="$sx$NL"'s/['"$cs"']/\\&/g;s/^^/\\&/;s/$$/\\&/;s/'"$BS$NL"'/\\&/g'
+					## Append "smart BRE quoting" state-
+		;;			## ments.
 	    ors|brs|rs)			## 's///' right-hand side...
-		sx="${sx+$sx;}$quote_sxl_rs${de-}$quote_sxr_rs;$quote_sx_nl"
-					## Append sed(1) expr. for another
-		;;			## round of right-hand side quoting.
+		cs=$quote_cs_brs${de-}
+		sx="$sx$NL"'s/['"$cs"']/\\&/g;s/'"$BS$NL"'/\\&/g'
+					## Append "smart BRS quoting" state-
+		;;			## ments.
 	    sh)				## Bourne shell...
-		sx="${sx+$sx;}"'/^$/bq'"$pass$NL"'/'"$BS$NL"'/bq'"$pass"
-		sx="$sx$NL"'/['"$quote_cs_sh"']/!be'"$pass$NL"':q'"$pass$NL$quote_sx_sh;:e'"$pass"
-		pass=`expr $pass + 1`	## Append sed(1) expr. for another
-		;;			## round of shell quoting.
-	    *)				## Unknown style...
-		return 2		## Indicate abuse!
-		;;
+		sx="$sx$NL"'/^$/bq'"$pass$NL"'/^~/bq'"$pass$NL"'/'"$BS$NL"'/bq'"$pass$NL"'/['"$quote_cs_sh1"']/!be'"$pass"
+		sx="$sx$NL"':q'"$pass$NL"'s/'"$SQ"'/&'"$BS$BS"'&&/g;s/^/'"$SQ"'/;s/$/'"$SQ"'/;:e'"$pass"
+		pass=`expr $pass + 1`	## Append "smart sh(1) quoting" state-
+		;;			## ments.
+	    *)	return 2		## Unknown style...
+		;;			## Indicate abuse!
 	esac
     done; sed "$sx$NL"'/^$/d' <<EOF
 ${string-}
