@@ -145,26 +145,26 @@ quote() {
     local n st de string i=0 sx
 
     set shiftee ${1+"$@"}		## Let initial shift always succeed.
-    while shift ${n-}; do		## Foreach STyle do...
+    while shift ${n-}; do		## Foreach style do...
 	case ${2+2}${1+1}_${1+1$1_}${2+2$2_}${3+3} in
 					## What are we looking at?
 	    21_1r[es]_2_3|21_1r[es]_2?_3)
-					## Style re/rs with DElimiter...
-		n=2 st=$1 de=$2		## Fetch STyle and DEimiter.
+					## Style re/rs with delimiter...
+		n=2 st=$1 de=$2		## Fetch style and delimiter.
 		;;
-	    21_1*_2*_*)			## Style without DElimiter...
-		n=1 st=$1 de=		## Fetch STyle and (for safety)
-		;;			## assume empty DElimiter.
+	    21_1*_2*_*)			## Style without delimiter...
+		n=1 st=$1 de=		## Fetch style and (just in case)
+		;;			## assume empty delimiter.
 	    1_1*_)			## STRING...
-		n=1 string=$1		## Fetch STRING, yet immediately exert
-		case ${st+=} in		## quoting rounds if some STyle had
+		n=1 string=$1		## Fetch string and let sed(1) do its
+		case ${st+=} in		## thing if some style had
 		    =)	break	;;	## been fetched before.
 		esac
 		;;
-	    _)				## No more arguments...
-		break			## Exert quoting rounds.
+	    _)				## No (more) arguments...
+		break			## Let sed(1) do its thing!
 		;;
-	    *)				## Should never happen...
+	    *)				## Not really, but if...
 		return 3		## Indicate internal error!
 		;;
 	esac; case ${st-sh} in		## Which STyle had been fetched?
@@ -189,8 +189,7 @@ quote() {
     done; sed "$quote_sx_ml;${sx+$sx;}:p$i$NL"'/^$/d' <<EOF
 ${string-}
 EOF
-					## Exert quoting rounds to STRING in
-}					## one go!
+}					## Ultimately, do the dirty deed. ;-)
 
 ##----------------------------------------------------------------------------
 ##  quote_sh(STRING)		Quote STRING for sh(1)
