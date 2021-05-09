@@ -176,8 +176,8 @@ quote() {
 		sx="$sx$NL"'/^$/bq'"$pass$NL"'/^~/bq'"$pass$NL"'/'"$BS$NL"'/bq'"$pass$NL"'/['"$cs"']/!be'"$pass$NL"':q'"$pass$NL"'s/'"$SQ"'/&'"$BS$BS"'&&/g;s/^/'"$SQ"'/;s/$/'"$SQ"'/;:e'"$pass"
 		pass=`expr $pass + 1`	## Append "smart sh(1) quoting" state-
 		;;			## ments.
-	    *)	return 2		## Unknown style...
-		;;			## Indicate abuse!
+	    *)	return 1		## Unknown style...
+		;;			## Indicate failure!
 	esac
     done; sed "$sx$NL"'/^$/d' <<EOF
 ${string-}
