@@ -278,6 +278,9 @@ EOF
 ##  quote_rs(STRING [DELIMITER=/])
 ##				Quote STRING for use as sed(1) 's///' substi-
 ##				tution
+##
+##  Non-local variables:
+##	- quote_cs_brs	(R) Special 's///' right-hand side character set
 ##----------------------------------------------------------------------------
 quote_rs() {
     case ${3+3}${2+2$2_}${1+1} in	## Usage OK/delimiter OK?
