@@ -39,8 +39,8 @@
 ##		ks	2021-05-09	Overhaul quote_sh(), quote_command(),
 ##					quote_re(), quote_ere(), and
 ##					quote_rs().
-##					'set -u'-harden quote_grep() and
-##					quote_egrep().
+##					'set -u'-harden quote_grep(), quote_-
+##					egrep(), and quote_sed().
 ##----------------------------------------------------------------------------
 ##  Global variables:
 #-----------------------------------------------------------------------------
@@ -326,5 +326,11 @@ quote_egrep() {
 ##				Quote STRING for sed(1)
 ##----------------------------------------------------------------------------
 quote_sed() {
-    quote_re "$1" "${2:-/}"
+    case ${3+3}${2+2$2_}${1+1} in	## Usage OK/delimiter OK?
+	2?_1|1)				## Y/Y: Let quote_re() do the work.
+	    quote_re "$1" "${2-/}"
+			;;
+	2*) return 1	;;		## Y/N: Indicate failure!
+	*)  return 2	;;		## N/?: indicate abuse!
+    esac
 }
