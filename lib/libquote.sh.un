@@ -209,24 +209,18 @@ EOF
 ##				Quote sh(1) command
 ##----------------------------------------------------------------------------
 quote_command() {
-    local cmd="$1" arg; shift		## Fetch command.
-
-    case $BASH in			## Append each redirection/argument...
-	?*) for arg in ${1+"$@"}; do case $arg in
-		*\<*|*\>*)
-		    cmd="$cmd $arg"			;;
-		*)  cmd="$cmd $SQ${arg//\'/\'\\\'\'}$SQ";;
-	    esac; done	;;
-	*)  for arg in ${1+"$@"}; do case $arg in
-		*\<*|*\>*)
-		    cmd="$cmd $arg"			;;
-		*)  cmd="$cmd `sed "$quote_sx_ml;$quote_sx_sh" <<EOF
-$arg
-EOF`"							;;
-	    esac; done	;;
-    esac
-
-    echo "$cmd"				## Emit quoted command.
+    case ${1+1} in			## Usage OK?
+	1)  local cmd="$1" arg	;;	## Yes, fetch command.
+	*)  return 2		;;	## No, indicate abuse!
+    esac; shift; for arg in ${1+"$@"}; do
+	case $arg in			## Foreach argument/redirection do...
+	    *\<*|*\>*)			## Redirection?
+		cmd="$cmd $arg"		## Yes, append it literally.
+		;;
+	    *)  cmd="$cmd `quote_sh "$arg"`" || break
+		;;			## No, append sh(1)-quoted argument.
+	esac
+    done && echo "$cmd"			## Emit quoted command.
 }
 
 ##----------------------------------------------------------------------------
