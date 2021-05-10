@@ -375,20 +375,15 @@ eval "set shiftee `sed '
 $quote_csl_sh~$quote_csr_sh
 EOF`"; shift				## Split special characters into
 					## positional parameters.
-status=0; for string in '' ${1+"$@"} embed~ded embed"$NL"ded embed"$SQ"ded; do
+status=0				## Assume success.
+for string in '' ${1+"$@"} embed~ded embed"$NL"ded embed"$SQ"ded; do
 					## Foreach test string do...
     quoted=`quote_sh "$string"`		## Quote and transliterate test
     estring=`echoable "$string"`	## string, then transliterate
     equoted=`echoable "$quoted"`	## quoted string.
     echo "quote_sh($estring)=>$equoted"
 
-    case `eval echo "$quoted"` in	## Unquoting yields test string?
-	$string)			## Yes.
-	    ;;
-	*)  status=1; echo "unquoting($equoted) failed!" >&2
-					## No, assume failure and log culprit
-	    ;;				## to stderr!
-    esac
+    eval "test $DQ${DS}string$DQ = $quoted" || { status=1; echo 'OOPS!'; }
 done; exit $status			## Indicate success or failure.
 ], 0, [dnl				## And the winner is...
 quote_sh@{:@@:}@=>''
