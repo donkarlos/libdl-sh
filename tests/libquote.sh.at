@@ -24,9 +24,9 @@ dnl CHANGED BY:	ks	2021-05-09	quote_meta(): Publish r/o variables.
 dnl		ks	2021-05-09	Import test group ['dl_load quote'
 dnl					loads libquote.sh?] from libdl.sh.at.
 dnl					Add test groups ['quote_meta get apis
-dnl					r/o' constants defined?] and ['quote_-
-dnl					meta get apis r/o' constants read-
-dnl					only?].
+dnl					r/o' constants defined?], ['quote_meta
+dnl					get apis r/o' constants readonly?],
+dnl					and [quote_sh() works as expected?].
 dnl
 dnl Test group 'String quoting library libquote.sh'
 dnl
@@ -327,6 +327,97 @@ name=quote_rs min=1 max=2
 name=quote_grep min=1 max=1
 name=quote_egrep min=1 max=1
 name=quote_sed min=1 max=2
+], [dnl
+])
+AT_CLEANUP
+
+dnl
+dnl Check if quote_sh() works as expected, i.e.
+dnl   -	the empty string is considered special,
+dnl   -	tilde is considered special iff it's the 1st character,
+dnl   -	<NL> as well as all other special characters are considered special,
+dnl   -	and single quotes are escaped with backslashes.
+dnl
+dnl NOTE:   (1)	The test as such is silent, as it quotes each test string,
+dnl		unquotes the result, and checks if that yields the test
+dnl		string again. Thus, no "weird" characters appear in the
+dnl		reference output (there is none!), saving us lots of trouble
+dnl		caused by broken editors!
+dnl	    (2)	The reference output is peppered with quadrigraphs because
+dnl		its as unbalanced as can be!
+dnl
+AT_SETUP([quote_sh() works as expected?])
+AT_CHECK([dnl
+set -eu					## Employ strict execution environment
+					## to ensure 'set -u' resilience.
+case :$PATH: in				## Triggered by 'check-local:'?
+    *:$abs_top_builddir/bin:*)		## Yes, export suitable LSP.
+	LIBDL_SH_LIBRARY_PATH=$abs_top_builddir/lib
+	export LIBDL_SH_LIBRARY_PATH
+	;;
+esac
+eval "`libdl-sh load`"; dl_load quote	## Load libdl.sh and libquote.sh or die.
+
+echoable () {
+    sed 's/'"$BS$NL"'/<NL>/g;s/'"$CR"'/<CR>/g;s/	/<HT>/g' <<EOF
+$1
+EOF
+}
+
+eval "set shiftee `sed '
+    s/^/%/;:0
+    s/%\(.\)/'"$BS$BS"'\1 %/;t0
+    s/ %//
+' <<EOF
+$quote_csl_sh~$quote_csr_sh
+EOF`"; shift				## Split special characters into
+					## positional parameters.
+status=0; for string in '' ${1+"$@"} embed~ded embed"$NL"ded embed"$SQ"ded; do
+					## Foreach test string do...
+    quoted=`quote_sh "$string"`		## Quote and transliterate test
+    estring=`echoable "$string"`	## string, then transliterate
+    equoted=`echoable "$quoted"`	## quoted string.
+    echo "quote_sh($estring)=>$equoted"
+
+    case `eval echo "$quoted"` in	## Unquoting yields test string?
+	$string)			## Yes.
+	    ;;
+	*)  status=1; echo "unquoting($equoted) failed!" >&2
+					## No, assume failure and log culprit
+	    ;;				## to stderr!
+    esac
+done; exit $status			## Indicate success or failure.
+], 0, [dnl				## And the winner is...
+quote_sh@{:@@:}@=>''
+quote_sh@{:@@:>@@:}@=>'@:>@'
+quote_sh@{:@}@:}@=>'}'
+quote_sh@{:@@:}@@:}@=>'@:}@'
+quote_sh@{:@>@:}@=>'>'
+quote_sh@{:@?@:}@=>'?'
+quote_sh@{:@*@:}@=>'*'
+quote_sh@{:@~@:}@=>'~'
+quote_sh@{:@!@:}@=>'!'
+quote_sh@{:@ @:}@=>' '
+quote_sh@{:@<HT>@:}@=>'<HT>'
+quote_sh@{:@$@:}@=>'$'
+quote_sh@{:@|@:}@=>'|'
+quote_sh@{:@&@:}@=>'&'
+quote_sh@{:@;@:}@=>';'
+quote_sh@{:@#@:}@=>'#'
+quote_sh@{:@`@:}@=>'`'
+quote_sh@{:@"@:}@=>'"'
+quote_sh@{:@'@:}@=>''\'''
+quote_sh@{:@\@:}@=>'\'
+quote_sh@{:@<CR>@:}@=>'<CR>'
+quote_sh@{:@<@:}@=>'<'
+quote_sh@{:@@{:@@:}@=>'@{:@'
+quote_sh@{:@{@:}@=>'{'
+quote_sh@{:@@<:@@:}@=>'@<:@'
+quote_sh@{:@embed~ded@:}@=>embed~ded
+quote_sh@{:@embed
+ded@:}@=>'embed
+ded'
+quote_sh@{:@embed'ded@:}@=>'embed'\''ded'
 ], [dnl
 ])
 AT_CLEANUP
