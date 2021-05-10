@@ -338,11 +338,10 @@ dnl   -	tilde is considered special iff it's the 1st character,
 dnl   -	<NL> as well as all other special characters are considered special,
 dnl   -	and single quotes are escaped with backslashes.
 dnl
-dnl NOTE:   (1)	The test as such is silent, as it quotes each test string,
-dnl		unquotes the result, and checks if that yields the test
-dnl		string again. Thus, no "weird" characters appear in the
-dnl		reference output (there is none!), saving us lots of trouble
-dnl		caused by broken editors!
+dnl NOTE:   (1)	Test strings and the quoted results are transliterated with
+dnl		echoable() before being logged to stdout, so that no charac-
+dnl		ters considered "weird" by some editors have to appear in the
+dnl		reference output!
 dnl	    (2)	The reference output is peppered with quadrigraphs because
 dnl		its as unbalanced as can be!
 dnl
