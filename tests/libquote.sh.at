@@ -27,6 +27,8 @@ dnl					Add test groups ['quote_meta get apis
 dnl					r/o' constants defined?], ['quote_meta
 dnl					get apis r/o' constants readonly?],
 dnl					and [quote_sh() works as expected?].
+dnl		ks	2021-05-10	Add test group [quote_grep() works as
+dnl					expected?].
 dnl
 dnl Test group 'String quoting library libquote.sh'
 dnl
@@ -414,6 +416,84 @@ quote_sh@{:@<NL>@:}@=>'<NL>'
 quote_sh@{:@embed~ded@:}@=>embed~ded
 quote_sh@{:@embed<NL>ded@:}@=>'embed<NL>ded'
 quote_sh@{:@embed'ded@:}@=>'embed'\''ded'
+], [dnl
+])
+AT_CLEANUP
+
+dnl
+dnl Check if quote_grep() works as expected, i.e.
+dnl   -	'^' is considered special iff it's the 1st character,
+dnl   -	'$' is considered special iff it's the last character,
+dnl   -	<NL> as well as all other special characters are considered special.
+dnl
+dnl NOTE:   (1)	Test strings and the quoted results are transliterated with
+dnl		echoable() before being logged to stdout, so that no charac-
+dnl		ters considered "weird" by some editors have to appear in the
+dnl		reference output!
+dnl	    (2)	The reference output is peppered with quadrigraphs because
+dnl		its as unbalanced as can be!
+dnl	    (3)	Test strings containing newlines are exempted from being fed
+dnl		to grep(1) as it barfs on these!
+dnl
+AT_SETUP([quote_grep() works as expected?])
+AT_CHECK([dnl
+set -eu					## Employ strict execution environment
+					## to ensure 'set -u' resilience.
+case :$PATH: in				## Triggered by 'check-local:'?
+    *:$abs_top_builddir/bin:*)		## Yes, export suitable LSP.
+	LIBDL_SH_LIBRARY_PATH=$abs_top_builddir/lib
+	export LIBDL_SH_LIBRARY_PATH
+	;;
+esac
+eval "`libdl-sh load`"; dl_load quote	## Load libdl.sh and libquote.sh or die.
+
+echoable() {
+    sed '
+	:N'"$NL"'$!{;N;bN'"$NL"'}
+	s/'"$BS$NL"'/<NL>/g;s/'"$CR"'/<CR>/g;s/	/<HT>/g
+    ' <<EOF
+$1
+EOF
+}
+
+eval "set shiftee `sed '
+    s/^/%/;:0
+    s/%\(.\)/'"$BS$BS"'\1 %/;t0
+    s/ %//
+' <<EOF
+$quote_csl_bre^$DS$quote_csr_bre
+EOF`"; shift				## Split special characters into
+					## positional parameters.
+status=0				## Assume success.
+for string in '' ${1+"$@"} "$NL" / em'^'bed"$DS"ded embed"$NL"ded; do
+					## Foreach test string do...
+    quoted=`quote_grep "$string"`	## Quote and transliterate test
+    estring=`echoable "$string"`	## string, then transliterate
+    equoted=`echoable "$quoted"`	## quoted string.
+    echo "quote_grep($estring)=>$equoted"
+
+    case $string in			## Test string contains newline?
+	*"$NL"*)			## Yes, don't grep(1) because it'll
+	    ;;				## complain about a trailing '\'.
+	*)  grep -qxe "$quoted" <<EOF || { status=1; echo 'OOPS!'; }
+$string
+EOF
+	    ;;
+    esac
+done; exit $status			## Indicate success or failure.
+], 0, [dnl				## And the winner is...
+quote_grep@{:@@:}@=>
+quote_grep@{:@@:>@@:}@=>\@:>@
+quote_grep@{:@^@:}@=>\^
+quote_grep@{:@$@:}@=>\$
+quote_grep@{:@\@:}@=>\\
+quote_grep@{:@.@:}@=>\.
+quote_grep@{:@*@:}@=>\*
+quote_grep@{:@@<:@@:}@=>\@<:@
+quote_grep@{:@<NL>@:}@=>\
+quote_grep@{:@/@:}@=>/
+quote_grep@{:@em^bed$ded@:}@=>em^bed$ded
+quote_grep@{:@embed<NL>ded@:}@=>embed\<NL>ded
 ], [dnl
 ])
 AT_CLEANUP
