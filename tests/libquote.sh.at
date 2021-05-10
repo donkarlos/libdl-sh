@@ -146,8 +146,7 @@ quote_meta get apis r/o
 0;quote_csr_sh
 0;quote_csl_bre
 0;quote_csr_bre
-0;quote_csl_ere
-0;quote_csr_ere
+0;quote_cs_ere
 0;quote_cs_brs
 ], [dnl
 ])
@@ -191,8 +190,7 @@ quote_csl_sh
 quote_csr_sh
 quote_csl_bre
 quote_csr_bre
-quote_csl_ere
-quote_csr_ere
+quote_cs_ere
 quote_cs_brs
 ], [dnl
 ])
@@ -227,8 +225,7 @@ quote_csl_sh
 quote_csr_sh
 quote_csl_bre
 quote_csr_bre
-quote_csl_ere
-quote_csr_ere
+quote_cs_ere
 quote_cs_brs
 ], [dnl
 ])
@@ -263,8 +260,7 @@ quote_csl_sh
 quote_csr_sh
 quote_csl_bre
 quote_csr_bre
-quote_csl_ere
-quote_csr_ere
+quote_cs_ere
 quote_cs_brs
 ], [dnl
 ])
