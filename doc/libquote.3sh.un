@@ -32,10 +32,11 @@
 .\#					ors, and brs.
 .\#					Overhaul quote(), adding style 'ere
 .\#					[DELIMITER]' with alias mre.
+.\#		ks	2021-05-10	Add section CAVEATS.
 .\#
 .\# NOTE: (1)	Please adjust below date whenever revising the manual page.
 .\#		vvvvvv
-.TH libquote 3SH 2021-05-09 "@PACKAGE_TARNAME@ @PACKAGE_VERSION@" "Shell Programming"
+.TH libquote 3SH 2021-05-10 "@PACKAGE_TARNAME@ @PACKAGE_VERSION@" "Shell Programming"
 
 .SH NAME
 quote, quote_sh, quote_command, quote_re, quote_ere, quote_rs, quote_grep,
@@ -265,6 +266,36 @@ or even
 .in -4
 
 instead.
+
+.SH CAVEATS
+When using this library within \fBbash\fP(1) or \fBdash\fP(1) scripts,
+there's a subtle issue regarding command substitutions (be it
+\fB`\fP\fICOMMAND\fP\fB`\fP or \fB$(\fP\fICOMMAND\fP\fB)\fP) that affects
+\fBquote_re\fP, \fBquote_ere\fP, \fBquote_rs\fP, \fBquote_grep\fP,
+\fBquote_egrep\fP, and \fBquote_sed\fP when invoked with a \fISTRING\fP that
+contains a trailing newline: While e.g.
+
+.in +4
+\fBquote_grep\fP \fISTRING\fP
+.in -4
+
+preserves the trailing newline (as it should),
+
+.in +4
+\fBquoted=`quote_grep\fP \fISTRING\fP\fB`\fP
+.in -4
+
+does not!
+
+In particular, \fB$quoted\fP ends with the backslash that was supposed to
+escape the trailing newline that unfortunately got "eaten" by the command
+substitution together with the following final newline.
+
+So far, the author has no idea why this happens with \fBbash\fP(1) or
+\fBdash\fP(1) (or in all likelihood any other shell claiming to be Bourne
+shell-compatible, though your mileage may vary), as this is a surprising
+exception to their well-known handling of final newlines in command
+substitutions.
 
 .SH SEE ALSO
 .BR grep (1),
