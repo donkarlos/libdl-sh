@@ -376,7 +376,7 @@ $quote_csl_sh~$quote_csr_sh
 EOF`"; shift				## Split special characters into
 					## positional parameters.
 status=0				## Assume success.
-for string in '' ${1+"$@"} embed~ded embed"$NL"ded embed"$SQ"ded; do
+for string in '' ${1+"$@"} "$NL" embed~ded embed"$NL"ded embed"$SQ"ded; do
 					## Foreach test string do...
     quoted=`quote_sh "$string"`		## Quote and transliterate test
     estring=`echoable "$string"`	## string, then transliterate
@@ -411,6 +411,7 @@ quote_sh@{:@<@:}@=>'<'
 quote_sh@{:@@{:@@:}@=>'@{:@'
 quote_sh@{:@{@:}@=>'{'
 quote_sh@{:@@<:@@:}@=>'@<:@'
+quote_sh@{:@<NL>@:}@=>'<NL>'
 quote_sh@{:@embed~ded@:}@=>embed~ded
 quote_sh@{:@embed<NL>ded@:}@=>'embed<NL>ded'
 quote_sh@{:@embed'ded@:}@=>'embed'\''ded'
