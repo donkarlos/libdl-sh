@@ -278,9 +278,6 @@ dnl		which is parsed into $min and $max by the extra sed(1) ex-
 dnl		pression with the alleged no-op 's/^//;t0;:0' making sure
 dnl		that the following 'tp' statements actually distinguish be-
 dnl		tween the 3rd field's three numeric range forms.
-dnl	    (2)	Since up to this point load- and exit-time hooks hadn't been
-dnl		tested, testing quote_exit() now would be pointless, wherefore
-dnl		it'll stay exempted!
 dnl
 AT_SETUP([libquote.sh functions indicate usage errors?])
 AT_CHECK([dnl
@@ -306,7 +303,7 @@ for signature in ${1+"$@"}; do		## Foreach parsed signature (see note
     echo "$signature" && eval "$signature" || exit 1
 					## Emit signature and split it.
     case $name in			## Function exempted?
-	dl_exit)			## Yes.
+	_)				## Yes.
 	    ;;
 	*)				## No, make passes at function.
 	    args= n=0; while test "$n" -lt "$min"; do
