@@ -358,8 +358,11 @@ case :$PATH: in				## Triggered by 'check-local:'?
 esac
 eval "`libdl-sh load`"; dl_load quote	## Load libdl.sh and libquote.sh or die.
 
-echoable () {
-    sed 's/'"$BS$NL"'/<NL>/g;s/'"$CR"'/<CR>/g;s/	/<HT>/g' <<EOF
+echoable() {
+    sed '
+	:N'"$NL"'$!{;N;bN'"$NL"'}
+	s/'"$BS$NL"'/<NL>/g;s/'"$CR"'/<CR>/g;s/	/<HT>/g
+    ' <<EOF
 $1
 EOF
 }
@@ -414,9 +417,7 @@ quote_sh@{:@@{:@@:}@=>'@{:@'
 quote_sh@{:@{@:}@=>'{'
 quote_sh@{:@@<:@@:}@=>'@<:@'
 quote_sh@{:@embed~ded@:}@=>embed~ded
-quote_sh@{:@embed
-ded@:}@=>'embed
-ded'
+quote_sh@{:@embed<NL>ded@:}@=>'embed<NL>ded'
 quote_sh@{:@embed'ded@:}@=>'embed'\''ded'
 ], [dnl
 ])
