@@ -30,6 +30,8 @@
 .\#		ks	2021-04-30	Document universal quoter quote().
 .\#		ks	2021-05-09	Introduce style aliases ore, bre,
 .\#					ors, and brs.
+.\#					Overhaul quote(), adding style 'ere
+.\#					[DELIMITER]' with alias mre.
 .\#
 .\# NOTE: (1)	Please adjust below date whenever revising the manual page.
 .\#		vvvvvv
@@ -85,6 +87,11 @@ Currently, the following \fISTYLE\fPs are implemented:
 \(bu \fBore\fP|\fBbre\fP|\fBre\fP [\fIDELIMITER\fP]
 Exert a round of quoting that escapes all characters special to
 "obsolete"/"basic" REs with backslashes (see \fBquote_re\fP below).
+
+.TP
+\(bu \fBmre\fP|\fBere\fP [\fIDELIMITER\fP]
+Exert a round of quoting that escapes all characters special to
+"modern"/"extended" REs with backslashes (see \fBquote_ere\fP below).
 
 .TP
 \(bu \fBors\fP|\fBbrs\fP|\fBrs\fP [\fIDELIMITER\fP]
