@@ -169,8 +169,7 @@ quote() {
 					## Append "smart ERE quoting" state-
 		;;			## ments.
 	    ors|brs|rs)			## 's///' right-hand side...
-		cs=$quote_cs_brs${de-}
-		sx="$sx$NL"'s/['"$cs"']/\\&/g;s/'"$BS$NL"'/\\&/g'
+		sx="$sx$NL"'s/['"$quote_cs_brs${de-}"']/\\&/g;s/'"$BS$NL"'/\\&/g'
 					## Append "smart BRS quoting" state-
 		;;			## ments.
 	    sh)				## Bourne shell...
@@ -286,8 +285,7 @@ quote_rs() {
 	2?_1|1)				## Y/Y: Quote 's///' substitution.
 	    sed '
 		:N'"$NL"'$!{;N;bN'"$NL"'}
-		s/['"$quote_cs_brs${2-/}"']/\\&/g
-		s/'"$BS$NL"'/\\&/g
+		s/['"$quote_cs_brs${2-/}"']/\\&/g;s/'"$BS$NL"'/\\&/g
 	    ' <<EOF
 $1
 EOF

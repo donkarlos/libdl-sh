@@ -31,8 +31,9 @@ dnl		ks	2021-05-10	Add test groups [quote_grep() works as
 dnl					expected?] and [quote_egrep() works as
 dnl					expected?].
 dnl		ks	2021-05-11	Add test groups [quote_sed() works as
-dnl					expected?] and [quote_re() works as
-dnl					expected?].
+dnl					expected?], [quote_re() works as ex-
+dnl					pected?], and [quote_rs() works as ex-
+dnl					pected?].
 dnl
 dnl Test group 'String quoting library libquote.sh'
 dnl
@@ -575,6 +576,135 @@ skipped
 quote_re@{:@em^bed$ded,|@:}@=>em^bed$ded
 matched
 quote_re@{:@em|bed<NL>ded,|@:}@=>em\|bed\<NL>ded
+matched
+], [dnl
+])
+AT_CLEANUP
+
+dnl
+dnl Check if quote_rs() works as expected, i.e.
+dnl   -	<NL> as well as all other special characters are considered special.
+dnl
+dnl NOTE:   (1)	Quotees and their quoteds are made echoable with echoable()
+dnl		before being logged to stdout, so that no characters consid-
+dnl		ered "weird" by some editors have to appear in the reference
+dnl		output!
+dnl	    (2)	The reference output is peppered with quadrigraphs because
+dnl		its as unbalanced as can be!
+dnl	    (3)	Quotees known to fail the match test (see section CAVEATS in
+dnl		libquote(3sh)) are logged as skipped.
+dnl
+AT_SETUP([quote_rs() works as expected?])
+AT_CHECK([dnl
+set -eu					## Employ strict execution environment
+					## to ensure 'set -u' resilience.
+case :$PATH: in				## Triggered by 'check-local:'?
+    *:$abs_top_builddir/bin:*)		## Yes, export suitable LSP.
+	LIBDL_SH_LIBRARY_PATH=$abs_top_builddir/lib
+	export LIBDL_SH_LIBRARY_PATH
+	;;
+esac
+eval "`libdl-sh load`"; dl_load quote	## Load libdl.sh and libquote.sh or die.
+
+echoable() {
+    sed '
+	:N'"$NL"'$!{;N;bN'"$NL"'}
+	s/'"$BS$NL"'/<NL>/g;s/'"$CR"'/<CR>/g;s/	/<HT>/g
+    ' <<EOF
+$1
+EOF
+}
+
+status=0				## Assume success.
+quote_rs quotee / excess && status=1 || case $? in
+    2)		;;			## Check if invocation with excess
+    *)	status=1;;			## arguments results in usage error.
+esac; for de in '' / \| //; do		## Foreach delimiter do...
+    case $de in				## Is it valid?
+	??*|'')				## No, ...
+	    quote_rs quotee "$de" && {	## Yet the invocation succeeded?
+		status=1; continue	## Yes, fail test and skip delimiter.
+	    } || case $?:$de in		## Which status/delim. combination?
+		1:) unset de	;;	## Failure/empty: Fake no delimiter.
+		1:*)continue	;;	## Failure/invalid: Skip delimiter.
+		*)  status=1; continue	## Anything else that's unexpected...
+				;;	## Fail test and skip delimiter.
+	    esac
+	    ;;
+    esac; eval "set shiftee `
+	sed '
+	    s/^/%/;:0
+	    s/%\(.\)/'"$BS$BS"'\1 %/;t0
+	    s/ %//
+	' <<EOF
+$quote_cs_brs${de-/}
+EOF`"					## Split special characters into
+    shift				## positional parameters.
+    for quotee in '' ${1+"$@"} "$NL" em'^'bed"$DS"ded em${de-/}bed"$NL"ded; do
+					## Foreach quotee do...
+	search=`quote_re "$quotee" "${de-/}"`
+	quoted=`quote_rs "$quotee" ${de+"$de"}`
+	equotee=`echoable "$quotee"`	## Quote and transliterate quotee,
+	equoted=`echoable "$quoted"`	## then transliterate quoted.
+	echo "quote_rs($equotee${de+,$de})=>$equoted"
+	case $quotee in			## Delimiter/quotee combination...?
+	    *"$NL")			## ...is a known match test failure:
+		echo skipped		## Log 'skipped' result.
+		;;
+	    *)				## ...ought to be tested with sed(1):
+		sed '
+		    :N'"$NL"'$!{;N;bN'"$NL"'}
+		    s'"${de-/}"'^'"$search"'$'"${de-/}$quoted${de-/}"';tm'"$NL"'d;:m
+		    s'"${de-/}"'^'"$search"'$'"${de-/}"'matched'"${de-/}"';tp'"$NL"'d;:p
+		' <<EOF
+$quotee
+EOF
+		;;
+	esac
+    done
+done; exit $status			## Indicate success or failure.
+], 0, [dnl				## And the winner is...
+quote_rs@{:@@:}@=>
+matched
+quote_rs@{:@\@:}@=>\\
+matched
+quote_rs@{:@&@:}@=>\&
+matched
+quote_rs@{:@/@:}@=>\/
+matched
+quote_rs@{:@<NL>@:}@=>\
+skipped
+quote_rs@{:@em^bed$ded@:}@=>em^bed$ded
+matched
+quote_rs@{:@em/bed<NL>ded@:}@=>em\/bed\<NL>ded
+matched
+quote_rs@{:@,/@:}@=>
+matched
+quote_rs@{:@\,/@:}@=>\\
+matched
+quote_rs@{:@&,/@:}@=>\&
+matched
+quote_rs@{:@/,/@:}@=>\/
+matched
+quote_rs@{:@<NL>,/@:}@=>\
+skipped
+quote_rs@{:@em^bed$ded,/@:}@=>em^bed$ded
+matched
+quote_rs@{:@em/bed<NL>ded,/@:}@=>em\/bed\<NL>ded
+matched
+quote_rs@{:@,|@:}@=>
+matched
+quote_rs@{:@\,|@:}@=>\\
+matched
+quote_rs@{:@&,|@:}@=>\&
+matched
+quote_rs@{:@|,|@:}@=>\|
+matched
+quote_rs@{:@<NL>,|@:}@=>\
+skipped
+quote_rs@{:@em^bed$ded,|@:}@=>em^bed$ded
+matched
+quote_rs@{:@em|bed<NL>ded,|@:}@=>em\|bed\<NL>ded
 matched
 ], [dnl
 ])
