@@ -145,8 +145,7 @@ quote_meta get apis list
 quote_meta get apis r/o
 0;quote_csl_sh
 0;quote_csr_sh
-0;quote_csl_bre
-0;quote_csr_bre
+0;quote_cs_bre
 0;quote_cs_ere
 0;quote_cs_brs
 ], [dnl
@@ -189,8 +188,7 @@ quote_meta get apis list
 quote_meta get apis r/o
 quote_csl_sh
 quote_csr_sh
-quote_csl_bre
-quote_csr_bre
+quote_cs_bre
 quote_cs_ere
 quote_cs_brs
 ], [dnl
@@ -224,8 +222,7 @@ done; exit $status			## Indicate success or failure.
 ], 0, [dnl				## And the winner is...
 quote_csl_sh
 quote_csr_sh
-quote_csl_bre
-quote_csr_bre
+quote_cs_bre
 quote_cs_ere
 quote_cs_brs
 ], [dnl
@@ -259,8 +256,7 @@ done; exit $status
 ], 0, [dnl				## And the winner is...
 quote_csl_sh
 quote_csr_sh
-quote_csl_bre
-quote_csr_bre
+quote_cs_bre
 quote_cs_ere
 quote_cs_brs
 ], [dnl
@@ -458,7 +454,7 @@ eval "set shiftee `sed '
     s/%\(.\)/'"$BS$BS"'\1 %/;t0
     s/ %//
 ' <<EOF
-$quote_csl_bre^$DS$quote_csr_bre
+$quote_cs_bre^$DS
 EOF`"; shift				## Split special characters into
 					## positional parameters.
 status=0				## Assume success.
@@ -481,12 +477,12 @@ done; exit $status			## Indicate success or failure.
 ], 0, [dnl				## And the winner is...
 quote_grep@{:@@:}@=>
 quote_grep@{:@@:>@@:}@=>\@:>@
-quote_grep@{:@^@:}@=>\^
-quote_grep@{:@$@:}@=>\$
 quote_grep@{:@\@:}@=>\\
 quote_grep@{:@.@:}@=>\.
 quote_grep@{:@*@:}@=>\*
 quote_grep@{:@@<:@@:}@=>\@<:@
+quote_grep@{:@^@:}@=>\^
+quote_grep@{:@$@:}@=>\$
 quote_grep@{:@<NL>@:}@=>\
 quote_grep@{:@/@:}@=>/
 quote_grep@{:@em^bed$ded@:}@=>em^bed$ded

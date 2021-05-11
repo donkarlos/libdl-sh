@@ -55,16 +55,14 @@ quote_api=0				## Define API version.
 quote_csl_sh=']})>?*'	quote_csr_sh='! 	$|&;#'"$BQ$DQ$SQ$BS$CR"'<({['
 					## Define sh(1) spec. character set's
 					## (sans '~') left/right halves.
-quote_csl_bre=']'	quote_csr_bre='\.*['
-					## Define obsolete/basic RE special
-					## character set's (sans '^' and '$')
-					## left/right halves.
+quote_cs_bre=']\.*['			## Define obsolete/basic RE special
+					## character set (sans '^' and '$').
 quote_cs_ere=']})\.*|?+({[^$'		## Define modern/extended RE special
 					## character set (with '^' and '$').
 quote_cs_brs='\&'			## Define 's///' right-hand side
 					## special character set.
 readonly quote_package quote_version quote_api quote_csl_sh quote_csr_sh\
-	 quote_csl_bre quote_csr_bre quote_cs_ere quote_cs_brs
+	 quote_cs_bre quote_cs_ere quote_cs_brs
 
 ##----------------------------------------------------------------------------
 ##  quote_meta(META [ARG ...])	Perform META operation (with ARGs)
@@ -100,8 +98,7 @@ f${ms}$quote_api${ms}egrep(STRING)${ms}1
 f${ms}$quote_api${ms}sed(STRING [DELIMITER=/])${ms}1-2
 r${ms}$quote_api${ms}csl_sh
 r${ms}$quote_api${ms}csr_sh
-r${ms}$quote_api${ms}csl_bre
-r${ms}$quote_api${ms}csr_bre
+r${ms}$quote_api${ms}cs_bre
 r${ms}$quote_api${ms}cs_ere
 r${ms}$quote_api${ms}cs_brs
 EOF
@@ -126,8 +123,7 @@ EOF
 ##				Universally quote STRING
 ##
 ##  Non-local variables:
-##	- quote_csl_bre	(R) Special BRE character set sans '^' and '$',
-##	- quote_csr_bre	(R) left and right half
+##	- quote_cs_bre	(R) Special BRE character set sans '^' and '$'.
 ##	- quote_cs_ere	(R) Special ERE character set with '^' and '$'.
 ##	- quote_cs_brs	(R) Special 's///' right-hand side character set
 ##	- quote_csl_sh	(R) Special sh(1) character set sans '~',
@@ -165,8 +161,7 @@ quote() {
 		;;
 	esac; case ${st-sh} in		## Which style had been fetched?
 	    ore|bre|re)			## Obsolete/Basic RE...
-		cs=$quote_csl_bre${de-}$quote_csr_bre
-		sx="$sx$NL"'s/['"$cs"']/\\&/g;s/^^/\\&/;s/$$/\\&/;s/'"$BS$NL"'/\\&/g'
+		sx="$sx$NL"'s/['"$quote_cs_bre${de-}"']/\\&/g;s/'"$BS$NL"'/\\&/g;s/^^/\\&/;s/$$/\\&/'
 					## Append "smart BRE quoting" state-
 		;;			## ments.
 	    mre|ere)			## Modern/Extended RE...
@@ -238,16 +233,15 @@ quote_command() {
 ##				Quote STRING for use as obsolete/basic RE
 ##
 ##  Non-local variables:
-##	- quote_csl_bre	(R) Special BRE character set sans '^' and '$',
-##	- quote_csr_bre	(R) left and right half
+##	- quote_cs_bre	(R) Special BRE character set sans '^' and '$'.
 ##----------------------------------------------------------------------------
 quote_re() {
     case ${3+3}${2+2$2_}${1+1} in	## Usage OK/delimiter OK?
 	2?_1|1)				## Y/Y: Quote basic RE.
 	    sed '
 		:N'"$NL"'$!{;N;bN'"$NL"'}
-		s/['"$quote_csl_bre${2-}$quote_csr_bre"']/\\&/g
-		s/^^/\\&/;s/$$/\\&/;s/'"$BS$NL"'/\\&/g
+		s/['"$quote_cs_bre${2-}"']/\\&/g;s/'"$BS$NL"'/\\&/g
+		s/^^/\\&/;s/$$/\\&/
 	    ' <<EOF
 $1
 EOF
