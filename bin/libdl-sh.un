@@ -30,6 +30,7 @@
 ##		ks	2020-05-12	Make libdl.sh aware of relocated in-
 ##					stallations in 'exec' action.
 ##		ks	2021-05-02	Add command line parsing.
+##		ks	2021-05-12	Remove LIBDL_SH_DESTDIR nonsense.
 ##----------------------------------------------------------------------------
 ##  Initialization:
 #-----------------------------------------------------------------------------
@@ -181,17 +182,6 @@ EOF
 	    PATH=$binrn${PATH+:$PATH}; export PATH
 					## Yes, augment PSP so that this pro-
 					## gram is found by 1st PSP item.
-	    destrn=`expr "_$binrn" : '_\(..*\)@bindir@$'` 		&&
-	    test -f "$destrn"@shlibdir@/libdl.sh 			&&
-	    test -f "$destrn"@pkgdatadir@/conf.awk && {
-					## Invoked from ${destrn}-relocated
-					## installation?
-		LIBDL_SH_DESTDIR=$destrn
-		LIBDL_SH_LIBRARY_PATH=${destrn}@shlibdir@${LIBDL_SH_LIBRARY_PATH+:$LIBDL_SH_LIBRARY_PATH}
-		export LIBDL_SH_DESTDIR LIBDL_SH_LIBRARY_PATH
-	    }				## Yes, make libdl.sh aware of relo-
-					## cated installation and augment LSP
-					## so that it's searched first.
 	}; case ${1+_$1} in		## COMMAND given?
 	    _?*)			## Yes, restore environment...
 		case ${lc_all+=} in
