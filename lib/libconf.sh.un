@@ -37,6 +37,8 @@
 ##		ks	2021-05-01	'set -u'-harden conf_meta().
 ##		ks	2021-05-08	Make 'conf_meta get apis' SEDEX
 ##					labels portable.
+##		ks	2021-05-12	Consider $LIBDL_SH_LIBEXECDIR to lo-
+##					cate workhorse script.
 ##
 ##  NOTE:   (1)	The library just wraps around its 'workhorse' AWK script!
 ##----------------------------------------------------------------------------
@@ -44,8 +46,10 @@
 #-----------------------------------------------------------------------------
 conf_package='@PACKAGE_TARNAME@'	## Define source package name/version.
 conf_version='@PACKAGE_VERSION@'
-conf_awk=@pkgdatadir@/conf.awk
-readonly conf_package conf_version conf_awk; unset conf_api
+conf_awk=${LIBDL_SH_LIBEXECDIR-@pkgdatadir@}/conf.awk
+test -f "$conf_awk" || return 1
+readonly conf_package conf_version conf_awk
+unset conf_api				## Discard spurious environment.
 
 ##----------------------------------------------------------------------------
 ##  conf_meta(META [ARG ...])	Perform META operation (with ARGs)
