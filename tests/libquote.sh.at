@@ -871,19 +871,16 @@ matched
 AT_CLEANUP
 
 dnl
-dnl Check if quote_sed() works as expected, i.e.
-dnl   -	the default DELIMITER '/' is assumed,
-dnl   -	'^' is considered special iff it's the 1st character,
-dnl   -	'$' is considered special iff it's the last character,
-dnl   -	<NL> as well as all other special characters (incl. the DELIMITER)
-dnl	are considered special.
+dnl Check if quote_sed() works as expected.
 dnl
-dnl NOTE:   (1)	Test strings and the quoted results are transliterated with
-dnl		echoable() before being logged to stdout, so that no charac-
-dnl		ters considered "weird" by some editors have to appear in the
-dnl		reference output!
+dnl NOTE:   (1)	Quotees and their quoteds are made echoable with echoable()
+dnl		before being logged to stdout, so that no characters consid-
+dnl		ered "weird" by some editors have to appear in the reference
+dnl		output!
 dnl	    (2)	The reference output is peppered with quadrigraphs because
 dnl		its as unbalanced as can be!
+dnl	    (3)	As quote_sed() is a wrapper around quote_re(), we won't re-
+dnl		peat the match test here!
 dnl
 AT_SETUP([quote_sed() works as expected?])
 AT_CHECK([dnl
@@ -906,44 +903,38 @@ $1
 EOF
 }
 
-eval "set shiftee `sed '
-    s/^/%/;:0
-    s/%\(.\)/'"$BS$BS"'\1 %/;t0
-    s/ %//
-' <<EOF
-$quote_cs_bre^$DS
-EOF`"; shift				## Split special characters into
-					## positional parameters.
 status=0				## Assume success.
-for string in '' ${1+"$@"} "$NL" / em'^'bed"$DS"ded embed"$NL"ded; do
-					## Foreach test string do...
-    quoted=`quote_sed "$string"`	## Quote and transliterate test
-    estring=`echoable "$string"`	## string, then transliterate
-    equoted=`echoable "$quoted"`	## quoted string.
-    echo "quote_sed($estring)=>$equoted"
-
-    case $string in			## Test string contains newline?
-	*"$NL"*)			## Yes, don't grep(1) because it'll
-	    ;;				## complain about a trailing '\'.
-	*)  grep -qxe "$quoted" <<EOF || { status=1; echo 'OOPS!'; }
-$string
-EOF
+quote_sed quotee / excess && status=1 || case $? in
+    2)		;;			## Check if invocation with excess
+    *)	status=1;;			## arguments results in usage error.
+esac; for de in '' / \| //; do		## Foreach delimiter do...
+    case $de in				## Is it valid?
+	??*|'')				## No, ...
+	    quote_sed quotee "$de" && {	## Yet the invocation succeeded?
+		status=1; continue	## Yes, fail test and skip delimiter.
+	    } || case $?:$de in		## Which status/delim. combination?
+		1:) unset de	;;	## Failure/empty: Fake no delimiter.
+		1:*)continue	;;	## Failure/invalid: Skip delimiter.
+		*)  status=1; continue	## Anything else that's unexpected...
+				;;	## Fail test and skip delimiter.
+	    esac
 	    ;;
     esac
+    for quotee in em'^'bed"$DS"ded em${de-/}bed"$NL"ded; do
+					## Foreach quotee do...
+	quoted=`quote_sed "$quotee" ${de+"$de"}`
+	equotee=`echoable "$quotee"`	## Quote and transliterate quotee,
+	equoted=`echoable "$quoted"`	## then transliterate quoted.
+	echo "quote_sed($equotee${de+,$de})=>$equoted"
+    done
 done; exit $status			## Indicate success or failure.
 ], 0, [dnl				## And the winner is...
-quote_sed@{:@@:}@=>
-quote_sed@{:@@:>@@:}@=>\@:>@
-quote_sed@{:@\@:}@=>\\
-quote_sed@{:@.@:}@=>\.
-quote_sed@{:@*@:}@=>\*
-quote_sed@{:@@<:@@:}@=>\@<:@
-quote_sed@{:@^@:}@=>\^
-quote_sed@{:@$@:}@=>\$
-quote_sed@{:@<NL>@:}@=>\
-quote_sed@{:@/@:}@=>\/
 quote_sed@{:@em^bed$ded@:}@=>em^bed$ded
-quote_sed@{:@embed<NL>ded@:}@=>embed\<NL>ded
+quote_sed@{:@em/bed<NL>ded@:}@=>em\/bed\<NL>ded
+quote_sed@{:@em^bed$ded,/@:}@=>em^bed$ded
+quote_sed@{:@em/bed<NL>ded,/@:}@=>em\/bed\<NL>ded
+quote_sed@{:@em^bed$ded,|@:}@=>em^bed$ded
+quote_sed@{:@em|bed<NL>ded,|@:}@=>em\|bed\<NL>ded
 ], [dnl
 ])
 AT_CLEANUP
