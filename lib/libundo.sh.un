@@ -42,6 +42,7 @@
 ##					it(), undo_emit(), and undo_mark().
 ##					Merge undo_mark() functionality into
 ##					undo_push().
+##					Deprecate/Withdraw undo_mark().
 ##----------------------------------------------------------------------------
 ##  Global variables:
 #-----------------------------------------------------------------------------
@@ -193,7 +194,10 @@ EOF
 ##		keeping undos by count!
 ##----------------------------------------------------------------------------
 undo_mark() {
-    case ${2+2}${1+1$1} in		## Usage OK/mark is valid?
+    case ${undo_api--} in
+	2)  dl_warn api-wdr-func "undo;_mark([$#]$*)" 2 1		;;
+	*)  dl_warn rel-dpr-func "undo;_mark([$#]$*)" 0.4 0.5 0.3.6	;;
+    esac && case ${2+2}${1+1$1} in	## Usage OK/mark is valid?
 	1::?*)	undo_stack=$CS{$1::}$CS$NL$undo_stack
 		;;			## Y/Y: Push mark onto undo stack.
 	1*)	return 1		## Y/N: Indicate failure!
