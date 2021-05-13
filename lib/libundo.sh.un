@@ -46,10 +46,11 @@
 undo_re_tag=':[^: 	][^ 	]*'	## Define unanchored RE for tags.
 undo_package='@PACKAGE_TARNAME@'	## Define source package name/version.
 undo_version='@PACKAGE_VERSION@'
-undo_api=1				## Define API version.
+undo_api=1				## Preset default API version.
+undo_ro=,				## No internal variables frozen yet.
 undo_stack=
-undo_0tag=
 readonly undo_re_tag undo_package undo_version
+unset undo_0tag				## Discard spurious environment.
 
 ##----------------------------------------------------------------------------
 ##  undo_meta(META [ARG ...])	Perform META operation (with ARGs)
@@ -95,13 +96,22 @@ EOF
 		*)  return 1		;;
 	    esac'
 	    ;;
-	=set-api)			## Set and freeze API...
-	    ${mp}meta get apis api | fgrep -qxe "${3-}" || return 1
-	    eval "$mp$2"'=$3; readonly '"$mp$2"
-	    ;;
-	=set-0tag)			## Set cleanups tag...
-	    expr "_${3-}" : "_$undo_re_tag"'$' >/dev/null || return 1
-	    eval "$mp$2"'=$3'		## ...after making sure it's a tag.
+	=set-?*)			## Set internal variable once...
+	    case ${4+4}${3+=}$2 in	## Usage OK?
+		=api)	${mp}meta get apis api | fgrep -qxe "$3"
+			;;		## Yes, try to validate API version.
+		=0tag)	expr "_$3" : "_$undo_re_tag"'$' >/dev/null
+			;;		## Yes, try to validate tag.
+		*)	return 2	## No, indicate abuse!
+			;;
+	    esac && eval 'case ${'"$mp$2"'+=$'"$mp$2"'}$'"$mp"'ro in
+		=$3,*)	return 0	## Variable still settable?
+			;;		## Maybe, but idempotence is OK.
+		=*,$2,*)return 1	## No, indicate failure!
+			;;
+		*)  	'"$mp$2"'=$3 '"$mp"'ro=$'"$mp"'ro$2,; readonly '"$mp$2"'
+			;;		## Yes, set and freeze it.
+	    esac'
 	    ;;
 	=session-init|=session-load|=session-dump|=session-exit)
 	    :				## Session init/load/dump/exit...
