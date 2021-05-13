@@ -40,6 +40,8 @@
 ##					labels portable.
 ##		ks	2021-05-13	'set -u'-harden undo_init(), undo_ex-
 ##					it(), undo_emit(), and undo_mark().
+##					Merge undo_mark() functionality into
+##					undo_push().
 ##----------------------------------------------------------------------------
 ##  Global variables:
 #-----------------------------------------------------------------------------
@@ -199,18 +201,35 @@ undo_mark() {
 
 ##----------------------------------------------------------------------------
 ##  undo_push([TAG] COMMAND [ARGUMENT|REDIRECTION ...])
-##				Push (TAGged) COMMAND (with quoted ARGUMENTs
-##				and/or raw REDIRECTIONs) onto undo stack
+##  undo_push(MARK)		Push (TAGged) COMMAND (with quoted ARGUMENTs
+##				and/or REDIRECTIONs) or MARK onto undo stack
 ##----------------------------------------------------------------------------
 undo_push() {
-    local tag
+    local tag cmd
 
-    case $1 in				## Tag is first?
-	::*) return 2		;;	## No, it's a mark!
-	:?*) tag=" #$1"; shift	;;	## Yes, fetch it.
-    esac
-    undo_stack="`quote_command ${1+"$@"}`$tag$NL$undo_stack"
-}					## Push (tagged) undo onto stack.
+    case ${undo_api--}/${2+2}${1+1$1} in
+					## Which API/Argument(s) combination?
+	*/21::*)			## ?/MARK COMMAND: Indicate abuse!
+	    return 2
+	    ;;
+	*/21:?*)			## ?/TAG COMMAND: Fetch tag and quote
+	    tag=$1; shift		## command.
+	    cmd=`quote_command "$@"`
+	    ;;
+	2/1::?*)			## 2/MARK: Construct mark.
+	    cmd=$CS{$1::}$CS
+	    ;;
+	*/21?*|*/1?*)			## ?/COMMAND: Quote command.
+	    cmd=`quote_command "$@"`
+	    ;;
+	*/21|*/1)			## ?/Empty command: Indicate failure!
+	    return 1
+	    ;;
+	*)  return 2			## Anything else is abuse!
+	    ;;
+    esac && undo_stack=$cmd${tag+ $CS$tag}$NL$undo_stack
+					## Push (tagged) command or mark onto
+}					## undo stack.
 
 ##----------------------------------------------------------------------------
 ##  undo_pull(MARK)		Pull undos within MARKed range and MARK,
