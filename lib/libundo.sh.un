@@ -39,7 +39,7 @@
 ##		ks	2021-05-08	Make 'undo_meta get apis' SEDEX
 ##					labels portable.
 ##		ks	2021-05-13	'set -u'-harden undo_init(), undo_ex-
-##					it(), and undo_emit().
+##					it(), undo_emit(), and undo_mark().
 ##----------------------------------------------------------------------------
 ##  Global variables:
 #-----------------------------------------------------------------------------
@@ -187,11 +187,14 @@ EOF
 ##		keeping undos by count!
 ##----------------------------------------------------------------------------
 undo_mark() {
-    case $1 in				## Mark is first?
-	::?*)	undo_stack="#{$1::}#$NL$undo_stack"	;;
-					## Push mark onto undo stack.
-	*)	return 2				;;
-    esac				## No, it's not a mark!
+    case ${2+2}${1+1$1} in		## Usage OK/mark is valid?
+	1::?*)	undo_stack=$CS{$1::}$CS$NL$undo_stack
+		;;			## Y/Y: Push mark onto undo stack.
+	1*)	return 1		## Y/N: Indicate failure!
+		;;
+	*)	return 2		## N/?: Indicate abuse!
+		;;
+    esac
 }
 
 ##----------------------------------------------------------------------------
