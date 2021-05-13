@@ -134,7 +134,7 @@ undo_init() {
 ##		not modified at all!
 ##----------------------------------------------------------------------------
 undo_emit() {
-    local i mark range sedex
+    local i mark range sx
 
     case $1 in				## Which mode?
 	drop) i=	;;		## Drop, i.e. don't invert deletes.
@@ -151,25 +151,25 @@ undo_emit() {
 		:?*)
 		    case $1 in
 			drop)
-			    sedex='{;'"$mark"'bp;/#'"$3$DS/$i"'d;1d;};:p'   ;;
+			    sx='{;'"$mark"'bp;/#'"$3$DS/$i"'d;1d;};:p'	;;
 			keep)
-			    sedex='!d;'"$mark"'d;/#'"$3$DS/$i"'d'	    ;;
+			    sx='!d;'"$mark"'d;/#'"$3$DS/$i"'d'		;;
 		    esac			;;
 		?*)	return 2		;;
 					## No, it's not a tag!
-		*)	sedex="$i"'d;1d'	;;
+		*)	sx="$i"'d;1d'		;;
 	    esac			## No, (don't) drop marked range.
 	    ;;
 	::*)				## Tag is first?
 	    return 2			## It's a mark!
 	    ;;
 	:?*)
-	    unset range; sedex="/#$2"'$/'"${i}d"
+	    unset range; sx="/#$2"'$/'"${i}d"
 	    ;;				## Yes, (don't) drop tagged undos.
-	*)  unset range; sedex="1${2+,$2}${i}d"
+	*)  unset range; sx="1${2+,$2}${i}d"
 	    ;;				## No, assume it's a count.
     esac
-    sed "$range$sedex" 2>/dev/null <<EOF
+    sed "$range$sx" 2>/dev/null <<EOF
 ${range+$NL}$undo_stack
 EOF
 }
