@@ -38,8 +38,8 @@
 ##		ks	2021-05-01	'set -u'-harden undo_meta().
 ##		ks	2021-05-08	Make 'undo_meta get apis' SEDEX
 ##					labels portable.
-##		ks	2021-05-13	'set -u'-harden undo_init() and
-##					undo_exit().
+##		ks	2021-05-13	'set -u'-harden undo_init(), undo_ex-
+##					it(), and undo_emit().
 ##----------------------------------------------------------------------------
 ##  Global variables:
 #-----------------------------------------------------------------------------
@@ -136,40 +136,35 @@ undo_init() {
 undo_emit() {
     local i mark range sx
 
-    case $1 in				## Which mode?
-	drop) i=	;;		## Drop, i.e. don't invert deletes.
-	keep) i='!'	;;		## Keep, i.e. invert deletes.
-	*)    return 2	;;		## None of the above!
-    esac
-
-    case $2 in				## Mark is next?
-	::?*)				## Yes, derive mark/range fragments.
+    case ${1+=$1} in			## Which mode?
+	=drop)	i=	;;		## Drop, i.e. don't invert deletes.
+	=keep)	i='!'	;;		## Keep, i.e. invert deletes.
+	*)	return 2;;		## None of the above!
+    esac; case ${2+=$2} in		## Mode followed by mark?
+	=::?*)				## Yes, derive mark/range fragments.
 	    mark='/^#{'"$2"'::}#$/'; range="1,$mark"
-	    case $3 in			## Tag is next?
-		::*)	return 2		;;
-					## No, it's another mark!
-		:?*)
-		    case $1 in
-			drop)
-			    sx='{;'"$mark"'bp;/#'"$3$DS/$i"'d;1d;};:p'	;;
-			keep)
-			    sx='!d;'"$mark"'d;/#'"$3$DS/$i"'d'		;;
-		    esac			;;
-		?*)	return 2		;;
-					## No, it's not a tag!
-		*)	sx="$i"'d;1d'		;;
-	    esac			## No, (don't) drop marked range.
+	    case ${3+=$3} in		## Mark followed by tag?
+		=::*)			## No (a 2nd mark!), indicate abuse!
+		    return 2	    ;;
+		=:?*)			## Yes, ...
+		    case $1 in		## Which mode?
+			drop)	sx='{;'"$mark"'bp;/#'"$3$DS/$i"'d;1d;};:p'  ;;
+			keep)	sx='!d;'"$mark"'d;/#'"$3$DS/$i"'d'	    ;;
+		    esac	    ;;
+		=?*)return 2	    ;;	## No, indicate abuse!
+		*)  sx="$i"'d;1d'   ;;	## Nothing, (don't) drop marked range.
+	    esac
 	    ;;
-	::*)				## Tag is first?
-	    return 2			## It's a mark!
+	=::*)				## Mode followed by valid tag?
+	    return 2			## No, indicate abuse!
 	    ;;
-	:?*)
+	=:?*)
 	    unset range; sx="/#$2"'$/'"${i}d"
 	    ;;				## Yes, (don't) drop tagged undos.
 	*)  unset range; sx="1${2+,$2}${i}d"
 	    ;;				## No, assume it's a count.
     esac
-    sed "$range$sx" 2>/dev/null <<EOF
+    sed "${range-}$sx" 2>/dev/null <<EOF
 ${range+$NL}$undo_stack
 EOF
 }
