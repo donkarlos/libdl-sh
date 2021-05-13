@@ -38,7 +38,8 @@
 ##		ks	2021-05-01	'set -u'-harden undo_meta().
 ##		ks	2021-05-08	Make 'undo_meta get apis' SEDEX
 ##					labels portable.
-##		ks	2021-05-13	'set -u'-harden undo_init().
+##		ks	2021-05-13	'set -u'-harden undo_init() and
+##					undo_exit().
 ##----------------------------------------------------------------------------
 ##  Global variables:
 #-----------------------------------------------------------------------------
@@ -244,7 +245,7 @@ undo_keep() {
 ##  NOTE:   (1)	This function is registered as exit-time hook!
 ##----------------------------------------------------------------------------
 undo_exit() {
-    case ${1-1}$undo_0tag in		## Exit with...
+    case ${1-1}${undo_0tag-} in		## Exit with...
 	0)				## ...success and no cleanups tag?
 	    ;;				## What's done is done.
 	0:*)				## ...success and cleanups tag?
