@@ -42,7 +42,8 @@
 ##		ks	2021-05-14	conf_meta(): Ditch final relicts of
 ##					withdrawn API version 0.
 ##					'set -u'-harden conf_exec(), conf_-
-##					has(), conf_get(), and conf_put().
+##					has(), conf_get(), conf_put(), and
+##					conf_getenv().
 ##
 ##  NOTE:   (1)	The library just wraps around its 'workhorse' awk(1) script!
 ##	    (2)	The library intentionally has no default API version!
@@ -196,14 +197,18 @@ EOF
 ##----------------------------------------------------------------------------
 conf_getenv() {
     case ${conf_api--} in
+	-)  dl_warn rel-req-set-api "conf;_getenv([$#]$*)" 0.4 0.3.6	;;
 	2)  dl_warn api-wdr-func "conf;_getenv([$#]$*)" 2 1		;;
 	*)  dl_warn rel-dpr-func "conf;_getenv([$#]$*)" 0.4 0.5 0.3.6	;;
-    esac || return 1
-
-    eval 'case ${'"$1"'+set} in
-	set)	echo "$'"$1"'"		    ;;
-	*)	shift; conf_get ${1+"$@"}   ;;
-    esac'
+    esac && case ${3+=} in		## Usage OK?
+	=)  eval 'case ${'"$1"'+=} in
+		=)  echo "$'"$1"'"	;;
+		*)  shift; conf_get "$@";;
+	    esac'
+	    ;;
+	*)  return 2			## No, indicate abuse!
+	    ;;
+    esac
 }
 
 ##----------------------------------------------------------------------------
