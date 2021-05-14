@@ -43,11 +43,15 @@
 ##					withdrawn API version 0.
 ##
 ##  NOTE:   (1)	The library just wraps around its 'workhorse' awk(1) script!
+##	    (2)	The library intentionally has no default API version!
+##		Consequently, no internal variables are frozen and $conf_api
+##		is explicitly unset.
 ##----------------------------------------------------------------------------
 ##  Global variables:
 #-----------------------------------------------------------------------------
-conf_package='@PACKAGE_TARNAME@'	## Define source package name/version.
-conf_version='@PACKAGE_VERSION@'
+conf_package=@PACKAGE_TARNAME@		## Define source package name and
+conf_version=@PACKAGE_VERSION@		## version.
+conf_ro=,				## No internal variables frozen yet.
 readonly conf_package conf_version; unset conf_api
 					## Discard spurious environment.
 
@@ -95,9 +99,20 @@ EOF
 		*)  return 1		;;
 	    esac'
 	    ;;
-	=set-api)			## Set and freeze API...
-	    ${mp}meta get apis api | fgrep -qxe "${3-}" || return 1
-	    eval "$mp$2"'=$3; readonly '"$mp$2"
+	=set-*)				## Set internal variable once...
+	    case ${4+4}${3+=}$2 in	## Usage OK?
+		=api)	${mp}meta get apis api | fgrep -qxe "$3"
+			;;		## Yes, try to validate API version.
+		*)	return 2	## No, indicate abuse!
+			;;
+	    esac && eval 'case ${'"$mp$2"'+=$'"$mp$2"'}$'"$mp"'ro in
+		=$3,*)	return 0	## Variable still settable?
+			;;		## Maybe, but idempotence is OK.
+		=*,$2,*)return 1	## No, indicate failure!
+			;;
+		*)  	'"$mp$2"'=$3 '"$mp"'ro=$'"$mp"'ro$2,; readonly '"$mp$2"'
+			;;		## Yes, set and freeze it.
+	    esac'
 	    ;;
 	=session-init|=session-load|=session-dump|=session-exit)
 	    :				## Session init/load/dump/exit...
