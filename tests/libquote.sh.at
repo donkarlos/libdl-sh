@@ -127,7 +127,7 @@ quote_meta get apis
 quote_meta get apis api
 0
 quote_meta get apis full
-0;quote_meta(META [[ARG ...]]);2-
+0;quote_meta(META [[ARG ...]]);2-4
 0;quote([[[STYLE [DELIMITER]] ... STRING]]);0-
 0;quote_sh(STRING);1
 0;quote_command(COMMAND [[ARGUMENT|REDIRECTION ...]]);1-
@@ -138,7 +138,7 @@ quote_meta get apis full
 0;quote_egrep(STRING);1
 0;quote_sed(STRING [[DELIMITER=/]]);1-2
 quote_meta get apis list
-0;quote_meta;2-
+0;quote_meta;2-4
 0;quote;0-
 0;quote_sh;1
 0;quote_command;1-
@@ -318,7 +318,7 @@ for signature in ${1+"$@"}; do		## Foreach parsed signature (see note
     esac
 done
 ], 0, [dnl				## And the winner is...
-name=quote_meta min=2 max=
+name=quote_meta min=2 max=4
 name=quote min=0 max=
 name=quote_sh min=1 max=1
 name=quote_command min=1 max=
