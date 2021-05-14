@@ -92,6 +92,7 @@ f${ms}1${ms}mark(MARK)${ms}1
 f${ms}1${ms}push([TAG] COMMAND [ARGUMENT|REDIRECTION ...])${ms}1-
 f${ms}1${ms}pull(MARK [TAG] | TAG | [COUNT=1])${ms}0-2
 f${ms}1${ms}drop(MARK [TAG] | TAG | [COUNT=1])${ms}0-2
+a${ms}2
 f${ms}2${ms}meta(META [ARG ...])${ms}2-
 f${ms}2${ms}push(MARK|[TAG] COMMAND [ARGUMENT|REDIRECTION ...])${ms}1-
 f${ms}2${ms}pull(MARK [TAG] | TAG | [COUNT=1])${ms}0-2
