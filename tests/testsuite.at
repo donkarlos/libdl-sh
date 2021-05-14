@@ -24,6 +24,7 @@ dnl CHANGED BY:	ks	2021-05-03	Move complete test suite to tests/.
 dnl					Spin off libdl-sh(1) tests.
 dnl					Add libdl.sh tests.
 dnl			2021-05-08	Add libquote.sh tests.
+dnl			2021-05-14	Add libundo.sh tests.
 dnl
 dnl Initialization:
 dnl
@@ -44,4 +45,9 @@ dnl
 dnl Include libquote.sh tests:
 dnl
 m4_include([libquote.sh.at])
+
+dnl
+dnl Include libundo.sh tests:
+dnl
+m4_include([libundo.sh.at])
 
