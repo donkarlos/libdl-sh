@@ -46,12 +46,10 @@
 ##					Overhaul quote(), adding style 'ere
 ##					[DELIMITER]' with alias mre.
 ##					quote_meta(): Publish r/o variables.
+##		ks	2021-05-14	Prepare for multiple API versions.
 ##----------------------------------------------------------------------------
 ##  Global variables:
 #-----------------------------------------------------------------------------
-quote_package='@PACKAGE_TARNAME@'	## Define source package name/version.
-quote_version='@PACKAGE_VERSION@'
-quote_api=0				## Define API version.
 quote_csl_sh=']})>?*'	quote_csr_sh='! 	$|&;#'"$BQ$DQ$SQ$BS$CR"'<({['
 					## Define sh(1) spec. character set's
 					## (sans '~') left/right halves.
@@ -61,8 +59,13 @@ quote_cs_ere=']})\.*|?+({[^$'		## Define modern/extended RE special
 					## character set (with '^' and '$').
 quote_cs_brs='\&'			## Define 's///' right-hand side
 					## special character set.
-readonly quote_package quote_version quote_api quote_csl_sh quote_csr_sh\
-	 quote_cs_bre quote_cs_ere quote_cs_brs
+readonly quote_csl_sh quote_csr_sh quote_cs_bre quote_cs_ere quote_cs_brs
+
+quote_package=@PACKAGE_TARNAME@		## Define source package name
+quote_version=@PACKAGE_VERSION@		## and version.
+quote_api=0				## Preset sole API version and
+quote_ro=,api,				## freeze it!
+readonly quote_package quote_version quote_api
 
 ##----------------------------------------------------------------------------
 ##  quote_meta(META [ARG ...])	Perform META operation (with ARGs)
@@ -85,22 +88,22 @@ quote_meta() {
 		*)	return 1			;;
 	    esac
 	    sed "$sx" <<EOF
-a${ms}$quote_api
-f${ms}$quote_api${ms}meta(META [ARG ...])${ms}2-4
-F${ms}$quote_api${ms}quote([[STYLE [DELIMITER]] ... STRING])${ms}0-
-f${ms}$quote_api${ms}sh(STRING)${ms}1
-f${ms}$quote_api${ms}command(COMMAND [ARGUMENT|REDIRECTION ...])${ms}1-
-f${ms}$quote_api${ms}re(STRING [DELIMITER])${ms}1-2
-f${ms}$quote_api${ms}ere(STRING [DELIMITER])${ms}1-2
-f${ms}$quote_api${ms}rs(STRING [DELIMITER])${ms}1-2
-f${ms}$quote_api${ms}grep(STRING)${ms}1
-f${ms}$quote_api${ms}egrep(STRING)${ms}1
-f${ms}$quote_api${ms}sed(STRING [DELIMITER=/])${ms}1-2
-r${ms}$quote_api${ms}csl_sh
-r${ms}$quote_api${ms}csr_sh
-r${ms}$quote_api${ms}cs_bre
-r${ms}$quote_api${ms}cs_ere
-r${ms}$quote_api${ms}cs_brs
+a${ms}0
+f${ms}0${ms}meta(META [ARG ...])${ms}2-4
+F${ms}0${ms}quote([[STYLE [DELIMITER]] ... STRING])${ms}0-
+f${ms}0${ms}sh(STRING)${ms}1
+f${ms}0${ms}command(COMMAND [ARGUMENT|REDIRECTION ...])${ms}1-
+f${ms}0${ms}re(STRING [DELIMITER])${ms}1-2
+f${ms}0${ms}ere(STRING [DELIMITER])${ms}1-2
+f${ms}0${ms}rs(STRING [DELIMITER])${ms}1-2
+f${ms}0${ms}grep(STRING)${ms}1
+f${ms}0${ms}egrep(STRING)${ms}1
+f${ms}0${ms}sed(STRING [DELIMITER=/])${ms}1-2
+r${ms}0${ms}csl_sh
+r${ms}0${ms}csr_sh
+r${ms}0${ms}cs_bre
+r${ms}0${ms}cs_ere
+r${ms}0${ms}cs_brs
 EOF
 	    ;;
 	=get-package|=get-version|=get-api)
@@ -108,6 +111,21 @@ EOF
 	    eval 'case ${'"$mp$2"'+=} in
 		=)  echo "$'"$mp$2"'"	;;
 		*)  return 1		;;
+	    esac'
+	    ;;
+	=set-*)				## Set internal variable once...
+	    case ${4+4}${3+=}$2 in	## Usage OK?
+		=api)	${mp}meta get apis api | fgrep -qxe "$3"
+			;;		## Yes, try to validate API version.
+		*)	return 2	## No, indicate abuse!
+			;;
+	    esac && eval 'case ${'"$mp$2"'+=$'"$mp$2"'}$'"$mp"'ro in
+		=$3,*)	return 0	## Variable still settable?
+			;;		## Maybe, but idempotence is OK.
+		=*,$2,*)return 1	## No, indicate failure!
+			;;
+		*)  	'"$mp$2"'=$3 '"$mp"'ro=$'"$mp"'ro$2,; readonly '"$mp$2"'
+			;;		## Yes, set and freeze it.
 	    esac'
 	    ;;
 	=session-init|=session-load|=session-dump|=session-exit)
