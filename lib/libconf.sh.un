@@ -41,8 +41,8 @@
 ##					cate workhorse script.
 ##		ks	2021-05-14	conf_meta(): Ditch final relicts of
 ##					withdrawn API version 0.
-##					'set -u'-harden conf_exec(),
-##					conf_has(), and conf_get().
+##					'set -u'-harden conf_exec(), conf_-
+##					has(), conf_get(), and conf_put().
 ##
 ##  NOTE:   (1)	The library just wraps around its 'workhorse' awk(1) script!
 ##	    (2)	The library intentionally has no default API version!
@@ -178,19 +178,14 @@ EOF
 ##				Unset ITEM/Set ITEM to VALUE in last CFPN
 ##----------------------------------------------------------------------------
 conf_put() {
-    case ${conf_api--}:$# in
-	-:*)
-	    dl_warn rel-req-set-api "conf;_put([$#]$*)" 0.4 0.3.6
-	    ;;
-	*:0|*:1)
-	    return 2
-	    ;;
-	*:*)
-	    local item="$1"; shift
-
-	    "$conf_awk" ${1+"$@"} - <<EOF
+    case ${conf_api--}/${2+=} in	## API selected?/Usage OK?
+	-/*)dl_warn rel-req-set-api "conf;_put([$#]$*)" 0.4 0.3.6
+	    ;;				## N/?: Complain about unknown API!
+	*/=)local item="$1"; shift; conf_exec "$@" <<EOF
 put $item
 EOF
+	    ;;				## Y/Y: Put ITEM.
+	*)  return 2			## ?/N: Indicate abuse!
 	    ;;
     esac
 }
