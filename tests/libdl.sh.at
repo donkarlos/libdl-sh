@@ -48,6 +48,7 @@ dnl					'set -u'-harden dl_split(), dl_dump(),
 dnl					and dl_which().
 dnl		ks	2021-05-09	Export test group [dl_load() loads
 dnl					another library?] to libquote.sh.at.
+dnl		ks	2021-05-14	Prepare for multiple API versions.
 dnl
 dnl Test group 'Demand-loading library libdl.sh'
 dnl
@@ -369,17 +370,17 @@ EOF
 AT_CLEANUP
 
 dnl
-dnl Check if the functions reported by dl_meta() inquiry get apis list (for
-dnl the default API version) indicate usage errors (i.e., return 2) when in-
-dnl voked with insufficient arguments.
+dnl Check if the functions reported by 'dl_meta get apis list' (for all API
+dnl versions) indicate usage errors (i.e., return 2) when invoked with
+dnl insufficient arguments.
 dnl
-dnl NOTE:   (1)	The test is driven by the inquiry's 3rd field reported,
-dnl		which is parsed into $min and $max by the extra sed(1) ex-
-dnl		pression with the alleged no-op 's/^//;t0;:0' making sure
-dnl		that the following 'tp' statements actually distinguish be-
-dnl		tween the 3rd field's three numeric range forms.
+dnl NOTE:   (1)	The test is driven by the 3rd field of the inquiry's output!
+dnl		It is parsed into $min and $max by the extra sed(1) expr.
+dnl		with the alleged no-op 's/^//;t0;:0' making sure that the
+dnl		following 'tp' statements actually distinguish between the
+dnl		3rd field's three numeric range forms.
 dnl	    (2)	Since up to this point load- and exit-time hooks hadn't been
-dnl		tested, testing dl_exit() now would be pointless, wherefore
+dnl		tested, testing dl_exit() here would be pointless, wherefore
 dnl		it'll stay exempted!
 dnl
 AT_SETUP([libdl.sh functions indicate usage errors?])
@@ -393,42 +394,53 @@ case :$PATH: in				## Triggered by 'check-local:'?
 	;;
 esac
 eval "`libdl-sh load`"			## Load libdl.sh or die.
-api=`dl_meta get api`			## Inquire default API version.
-ifs=$IFS; IFS=$NL; set shiftee `dl_meta get apis list 's/^//;t0
-	:0
-        s/^'"$api"';\('"$dl_re_id"'\);\('"$dl_re_0n"'\)-\('"$dl_re_1n"'\)$/name=\1 min=\2 max=\3/;tp
-        s/^'"$api"';\('"$dl_re_id"'\);\('"$dl_re_0n"'\)-$/name=\1 min=\2 max=/;tp
-        s/^'"$api"';\('"$dl_re_id"'\);\('"$dl_re_0n"'\)$/name=\1 min=\2 max=\2/;tp
-        s/^.*$/test/;:p
-'`; shift; IFS=$ifs
-for signature in ${1+"$@"}; do		## Foreach parsed signature (see note
-					## (1)) do...
-    echo "$signature" && eval "$signature" || exit 1
-					## Emit signature and split it.
-    case $name in			## Function exempted?
-	dl_exit)			## Yes.
-	    ;;
-	*)				## No, make passes at function.
-	    args= n=0; while test "$n" -lt "$min"; do
-		$name $args && exit 1 || case $? in
-		    2)		;;
-		    *)  exit 1	;;
-		esac
-		n=`expr $n + 1`; args="$args $n"
-	    done
-	    ;;
-    esac
-done
+mp=dl_; status=0			## Assume success.
+for api in `${mp}meta get apis`; do (	## Foreach API version do...
+    trap '' 0				## Ignore EXIT traps within sub-shell.
+    echo "${mp}meta set api $api"
+    if ${mp}meta set api $api; then	## Could we select that API version?
+	ifs=$IFS; IFS=$NL; set shiftee `${mp}meta get apis list '/^'"$api"';/!d;s///;t0
+		:0
+		s/^\('"$dl_re_id"'\);\('"$dl_re_0n"'\)-\('"$dl_re_1n"'\)$/name=\1 min=\2 max=\3/;tp
+		s/^\('"$dl_re_id"'\);\('"$dl_re_0n"'\)-$/name=\1 min=\2 max=/;tp
+		s/^\('"$dl_re_id"'\);\('"$dl_re_0n"'\)$/name=\1 min=\2 max=\2/;tp
+		s/^.*$/test/;:p
+	'`; shift; IFS=$ifs
+	for signature in ${1+"$@"}; do	## Yes, foreach parsed signature (see
+					## note (1)) do...
+	    eval "$signature" && case $name in
+					## Function exempted?
+		dl_exit)		## Yes.
+		    ;;
+		*)			## No, make passes at function.
+		    args= n=0; while test "$n" -lt "$min"; do
+			echo "$name$args"
+			$name $args && exit 1 || case $? in
+			    2)		;;
+			    *)  exit 1	;;
+			esac
+			n=`expr $n + 1`; args="$args $n"
+		    done
+		    ;;
+	    esac
+	done
+    fi
+) || status=1; done; exit $status
 ], 0, [dnl				## And the winner is...
-name=dl_meta min=2 max=
-name=dl_warn min=2 max=5
-name=dl_dump min=2 max=
-name=dl_split min=3 max=
-name=dl_which min=1 max=1
-name=dl_atload min=1 max=1
-name=dl_load min=1 max=
-name=dl_atexit min=1 max=1
-name=dl_exit min=0 max=1
+dl_meta set api 1
+dl_meta
+dl_meta 1
+dl_warn
+dl_warn 1
+dl_dump
+dl_dump 1
+dl_split
+dl_split 1
+dl_split 1 2
+dl_which
+dl_atload
+dl_load
+dl_atexit
 ], [dnl
 ])
 AT_CLEANUP

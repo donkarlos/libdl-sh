@@ -50,6 +50,7 @@
 ##		ks	2021-05-08	Make 'dl_meta get apis' SEDEX
 ##					labels portable.
 ##		ks	2021-05-12	Remove LIBDL_SH_DESTDIR nonsense.
+##		ks	2021-05-14	Prepare for multiple API versions.
 ##
 ##  NOTE:   (1)	To avoid cluttering code, this library is exempted from need-
 ##		ing namespace prefixes for its special character definitions.
@@ -81,16 +82,19 @@ dl_cs_sh=']({< 	'"$CR$BQ$DQ$SQ$BS$CS$DS$HS"'~?*|;&>})['
 dl_re_id='[_'"$dl_cs_al"'][_'"$dl_cs_an"']*'
 dl_re_1n='['"$dl_cs_1d"']['"$dl_cs_0d"']*'
 dl_re_0n='['"$dl_cs_0d"']['"$dl_cs_0d"']*'
-dl_package='@PACKAGE_TARNAME@'		## Define source package name/version.
-dl_version='@PACKAGE_VERSION@'
-dl_api=1				## Define API version.
+readonly dl_cs_ul dl_cs_ll dl_cs_1d dl_cs_0d dl_cs_al dl_cs_an		\
+	 dl_re_id dl_re_1n dl_re_0n
+
+dl_package=@PACKAGE_TARNAME@		## Define source package name
+dl_version=@PACKAGE_VERSION@		## and version.
+dl_api=1				## Preset sole API version and
+dl_ro=,api,				## freeze it!
 dl_libpath=`libdl-sh path` || exit 127	## Determine LSP or abort!
 dl_loaded=:dl:				## Register this library as loaded.
 dl_needed=
 dl_atexits='exit $status'		## Preset exit-hook's command.
-readonly dl_cs_ul dl_cs_ll dl_cs_1d dl_cs_0d dl_cs_al dl_cs_an dl_re_id	\
-	 dl_re_1n dl_re_0n dl_package dl_version dl_api
-unset dl_atloads dl_session		## Discard spurious environment.
+readonly dl_package dl_version dl_api; unset dl_atloads dl_session
+					## Discard spurious environment.
 
 ##----------------------------------------------------------------------------
 ##  dl_meta(META [ARG ...])	Perform META operation (with ARGs)
@@ -113,36 +117,36 @@ dl_meta() {
 		*)	return 1			;;
 	    esac
 	    sed "$sx" <<EOF
-a${ms}$dl_api
-f${ms}$dl_api${ms}meta(META [ARG ...])${ms}2-
-f${ms}$dl_api${ms}warn(WHAT INVO [ARG ...])${ms}2-5
-f${ms}$dl_api${ms}dump(MP VS ...)${ms}2-
-f${ms}$dl_api${ms}split(WORD IFS &FIELD ...)${ms}3-
-f${ms}$dl_api${ms}which(LIB)${ms}1
-f${ms}$dl_api${ms}atload(HOOK)${ms}1
-f${ms}$dl_api${ms}load(LIB ...)${ms}1-
-f${ms}$dl_api${ms}atexit(HOOK)${ms}1
-f${ms}$dl_api${ms}exit([STATUS=\$?])${ms}0-1
-R${ms}$dl_api${ms}BQ
-R${ms}$dl_api${ms}DQ
-R${ms}$dl_api${ms}SQ
-R${ms}$dl_api${ms}BS
-R${ms}$dl_api${ms}CS
-R${ms}$dl_api${ms}DS
-R${ms}$dl_api${ms}HS
-R${ms}$dl_api${ms}QB
-R${ms}$dl_api${ms}QE
-R${ms}$dl_api${ms}CR
-R${ms}$dl_api${ms}NL
-r${ms}$dl_api${ms}cs_ul
-r${ms}$dl_api${ms}cs_ll
-r${ms}$dl_api${ms}cs_1d
-r${ms}$dl_api${ms}cs_0d
-r${ms}$dl_api${ms}cs_al
-r${ms}$dl_api${ms}cs_an
-r${ms}$dl_api${ms}re_id
-r${ms}$dl_api${ms}re_1n
-r${ms}$dl_api${ms}re_0n
+a${ms}1
+f${ms}1${ms}meta(META [ARG ...])${ms}2-
+f${ms}1${ms}warn(WHAT INVO [ARG ...])${ms}2-5
+f${ms}1${ms}dump(MP VS ...)${ms}2-
+f${ms}1${ms}split(WORD IFS &FIELD ...)${ms}3-
+f${ms}1${ms}which(LIB)${ms}1
+f${ms}1${ms}atload(HOOK)${ms}1
+f${ms}1${ms}load(LIB ...)${ms}1-
+f${ms}1${ms}atexit(HOOK)${ms}1
+f${ms}1${ms}exit([STATUS=\$?])${ms}0-1
+R${ms}1${ms}BQ
+R${ms}1${ms}DQ
+R${ms}1${ms}SQ
+R${ms}1${ms}BS
+R${ms}1${ms}CS
+R${ms}1${ms}DS
+R${ms}1${ms}HS
+R${ms}1${ms}QB
+R${ms}1${ms}QE
+R${ms}1${ms}CR
+R${ms}1${ms}NL
+r${ms}1${ms}cs_ul
+r${ms}1${ms}cs_ll
+r${ms}1${ms}cs_1d
+r${ms}1${ms}cs_0d
+r${ms}1${ms}cs_al
+r${ms}1${ms}cs_an
+r${ms}1${ms}re_id
+r${ms}1${ms}re_1n
+r${ms}1${ms}re_0n
 EOF
 	    ;;
 	=get-package|=get-version|=get-api|=get-libpath|=get-loaded|	\
@@ -174,6 +178,21 @@ EOF
 		*)  return 2		## No, indicate abuse!
 		    ;;
 	    esac
+	    ;;
+	=set-*)				## Set internal variable once...
+	    case ${4+4}${3+=}$2 in	## Usage OK?
+		=api)	${mp}meta get apis api | fgrep -qxe "$3"
+			;;		## Yes, try to validate API version.
+		*)	return 2	## No, indicate abuse!
+			;;
+	    esac && eval 'case ${'"$mp$2"'+=$'"$mp$2"'}$'"$mp"'ro in
+		=$3,*)	return 0	## Variable still settable?
+			;;		## Maybe, but idempotence is OK.
+		=*,$2,*)return 1	## No, indicate failure!
+			;;
+		*)  	'"$mp$2"'=$3 '"$mp"'ro=$'"$mp"'ro$2,; readonly '"$mp$2"'
+			;;		## Yes, set and freeze it.
+	    esac'
 	    ;;
 	=session-init|=session-load|=session-dump|=session-exit)
 	    :				## Session init/load/dump/exit...
