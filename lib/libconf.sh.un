@@ -74,16 +74,16 @@ conf_meta() {
 		*)	return 1			;;
 	    esac
 	    sed "$sx" <<EOF
-f${ms}-${ms}meta(META [ARG ...])${ms}2-
+f${ms}-${ms}meta(META [ARG ...])${ms}2-4
 a${ms}1
-f${ms}1${ms}meta(META [ARG ...])${ms}2-
+f${ms}1${ms}meta(META [ARG ...])${ms}2-4
 f${ms}1${ms}exec(CFPN ...)${ms}1-
 f${ms}1${ms}has(ITEM[=VALUE] CFPN ...)${ms}2-
 f${ms}1${ms}get(ITEM[=VALUE] CFPN ...)${ms}2-
 f${ms}1${ms}put(ITEM[=VALUE] CFPN ...)${ms}2-
 f${ms}1${ms}getenv(VARIABLE ITEM[=VALUE] CFPN ...)${ms}3-
 a${ms}2
-f${ms}2${ms}meta(META [ARG ...])${ms}2-
+f${ms}2${ms}meta(META [ARG ...])${ms}2-4
 f${ms}2${ms}exec(CFPN ...)${ms}1-
 f${ms}2${ms}has(ITEM[=VALUE] CFPN ...)${ms}2-
 f${ms}2${ms}get(ITEM[=VALUE] CFPN ...)${ms}2-
