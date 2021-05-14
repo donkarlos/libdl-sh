@@ -85,11 +85,6 @@ dist_man_MANS		= doc/conf_get.3sh				\
 			  doc/quote_rs.3sh				\
 			  doc/quote_sed.3sh				\
 			  doc/quote_sh.3sh				\
-			  doc/undo_drop.3sh				\
-			  doc/undo_mark.3sh				\
-			  doc/undo_meta.3sh				\
-			  doc/undo_pull.3sh				\
-			  doc/undo_push.3sh				\
 			  doc/safe_chdir.3sh				\
 			  doc/safe_init.3sh				\
 			  doc/safe_lock.3sh				\
@@ -101,7 +96,12 @@ dist_man_MANS		= doc/conf_get.3sh				\
 			  doc/safe_save.3sh				\
 			  doc/safe_touch.3sh				\
 			  doc/safe_umask.3sh				\
-			  doc/safe_wait.3sh
+			  doc/safe_wait.3sh				\
+			  doc/undo_drop.3sh				\
+			  doc/undo_mark.3sh				\
+			  doc/undo_meta.3sh				\
+			  doc/undo_pull.3sh				\
+			  doc/undo_push.3sh
 
 ##----------------------------------------------------------------------------
 ##  Finish and install scripts, libraries, manpages, and package data:
@@ -115,15 +115,15 @@ shlib_DATA		= lib/libconf.sh				\
 			  lib/libdl.sh					\
 			  lib/libemit.sh				\
 			  lib/libquote.sh				\
-			  lib/libundo.sh				\
-			  lib/libsafe.sh
+			  lib/libsafe.sh				\
+			  lib/libundo.sh
 man_MANS		= doc/libconf.3sh				\
 			  doc/libdl-sh.1				\
 			  doc/libdl-sh.conf.5				\
 			  doc/libdl.3sh					\
 			  doc/libquote.3sh				\
-			  doc/libundo.3sh				\
-			  doc/libsafe.3sh
+			  doc/libsafe.3sh				\
+			  doc/libundo.3sh
 sysconf_DATA		= etc/libdl-sh.conf
 
 ##----------------------------------------------------------------------------
