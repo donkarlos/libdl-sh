@@ -47,13 +47,15 @@
 ##  Global variables:
 #-----------------------------------------------------------------------------
 undo_re_tag=':[^: 	][^ 	]*'	## Define unanchored RE for tags.
-undo_package='@PACKAGE_TARNAME@'	## Define source package name/version.
-undo_version='@PACKAGE_VERSION@'
+readonly undo_re_tag
+
+undo_package=@PACKAGE_TARNAME@		## Define source package name/version.
+undo_version=@PACKAGE_VERSION@
 undo_api=1				## Preset default API version.
 undo_ro=,				## No internal variables frozen yet.
 undo_stack=
-readonly undo_re_tag undo_package undo_version
-unset undo_0tag				## Discard spurious environment.
+readonly undo_package undo_version; unset undo_0tag
+					## Discard spurious environment.
 
 ##----------------------------------------------------------------------------
 ##  undo_meta(META [ARG ...])	Perform META operation (with ARGs)
@@ -103,7 +105,7 @@ EOF
 		*)  return 1		;;
 	    esac'
 	    ;;
-	=set-?*)			## Set internal variable once...
+	=set-*)				## Set internal variable once...
 	    case ${4+4}${3+=}$2 in	## Usage OK?
 		=api)	${mp}meta get apis api | fgrep -qxe "$3"
 			;;		## Yes, try to validate API version.
