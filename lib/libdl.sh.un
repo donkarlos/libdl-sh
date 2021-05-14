@@ -172,7 +172,7 @@ EOF
 	    esac
 	    ;;
 	=set-session)			## Set session ID...
-	    case ${3+=} in		## Usage OK?
+	    case ${4+4}${3+=} in	## Usage OK?
 		=)  eval "$mp$2"'=$3'	## Yes, set session ID.
 		    ;;
 		*)  return 2		## No, indicate abuse!
