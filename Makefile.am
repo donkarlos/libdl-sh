@@ -135,6 +135,7 @@ TESTSUITE_AT		= $(TESTSUITE).at
 EXTRA_DIST		= $(TESTSUITE_AT)				\
 			  $(TESTSUITE)					\
 			  $(srcdir)/tests/package.m4			\
+			  tests/libconf.sh.at				\
 			  tests/libdl-sh.at				\
 			  tests/libdl.sh.at				\
 			  tests/libquote.sh.at				\
@@ -152,6 +153,7 @@ $(srcdir)/tests/package.m4: $(top_srcdir)/configure.ac
 
 $(TESTSUITE):		$(TESTSUITE_AT)					\
 			$(srcdir)/tests/package.m4			\
+			tests/libconf.sh.at				\
 			tests/libdl-sh.at				\
 			tests/libdl.sh.at				\
 			tests/libquote.sh.at				\
