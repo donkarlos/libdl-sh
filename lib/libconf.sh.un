@@ -41,7 +41,8 @@
 ##					cate workhorse script.
 ##		ks	2021-05-14	conf_meta(): Ditch final relicts of
 ##					withdrawn API version 0.
-##					'set -u'-harden conf_exec().
+##					'set -u'-harden conf_exec() and
+##					conf_has().
 ##
 ##  NOTE:   (1)	The library just wraps around its 'workhorse' awk(1) script!
 ##	    (2)	The library intentionally has no default API version!
@@ -143,19 +144,14 @@ conf_exec() {
 ##				(Some) Configuration file CFPN has ITEM?
 ##----------------------------------------------------------------------------
 conf_has() {
-    case ${conf_api--}:$# in
-	-:*)
-	    dl_warn rel-req-set-api "conf;_has([$#]$*)" 0.4 0.3.6
-	    ;;
-	*:0|*:1)
-	    return 2
-	    ;;
-	*:*)
-	    local item="$1"; shift
-
-	    "$conf_awk" ${1+"$@"} - <<EOF
+    case ${conf_api--}/${2+=} in	## API selected?/Usage OK?
+	-/*)dl_warn rel-req-set-api "conf;_has([$#]$*)" 0.4 0.3.6
+	    ;;				## N/?: Complain about unknown API!
+	*/=)local item="$1"; shift; conf_exec "$@" <<EOF
 has $item
 EOF
+	    ;;				## Y/Y: Has ITEM?
+	*)  return 2			## ?/N: Indicate abuse!
 	    ;;
     esac
 }
