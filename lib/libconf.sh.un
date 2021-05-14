@@ -48,10 +48,8 @@
 #-----------------------------------------------------------------------------
 conf_package='@PACKAGE_TARNAME@'	## Define source package name/version.
 conf_version='@PACKAGE_VERSION@'
-conf_awk=${LIBDL_SH_LIBEXECDIR-@pkgdatadir@}/conf.awk
-test -f "$conf_awk" || return 1
-readonly conf_package conf_version conf_awk
-unset conf_api				## Discard spurious environment.
+readonly conf_package conf_version; unset conf_api
+					## Discard spurious environment.
 
 ##----------------------------------------------------------------------------
 ##  conf_meta(META [ARG ...])	Perform META operation (with ARGs)
@@ -208,3 +206,9 @@ conf_getenv() {
 	*)	shift; conf_get ${1+"$@"}   ;;
     esac'
 }
+
+##----------------------------------------------------------------------------
+##  Initialization:
+##----------------------------------------------------------------------------
+conf_awk=${LIBDL_SH_LIBEXECDIR-@pkgdatadir@}/conf.awk
+readonly conf_awk; test -f "$conf_awk"
