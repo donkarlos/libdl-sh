@@ -41,6 +41,7 @@
 ##					cate workhorse script.
 ##		ks	2021-05-14	conf_meta(): Ditch final relicts of
 ##					withdrawn API version 0.
+##					'set -u'-harden conf_exec().
 ##
 ##  NOTE:   (1)	The library just wraps around its 'workhorse' awk(1) script!
 ##	    (2)	The library intentionally has no default API version!
@@ -127,15 +128,12 @@ EOF
 ##				executing commands from standard input
 ##----------------------------------------------------------------------------
 conf_exec() {
-    case ${conf_api--}:$# in
-	-:*)
-	    dl_warn rel-req-set-api "conf;_exec([$#]$*)" 0.4 0.3.6
+    case ${conf_api--}/${1+=} in	## API selected?/Usage OK?
+	-/*)dl_warn rel-req-set-api "conf;_exec([$#]$*)" 0.4 0.3.6
+	    ;;				## N/?: Complain about unknown API!
+	*/=)"$conf_awk" "$@" -		## Y/Y: Execute standard input.
 	    ;;
-	*:0)
-	    return 2
-	    ;;
-	*:*)
-	    "$conf_awk" ${1+"$@"} -
+	*)  return 2			## ?/N: Indicate abuse!
 	    ;;
     esac
 }
