@@ -39,8 +39,10 @@
 ##					labels portable.
 ##		ks	2021-05-12	Consider $LIBDL_SH_LIBEXECDIR to lo-
 ##					cate workhorse script.
+##		ks	2021-05-14	conf_meta(): Ditch final relicts of
+##					withdrawn API version 0.
 ##
-##  NOTE:   (1)	The library just wraps around its 'workhorse' AWK script!
+##  NOTE:   (1)	The library just wraps around its 'workhorse' awk(1) script!
 ##----------------------------------------------------------------------------
 ##  Global variables:
 #-----------------------------------------------------------------------------
@@ -59,27 +61,20 @@ conf_meta() {
 
     case ${2+=}${1+$1-}${2-} in		## Which META operation?
 	=get-apis)			## Inquire APIs...
-	    local sx ms mf
-	    case ${conf_api-0} in
-		0)  ms=:  mf=${3-brief}	;;
-		*)  ms=\; mf=${3-api}	;;
-	    esac
+	    local sx ms=\;
 	    local fa='/^a'"$ms"'/!d;s///' da='s/([^)'"$ms"'(]*)//'	\
 		  ff='/^F'"$ms"'/{;s///;t2'"$NL"'};/^f'"$ms"'/!d;s///'	\
 		  fr='/^R'"$ms"'/{;s///;t2'"$NL"'};/^r'"$ms"'/!d;s///'	\
 		  p2=';s/'"$ms"'/&'"$mp"'/;:2'
-	    case ${conf_api-0}:$mf in	## Which format?
-		0:brief)
-		    dl_warn rel-wdr-meta "conf;_meta([$#]$1 $2 $mf)" 0.4 0.3.6
-		    return 1				;;
-		*:api)	sx="$fa"			;;
-		*:full)	sx="$ff$p2${4+$NL$4}"		;;
-		*:list)	sx="$ff$p2$NL$da${4+;$4}"	;;
-		2:r/o)	sx="$fr$p2${4+$NL$4}"		;;
-		*:*)	return 1			;;
+	    case ${3-api} in		## Which format?
+		api)	sx="$fa"			;;
+		full)	sx="$ff$p2${4+$NL$4}"		;;
+		list)	sx="$ff$p2$NL$da${4+;$4}"	;;
+		r/o)	sx="$fr$p2${4+$NL$4}"		;;
+		*)	return 1			;;
 	    esac
 	    sed "$sx" <<EOF
-f${ms}0${ms}meta(META [ARG ...])${ms}2-
+f${ms}-${ms}meta(META [ARG ...])${ms}2-
 a${ms}1
 f${ms}1${ms}meta(META [ARG ...])${ms}2-
 f${ms}1${ms}exec(CFPN ...)${ms}1-
