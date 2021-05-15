@@ -38,8 +38,8 @@
 ##					Deprecate/Withdraw safe_init().
 ##					'set -u'-harden safe_init(), safe_-
 ##					mktmpdir(), safe_mkdir(), safe_-
-##					chdir(), safe_touch(), and safe_-
-##					save().
+##					chdir(), safe_touch(), safe_save(),
+##					and safe_rename().
 ##					Prepare API version 1.
 ##					safe_meta(): Cleanups tag may be set
 ##					once only.
@@ -242,9 +242,16 @@ safe_save() {
 ##  safe_rename(OLDPN NEWPN)	Safely rename file
 ##----------------------------------------------------------------------------
 safe_rename() {
-    test -e "$1" || return 1
-    test -e "$2" && return 1
-    mv "$1" "$2" && undo_push mv "$2" "$1"
+    case ${3+3}${2+=} in		## Usage OK?
+	=)  test -e "$1" && {
+		test -e "$2" || {
+		    mv "$1" "$2" && undo_push mv "$2" "$1"
+		}
+	    }
+	    ;;
+	*)  return 2			## No, indicate abuse!
+	    ;;
+    esac
 }
 
 ##----------------------------------------------------------------------------
