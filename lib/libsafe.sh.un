@@ -36,8 +36,8 @@
 ##					labels portable.
 ##		ks	2021-05-15	Prepare for multiple API versions.
 ##					Deprecate/Withdraw safe_init().
-##					'set -u'-harden safe_init() and
-##					safe_mktmpdir().
+##					'set -u'-harden safe_init(), safe_-
+##					mktmpdir(), and safe_mkdir().
 ##					Prepare API version 1.
 ##					safe_meta(): Cleanups tag may be set
 ##					once only.
@@ -172,14 +172,18 @@ safe_mktmpdir() {
 ##  safe_mkdir(DPN ...)		Safely make directories
 ##----------------------------------------------------------------------------
 safe_mkdir() {
-    local dpn
-
-    for dpn in ${1+"$@"}; do		## Foreach directory do...
-	test -d "$dpn" || {		## Does it already exist?
-	    safe_mkdir "`dirname "$dpn"`" && mkdir "$dpn" || break
-	    undo_push rmdir "$dpn" '2>/dev/null'
-	}				## No, try to make it recursively.
-    done
+    case ${1+=} in			## Usage OK?
+	=)  local dpn; for dpn in "$@"; do
+					## Yes, foreach directory do...
+		test -d "$dpn" || {	## Does it already exist?
+		    safe_mkdir "`dirname "$dpn"`" && mkdir "$dpn" &&
+			undo_push rmdir "$dpn" || break
+		}			## No, try to make it recursively,
+	    done			## pushing undos along the way...
+	    ;;
+	*)  return 2			## No, indicate abuse!
+	    ;;
+    esac
 }
 
 ##----------------------------------------------------------------------------
