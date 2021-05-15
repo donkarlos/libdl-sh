@@ -51,6 +51,7 @@
 ##					labels portable.
 ##		ks	2021-05-12	Remove LIBDL_SH_DESTDIR nonsense.
 ##		ks	2021-05-14	Prepare for multiple API versions.
+##		ks	2021-05-15	Add dl_readonly().
 ##
 ##  NOTE:   (1)	To avoid cluttering code, this library is exempted from need-
 ##		ing namespace prefixes for its special character definitions.
@@ -121,6 +122,7 @@ a${ms}1
 f${ms}1${ms}meta(META [ARG ...])${ms}2-
 f${ms}1${ms}warn(WHAT INVO [ARG ...])${ms}2-5
 f${ms}1${ms}dump(MP VS ...)${ms}2-
+f${ms}1${ms}readonly(LIB VS [VALUE])${ms}2-3
 f${ms}1${ms}split(WORD IFS &FIELD ...)${ms}3-
 f${ms}1${ms}which(LIB)${ms}1
 f${ms}1${ms}atload(HOOK)${ms}1
@@ -292,6 +294,37 @@ EOF
 		;;
 	esac'
     done
+}
+
+##----------------------------------------------------------------------------
+##  dl_readonly(LIB VS [VALUE])	(Set and) freeze library's variable
+##----------------------------------------------------------------------------
+dl_readonly() {
+    case ${4+4}${3+3}${2+2$dl_loaded$dl_needed} in
+					## Usage OK?/LIBrary loaded or needed?
+	3*:$1:*)			## Y/Y: Variable still settable?
+	    eval 'case ${'"$1_$2"'+=$'"$1_$2"'}${'"$1_"'ro-,} in
+		=$3,*)			## Maybe, but ignore idempotence.
+		    ;;
+		=*,$2,*)		## No, indicate failure!
+		    return 1
+		    ;;
+		*)  '"$1_$2"'=$3 '"$1_"'ro=${'"$1_"'ro-,}$2,; readonly '"$1_$2"'
+		    ;;			## Yes, set and freeze it.
+	    esac'
+	    ;;
+	2*:$1:*)			## Y/Y: Variable still freezable?
+	    eval 'case ${'"$1_"'ro-,} in
+		*,$2,*)			## No, indicate failure!
+		    return 1
+		    ;;
+		*)  '"$1_"'ro=${'"$1_"'ro-,}$2,; readonly '"$1_$2"'
+			;;		## Yes, freeze it.
+	    esac'
+	    ;;
+	*)  return 2			## N/?: Indicate abuse!
+	    ;;
+    esac
 }
 
 ##----------------------------------------------------------------------------
