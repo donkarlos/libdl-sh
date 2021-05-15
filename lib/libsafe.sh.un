@@ -69,7 +69,7 @@ safe_meta() {
 	    esac
 	    sed "$sx" <<EOF
 a${ms}$safe_api
-f${ms}$safe_api${ms}meta(META [ARG ...])${ms}2-
+f${ms}$safe_api${ms}meta(META [ARG ...])${ms}2-4
 f${ms}$safe_api${ms}init(TAG)${ms}1
 f${ms}$safe_api${ms}mktmpdir(&DPN [DRN])${ms}1-2
 f${ms}$safe_api${ms}mkdir(DPN ...)${ms}1-
