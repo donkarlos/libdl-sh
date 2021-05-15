@@ -39,7 +39,7 @@
 ##					'set -u'-harden safe_init(), safe_-
 ##					mktmpdir(), safe_mkdir(), safe_-
 ##					chdir(), safe_touch(), safe_save(),
-##					and safe_rename().
+##					safe_rename(), and safe_remove().
 ##					Prepare API version 1.
 ##					safe_meta(): Cleanups tag may be set
 ##					once only.
@@ -258,22 +258,21 @@ safe_rename() {
 ##  safe_remove(PN ...)		Safely remove directory tree(s)/file(s)
 ##----------------------------------------------------------------------------
 safe_remove() {
-    local tmpdn tarpn pn
-
-    safe_mktmpdir tmpdn safe && {	## Make temporary directory.
-	safe_tarid=`expr $safe_tarid + 1`
-	tarpn=$tmpdn/$safe_tarid.tar	## Construct backup archive's name.
-	for pn in ${1+"$@"}; do		## Foreach removee do...
-	    test -e "$pn" && {		## Append it to backup archive.
-		tar rPf "$tarpn" "$pn" || return 1
+    case ${1+=} in			## Usage OK?
+	=)  local tmpdn tarpn; safe_mktmpdir tmpdn safe && {
+					## Yes, temporary directory made?
+		safe_tarid=`expr ${safe_tarid-0} + 1` && {
+		    tarpn=$tmpdn/$safe_tarid.tar
+					## Yes, construct archive name.
+		    tar cPf "$tarpn" "$@" &&
+			undo_push 'tar xPf' "$tarpn" &&
+			rm -rf "$@"
+		}
 	    }
-	done
-	if test -e "$tarpn"; then
-	    undo_push 'tar xPf' "$tarpn" '2>/dev/null' && rm -rf "$@"
-	else
-	    :
-	fi
-    }
+	    ;;
+	*)  return 2			## No, indicate abuse!
+	    ;;
+    esac
 }
 
 ##----------------------------------------------------------------------------
