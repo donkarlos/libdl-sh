@@ -34,12 +34,14 @@
 ##		ks	2021-05-01	'set -u'-harden safe_meta().
 ##		ks	2021-05-08	Make 'safe_meta get apis' SEDEX
 ##					labels portable.
+##		ks	2021-05-15	Prepare for multiple API versions.
 ##----------------------------------------------------------------------------
 ##  Global variables:
 #-----------------------------------------------------------------------------
-safe_package='@PACKAGE_TARNAME@'	## Define source package name/version.
-safe_version='@PACKAGE_VERSION@'
-safe_api=0				## Define API version.
+safe_package=@PACKAGE_TARNAME@		## Define source package name
+safe_version=@PACKAGE_VERSION@		## and version.
+safe_api=0				## Preset sole API version and
+safe_ro=,api,				## freeze it!
 safe_tmpdir=
 safe_suffix=$$
 safe_tarid=0
@@ -68,20 +70,20 @@ safe_meta() {
 		*)	return 1			;;
 	    esac
 	    sed "$sx" <<EOF
-a${ms}$safe_api
-f${ms}$safe_api${ms}meta(META [ARG ...])${ms}2-4
-f${ms}$safe_api${ms}init(TAG)${ms}1
-f${ms}$safe_api${ms}mktmpdir(&DPN [DRN])${ms}1-2
-f${ms}$safe_api${ms}mkdir(DPN ...)${ms}1-
-f${ms}$safe_api${ms}chdir(DPN)${ms}1
-f${ms}$safe_api${ms}touch(FPN ...)${ms}1-
-f${ms}$safe_api${ms}save(FPN)${ms}1
-f${ms}$safe_api${ms}rename(OLDPN NEWPN)${ms}2
-f${ms}$safe_api${ms}remove(PN ...)${ms}1-
-f${ms}$safe_api${ms}umask(UMASK COMMAND [ARGUMENT ...])${ms}2-
-f${ms}$safe_api${ms}unlock(PN)${ms}1
-f${ms}$safe_api${ms}lock(PN)${ms}1
-f${ms}$safe_api${ms}wait(PN [SECONDS=30])${ms}1-2
+a${ms}0
+f${ms}0${ms}meta(META [ARG ...])${ms}2-4
+f${ms}0${ms}init(TAG)${ms}1
+f${ms}0${ms}mktmpdir(&DPN [DRN])${ms}1-2
+f${ms}0${ms}mkdir(DPN ...)${ms}1-
+f${ms}0${ms}chdir(DPN)${ms}1
+f${ms}0${ms}touch(FPN ...)${ms}1-
+f${ms}0${ms}save(FPN)${ms}1
+f${ms}0${ms}rename(OLDPN NEWPN)${ms}2
+f${ms}0${ms}remove(PN ...)${ms}1-
+f${ms}0${ms}umask(UMASK COMMAND [ARGUMENT ...])${ms}2-
+f${ms}0${ms}unlock(PN)${ms}1
+f${ms}0${ms}lock(PN)${ms}1
+f${ms}0${ms}wait(PN [SECONDS=30])${ms}1-2
 EOF
 	    ;;
 	=get-package|=get-version|=get-api|=get-0tag)
@@ -94,6 +96,21 @@ EOF
 	=set-0tag)			## Set cleanups tag...
 	    undo_meta "$@" && eval "$mp$2"'=$3'
 	    ;;				## ...after passing it to libundo.sh.
+	=set-*)				## Set internal variable once...
+	    case ${4+4}${3+=}$2 in	## Usage OK?
+		=api)	${mp}meta get apis | fgrep -qxe "$3"
+			;;		## Yes, try to validate API version.
+		*)	return 2	## No, indicate abuse!
+			;;
+	    esac && eval 'case ${'"$mp$2"'+=$'"$mp$2"'}$'"$mp"'ro in
+		=$3,*)	return 0	## Variable still settable?
+			;;		## Maybe, but idempotence is OK.
+		=*,$2,*)return 1	## No, indicate failure!
+			;;
+		*)  	'"$mp$2"'=$3 '"$mp"'ro=$'"$mp"'ro$2,; readonly '"$mp$2"'
+			;;		## Yes, set and freeze it.
+	    esac'
+	    ;;
 	=session-init|=session-load|=session-dump|=session-exit)
 	    :				## Session init/load/dump/exit...
 	    ;;				## ...is a no-op.
