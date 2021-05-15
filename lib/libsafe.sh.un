@@ -37,19 +37,20 @@
 ##		ks	2021-05-15	Prepare for multiple API versions.
 ##					Deprecate/Withdraw safe_init().
 ##					'set -u'-harden safe_init().
+##					Prepare API version 1.
 ##----------------------------------------------------------------------------
 ##  Global variables:
 #-----------------------------------------------------------------------------
 safe_package=@PACKAGE_TARNAME@		## Define source package name
 safe_version=@PACKAGE_VERSION@		## and version.
-safe_api=0				## Preset sole API version and
-safe_ro=,api,				## freeze it!
+safe_api=0				## Preset default API version.
+safe_ro=,				## No internal variables frozen yet.
 safe_tmpdir=
 safe_suffix=$$
 safe_tarid=0
 safe_locks=
 safe_0tag=
-readonly safe_package safe_version safe_api
+readonly safe_package safe_version
 
 ##----------------------------------------------------------------------------
 ##  safe_meta(META [ARG ...])	Perform META operation (with ARGs)
@@ -86,6 +87,18 @@ f${ms}0${ms}umask(UMASK COMMAND [ARGUMENT ...])${ms}2-
 f${ms}0${ms}unlock(PN)${ms}1
 f${ms}0${ms}lock(PN)${ms}1
 f${ms}0${ms}wait(PN [SECONDS=30])${ms}1-2
+f${ms}1${ms}meta(META [ARG ...])${ms}2-4
+f${ms}1${ms}mktmpdir(&DPN [DRN])${ms}1-2
+f${ms}1${ms}mkdir(DPN ...)${ms}1-
+f${ms}1${ms}chdir(DPN)${ms}1
+f${ms}1${ms}touch(FPN ...)${ms}1-
+f${ms}1${ms}save(FPN)${ms}1
+f${ms}1${ms}rename(OLDPN NEWPN)${ms}2
+f${ms}1${ms}remove(PN ...)${ms}1-
+f${ms}1${ms}umask(UMASK COMMAND [ARGUMENT ...])${ms}2-
+f${ms}1${ms}unlock(PN)${ms}1
+f${ms}1${ms}lock(PN)${ms}1
+f${ms}1${ms}wait(PN [SECONDS=30])${ms}1-2
 EOF
 	    ;;
 	=get-package|=get-version|=get-api|=get-0tag)
