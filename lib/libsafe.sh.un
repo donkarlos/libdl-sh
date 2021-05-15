@@ -37,7 +37,8 @@
 ##		ks	2021-05-15	Prepare for multiple API versions.
 ##					Deprecate/Withdraw safe_init().
 ##					'set -u'-harden safe_init(), safe_-
-##					mktmpdir(), and safe_mkdir().
+##					mktmpdir(), safe_mkdir() and safe_-
+##					chdir().
 ##					Prepare API version 1.
 ##					safe_meta(): Cleanups tag may be set
 ##					once only.
@@ -190,7 +191,13 @@ safe_mkdir() {
 ##  safe_chdir(DPN)		Safely change directory
 ##----------------------------------------------------------------------------
 safe_chdir() {
-    local d="`pwd`"; cd "$1" && undo_push cd "$d" '2>/dev/null'
+    case ${2+2}${1+=} in		## Usage OK?
+	=)  local cwd="`pwd`"; cd "$1" &&
+		undo_push ${safe_0tag+"$safe_0tag"} cd "$cwd"
+	    ;;
+	*)  return 2			## No, indicate abuse!
+	    ;;
+    esac
 }
 
 ##----------------------------------------------------------------------------
