@@ -36,7 +36,8 @@
 ##					labels portable.
 ##		ks	2021-05-15	Prepare for multiple API versions.
 ##					Deprecate/Withdraw safe_init().
-##					'set -u'-harden safe_init().
+##					'set -u'-harden safe_init() and
+##					safe_mktmpdir().
 ##					Prepare API version 1.
 ##					safe_meta(): Cleanups tag may be set
 ##					once only.
@@ -149,13 +150,17 @@ safe_init() {
 ##  safe_mktmpdir(&DPN [DRN])	Safely make temporary directory
 ##----------------------------------------------------------------------------
 safe_mktmpdir() {
-    test -n "$safe_tmpdir" || {		## Temporary directory made?
-	safe_tmpdir=`mktemp -d` || return 1
+    case ${3+3}${2+=}${1+=} in		## Usage OK?
+	=*)				## Yes...
+	    test -n "$safe_tmpdir" || {	## Temporary directory made?
+		safe_tmpdir=`mktemp -d` || return 1
 					## No, try to make it once and for all.
-	undo_push $safe_0tag 'rm -rf' "$safe_tmpdir"
-    }
-
-    case $# in				## Optional relative name supplied?
+		undo_push $safe_0tag 'rm -rf' "$safe_tmpdir"
+	    }
+	    ;;
+	*)  return 2			## No, indicate abuse!
+	    ;;
+    esac && case $# in			## DRN passed?
 	2)  mkdir -p "$safe_tmpdir/$2" && eval "$1"'=$safe_tmpdir/$2'
 	    ;;				## Yes, try to make it and pass it on.
 	1)  eval "$1"'=$safe_tmpdir'	## No, just pass it on.
