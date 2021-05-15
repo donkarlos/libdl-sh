@@ -108,7 +108,7 @@ EOF
 	    ;;
 	=set-*)				## Set internal variable once...
 	    case ${4+4}${3+=}$2 in	## Usage OK?
-		=api)	${mp}meta get apis api | fgrep -qxe "$3"
+		=api)	${mp}meta get apis | fgrep -qxe "$3"
 			;;		## Yes, try to validate API version.
 		=0tag)	expr "_$3" : "_$undo_re_tag"'$' >/dev/null
 			;;		## Yes, try to validate tag.
