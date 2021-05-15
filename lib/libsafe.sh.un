@@ -39,7 +39,8 @@
 ##					'set -u'-harden safe_init(), safe_-
 ##					mktmpdir(), safe_mkdir(), safe_-
 ##					chdir(), safe_touch(), safe_save(),
-##					safe_rename(), and safe_remove().
+##					safe_rename(), safe_remove(), and
+##					safe_umask().
 ##					Prepare API version 1.
 ##					safe_meta(): Cleanups tag may be set
 ##					once only.
@@ -280,13 +281,17 @@ safe_remove() {
 ##				Invoke COMMAND with umask UMASK
 ##----------------------------------------------------------------------------
 safe_umask() {
-    local umask=`umask` status		## Save umask.
-
-    umask $1; shift			## Adjust umask.
-    ${1+"$@"}				## Invoke command.
-    status=$?; umask $umask		## Save status and restore umask.
-
-    return $status			## Indicate status.
+    case ${2+=} in			## Usage OK?
+	=)  local umask=`umask` status	## Yes, save umask.
+	    umask "$1" && {		## Successfully adjusted umask?
+		shift; "$@"; status=$?	## Yes, invoke command, collect sta-
+		umask $umask		## tus, restore umask, and return
+		return $status		## collected status.
+	    }
+	    ;;
+	*)  return 2			## No, indicate abuse!
+	    ;;
+    esac
 }
 
 ##----------------------------------------------------------------------------
