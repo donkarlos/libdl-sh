@@ -37,8 +37,8 @@
 ##		ks	2021-05-15	Prepare for multiple API versions.
 ##					Deprecate/Withdraw safe_init().
 ##					'set -u'-harden safe_init(), safe_-
-##					mktmpdir(), safe_mkdir() and safe_-
-##					chdir().
+##					mktmpdir(), safe_mkdir(), safe_-
+##					chdir(), and safe_touch().
 ##					Prepare API version 1.
 ##					safe_meta(): Cleanups tag may be set
 ##					once only.
@@ -204,14 +204,18 @@ safe_chdir() {
 ##  safe_touch(FPN ...)		Safely touch file(s) into existence
 ##----------------------------------------------------------------------------
 safe_touch() {
-    local fpn
-
-    for fpn in ${1+"$@"}; do		## Foreach file do...
-	test -f "$fpn" || {		## Does it already exist?
-	    safe_mkdir "`dirname "$fpn"`" && touch "$fpn" || break
-	    undo_push 'rm -f' "$fpn"
-	}				## No, try to make it recursively.
-    done
+    case ${1+=} in			## Usage OK?
+	=)  local fpn; for fpn in "$@"; do
+					## Yes, foreach file do...
+		test -f "$fpn" || {	## Does it already exist?
+		    safe_mkdir "`dirname "$fpn"`" && touch "$fpn" &&
+			undo_push 'rm -f' "$fpn" || break
+		}			## No, try to make it recursively,
+	    done			## pushing undos along the way...
+	    ;;
+	*)  return 2			## No, indicate abuse!
+	    ;;
+    esac
 }
 
 ##----------------------------------------------------------------------------
