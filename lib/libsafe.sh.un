@@ -35,6 +35,7 @@
 ##		ks	2021-05-08	Make 'safe_meta get apis' SEDEX
 ##					labels portable.
 ##		ks	2021-05-15	Prepare for multiple API versions.
+##					Deprecate/Withdraw safe_init().
 ##----------------------------------------------------------------------------
 ##  Global variables:
 #-----------------------------------------------------------------------------
@@ -123,7 +124,10 @@ EOF
 ##  safe_init(TAG)		Set cleanups tag for successful exit
 ##----------------------------------------------------------------------------
 safe_init() {
-    safe_meta set 0tag "$1"
+    case ${safe_api--} in
+	1)  dl_warn api-wdr-func "safe;_init([$#]$*)" 1 0		;;
+	*)  dl_warn rel-dpr-func "safe;_init([$#]$*)" 0.4 0.5 0.3.6	;;
+    esac && safe_meta set 0tag "$1"
 }
 
 ##----------------------------------------------------------------------------
