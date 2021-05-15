@@ -79,7 +79,7 @@ undo_meta() {
 	    esac
 	    sed "$sx" <<EOF
 a${ms}0
-f${ms}0${ms}meta(META [ARG ...])${ms}2-
+f${ms}0${ms}meta(META [ARG ...])${ms}2-4
 f${ms}0${ms}init(TAG)${ms}1
 f${ms}0${ms}mark(MARK)${ms}1
 f${ms}0${ms}push([TAG] COMMAND [ARGUMENT|REDIRECTION ...])${ms}1-
@@ -87,13 +87,13 @@ f${ms}0${ms}pull(MARK [TAG] | TAG | [COUNT=1])${ms}0-2
 f${ms}0${ms}drop(MARK [TAG] | TAG | [COUNT=1])${ms}0-2
 f${ms}0${ms}keep(MARK [TAG] | TAG | [COUNT=1])${ms}0-2
 a${ms}1
-f${ms}1${ms}meta(META [ARG ...])${ms}2-
+f${ms}1${ms}meta(META [ARG ...])${ms}2-4
 f${ms}1${ms}mark(MARK)${ms}1
 f${ms}1${ms}push([TAG] COMMAND [ARGUMENT|REDIRECTION ...])${ms}1-
 f${ms}1${ms}pull(MARK [TAG] | TAG | [COUNT=1])${ms}0-2
 f${ms}1${ms}drop(MARK [TAG] | TAG | [COUNT=1])${ms}0-2
 a${ms}2
-f${ms}2${ms}meta(META [ARG ...])${ms}2-
+f${ms}2${ms}meta(META [ARG ...])${ms}2-4
 f${ms}2${ms}push(MARK|[TAG] COMMAND [ARGUMENT|REDIRECTION ...])${ms}1-
 f${ms}2${ms}pull(MARK [TAG] | TAG | [COUNT=1])${ms}0-2
 f${ms}2${ms}drop(MARK [TAG] | TAG | [COUNT=1])${ms}0-2

@@ -63,7 +63,7 @@ emit_meta() {
 	    esac
 	    sed "$sx" <<EOF
 a${ms}$emit_api
-f${ms}$emit_api${ms}meta(META [ARG ...])${ms}2-
+f${ms}$emit_api${ms}meta(META [ARG ...])${ms}2-4
 f${ms}$emit_api${ms}set_head(LEVEL HEAD)${ms}2
 f${ms}$emit_api${ms}get_head(LEVEL)${ms}1
 F${ms}$emit_api${ms}emit(LEVEL MESSAGE ...)${ms}2-

@@ -57,7 +57,7 @@ session_meta() {
 	    esac
 	    sed "$sx" <<EOF
 a${ms}$session_api
-f${ms}$session_api${ms}meta(META [ARG ...])${ms}2-
+f${ms}$session_api${ms}meta(META [ARG ...])${ms}2-4
 EOF
 	    ;;
 	=get-package|=get-version|=get-api)
