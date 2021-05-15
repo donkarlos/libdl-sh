@@ -40,7 +40,8 @@
 ##					mktmpdir(), safe_mkdir(), safe_-
 ##					chdir(), safe_touch(), safe_save(),
 ##					safe_rename(), safe_remove(), safe_-
-##					umask(), and safe_unlock().
+##					umask(), safe_unlock(), and safe_-
+##					lock().
 ##					Prepare API version 1.
 ##					safe_meta(): Cleanups tag may be set
 ##					once only.
@@ -313,12 +314,18 @@ safe_unlock() {
 ##  safe_lock(PN)		Safely try locking directory or file PN
 ##----------------------------------------------------------------------------
 safe_lock() {
-    echo "$safe_locks" | fgrep -qxe "$1" || {
-	safe_mkdir "`dirname "$1"`" &&
-	    safe_umask 277 mkdir "$1~lock" 2>/dev/null &&
-	    undo_push $safe_0tag safe_unlock "$1" &&
-	    safe_locks="$safe_locks$1$NL"
-    }
+    case ${2+2}${1+=} in		## Usage OK?
+	=)				## Yes, try to lock PN.
+	    echo "$safe_locks" | fgrep -qxe "$1" || {
+		safe_mkdir "`dirname "$1"`" &&
+		    safe_umask 277 mkdir "$1~lock" &&
+		    undo_push ${safe_0tag+"$safe_0tag"} safe_unlock "$1" &&
+		    safe_locks="$safe_locks$1$NL"
+	    }
+	    ;;
+	*)  return 2			## No, indicate abuse!
+	    ;;
+    esac
 }
 
 ##----------------------------------------------------------------------------
