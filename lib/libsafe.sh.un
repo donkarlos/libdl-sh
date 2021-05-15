@@ -38,6 +38,8 @@
 ##					Deprecate/Withdraw safe_init().
 ##					'set -u'-harden safe_init().
 ##					Prepare API version 1.
+##					safe_meta(): Cleanups tag may be set
+##					once only.
 ##----------------------------------------------------------------------------
 ##  Global variables:
 #-----------------------------------------------------------------------------
@@ -49,8 +51,8 @@ safe_tmpdir=
 safe_suffix=$$
 safe_tarid=0
 safe_locks=
-safe_0tag=
-readonly safe_package safe_version
+readonly safe_package safe_version; unset safe_0tag
+					## Discard spurious environment.
 
 ##----------------------------------------------------------------------------
 ##  safe_meta(META [ARG ...])	Perform META operation (with ARGs)
@@ -108,13 +110,12 @@ EOF
 		*)  return 1		;;
 	    esac'
 	    ;;
-	=set-0tag)			## Set cleanups tag...
-	    undo_meta "$@" && eval "$mp$2"'=$3'
-	    ;;				## ...after passing it to libundo.sh.
 	=set-*)				## Set internal variable once...
 	    case ${4+4}${3+=}$2 in	## Usage OK?
 		=api)	${mp}meta get apis | fgrep -qxe "$3"
 			;;		## Yes, try to validate API version.
+		=0tag)	undo_meta ${1+"$@"}
+			;;		## Yes, try to validate tag.
 		*)	return 2	## No, indicate abuse!
 			;;
 	    esac && eval 'case ${'"$mp$2"'+=$'"$mp$2"'}$'"$mp"'ro in
