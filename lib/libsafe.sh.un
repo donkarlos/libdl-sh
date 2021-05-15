@@ -40,8 +40,8 @@
 ##					mktmpdir(), safe_mkdir(), safe_-
 ##					chdir(), safe_touch(), safe_save(),
 ##					safe_rename(), safe_remove(), safe_-
-##					umask(), safe_unlock(), and safe_-
-##					lock().
+##					umask(), safe_unlock(), safe_lock(),
+##					and safe_wait().
 ##					Prepare API version 1.
 ##					safe_meta(): Cleanups tag may be set
 ##					once only.
@@ -332,13 +332,20 @@ safe_lock() {
 ##  safe_wait(PN [SECONDS=30])	Try locking PN within SECONDS seconds
 ##----------------------------------------------------------------------------
 safe_wait() {
-    local seconds="${2-30}"
+    case ${3+3}${2+=}${1+=} in		## Usage OK?
+	=)				## Yes, ...
+	    local seconds="${2-30}"
 
-    until safe_lock "$1"; do		## Until we lock map file do...
-	test -d "$1~lock" || return 1	## Cond. indic. failure to lock at all.
-	sleep 1; seconds=`expr $seconds - 1`
-	test $seconds -gt 0 || return 2	## Cond. indicate timeout.
-    done
+	    until safe_lock "$1"; do	## Until we lock map file do...
+		test -d "$1~lock" || return 1
+					## Cond. indic. failure to lock at all.
+		sleep 1; seconds=`expr $seconds - 1`
+		test $seconds -gt 0 || return 2
+	    done			## Cond. indicate timeout.
+	    ;;
+	*)  return 2			## No, indicate abuse!
+	    ;;
+    esac
 }
 
 ##----------------------------------------------------------------------------
