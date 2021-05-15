@@ -38,7 +38,8 @@
 ##					Deprecate/Withdraw safe_init().
 ##					'set -u'-harden safe_init(), safe_-
 ##					mktmpdir(), safe_mkdir(), safe_-
-##					chdir(), and safe_touch().
+##					chdir(), safe_touch(), and safe_-
+##					save().
 ##					Prepare API version 1.
 ##					safe_meta(): Cleanups tag may be set
 ##					once only.
@@ -222,12 +223,19 @@ safe_touch() {
 ##  safe_save(FPN)		Safely save existing file
 ##----------------------------------------------------------------------------
 safe_save() {
-    test -f "$1~B$safe_suffix" || {	## File has already been saved?
-	cp -p "$1" "$1~B$safe_suffix" && {
-	    undo_push $safe_0tag 'rm -f' "$1~B$safe_suffix"
-	    undo_push mv "$1~B$safe_suffix" "$1"
-	}				## No, try to save it.
-    }
+    case ${2+2}${1+=} in		## Usage OK?
+	=)  local fpn="$1" bpn="$1~B$safe_suffix"
+	    test -f "$fpn" && {		## Yes, and file exists?
+		test -f "$bpn" || {	## Yes, and file had been saved?
+		    cp -p "$fpn" "$bpn" &&
+			undo_push ${safe_0tag+"$safe_0tag"} 'rm -f' "$bpn" &&
+			undo_push mv "$bpn" "$fpn"
+		}			## No, try to save it.
+	    }
+	    ;;
+	*)  return 2			## No, indicate abuse!
+	    ;;
+    esac
 }
 
 ##----------------------------------------------------------------------------
