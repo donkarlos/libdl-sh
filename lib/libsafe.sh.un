@@ -333,15 +333,19 @@ safe_lock() {
 ##----------------------------------------------------------------------------
 safe_wait() {
     case ${3+3}${2+=}${1+=} in		## Usage OK?
-	=)				## Yes, ...
-	    local seconds="${2-30}"
-
-	    until safe_lock "$1"; do	## Until we lock map file do...
-		test -d "$1~lock" || return 1
-					## Cond. indic. failure to lock at all.
-		sleep 1; seconds=`expr $seconds - 1`
-		test $seconds -gt 0 || return 2
-	    done			## Cond. indicate timeout.
+	=*) local seconds="${2-30}"; test 0 -lt "$seconds" 2>/dev/null && {
+					## Positive number of seconds passed?
+		until safe_lock "$1"; do
+					## Until we lock map file do...
+		    test -d "$1~lock" || return 1
+					## Indicate failure unless lock was
+					## made.
+		    sleep 1; seconds=`expr $seconds - 1`
+					## Wait a second...
+		    test $seconds -gt 0 || return 2
+					## Indicate timeout unless timer is
+		done			## still running.
+	    }
 	    ;;
 	*)  return 2			## No, indicate abuse!
 	    ;;
