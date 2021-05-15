@@ -47,7 +47,7 @@
 ##					sion affecting dl_warn().
 ##		ks	2021-05-07	'set -u'-harden dl_split(), dl_dump(),
 ##					and dl_which().
-##		ks	2021-05-08	Make 'dl_meta get apis' SEDEX
+##		ks	2021-05-08	Make 'dl_meta get apis' sed(1) expr.
 ##					labels portable.
 ##		ks	2021-05-12	Remove LIBDL_SH_DESTDIR nonsense.
 ##		ks	2021-05-14	Prepare for multiple API versions.

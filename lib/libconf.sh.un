@@ -35,7 +35,7 @@
 ##					Make 'meta get apis FORMAT' properly
 ##					handle namespace rule-exempted names.
 ##		ks	2021-05-01	'set -u'-harden conf_meta().
-##		ks	2021-05-08	Make 'conf_meta get apis' SEDEX
+##		ks	2021-05-08	Make 'conf_meta get apis' sed(1) expr.
 ##					labels portable.
 ##		ks	2021-05-12	Consider $LIBDL_SH_LIBEXECDIR to lo-
 ##					cate workhorse script.

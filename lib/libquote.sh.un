@@ -34,8 +34,8 @@
 ##					handle namespace rule-exempted names.
 ##		ks	2021-04-29	Add universal quoter quote().
 ##		ks	2021-05-01	'set -u'-harden quote_meta().
-##		ks	2021-05-08	Make 'quote_meta get apis' SEDEX
-##					labels portable.
+##		ks	2021-05-08	Make 'quote_meta get apis' sed(1)
+##					expr. labels portable.
 ##		ks	2021-05-09	Overhaul quote_sh(), quote_command(),
 ##					quote_re(), quote_ere(), and
 ##					quote_rs().

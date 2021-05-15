@@ -36,7 +36,7 @@
 ##					Make 'meta get apis FORMAT' properly
 ##					handle namespace rule-exempted names.
 ##		ks	2021-05-01	'set -u'-harden undo_meta().
-##		ks	2021-05-08	Make 'undo_meta get apis' SEDEX
+##		ks	2021-05-08	Make 'undo_meta get apis' sed(1) expr.
 ##					labels portable.
 ##		ks	2021-05-13	'set -u'-harden undo_init(), undo_ex-
 ##					it(), undo_emit(), and undo_mark().

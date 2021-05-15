@@ -30,7 +30,7 @@
 ##					handle namespace rule-exempted names.
 ##		ks	2020-05-12	Limit valid 'meta session' operations.
 ##		ks	2021-05-01	'set -u'-harden emit_meta().
-##		ks	2021-05-08	Make 'emit_meta get apis' SEDEX
+##		ks	2021-05-08	Make 'emit_meta get apis' sed(1) expr.
 ##					labels portable.
 ##----------------------------------------------------------------------------
 ##  Global variables:

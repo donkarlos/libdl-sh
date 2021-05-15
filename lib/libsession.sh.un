@@ -25,8 +25,8 @@
 ##					Make 'meta get apis FORMAT' properly
 ##					handle namespace rule-exempted names.
 ##		ks	2021-05-01	'set -u'-harden session_meta().
-##		ks	2021-05-08	Make 'session_meta get apis' SEDEX
-##					labels portable.
+##		ks	2021-05-08	Make 'session_meta get apis' sed(1)
+##					expr. labels portable.
 ##----------------------------------------------------------------------------
 ##  Global variables:
 #-----------------------------------------------------------------------------
