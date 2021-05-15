@@ -27,12 +27,14 @@
 ##		ks	2021-05-01	'set -u'-harden session_meta().
 ##		ks	2021-05-08	Make 'session_meta get apis' sed(1)
 ##					expr. labels portable.
+##		ks	2021-05-15	Prepare for multiple API versions.
 ##----------------------------------------------------------------------------
 ##  Global variables:
 #-----------------------------------------------------------------------------
-session_package='@PACKAGE_TARNAME@'	## Define source package name/version.
-session_version='@PACKAGE_VERSION@'
-session_api=0				## Define API version.
+session_package=@PACKAGE_TARNAME@	## Define source package name and
+session_version=@PACKAGE_VERSION@	## version.
+session_api=0				## Preset sole API version and
+session_ro=,api,			## freeze it!
 readonly session_package session_version session_api
 
 ##----------------------------------------------------------------------------
@@ -56,8 +58,8 @@ session_meta() {
 		*)	return 1			;;
 	    esac
 	    sed "$sx" <<EOF
-a${ms}$session_api
-f${ms}$session_api${ms}meta(META [ARG ...])${ms}2-4
+a${ms}0
+f${ms}0${ms}meta(META [ARG ...])${ms}2-4
 EOF
 	    ;;
 	=get-package|=get-version|=get-api)
@@ -65,6 +67,21 @@ EOF
 	    eval 'case ${'"$mp$2"'+=} in
 		=)  echo "$'"$mp$2"'"	;;
 		*)  return 1		;;
+	    esac'
+	    ;;
+	=set-*)				## Set internal variable once...
+	    case ${4+4}${3+=}$2 in	## Usage OK?
+		=api)	${mp}meta get apis | fgrep -qxe "$3"
+			;;		## Yes, try to validate API version.
+		*)	return 2	## No, indicate abuse!
+			;;
+	    esac && eval 'case ${'"$mp$2"'+=$'"$mp$2"'}$'"$mp"'ro in
+		=$3,*)	return 0	## Variable still settable?
+			;;		## Maybe, but idempotence is OK.
+		=*,$2,*)return 1	## No, indicate failure!
+			;;
+		*)  	'"$mp$2"'=$3 '"$mp"'ro=$'"$mp"'ro$2,; readonly '"$mp$2"'
+			;;		## Yes, set and freeze it.
 	    esac'
 	    ;;
 	=session-init|=session-load|=session-dump|=session-exit)

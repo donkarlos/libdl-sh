@@ -32,12 +32,14 @@
 ##		ks	2021-05-01	'set -u'-harden emit_meta().
 ##		ks	2021-05-08	Make 'emit_meta get apis' sed(1) expr.
 ##					labels portable.
+##		ks	2021-05-15	Prepare for multiple API versions.
 ##----------------------------------------------------------------------------
 ##  Global variables:
 #-----------------------------------------------------------------------------
-emit_package='@PACKAGE_TARNAME@'	## Define source package name/version.
-emit_version='@PACKAGE_VERSION@'
-emit_api=0				## Define API version.
+emit_package=@PACKAGE_TARNAME@		## Define source package name and
+emit_version=@PACKAGE_VERSION@		## version.
+emit_api=0				## Preset sole API version and
+emit_ro=,api,				## freeze it!
 emit_heads=:
 readonly emit_package emit_version emit_api
 
@@ -62,11 +64,11 @@ emit_meta() {
 		*)	return 1			;;
 	    esac
 	    sed "$sx" <<EOF
-a${ms}$emit_api
-f${ms}$emit_api${ms}meta(META [ARG ...])${ms}2-4
-f${ms}$emit_api${ms}set_head(LEVEL HEAD)${ms}2
-f${ms}$emit_api${ms}get_head(LEVEL)${ms}1
-F${ms}$emit_api${ms}emit(LEVEL MESSAGE ...)${ms}2-
+a${ms}0
+f${ms}0${ms}meta(META [ARG ...])${ms}2-4
+f${ms}0${ms}set_head(LEVEL HEAD)${ms}2
+f${ms}0${ms}get_head(LEVEL)${ms}1
+F${ms}0${ms}emit(LEVEL MESSAGE ...)${ms}2-
 EOF
 	    ;;
 	=get-package|=get-version|=get-api)
@@ -74,6 +76,21 @@ EOF
 	    eval 'case ${'"$mp$2"'+=} in
 		=)  echo "$'"$mp$2"'"	;;
 		*)  return 1		;;
+	    esac'
+	    ;;
+	=set-*)				## Set internal variable once...
+	    case ${4+4}${3+=}$2 in	## Usage OK?
+		=api)	${mp}meta get apis | fgrep -qxe "$3"
+			;;		## Yes, try to validate API version.
+		*)	return 2	## No, indicate abuse!
+			;;
+	    esac && eval 'case ${'"$mp$2"'+=$'"$mp$2"'}$'"$mp"'ro in
+		=$3,*)	return 0	## Variable still settable?
+			;;		## Maybe, but idempotence is OK.
+		=*,$2,*)return 1	## No, indicate failure!
+			;;
+		*)  	'"$mp$2"'=$3 '"$mp"'ro=$'"$mp"'ro$2,; readonly '"$mp$2"'
+			;;		## Yes, set and freeze it.
 	    esac'
 	    ;;
 	=session-init|=session-load|=session-dump|=session-exit)
