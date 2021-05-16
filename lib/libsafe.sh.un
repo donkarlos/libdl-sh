@@ -44,16 +44,17 @@
 ##					and safe_wait().
 ##					Prepare API version 1.
 ##					Use dl_readonly() to freeze variables.
+##					Activate API version 1.
 ##----------------------------------------------------------------------------
 ##  Global variables:
 #-----------------------------------------------------------------------------
 safe_package=@PACKAGE_TARNAME@		## Define source package name
 safe_version=@PACKAGE_VERSION@		## and version.
+safe_api=0				## Preset default API version.
 safe_suffix=$$
 safe_tarid=0
 safe_locks=
-readonly safe_package safe_version
-unset safe_ro safe_api safe_0tag safe_tmpdir
+readonly safe_package safe_version; unset safe_ro safe_0tag safe_tmpdir
 					## Discard spurious environment.
 
 ##----------------------------------------------------------------------------
@@ -91,6 +92,7 @@ f${ms}0${ms}umask(UMASK COMMAND [ARGUMENT ...])${ms}2-
 f${ms}0${ms}unlock(PN)${ms}1
 f${ms}0${ms}lock(PN)${ms}1
 f${ms}0${ms}wait(PN [SECONDS=30])${ms}1-2
+a${ms}1
 f${ms}1${ms}meta(META [ARG ...])${ms}2-4
 f${ms}1${ms}mktmpdir(&DPN [DRN])${ms}1-2
 f${ms}1${ms}mkdir(DPN ...)${ms}1-
@@ -346,4 +348,4 @@ safe_wait() {
 ##----------------------------------------------------------------------------
 ##  Initialization:
 ##----------------------------------------------------------------------------
-dl_readonly safe api 0 && dl_load undo
+dl_load undo
