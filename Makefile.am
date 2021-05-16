@@ -33,6 +33,7 @@
 ##					Add libdl.sh tests.
 ##			2021-05-08	Add libquote.sh tests.
 ##			2021-05-14	Add libundo.sh tests.
+##			2021-05-16	Add libemit.sh tests.
 ##
 ##  NOTE:   (1)	Update the build system with autoreconf(1).
 ##----------------------------------------------------------------------------
@@ -138,6 +139,7 @@ EXTRA_DIST		= $(TESTSUITE_AT)				\
 			  tests/libconf.sh.at				\
 			  tests/libdl-sh.at				\
 			  tests/libdl.sh.at				\
+			  tests/libemit.sh.at				\
 			  tests/libquote.sh.at				\
 			  tests/libundo.sh.at
 
@@ -156,6 +158,7 @@ $(TESTSUITE):		$(TESTSUITE_AT)					\
 			tests/libconf.sh.at				\
 			tests/libdl-sh.at				\
 			tests/libdl.sh.at				\
+			tests/libemit.sh.at				\
 			tests/libquote.sh.at				\
 			tests/libundo.sh.at
 	$(AUTOTEST) $(AUTOTESTFLAGS) -o $@.tmp $@.at && mv $@.tmp $@ || rm -f $@.tmp

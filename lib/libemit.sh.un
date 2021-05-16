@@ -41,8 +41,8 @@
 #-----------------------------------------------------------------------------
 emit_package=@PACKAGE_TARNAME@		## Define source package name and
 emit_version=@PACKAGE_VERSION@		## version.
-emit_heads=:
-readonly emit_package emit_version emit_api; unset emit_ro emit_api
+emit_heads=:				## No emit heads registered so far.
+readonly emit_package emit_version; unset emit_ro emit_api
 					## Discard spurious environment.
 
 ##----------------------------------------------------------------------------

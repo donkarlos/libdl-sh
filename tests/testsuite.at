@@ -25,6 +25,7 @@ dnl					Spin off libdl-sh(1) tests.
 dnl					Add libdl.sh tests.
 dnl			2021-05-08	Add libquote.sh tests.
 dnl			2021-05-14	Add libconf.sh and libundo.sh tests.
+dnl			2021-05-16	Add libemit.sh tests.
 dnl
 dnl Initialization:
 dnl
@@ -45,6 +46,11 @@ dnl
 dnl Include libconf.sh tests:
 dnl
 m4_include([libconf.sh.at])
+
+dnl
+dnl Include libemit.sh tests:
+dnl
+m4_include([libemit.sh.at])
 
 dnl
 dnl Include libquote.sh tests:
