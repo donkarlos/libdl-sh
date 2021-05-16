@@ -34,6 +34,7 @@
 ##					labels portable.
 ##		ks	2021-05-15	Prepare for multiple API versions.
 ##					Use dl_readonly() to freeze variables.
+##		ks	2021-05-16	'set -u'-harden emit_set_head().
 ##----------------------------------------------------------------------------
 ##  Global variables:
 #-----------------------------------------------------------------------------
@@ -98,11 +99,14 @@ EOF
 ##  emit_set_head(LEVEL HEAD)	Set LEVEL's emit head to HEAD
 ##----------------------------------------------------------------------------
 emit_set_head() {
-    eval emit_head_$1=\$2
-
-    case $emit_heads in
-	*:$1:*)					;;
-	*)	emit_heads=$emit_heads$1:	;;
+    case ${3+3}${2+=} in		## Usage OK?
+	=)  eval 'emit_head_'"$1"'=$2' && case $emit_heads in
+		*:$1:*)				;;
+		*)  emit_heads=$emit_heads$1:	;;
+	    esac
+	    ;;
+	*)  return 2			## No, indicate abuse!
+	    ;;
     esac
 }
 
