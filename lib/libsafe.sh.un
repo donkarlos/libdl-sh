@@ -152,7 +152,7 @@ safe_mktmpdir() {
 	    ;;
 	=*)				## Y/N: Try to make it once and for all.
 	    safe_tmpdir=`mktemp -d` &&
-		undo_push ${safe_0tag+"$safe_0tag"} 'rm -rf' "$safe_tmpdir" &&
+		undo_push ${safe_0tag+"$safe_0tag"} rm -rf "$safe_tmpdir" &&
 		dl_readonly safe tmpdir
 	    ;;
 	*)  return 2			## No, indicate abuse!
@@ -205,7 +205,7 @@ safe_touch() {
 					## Yes, foreach file do...
 		test -f "$fpn" || {	## Does it already exist?
 		    safe_mkdir "`dirname "$fpn"`" && touch "$fpn" &&
-			undo_push 'rm -f' "$fpn" || break
+			undo_push rm -f "$fpn" || break
 		}			## No, try to make it recursively,
 	    done			## pushing undos along the way...
 	    ;;
@@ -223,7 +223,7 @@ safe_save() {
 	    test -f "$fpn" && {		## Yes, and file exists?
 		test -f "$bpn" || {	## Yes, and file had been saved?
 		    cp -p "$fpn" "$bpn" &&
-			undo_push ${safe_0tag+"$safe_0tag"} 'rm -f' "$bpn" &&
+			undo_push ${safe_0tag+"$safe_0tag"} rm -f "$bpn" &&
 			undo_push mv "$bpn" "$fpn"
 		}			## No, try to save it.
 	    }
@@ -260,7 +260,7 @@ safe_remove() {
 		    tarpn=$tmpdn/$safe_tarid.tar
 					## Yes, construct archive name.
 		    tar cPf "$tarpn" "$@" &&
-			undo_push 'tar xPf' "$tarpn" &&
+			undo_push tar xPf "$tarpn" &&
 			rm -rf "$@"
 		}
 	    }
