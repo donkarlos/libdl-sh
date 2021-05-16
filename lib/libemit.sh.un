@@ -36,9 +36,13 @@
 ##					Use dl_readonly() to freeze variables.
 ##		ks	2021-05-16	'set -u'-harden emit_set_head(),
 ##					emit_get_head(), and emit().
+##					emit_set_head(): Validate LEVEL.
 ##----------------------------------------------------------------------------
 ##  Global variables:
 #-----------------------------------------------------------------------------
+emit_re_level='['"$dl_cs_an"'][_'"$dl_cs_an"']*'
+readonly emit_re_level
+
 emit_package=@PACKAGE_TARNAME@		## Define source package name and
 emit_version=@PACKAGE_VERSION@		## version.
 emit_heads=:				## No emit heads registered so far.
@@ -71,6 +75,7 @@ f${ms}0${ms}meta(META [ARG ...])${ms}2-4
 f${ms}0${ms}set_head(LEVEL HEAD)${ms}2
 f${ms}0${ms}get_head(LEVEL)${ms}1
 F${ms}0${ms}emit(LEVEL MESSAGE ...)${ms}2-
+r${ms}0${ms}re_level
 EOF
 	    ;;
 	=get-package|=get-version|=get-api)
@@ -101,7 +106,8 @@ EOF
 ##----------------------------------------------------------------------------
 emit_set_head() {
     case ${3+3}${2+=} in		## Usage OK?
-	=)  eval 'emit_head_'"$1"'=$2' && case $emit_heads in
+	=)  expr "_$1" : "_$emit_re_level$DS" >/dev/null		&&
+	    eval 'emit_head_'"$1"'=$2' && case $emit_heads in
 		*:$1:*)				;;
 		*)  emit_heads=$emit_heads$1:	;;
 	    esac

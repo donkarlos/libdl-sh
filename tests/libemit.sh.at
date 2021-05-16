@@ -124,6 +124,7 @@ emit_meta get apis list
 0;emit_get_head;1
 0;emit;2-
 emit_meta get apis r/o
+0;emit_re_level
 ], [dnl
 ])
 AT_CLEANUP
@@ -163,6 +164,7 @@ emit_meta get apis full
 emit_meta get apis list
 0
 emit_meta get apis r/o
+emit_re_level
 ], [dnl
 ])
 AT_CLEANUP
@@ -193,6 +195,7 @@ for name in `emit_meta get apis r/o '/^'"$api"';/!d;s///'`; do
     esac'				## Assume failure if it's unset. :-(
 done; exit $status			## Indicate success or failure.
 ], 0, [dnl				## And the winner is...
+emit_re_level
 ], [dnl
 ])
 AT_CLEANUP
@@ -223,6 +226,7 @@ for name in `emit_meta get apis r/o '/^'"$api"';/!d;s///'`; do
 					## subshell environment. 8-O
 done; exit $status
 ], 0, [dnl				## And the winner is...
+emit_re_level
 ], [dnl
 ])
 AT_CLEANUP
