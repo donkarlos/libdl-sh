@@ -67,7 +67,8 @@ set -eu					## Employ strict execution environment
 case :$PATH: in				## Triggered by 'check-local:'?
     *:$abs_top_builddir/bin:*)		## Yes, export suitable LSP.
 	LIBDL_SH_LIBRARY_PATH=$abs_top_builddir/lib
-	export LIBDL_SH_LIBRARY_PATH
+	LIBDL_SH_LIBEXECDIR=$abs_top_builddir/libexec
+	export LIBDL_SH_LIBRARY_PATH LIBDL_SH_LIBEXECDIR
 	;;
 esac
 eval "`libdl-sh load`"			## Load libdl.sh or die.
@@ -110,7 +111,8 @@ set -eu					## Employ strict execution environment
 case :$PATH: in				## Triggered by 'check-local:'?
     *:$abs_top_builddir/bin:*)		## Yes, export suitable LSP.
 	LIBDL_SH_LIBRARY_PATH=$abs_top_builddir/lib
-	export LIBDL_SH_LIBRARY_PATH
+	LIBDL_SH_LIBEXECDIR=$abs_top_builddir/libexec
+	export LIBDL_SH_LIBRARY_PATH LIBDL_SH_LIBEXECDIR
 	;;
 esac
 eval "`libdl-sh load`"			## Load libdl.sh or die.
@@ -195,7 +197,8 @@ set -eu					## Employ strict execution environment
 case :$PATH: in				## Triggered by 'check-local:'?
     *:$abs_top_builddir/bin:*)		## Yes, export suitable LSP.
 	LIBDL_SH_LIBRARY_PATH=$abs_top_builddir/lib
-	export LIBDL_SH_LIBRARY_PATH
+	LIBDL_SH_LIBEXECDIR=$abs_top_builddir/libexec
+	export LIBDL_SH_LIBRARY_PATH LIBDL_SH_LIBEXECDIR
 	;;
 esac
 eval "`libdl-sh load`"			## Load libdl.sh or die.
@@ -250,7 +253,8 @@ set -eu					## Employ strict execution environment
 case :$PATH: in				## Triggered by 'check-local:'?
     *:$abs_top_builddir/bin:*)		## Yes, export suitable LSP.
 	LIBDL_SH_LIBRARY_PATH=$abs_top_builddir/lib
-	export LIBDL_SH_LIBRARY_PATH
+	LIBDL_SH_LIBEXECDIR=$abs_top_builddir/libexec
+	export LIBDL_SH_LIBRARY_PATH LIBDL_SH_LIBEXECDIR
 	;;
 esac
 eval "`libdl-sh load`"			## Load libdl.sh or die.
@@ -300,7 +304,8 @@ set -eu					## Employ strict execution environment
 case :$PATH: in				## Triggered by 'check-local:'?
     *:$abs_top_builddir/bin:*)		## Yes, export suitable LSP.
 	LIBDL_SH_LIBRARY_PATH=$abs_top_builddir/lib
-	export LIBDL_SH_LIBRARY_PATH
+	LIBDL_SH_LIBEXECDIR=$abs_top_builddir/libexec
+	export LIBDL_SH_LIBRARY_PATH LIBDL_SH_LIBEXECDIR
 	;;
 esac
 eval "`libdl-sh load`"			## Load libdl.sh or die.
@@ -353,7 +358,8 @@ set -eu					## Employ strict execution environment
 case :$PATH: in				## Triggered by 'check-local:'?
     *:$abs_top_builddir/bin:*)		## Yes, export suitable LSP.
 	LIBDL_SH_LIBRARY_PATH=$abs_top_builddir/lib
-	export LIBDL_SH_LIBRARY_PATH
+	LIBDL_SH_LIBEXECDIR=$abs_top_builddir/libexec
+	export LIBDL_SH_LIBRARY_PATH LIBDL_SH_LIBEXECDIR
 	;;
 esac
 eval "`libdl-sh load`"			## Load libdl.sh or die.
@@ -394,7 +400,8 @@ set -eu					## Employ strict execution environment
 case :$PATH: in				## Triggered by 'check-local:'?
     *:$abs_top_builddir/bin:*)		## Yes, export suitable LSP.
 	LIBDL_SH_LIBRARY_PATH=$abs_top_builddir/lib
-	export LIBDL_SH_LIBRARY_PATH
+	LIBDL_SH_LIBEXECDIR=$abs_top_builddir/libexec
+	export LIBDL_SH_LIBRARY_PATH LIBDL_SH_LIBEXECDIR
 	;;
 esac
 eval "`libdl-sh load`"			## Load libdl.sh or die.
@@ -471,7 +478,8 @@ test_atload() {
 case :$PATH: in				## Triggered by 'check-local:'?
     *:$abs_top_builddir/bin:*)		## Yes, export suitable LSP.
 	LIBDL_SH_LIBRARY_PATH=$abs_top_builddir/lib
-	export LIBDL_SH_LIBRARY_PATH
+	LIBDL_SH_LIBEXECDIR=$abs_top_builddir/libexec
+	export LIBDL_SH_LIBRARY_PATH LIBDL_SH_LIBEXECDIR
 	;;
 esac
 eval "`libdl-sh load`"			## Load libdl.sh or die.
@@ -498,7 +506,8 @@ test_atexit() {
 case :$PATH: in				## Triggered by 'check-local:'?
     *:$abs_top_builddir/bin:*)		## Yes, export suitable LSP.
 	LIBDL_SH_LIBRARY_PATH=$abs_top_builddir/lib
-	export LIBDL_SH_LIBRARY_PATH
+	LIBDL_SH_LIBEXECDIR=$abs_top_builddir/libexec
+	export LIBDL_SH_LIBRARY_PATH LIBDL_SH_LIBEXECDIR
 	;;
 esac
 eval "`libdl-sh load`"			## Load libdl.sh or die.
@@ -526,7 +535,8 @@ test_atexit() {
 case :$PATH: in				## Triggered by 'check-local:'?
     *:$abs_top_builddir/bin:*)		## Yes, export suitable LSP.
 	LIBDL_SH_LIBRARY_PATH=$abs_top_builddir/lib
-	export LIBDL_SH_LIBRARY_PATH
+	LIBDL_SH_LIBEXECDIR=$abs_top_builddir/libexec
+	export LIBDL_SH_LIBRARY_PATH LIBDL_SH_LIBEXECDIR
 	;;
 esac
 eval "`libdl-sh load`"			## Load libdl.sh or die.
@@ -561,7 +571,8 @@ EOF
 case :$PATH: in				## Triggered by 'check-local:'?
     *:$abs_top_builddir/bin:*)		## Yes, export suitable LSP.
 	LIBDL_SH_LIBRARY_PATH=$abs_top_builddir/lib
-	export LIBDL_SH_LIBRARY_PATH
+	LIBDL_SH_LIBEXECDIR=$abs_top_builddir/libexec
+	export LIBDL_SH_LIBRARY_PATH LIBDL_SH_LIBEXECDIR
 	;;
 esac
 eval "`libdl-sh load`"			## Load libdl.sh or die.

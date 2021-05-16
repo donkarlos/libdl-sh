@@ -68,7 +68,8 @@ SQ=\'
 case :$PATH: in				## Triggered by 'check-local:'?
     *:$abs_top_builddir/bin:*)		## Yes...
 	LIBDL_SH_LIBRARY_PATH=$abs_top_builddir/lib
-	export LIBDL_SH_LIBRARY_PATH
+	LIBDL_SH_LIBEXECDIR=$abs_top_builddir/libexec
+	export LIBDL_SH_LIBRARY_PATH LIBDL_SH_LIBEXECDIR
 	case `libdl-sh load` in
 	    '. '"$SQ$abs_top_builddir"'/lib/libdl.sh'"$SQ"' || exit 127')
 		;;
@@ -87,7 +88,8 @@ set -eu
 case :$PATH: in				## Triggered by 'check-local:'?
     *:$abs_top_builddir/bin:*)		## Yes...
 	LIBDL_SH_LIBRARY_PATH=$abs_top_builddir/lib
-	export LIBDL_SH_LIBRARY_PATH
+	LIBDL_SH_LIBEXECDIR=$abs_top_builddir/libexec
+	export LIBDL_SH_LIBRARY_PATH LIBDL_SH_LIBEXECDIR
 	;;
 esac
 eval "`libdl-sh load`"
