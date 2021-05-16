@@ -34,8 +34,8 @@
 ##					labels portable.
 ##		ks	2021-05-15	Prepare for multiple API versions.
 ##					Use dl_readonly() to freeze variables.
-##		ks	2021-05-16	'set -u'-harden emit_set_head() and
-##					emit_get_head().
+##		ks	2021-05-16	'set -u'-harden emit_set_head(),
+##					emit_get_head(), and emit().
 ##----------------------------------------------------------------------------
 ##  Global variables:
 #-----------------------------------------------------------------------------
@@ -130,11 +130,17 @@ emit_get_head() {
 ##  emit(LEVEL MESSAGE ...)	Emit message at LEVEL
 ##----------------------------------------------------------------------------
 emit() {
-    local l="$1"; shift			## Fetch level.
+    case ${2+=} in			## Usage OK?
+	=)  local l="$1"; shift		## Yes, fetch level.
 
-    case $emit_heads in
-	*:$l:*)	eval 'echo "$emit_head_'"$l"'$*"'	;;
-	*)	echo "$*"				;;
+	    case $emit_heads in
+		*:$l:*)
+		    eval 'echo "$emit_head_'"$l"'$*"'	;;
+		*)  echo "$*"				;;
+	    esac
+	    ;;
+	*)  return 2			## No, indicate abuse!
+	    ;;
     esac
 }
 
