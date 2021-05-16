@@ -20,7 +20,8 @@ dnl
 dnl AUTHOR(S):	ks	Karl Schmitz <ks@computerlabor.org>
 dnl
 dnl WRITTEN BY:	ks	2021-05-13
-dnl CHANGED BY:
+dnl CHANGED BY:	ks	2021-05-16	undo_meta(): Bound argument count
+dnl					range above 4.
 dnl
 dnl Test group 'String quoting library libundo.sh'
 dnl
@@ -116,36 +117,36 @@ undo_meta get apis api
 1
 2
 undo_meta get apis full
-0;undo_meta(META [[ARG ...]]);2-
+0;undo_meta(META [[ARG ...]]);2-4
 0;undo_init(TAG);1
 0;undo_mark(MARK);1
 0;undo_push([[TAG] COMMAND [ARGUMENT|REDIRECTION ...]]);1-
 0;undo_pull(MARK [[TAG] | TAG | [COUNT=1]]);0-2
 0;undo_drop(MARK [[TAG] | TAG | [COUNT=1]]);0-2
 0;undo_keep(MARK [[TAG] | TAG | [COUNT=1]]);0-2
-1;undo_meta(META [[ARG ...]]);2-
+1;undo_meta(META [[ARG ...]]);2-4
 1;undo_mark(MARK);1
 1;undo_push([[TAG] COMMAND [ARGUMENT|REDIRECTION ...]]);1-
 1;undo_pull(MARK [[TAG] | TAG | [COUNT=1]]);0-2
 1;undo_drop(MARK [[TAG] | TAG | [COUNT=1]]);0-2
-2;undo_meta(META [[ARG ...]]);2-
+2;undo_meta(META [[ARG ...]]);2-4
 2;undo_push(MARK|[[TAG] COMMAND [ARGUMENT|REDIRECTION ...]]);1-
 2;undo_pull(MARK [[TAG] | TAG | [COUNT=1]]);0-2
 2;undo_drop(MARK [[TAG] | TAG | [COUNT=1]]);0-2
 undo_meta get apis list
-0;undo_meta;2-
+0;undo_meta;2-4
 0;undo_init;1
 0;undo_mark;1
 0;undo_push;1-
 0;undo_pull;0-2
 0;undo_drop;0-2
 0;undo_keep;0-2
-1;undo_meta;2-
+1;undo_meta;2-4
 1;undo_mark;1
 1;undo_push;1-
 1;undo_pull;0-2
 1;undo_drop;0-2
-2;undo_meta;2-
+2;undo_meta;2-4
 2;undo_push;1-
 2;undo_pull;0-2
 2;undo_drop;0-2
