@@ -50,7 +50,7 @@ set -eu					## Employ strict execution environment
 					## to ensure 'set -u' resilience.
 test_atload_trace=:			## Initialize load-time hook's trace.
 test_atload() {				## Declare load-time hook.
-    test_atload_trace=$test_atload_trace$1:
+    test_atload_trace=:$1$test_atload_trace
 }
 
 test_atexit() {				## Declare exit-time hook.
@@ -70,7 +70,7 @@ dl_load quote				## Register hooks and load
 					## libquote.sh.
 ], 0, [dnl				## And the winner is...
 test_atexit(0)
-:dl:quote:
+:quote:dl:
 ], [dnl
 ])
 AT_CLEANUP

@@ -459,7 +459,7 @@ set -eu					## Employ strict execution environment
 					## to ensure 'set -u' resilience.
 test_atload_trace=:			## Initialize hook's trace.
 test_atload() {
-    test_atload_trace=$test_atload_trace$1:
+    test_atload_trace=:$1$test_atload_trace
 }
 
 case :$PATH: in				## Triggered by 'check-local:'?
