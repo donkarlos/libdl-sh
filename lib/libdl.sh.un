@@ -53,6 +53,7 @@
 ##		ks	2021-05-14	Prepare for multiple API versions.
 ##		ks	2021-05-15	Add dl_readonly() and use it to freeze
 ##					variables.
+##		ks	2021-05-16	'set -u'-harden dl_readonly().
 ##
 ##  NOTE:   (1)	To avoid cluttering code, this library is exempted from need-
 ##		ing namespace prefixes for its special character definitions.
@@ -294,7 +295,7 @@ EOF
 dl_readonly() {
     case ${4+4}${3+3}${2+2$dl_loaded$dl_needed} in
 					## Usage OK?/LIBrary loaded or needed?
-	3*:$1:*)			## Y/Y: Variable still settable?
+	3*:${1+$1:}*)			## Y/Y: Variable still settable?
 	    eval 'case ${'"$1_$2"'+=$'"$1_$2"'}${'"$1_"'ro-,} in
 		=$3,*)			## Maybe, but ignore idempotence.
 		    ;;
@@ -305,7 +306,7 @@ dl_readonly() {
 		    ;;			## Yes, set and freeze it.
 	    esac'
 	    ;;
-	2*:$1:*)			## Y/Y: Variable still freezable?
+	2*:${1+$1:}*)			## Y/Y: Variable still freezable?
 	    eval 'case ${'"$1_"'ro-,} in
 		*,$2,*)			## No, indicate failure!
 		    return 1

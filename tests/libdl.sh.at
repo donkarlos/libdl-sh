@@ -49,6 +49,8 @@ dnl					and dl_which().
 dnl		ks	2021-05-09	Export test group [dl_load() loads
 dnl					another library?] to libquote.sh.at.
 dnl		ks	2021-05-14	Prepare for multiple API versions.
+dnl		ks	2021-05-16	Add dl_readonly().
+
 dnl
 dnl Test group 'Demand-loading library libdl.sh'
 dnl
@@ -136,6 +138,7 @@ dl_meta get apis full
 1;dl_meta(META [[ARG ...]]);2-
 1;dl_warn(WHAT INVO [[ARG ...]]);2-5
 1;dl_dump(MP VS ...);2-
+1;dl_readonly(LIB VS [[VALUE]]);2-3
 1;dl_split(WORD IFS &FIELD ...);3-
 1;dl_which(LIB);1
 1;dl_atload(HOOK);1
@@ -146,6 +149,7 @@ dl_meta get apis list
 1;dl_meta;2-
 1;dl_warn;2-5
 1;dl_dump;2-
+1;dl_readonly;2-3
 1;dl_split;3-
 1;dl_which;1
 1;dl_atload;1
@@ -434,6 +438,8 @@ dl_warn
 dl_warn 1
 dl_dump
 dl_dump 1
+dl_readonly
+dl_readonly 1
 dl_split
 dl_split 1
 dl_split 1 2
