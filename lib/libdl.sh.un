@@ -51,7 +51,8 @@
 ##					labels portable.
 ##		ks	2021-05-12	Remove LIBDL_SH_DESTDIR nonsense.
 ##		ks	2021-05-14	Prepare for multiple API versions.
-##		ks	2021-05-15	Add dl_readonly().
+##		ks	2021-05-15	Add dl_readonly() and use it to freeze
+##					variables.
 ##
 ##  NOTE:   (1)	To avoid cluttering code, this library is exempted from need-
 ##		ing namespace prefixes for its special character definitions.
@@ -88,13 +89,11 @@ readonly dl_cs_ul dl_cs_ll dl_cs_1d dl_cs_0d dl_cs_al dl_cs_an		\
 
 dl_package=@PACKAGE_TARNAME@		## Define source package name
 dl_version=@PACKAGE_VERSION@		## and version.
-dl_api=1				## Preset sole API version and
-dl_ro=,api,				## freeze it!
 dl_libpath=`libdl-sh path` || exit 127	## Determine LSP or abort!
 dl_loaded=:dl:				## Register this library as loaded.
 dl_needed=
 dl_atexits='exit $status'		## Preset exit-hook's command.
-readonly dl_package dl_version dl_api; unset dl_atloads dl_session
+readonly dl_package dl_version; unset dl_ro dl_api dl_atloads dl_session
 					## Discard spurious environment.
 
 ##----------------------------------------------------------------------------
@@ -187,14 +186,7 @@ EOF
 			;;		## Yes, try to validate API version.
 		*)	return 2	## No, indicate abuse!
 			;;
-	    esac && eval 'case ${'"$mp$2"'+=$'"$mp$2"'}$'"$mp"'ro in
-		=$3,*)	return 0	## Variable still settable?
-			;;		## Maybe, but idempotence is OK.
-		=*,$2,*)return 1	## No, indicate failure!
-			;;
-		*)  	'"$mp$2"'=$3 '"$mp"'ro=$'"$mp"'ro$2,; readonly '"$mp$2"'
-			;;		## Yes, set and freeze it.
-	    esac'
+	    esac && dl_readonly dl "$2" "$3"
 	    ;;
 	=session-init|=session-load|=session-dump|=session-exit)
 	    :				## Session init/load/dump/exit...
@@ -453,4 +445,6 @@ dl_exit() {
 ##----------------------------------------------------------------------------
 ##  Initialization:
 ##----------------------------------------------------------------------------
-trap 'dl_exit $?' 0			## Register exit trap.
+dl_readonly dl api 1 && trap 'dl_exit $?' 0
+					## Set sole API version once and
+					## register exit trap.

@@ -28,14 +28,14 @@
 ##		ks	2021-05-08	Make 'session_meta get apis' sed(1)
 ##					expr. labels portable.
 ##		ks	2021-05-15	Prepare for multiple API versions.
+##					Use dl_readonly() to freeze variables.
 ##----------------------------------------------------------------------------
 ##  Global variables:
 #-----------------------------------------------------------------------------
 session_package=@PACKAGE_TARNAME@	## Define source package name and
 session_version=@PACKAGE_VERSION@	## version.
-session_api=0				## Preset sole API version and
-session_ro=,api,			## freeze it!
-readonly session_package session_version session_api
+readonly session_package session_version; unset session_ro session_api
+					## Discard spurious environment.
 
 ##----------------------------------------------------------------------------
 ##  session_meta(META [ARG ...]) Perform META operation (with ARGs)
@@ -75,14 +75,7 @@ EOF
 			;;		## Yes, try to validate API version.
 		*)	return 2	## No, indicate abuse!
 			;;
-	    esac && eval 'case ${'"$mp$2"'+=$'"$mp$2"'}$'"$mp"'ro in
-		=$3,*)	return 0	## Variable still settable?
-			;;		## Maybe, but idempotence is OK.
-		=*,$2,*)return 1	## No, indicate failure!
-			;;
-		*)  	'"$mp$2"'=$3 '"$mp"'ro=$'"$mp"'ro$2,; readonly '"$mp$2"'
-			;;		## Yes, set and freeze it.
-	    esac'
+	    esac && dl_readonly session "$2" "$3"
 	    ;;
 	=session-init|=session-load|=session-dump|=session-exit)
 	    :				## Session init/load/dump/exit...
@@ -91,3 +84,8 @@ EOF
 	    ;;				## ...is abuse!
     esac
 }
+
+##----------------------------------------------------------------------------
+##  Initialization:
+##----------------------------------------------------------------------------
+dl_readonly session api 0		## Set sole API version once.

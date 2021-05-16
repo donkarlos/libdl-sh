@@ -47,6 +47,7 @@
 ##					[DELIMITER]' with alias mre.
 ##					quote_meta(): Publish r/o variables.
 ##		ks	2021-05-14	Prepare for multiple API versions.
+##		ks	2021-05-15	Use dl_readonly() to freeze variables.
 ##----------------------------------------------------------------------------
 ##  Global variables:
 #-----------------------------------------------------------------------------
@@ -63,9 +64,8 @@ readonly quote_csl_sh quote_csr_sh quote_cs_bre quote_cs_ere quote_cs_brs
 
 quote_package=@PACKAGE_TARNAME@		## Define source package name
 quote_version=@PACKAGE_VERSION@		## and version.
-quote_api=0				## Preset sole API version and
-quote_ro=,api,				## freeze it!
-readonly quote_package quote_version quote_api
+readonly quote_package quote_version; unset quote_ro quote_api
+					## Discard spurious environment.
 
 ##----------------------------------------------------------------------------
 ##  quote_meta(META [ARG ...])	Perform META operation (with ARGs)
@@ -119,14 +119,7 @@ EOF
 			;;		## Yes, try to validate API version.
 		*)	return 2	## No, indicate abuse!
 			;;
-	    esac && eval 'case ${'"$mp$2"'+=$'"$mp$2"'}$'"$mp"'ro in
-		=$3,*)	return 0	## Variable still settable?
-			;;		## Maybe, but idempotence is OK.
-		=*,$2,*)return 1	## No, indicate failure!
-			;;
-		*)  	'"$mp$2"'=$3 '"$mp"'ro=$'"$mp"'ro$2,; readonly '"$mp$2"'
-			;;		## Yes, set and freeze it.
-	    esac'
+	    esac && dl_readonly quote "$2" "$3"
 	    ;;
 	=session-init|=session-load|=session-dump|=session-exit)
 	    :				## Session init/load/dump/exit...
@@ -346,3 +339,8 @@ quote_sed() {
 	*)  return 2	;;		## N/?: indicate abuse!
     esac
 }
+
+##----------------------------------------------------------------------------
+##  Initialization:
+##----------------------------------------------------------------------------
+dl_readonly quote api 0			## Set sole API version once.

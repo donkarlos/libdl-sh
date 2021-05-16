@@ -43,18 +43,18 @@
 ##					Merge undo_mark() functionality into
 ##					undo_push().
 ##					Deprecate/Withdraw undo_mark().
+##		ks	2021-05-15	Use dl_readonly() to freeze variables.
 ##----------------------------------------------------------------------------
 ##  Global variables:
 #-----------------------------------------------------------------------------
 undo_re_tag=':[^: 	][^ 	]*'	## Define unanchored RE for tags.
 readonly undo_re_tag
 
-undo_package=@PACKAGE_TARNAME@		## Define source package name/version.
-undo_version=@PACKAGE_VERSION@
+undo_package=@PACKAGE_TARNAME@		## Define source package name
+undo_version=@PACKAGE_VERSION@		## and version.
 undo_api=1				## Preset default API version.
-undo_ro=,				## No internal variables frozen yet.
 undo_stack=
-readonly undo_package undo_version; unset undo_0tag
+readonly undo_package undo_version; unset undo_ro undo_0tag
 					## Discard spurious environment.
 
 ##----------------------------------------------------------------------------
@@ -114,14 +114,7 @@ EOF
 			;;		## Yes, try to validate tag.
 		*)	return 2	## No, indicate abuse!
 			;;
-	    esac && eval 'case ${'"$mp$2"'+=$'"$mp$2"'}$'"$mp"'ro in
-		=$3,*)	return 0	## Variable still settable?
-			;;		## Maybe, but idempotence is OK.
-		=*,$2,*)return 1	## No, indicate failure!
-			;;
-		*)  	'"$mp$2"'=$3 '"$mp"'ro=$'"$mp"'ro$2,; readonly '"$mp$2"'
-			;;		## Yes, set and freeze it.
-	    esac'
+	    esac && eval dl_readonly undo "$2" "$3"
 	    ;;
 	=session-init|=session-load|=session-dump|=session-exit)
 	    :				## Session init/load/dump/exit...

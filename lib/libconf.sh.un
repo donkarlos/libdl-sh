@@ -44,18 +44,16 @@
 ##					'set -u'-harden conf_exec(), conf_-
 ##					has(), conf_get(), conf_put(), and
 ##					conf_getenv().
+##		ks	2021-05-15	Use dl_readonly() to freeze variables.
 ##
 ##  NOTE:   (1)	The library just wraps around its 'workhorse' awk(1) script!
 ##	    (2)	The library intentionally has no default API version!
-##		Consequently, no internal variables are frozen and $conf_api
-##		is explicitly unset.
 ##----------------------------------------------------------------------------
 ##  Global variables:
 #-----------------------------------------------------------------------------
 conf_package=@PACKAGE_TARNAME@		## Define source package name and
 conf_version=@PACKAGE_VERSION@		## version.
-conf_ro=,				## No internal variables frozen yet.
-readonly conf_package conf_version; unset conf_api
+readonly conf_package conf_version; unset conf_ro conf_api
 					## Discard spurious environment.
 
 ##----------------------------------------------------------------------------
@@ -108,14 +106,7 @@ EOF
 			;;		## Yes, try to validate API version.
 		*)	return 2	## No, indicate abuse!
 			;;
-	    esac && eval 'case ${'"$mp$2"'+=$'"$mp$2"'}$'"$mp"'ro in
-		=$3,*)	return 0	## Variable still settable?
-			;;		## Maybe, but idempotence is OK.
-		=*,$2,*)return 1	## No, indicate failure!
-			;;
-		*)  	'"$mp$2"'=$3 '"$mp"'ro=$'"$mp"'ro$2,; readonly '"$mp$2"'
-			;;		## Yes, set and freeze it.
-	    esac'
+	    esac && dl_readonly conf "$2" "$3"
 	    ;;
 	=session-init|=session-load|=session-dump|=session-exit)
 	    :				## Session init/load/dump/exit...
@@ -215,4 +206,4 @@ conf_getenv() {
 ##  Initialization:
 ##----------------------------------------------------------------------------
 conf_awk=${LIBDL_SH_LIBEXECDIR-@pkgdatadir@}/conf.awk
-readonly conf_awk; test -f "$conf_awk"
+test -f "$conf_awk" && dl_readonly conf awk

@@ -33,15 +33,15 @@
 ##		ks	2021-05-08	Make 'emit_meta get apis' sed(1) expr.
 ##					labels portable.
 ##		ks	2021-05-15	Prepare for multiple API versions.
+##					Use dl_readonly() to freeze variables.
 ##----------------------------------------------------------------------------
 ##  Global variables:
 #-----------------------------------------------------------------------------
 emit_package=@PACKAGE_TARNAME@		## Define source package name and
 emit_version=@PACKAGE_VERSION@		## version.
-emit_api=0				## Preset sole API version and
-emit_ro=,api,				## freeze it!
 emit_heads=:
-readonly emit_package emit_version emit_api
+readonly emit_package emit_version emit_api; unset emit_ro emit_api
+					## Discard spurious environment.
 
 ##----------------------------------------------------------------------------
 ##  emit_meta(META [ARG ...])	Perform META operation (with ARGs)
@@ -84,14 +84,7 @@ EOF
 			;;		## Yes, try to validate API version.
 		*)	return 2	## No, indicate abuse!
 			;;
-	    esac && eval 'case ${'"$mp$2"'+=$'"$mp$2"'}$'"$mp"'ro in
-		=$3,*)	return 0	## Variable still settable?
-			;;		## Maybe, but idempotence is OK.
-		=*,$2,*)return 1	## No, indicate failure!
-			;;
-		*)  	'"$mp$2"'=$3 '"$mp"'ro=$'"$mp"'ro$2,; readonly '"$mp$2"'
-			;;		## Yes, set and freeze it.
-	    esac'
+	    esac && dl_readonly emit "$2" "$3"
 	    ;;
 	=session-init|=session-load|=session-dump|=session-exit)
 	    :				## Session init/load/dump/exit...
@@ -134,3 +127,8 @@ emit() {
 	*)	echo "$*"				;;
     esac
 }
+
+##----------------------------------------------------------------------------
+##  Initialization:
+##----------------------------------------------------------------------------
+dl_readonly emit api 0			## Set sole API version once.

@@ -43,19 +43,17 @@
 ##					umask(), safe_unlock(), safe_lock(),
 ##					and safe_wait().
 ##					Prepare API version 1.
-##					safe_meta(): Cleanups tag may be set
-##					once only.
+##					Use dl_readonly() to freeze variables.
 ##----------------------------------------------------------------------------
 ##  Global variables:
 #-----------------------------------------------------------------------------
 safe_package=@PACKAGE_TARNAME@		## Define source package name
 safe_version=@PACKAGE_VERSION@		## and version.
-safe_api=0				## Preset default API version.
-safe_ro=,				## No internal variables frozen yet.
 safe_suffix=$$
 safe_tarid=0
 safe_locks=
-readonly safe_package safe_version; unset safe_0tag safe_tmpdir
+readonly safe_package safe_version
+unset safe_ro safe_api safe_0tag safe_tmpdir
 					## Discard spurious environment.
 
 ##----------------------------------------------------------------------------
@@ -122,14 +120,7 @@ EOF
 			;;		## Yes, try to validate tag.
 		*)	return 2	## No, indicate abuse!
 			;;
-	    esac && eval 'case ${'"$mp$2"'+=$'"$mp$2"'}$'"$mp"'ro in
-		=$3,*)	return 0	## Variable still settable?
-			;;		## Maybe, but idempotence is OK.
-		=*,$2,*)return 1	## No, indicate failure!
-			;;
-		*)  	'"$mp$2"'=$3 '"$mp"'ro=$'"$mp"'ro$2,; readonly '"$mp$2"'
-			;;		## Yes, set and freeze it.
-	    esac'
+	    esac && dl_readonly safe "$2" "$3"
 	    ;;
 	=session-init|=session-load|=session-dump|=session-exit)
 	    :				## Session init/load/dump/exit...
@@ -153,14 +144,14 @@ safe_init() {
 ##  safe_mktmpdir(&DPN [DRN])	Safely make temporary directory
 ##----------------------------------------------------------------------------
 safe_mktmpdir() {
-    case ${3+3}${2+=}${1+=}$safe_ro in	## Usage OK?/Temp. directory made?
+    case ${3+3}${2+=}${1+=}${safe_ro-,} in
+					## Usage OK?/Temp. directory made?
 	=*,tmpdir,*)			## Y/Y.
 	    ;;
 	=*)				## Y/N: Try to make it once and for all.
 	    safe_tmpdir=`mktemp -d` &&
-		undo_push $safe_0tag 'rm -rf' "$safe_tmpdir" ||
-		return 1
-	    readonly safe_tmpdir; safe_ro=${safe_ro}tmpdir,
+		undo_push ${safe_0tag+"$safe_0tag"} 'rm -rf' "$safe_tmpdir" &&
+		dl_readonly safe tmpdir
 	    ;;
 	*)  return 2			## No, indicate abuse!
 	    ;;
@@ -355,4 +346,4 @@ safe_wait() {
 ##----------------------------------------------------------------------------
 ##  Initialization:
 ##----------------------------------------------------------------------------
-dl_load undo
+dl_readonly safe api 0 && dl_load undo
