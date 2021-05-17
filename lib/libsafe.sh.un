@@ -42,9 +42,9 @@
 ##					safe_rename(), safe_remove(), safe_-
 ##					umask(), safe_unlock(), safe_lock(),
 ##					and safe_wait().
-##					Prepare API version 1.
-##					Use dl_readonly() to freeze variables.
-##					Activate API version 1.
+##					Prepare and activate API version 1.
+##		ks	2021-05-16	Use dl_readonly() to freeze variables
+##					and dl_apis() to emit API information.
 ##----------------------------------------------------------------------------
 ##  Global variables:
 #-----------------------------------------------------------------------------
@@ -61,23 +61,11 @@ readonly safe_package safe_version; unset safe_ro safe_0tag safe_tmpdir
 ##  safe_meta(META [ARG ...])	Perform META operation (with ARGs)
 ##----------------------------------------------------------------------------
 safe_meta() {
-    local mp=safe_			## Set meta prefix.
+    local mp=safe_ ms=\;		## Set meta prefix and separator.
 
     case ${2+=}${1+$1-}${2-} in		## Which META operation?
 	=get-apis)			## Inquire APIs...
-	    local sx ms=\;
-	    local fa='/^a'"$ms"'/!d;s///' da='s/([^)'"$ms"'(]*)//'	\
-		  ff='/^F'"$ms"'/{;s///;t2'"$NL"'};/^f'"$ms"'/!d;s///'	\
-		  fr='/^R'"$ms"'/{;s///;t2'"$NL"'};/^r'"$ms"'/!d;s///'	\
-		  p2=';s/'"$ms"'/&'"$mp"'/;:2'
-	    case ${3-api} in		## Which format?
-		api)	sx="$fa"			;;
-		full)	sx="$ff$p2${4+$NL$4}"		;;
-		list)	sx="$ff$p2$NL$da${4+;$4}"	;;
-		r/o)	sx="$fr$p2${4+$NL$4}"		;;
-		*)	return 1			;;
-	    esac
-	    sed "$sx" <<EOF
+	    shift 2 && dl_apis ${1+"$@"} <<EOF
 a${ms}0
 f${ms}0${ms}meta(META [ARG ...])${ms}2-4
 f${ms}0${ms}init(TAG)${ms}1

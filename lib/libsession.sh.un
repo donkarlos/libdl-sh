@@ -28,7 +28,8 @@
 ##		ks	2021-05-08	Make 'session_meta get apis' sed(1)
 ##					expr. labels portable.
 ##		ks	2021-05-15	Prepare for multiple API versions.
-##					Use dl_readonly() to freeze variables.
+##		ks	2021-05-16	Use dl_readonly() to freeze variables
+##					and dl_apis() to emit API information.
 ##----------------------------------------------------------------------------
 ##  Global variables:
 #-----------------------------------------------------------------------------
@@ -41,23 +42,11 @@ readonly session_package session_version; unset session_ro session_api
 ##  session_meta(META [ARG ...]) Perform META operation (with ARGs)
 ##----------------------------------------------------------------------------
 session_meta() {
-    local mp=session_			## Set meta prefix.
+    local mp=session_ ms=\;		## Set meta prefix and separator.
 
     case ${2+=}${1+$1-}${2-} in		## Which META operation?
 	=get-apis)			## Inquire APIs...
-	    local sx ms=\;
-	    local fa='/^a'"$ms"'/!d;s///' da='s/([^)'"$ms"'(]*)//'	\
-		  ff='/^F'"$ms"'/{;s///;t2'"$NL"'};/^f'"$ms"'/!d;s///'	\
-		  fr='/^R'"$ms"'/{;s///;t2'"$NL"'};/^r'"$ms"'/!d;s///'	\
-		  p2=';s/'"$ms"'/&'"$mp"'/;:2'
-	    case ${3-api} in		## Which format?
-		api)	sx="$fa"			;;
-		full)	sx="$ff$p2${4+$NL$4}"		;;
-		list)	sx="$ff$p2$NL$da${4+;$4}"	;;
-		r/o)	sx="$fr$p2${4+$NL$4}"		;;
-		*)	return 1			;;
-	    esac
-	    sed "$sx" <<EOF
+	    shift 2 && dl_apis ${1+"$@"} <<EOF
 a${ms}0
 f${ms}0${ms}meta(META [ARG ...])${ms}2-4
 EOF

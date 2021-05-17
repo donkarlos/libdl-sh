@@ -54,7 +54,8 @@
 ##		ks	2021-05-15	Add dl_readonly() and use it to freeze
 ##					variables.
 ##		ks	2021-05-16	'set -u'-harden dl_readonly().
-##					Add dl_apis().
+##					Add dl_apis() and use it to emit API
+##					information.
 ##
 ##  NOTE:   (1)	To avoid cluttering code, this library is exempted from need-
 ##		ing namespace prefixes for its special character definitions.
@@ -102,23 +103,11 @@ readonly dl_package dl_version; unset dl_ro dl_api dl_atloads dl_session
 ##  dl_meta(META [ARG ...])	Perform META operation (with ARGs)
 ##----------------------------------------------------------------------------
 dl_meta() {
-    local mp=dl_			## Set meta prefix.
+    local mp=dl_ ms=\;			## Set meta prefix and separator.
 
     case ${2+=}${1+$1-}${2-} in		## Which META operation?
 	=get-apis)			## Inquire APIs...
-	    local sx ms=\;
-	    local fa='/^a'"$ms"'/!d;s///' da='s/([^)'"$ms"'(]*)//'	\
-		  ff='/^F'"$ms"'/{;s///;t2'"$NL"'};/^f'"$ms"'/!d;s///'	\
-		  fr='/^R'"$ms"'/{;s///;t2'"$NL"'};/^r'"$ms"'/!d;s///'	\
-		  p2=';s/'"$ms"'/&'"$mp"'/;:2'
-	    case ${3-api} in		## Which format?
-		api)	sx="$fa"			;;
-		full)	sx="$ff$p2${4+$NL$4}"		;;
-		list)	sx="$ff$p2$NL$da${4+;$4}"	;;
-		r/o)	sx="$fr$p2${4+$NL$4}"		;;
-		*)	return 1			;;
-	    esac
-	    sed "$sx" <<EOF
+	    shift 2 && dl_apis ${1+"$@"} <<EOF
 a${ms}1
 f${ms}1${ms}meta(META [ARG ...])${ms}2-
 f${ms}1${ms}warn(WHAT INVO [ARG ...])${ms}2-5

@@ -33,10 +33,11 @@
 ##		ks	2021-05-08	Make 'emit_meta get apis' sed(1) expr.
 ##					labels portable.
 ##		ks	2021-05-15	Prepare for multiple API versions.
-##					Use dl_readonly() to freeze variables.
 ##		ks	2021-05-16	'set -u'-harden emit_set_head(),
 ##					emit_get_head(), and emit().
 ##					emit_set_head(): Validate LEVEL.
+##					Use dl_readonly() to freeze variables
+##					and dl_apis() to emit API information.
 ##----------------------------------------------------------------------------
 ##  Global variables:
 #-----------------------------------------------------------------------------
@@ -53,23 +54,11 @@ readonly emit_package emit_version; unset emit_ro emit_api
 ##  emit_meta(META [ARG ...])	Perform META operation (with ARGs)
 ##----------------------------------------------------------------------------
 emit_meta() {
-    local mp=emit_			## Set meta prefix.
+    local mp=emit_ ms=\;		## Set meta prefix and separator.
 
     case ${2+=}${1+$1-}${2-} in		## Which META operation?
 	=get-apis)			## Inquire APIs...
-	    local sx ms=\;
-	    local fa='/^a'"$ms"'/!d;s///' da='s/([^)'"$ms"'(]*)//'	\
-		  ff='/^F'"$ms"'/{;s///;t2'"$NL"'};/^f'"$ms"'/!d;s///'	\
-		  fr='/^R'"$ms"'/{;s///;t2'"$NL"'};/^r'"$ms"'/!d;s///'	\
-		  p2=';s/'"$ms"'/&'"$mp"'/;:2'
-	    case ${3-api} in		## Which format?
-		api)	sx="$fa"			;;
-		full)	sx="$ff$p2${4+$NL$4}"		;;
-		list)	sx="$ff$p2$NL$da${4+;$4}"	;;
-		r/o)	sx="$fr$p2${4+$NL$4}"		;;
-		*)	return 1			;;
-	    esac
-	    sed "$sx" <<EOF
+	    shift 2 && dl_apis ${1+"$@"} <<EOF
 a${ms}0
 f${ms}0${ms}meta(META [ARG ...])${ms}2-4
 f${ms}0${ms}set_head(LEVEL HEAD)${ms}2

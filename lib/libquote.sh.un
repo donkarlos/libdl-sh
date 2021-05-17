@@ -47,7 +47,8 @@
 ##					[DELIMITER]' with alias mre.
 ##					quote_meta(): Publish r/o variables.
 ##		ks	2021-05-14	Prepare for multiple API versions.
-##		ks	2021-05-15	Use dl_readonly() to freeze variables.
+##		ks	2021-05-16	Use dl_readonly() to freeze variables
+##					and dl_apis() to emit API information.
 ##----------------------------------------------------------------------------
 ##  Global variables:
 #-----------------------------------------------------------------------------
@@ -71,23 +72,11 @@ readonly quote_package quote_version; unset quote_ro quote_api
 ##  quote_meta(META [ARG ...])	Perform META operation (with ARGs)
 ##----------------------------------------------------------------------------
 quote_meta() {
-    local mp=quote_			## Set meta prefix.
+    local mp=quote_ ms=\;		## Set meta prefix and separator.
 
     case ${2+=}${1+$1-}${2-} in		## Which META operation?
 	=get-apis)			## Inquire APIs...
-	    local sx ms=\;
-	    local fa='/^a'"$ms"'/!d;s///' da='s/([^)'"$ms"'(]*)//'	\
-		  ff='/^F'"$ms"'/{;s///;t2'"$NL"'};/^f'"$ms"'/!d;s///'	\
-		  fr='/^R'"$ms"'/{;s///;t2'"$NL"'};/^r'"$ms"'/!d;s///'	\
-		  p2=';s/'"$ms"'/&'"$mp"'/;:2'
-	    case ${3-api} in		## Which format?
-		api)	sx="$fa"			;;
-		full)	sx="$ff$p2${4+$NL$4}"		;;
-		list)	sx="$ff$p2$NL$da${4+;$4}"	;;
-		r/o)	sx="$fr$p2${4+$NL$4}"		;;
-		*)	return 1			;;
-	    esac
-	    sed "$sx" <<EOF
+	    shift 2 && dl_apis ${1+"$@"} <<EOF
 a${ms}0
 f${ms}0${ms}meta(META [ARG ...])${ms}2-4
 F${ms}0${ms}quote([[STYLE [DELIMITER]] ... STRING])${ms}0-

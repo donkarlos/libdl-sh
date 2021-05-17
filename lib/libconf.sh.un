@@ -44,7 +44,8 @@
 ##					'set -u'-harden conf_exec(), conf_-
 ##					has(), conf_get(), conf_put(), and
 ##					conf_getenv().
-##		ks	2021-05-15	Use dl_readonly() to freeze variables.
+##		ks	2021-05-16	Use dl_readonly() to freeze variables
+##					and dl_apis() to emit API information.
 ##
 ##  NOTE:   (1)	The library just wraps around its 'workhorse' awk(1) script!
 ##	    (2)	The library intentionally has no default API version!
@@ -60,23 +61,11 @@ readonly conf_package conf_version; unset conf_ro conf_api
 ##  conf_meta(META [ARG ...])	Perform META operation (with ARGs)
 ##----------------------------------------------------------------------------
 conf_meta() {
-    local mp=conf_			## Set meta prefix.
+    local mp=conf_ ms=\;		## Set meta prefix and separator.
 
     case ${2+=}${1+$1-}${2-} in		## Which META operation?
 	=get-apis)			## Inquire APIs...
-	    local sx ms=\;
-	    local fa='/^a'"$ms"'/!d;s///' da='s/([^)'"$ms"'(]*)//'	\
-		  ff='/^F'"$ms"'/{;s///;t2'"$NL"'};/^f'"$ms"'/!d;s///'	\
-		  fr='/^R'"$ms"'/{;s///;t2'"$NL"'};/^r'"$ms"'/!d;s///'	\
-		  p2=';s/'"$ms"'/&'"$mp"'/;:2'
-	    case ${3-api} in		## Which format?
-		api)	sx="$fa"			;;
-		full)	sx="$ff$p2${4+$NL$4}"		;;
-		list)	sx="$ff$p2$NL$da${4+;$4}"	;;
-		r/o)	sx="$fr$p2${4+$NL$4}"		;;
-		*)	return 1			;;
-	    esac
-	    sed "$sx" <<EOF
+	    shift 2 && dl_apis ${1+"$@"} <<EOF
 f${ms}-${ms}meta(META [ARG ...])${ms}2-4
 a${ms}1
 f${ms}1${ms}meta(META [ARG ...])${ms}2-4
