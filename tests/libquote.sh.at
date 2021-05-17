@@ -151,8 +151,7 @@ quote_meta get apis list
 0;quote_egrep;1
 0;quote_sed;1-2
 quote_meta get apis r/o
-0;quote_csl_sh
-0;quote_csr_sh
+0;quote_cs_sh
 0;quote_cs_bre
 0;quote_cs_ere
 0;quote_cs_brs
@@ -195,8 +194,7 @@ quote_meta get apis full
 quote_meta get apis list
 0
 quote_meta get apis r/o
-quote_csl_sh
-quote_csr_sh
+quote_cs_sh
 quote_cs_bre
 quote_cs_ere
 quote_cs_brs
@@ -230,8 +228,7 @@ for name in `quote_meta get apis r/o '/^'"$api"';/!d;s///'`; do
     esac'				## Assume failure if it's unset. :-(
 done; exit $status			## Indicate success or failure.
 ], 0, [dnl				## And the winner is...
-quote_csl_sh
-quote_csr_sh
+quote_cs_sh
 quote_cs_bre
 quote_cs_ere
 quote_cs_brs
@@ -265,8 +262,7 @@ for name in `quote_meta get apis r/o '/^'"$api"';/!d;s///'`; do
 					## subshell environment. 8-O
 done; exit $status
 ], 0, [dnl				## And the winner is...
-quote_csl_sh
-quote_csr_sh
+quote_cs_sh
 quote_cs_bre
 quote_cs_ere
 quote_cs_brs
@@ -382,7 +378,7 @@ eval "set shiftee `sed '
     s/%\(.\)/'"$BS$BS"'\1 %/;t0
     s/ %//
 ' <<EOF
-$quote_csl_sh~$quote_csr_sh
+$quote_cs_sh~
 EOF`"; shift				## Split special characters into
 					## positional parameters.
 status=0				## Assume success.
@@ -403,7 +399,6 @@ quote_sh@{:@@:}@@:}@=>'@:}@'
 quote_sh@{:@>@:}@=>'>'
 quote_sh@{:@?@:}@=>'?'
 quote_sh@{:@*@:}@=>'*'
-quote_sh@{:@~@:}@=>'~'
 quote_sh@{:@!@:}@=>'!'
 quote_sh@{:@ @:}@=>' '
 quote_sh@{:@<HT>@:}@=>'<HT>'
@@ -421,6 +416,7 @@ quote_sh@{:@<@:}@=>'<'
 quote_sh@{:@@{:@@:}@=>'@{:@'
 quote_sh@{:@{@:}@=>'{'
 quote_sh@{:@@<:@@:}@=>'@<:@'
+quote_sh@{:@~@:}@=>'~'
 quote_sh@{:@<NL>@:}@=>'<NL>'
 quote_sh@{:@embed~ded@:}@=>embed~ded
 quote_sh@{:@embed<NL>ded@:}@=>'embed<NL>ded'

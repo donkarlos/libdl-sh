@@ -52,16 +52,16 @@
 ##----------------------------------------------------------------------------
 ##  Global variables:
 #-----------------------------------------------------------------------------
-quote_csl_sh=']})>?*'	quote_csr_sh='! 	$|&;#'"$BQ$DQ$SQ$BS$CR"'<({['
-					## Define sh(1) spec. character set's
-					## (sans '~') left/right halves.
+quote_cs_sh=']})>?*! 	$|&;#'"$BQ$DQ$SQ$BS$CR"'<({['
+					## Define sh(1) spec. character set
+					## (sans '~').
 quote_cs_bre=']\.*['			## Define obsolete/basic RE special
 					## character set (sans '^' and '$').
 quote_cs_ere=']})\.*|?+({[^$'		## Define modern/extended RE special
 					## character set (with '^' and '$').
 quote_cs_brs='\&'			## Define 's///' right-hand side
 					## special character set.
-readonly quote_csl_sh quote_csr_sh quote_cs_bre quote_cs_ere quote_cs_brs
+readonly quote_cs_sh quote_cs_bre quote_cs_ere quote_cs_brs
 
 quote_package=@PACKAGE_TARNAME@		## Define source package name
 quote_version=@PACKAGE_VERSION@		## and version.
@@ -88,8 +88,7 @@ f${ms}0${ms}rs(STRING [DELIMITER])${ms}1-2
 f${ms}0${ms}grep(STRING)${ms}1
 f${ms}0${ms}egrep(STRING)${ms}1
 f${ms}0${ms}sed(STRING [DELIMITER=/])${ms}1-2
-r${ms}0${ms}csl_sh
-r${ms}0${ms}csr_sh
+r${ms}0${ms}cs_sh
 r${ms}0${ms}cs_bre
 r${ms}0${ms}cs_ere
 r${ms}0${ms}cs_brs
@@ -126,11 +125,10 @@ EOF
 ##	- quote_cs_bre	(R) Special BRE character set sans '^' and '$'.
 ##	- quote_cs_ere	(R) Special ERE character set with '^' and '$'.
 ##	- quote_cs_brs	(R) Special 's///' right-hand side character set
-##	- quote_csl_sh	(R) Special sh(1) character set sans '~',
-##	- quote_csr_sh	(R) left and right half
+##	- quote_cs_sh	(R) Special sh(1) character set sans '~'.
 ##----------------------------------------------------------------------------
 quote() {
-    local n st de string pass=1 cs sx=':N'"$NL"'$!{;N;bN'"$NL"'}'
+    local n st de string pass=1 sx=':N'"$NL"'$!{;N;bN'"$NL"'}'
 					## Preset sed(1) expr. with "read all
 					## lines into pattern buffer" loop.
     set shiftee ${1+"$@"}		## Let initial shift always succeed.
@@ -173,8 +171,7 @@ quote() {
 					## Append "smart BRS quoting" state-
 		;;			## ments.
 	    sh)				## Bourne shell...
-		cs=$quote_csl_sh$quote_csr_sh
-		sx="$sx$NL"'/^$/bq'"$pass$NL"'/^~/bq'"$pass$NL"'/'"$BS$NL"'/bq'"$pass$NL"'/['"$cs"']/!be'"$pass$NL"':q'"$pass$NL"'s/'"$SQ"'/&'"$BS$BS"'&&/g;s/^/'"$SQ"'/;s/$/'"$SQ"'/;:e'"$pass"
+		sx="$sx$NL"'/^$/bq'"$pass$NL"'/^~/bq'"$pass$NL"'/'"$BS$NL"'/bq'"$pass$NL"'/['"$quote_cs_sh"']/!be'"$pass$NL"':q'"$pass$NL"'s/'"$SQ"'/&'"$BS$BS"'&&/g;s/^/'"$SQ"'/;s/$/'"$SQ"'/;:e'"$pass"
 		pass=`expr $pass + 1`	## Append "smart sh(1) quoting" state-
 		;;			## ments.
 	    *)	return 1		## Unknown style...
@@ -189,15 +186,14 @@ EOF
 ##  quote_sh(STRING)		Quote STRING for sh(1)
 ##
 ##  Non-local variables:
-##	- quote_csl_sh	(R) Special sh(1) character set sans '~',
-##	- quote_csr_sh	(R) left and right half
+##	- quote_cs_sh	(R) Special sh(1) character set sans '~'
 ##----------------------------------------------------------------------------
 quote_sh() {
     case ${2+2}${1+1} in		## Usage OK?
 	1)  sed '
 		:N'"$NL"'$!{;N;bN'"$NL"'}
 		/^$/bq'"$NL"'/^~/bq'"$NL"'/'"$BS$NL"'/bq
-		/['"$quote_csl_sh$quote_csr_sh"']/!q;:q
+		/['"$quote_cs_sh"']/!q;:q
 		s/'"$SQ"'/&'"$BS$BS"'&&/g;s/^/'"$SQ"'/;s/$/'"$SQ"'/
 	    ' <<EOF
 $1
