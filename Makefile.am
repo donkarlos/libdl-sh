@@ -34,6 +34,7 @@
 ##			2021-05-08	Add libquote.sh tests.
 ##			2021-05-14	Add libundo.sh tests.
 ##			2021-05-16	Add libemit.sh and libsafe.sh tests.
+##			2021-05-17	Add libsession.sh tests.
 ##
 ##  NOTE:   (1)	Update the build system with autoreconf(1).
 ##----------------------------------------------------------------------------
@@ -57,10 +58,9 @@ shlibdir		= @libdir@/sh
 dist_noinst_DATA	= LICENSE
 
 ##----------------------------------------------------------------------------
-##  Finish scripts and libraries:
+##  Finish scripts:
 ##----------------------------------------------------------------------------
 noinst_SCRIPTS		= bin/genchangelog
-noinst_DATA		= lib/libsession.sh
 
 ##----------------------------------------------------------------------------
 ##  Distribute and install manpages:
@@ -117,6 +117,7 @@ shlib_DATA		= lib/libconf.sh				\
 			  lib/libemit.sh				\
 			  lib/libquote.sh				\
 			  lib/libsafe.sh				\
+			  lib/libsession.sh				\
 			  lib/libundo.sh
 man_MANS		= doc/libconf.3sh				\
 			  doc/libdl-sh.1				\
@@ -142,6 +143,7 @@ EXTRA_DIST		= $(TESTSUITE_AT)				\
 			  tests/libemit.sh.at				\
 			  tests/libquote.sh.at				\
 			  tests/libsafe.sh.at				\
+			  tests/libsession.sh.at			\
 			  tests/libundo.sh.at
 
 $(srcdir)/tests/package.m4: $(top_srcdir)/configure.ac
@@ -162,6 +164,7 @@ $(TESTSUITE):		$(TESTSUITE_AT)					\
 			tests/libemit.sh.at				\
 			tests/libquote.sh.at				\
 			tests/libsafe.sh.at				\
+			tests/libsession.sh.at				\
 			tests/libundo.sh.at
 	$(AUTOTEST) $(AUTOTESTFLAGS) -o $@.tmp $@.at && mv $@.tmp $@ || rm -f $@.tmp
 

@@ -26,6 +26,7 @@ dnl					Add libdl.sh tests.
 dnl			2021-05-08	Add libquote.sh tests.
 dnl			2021-05-14	Add libconf.sh and libundo.sh tests.
 dnl			2021-05-16	Add libemit.sh and libsafe.sh tests.
+dnl			2021-05-17	Add libsession.sh tests.
 dnl
 dnl Initialization:
 dnl
@@ -67,3 +68,7 @@ dnl Include libsafe.sh tests:
 dnl
 m4_include([libsafe.sh.at])
 
+dnl
+dnl Include libsession.sh tests:
+dnl
+m4_include([libsession.sh.at])
