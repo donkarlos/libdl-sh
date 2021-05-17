@@ -339,15 +339,15 @@ AT_CLEANUP
 
 dnl
 dnl Check if quote_sh() works as expected, i.e.
-dnl   -	the empty string is considered special,
+dnl   -	an empty quotee is considered special,
 dnl   -	tilde is considered special iff it's the 1st character,
 dnl   -	<NL> as well as all other special characters are considered special,
 dnl   -	and single quotes are escaped with backslashes.
 dnl
-dnl NOTE:   (1)	Test strings and the quoted results are transliterated with
-dnl		echoable() before being logged to stdout, so that no charac-
-dnl		ters considered "weird" by some editors have to appear in the
-dnl		reference output!
+dnl NOTE:   (1)	Quotees and their quoteds are made echoable with echoable()
+dnl		before being logged to stdout, so that no characters consid-
+dnl		ered "weird" by some editors have to appear in the reference
+dnl		output!
 dnl	    (2)	The reference output is peppered with quadrigraphs because
 dnl		its as unbalanced as can be!
 dnl
@@ -382,14 +382,13 @@ $quote_cs_sh~
 EOF`"; shift				## Split special characters into
 					## positional parameters.
 status=0				## Assume success.
-for string in '' ${1+"$@"} "$NL" embed~ded embed"$NL"ded embed"$SQ"ded; do
-					## Foreach test string do...
-    quoted=`quote_sh "$string"`		## Quote and transliterate test
-    estring=`echoable "$string"`	## string, then transliterate
-    equoted=`echoable "$quoted"`	## quoted string.
-    echo "quote_sh($estring)=>$equoted"
+for quotee in '' ${1+"$@"} "$NL" embed~ded embed"$NL"ded embed"$SQ"ded; do
+    quoted=`quote_sh "$quotee"`		## Foreach quotee do...
+    equotee=`echoable "$quotee"`	## Quote and transliterate quotee,
+    equoted=`echoable "$quoted"`	## then transliterate quoted.
+    echo "quote_sh($equotee)=>$equoted"
 
-    eval "test $DQ${DS}string$DQ = $quoted" || { status=1; echo 'OOPS!'; }
+    eval "test $DQ${DS}quotee$DQ = $quoted" || { status=1; echo 'OOPS!'; }
 done; exit $status			## Indicate success or failure.
 ], 0, [dnl				## And the winner is...
 quote_sh@{:@@:}@=>''
