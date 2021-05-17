@@ -35,6 +35,7 @@
 ##			2021-05-14	Add libundo.sh tests.
 ##			2021-05-16	Add libemit.sh and libsafe.sh tests.
 ##			2021-05-17	Add libsession.sh tests.
+##					Simplify building of test suite.
 ##
 ##  NOTE:   (1)	Update the build system with autoreconf(1).
 ##----------------------------------------------------------------------------
@@ -133,10 +134,7 @@ sysconf_DATA		= etc/libdl-sh.conf
 ##----------------------------------------------------------------------------
 TESTSUITE 		= $(srcdir)/tests/testsuite
 TESTSUITE_AT		= $(TESTSUITE).at
-
-EXTRA_DIST		= $(TESTSUITE_AT)				\
-			  $(TESTSUITE)					\
-			  $(srcdir)/tests/package.m4			\
+TESTSUITE_INCLUDEES	= $(srcdir)/tests/package.m4			\
 			  tests/libconf.sh.at				\
 			  tests/libdl-sh.at				\
 			  tests/libdl.sh.at				\
@@ -145,6 +143,8 @@ EXTRA_DIST		= $(TESTSUITE_AT)				\
 			  tests/libsafe.sh.at				\
 			  tests/libsession.sh.at			\
 			  tests/libundo.sh.at
+
+EXTRA_DIST		= $(TESTSUITE_AT) $(TESTSUITE_INCLUDEES) $(TESTSUITE)
 
 $(srcdir)/tests/package.m4: $(top_srcdir)/configure.ac
 	:;{ 								\
@@ -156,16 +156,7 @@ $(srcdir)/tests/package.m4: $(top_srcdir)/configure.ac
 	echo 'm4_define([AT_PACKAGE_URL] [$(PACKAGE_URL)])';		\
 	} >$@
 
-$(TESTSUITE):		$(TESTSUITE_AT)					\
-			$(srcdir)/tests/package.m4			\
-			tests/libconf.sh.at				\
-			tests/libdl-sh.at				\
-			tests/libdl.sh.at				\
-			tests/libemit.sh.at				\
-			tests/libquote.sh.at				\
-			tests/libsafe.sh.at				\
-			tests/libsession.sh.at				\
-			tests/libundo.sh.at
+$(TESTSUITE):		$(TESTSUITE_AT) $(TESTSUITE_INCLUDEES)
 	$(AUTOTEST) $(AUTOTESTFLAGS) -o $@.tmp $@.at && mv $@.tmp $@ || rm -f $@.tmp
 
 check-local: 		tests/atconfig tests/atlocal $(TESTSUITE)
