@@ -36,6 +36,7 @@
 ##			2021-05-16	Add libemit.sh and libsafe.sh tests.
 ##			2021-05-17	Add libsession.sh tests.
 ##					Simplify building of test suite.
+##					Add documentation.
 ##
 ##  NOTE:   (1)	Update the build system with autoreconf(1).
 ##----------------------------------------------------------------------------
@@ -62,6 +63,11 @@ dist_noinst_DATA	= LICENSE
 ##  Finish scripts:
 ##----------------------------------------------------------------------------
 noinst_SCRIPTS		= bin/genchangelog
+
+##----------------------------------------------------------------------------
+##  Distribute and install documentation:
+##----------------------------------------------------------------------------
+dist_doc_DATA		= README.md
 
 ##----------------------------------------------------------------------------
 ##  Distribute and install manpages:
