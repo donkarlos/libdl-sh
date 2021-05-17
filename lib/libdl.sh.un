@@ -54,6 +54,7 @@
 ##		ks	2021-05-15	Add dl_readonly() and use it to freeze
 ##					variables.
 ##		ks	2021-05-16	'set -u'-harden dl_readonly().
+##					Add dl_apis().
 ##
 ##  NOTE:   (1)	To avoid cluttering code, this library is exempted from need-
 ##		ing namespace prefixes for its special character definitions.
@@ -121,6 +122,7 @@ dl_meta() {
 a${ms}1
 f${ms}1${ms}meta(META [ARG ...])${ms}2-
 f${ms}1${ms}warn(WHAT INVO [ARG ...])${ms}2-5
+f${ms}1${ms}apis([FORMAT=api [SEDEX]])${ms}0-2
 f${ms}1${ms}dump(MP VS ...)${ms}2-
 f${ms}1${ms}readonly(LIB VS [VALUE])${ms}2-3
 f${ms}1${ms}split(WORD IFS &FIELD ...)${ms}3-
@@ -260,6 +262,34 @@ EOF
 	    echo "$*; OOPS!" >&2
 	    ;;
     esac; return 1
+}
+
+##----------------------------------------------------------------------------
+##  dl_apis([FORMAT=api [SEDEX]])
+##				'get apis' meta operation helper
+##
+##  NOTE:   (1)	Invoker must provide API information on standard input!
+##
+##  Non-local variables:
+##	- mp		(R) Meta prefix
+##	- ms		(R) Meta separator
+##----------------------------------------------------------------------------
+dl_apis() {
+    local									\
+	pa="s/^a$ms//;t_s${NL}d;:_s"						\
+	pf="s/^F$ms//;t_s${NL}s/^f$ms\\([^$ms]*$ms\\)/\\1$mp/;t_s${NL}d;:_s"	\
+	pr="s/^R$ms//;t_s${NL}s/^r$ms\\([^$ms]*$ms\\)/\\1$mp/;t_s${NL}d;:_s"	\
+	d2a="${NL}s/([^)$ms(]*)//;t_2$NL:_2"					\
+	f12="${NL}s/^\\([^$ms]*$ms[^$ms]*\\)$ms.*$/\\1/;t_f${NL}:_f"		\
+	f123="${NL}s/^\\([^$ms]*$ms[^$ms]*$ms[^$ms]*\\)$ms.*$/\\1/;t_f${NL}:_f"
+
+    case ${1-api} in			## Which format?
+	api)	sed "$pa"			;;
+	full)	sed "$pf$f123${2+$NL$2}"	;;
+	list)	sed "$pf$d2a$f123${2+$NL$2}"	;;
+	r/o)	sed "$pr$f12${2+$NL$2}"		;;
+	*)	return 1			;;
+    esac
 }
 
 ##----------------------------------------------------------------------------
