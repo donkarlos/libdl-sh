@@ -36,7 +36,7 @@
 ##			2021-05-16	Add libemit.sh and libsafe.sh tests.
 ##			2021-05-17	Add libsession.sh tests.
 ##					Simplify building of test suite.
-##					Add documentation.
+##					Add documentation and sample library.
 ##
 ##  NOTE:   (1)	Update the build system with autoreconf(1).
 ##----------------------------------------------------------------------------
@@ -53,6 +53,7 @@ AUTOTESTFLAGS		= -I $(top_srcdir)/tests
 ##  Extra primaries:
 ##----------------------------------------------------------------------------
 shlibdir		= @libdir@/sh
+examplesdir		= @docdir@/examples
 
 ##----------------------------------------------------------------------------
 ##  Distribute license:
@@ -68,6 +69,12 @@ noinst_SCRIPTS		= bin/genchangelog
 ##  Distribute and install documentation:
 ##----------------------------------------------------------------------------
 dist_doc_DATA		= README.md
+
+##----------------------------------------------------------------------------
+##  Finish and install (unfinished) examples:
+##----------------------------------------------------------------------------
+examples_DATA		= doc/libEXAMPLE.sh				\
+			  doc/libEXAMPLE.sh.un
 
 ##----------------------------------------------------------------------------
 ##  Distribute and install manpages:

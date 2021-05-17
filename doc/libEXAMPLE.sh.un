@@ -1,0 +1,73 @@
+#! /bin/sh ##
+#-----------------------------------------------------------------------------
+#   libEXAMPLE.sh		- EXAMPLE library
+#
+#   Copyright © 2021 Das Computerlabor (DCl-M)
+#
+#   This library is free software; you can redistribute it and/or
+#   modify it under the terms of the GNU Lesser General Public License
+#   as published by the Free Software Foundation; either
+#   version 2.1 of the License, or (at your option) any later version.
+#
+#   This library is distributed in the hope that it will be useful,
+#   but WITHOUT ANY WARRANTY; without even the implied warranty of
+#   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+#   Lesser General Public License for more details.
+#
+#   You should have received a copy of the GNU Lesser General Public License
+#   along with this library; if not, write to the Free Software Founda-
+#   tion, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
+##
+##  AUTHOR(S):	ks	Karl Schmitz <ks@computerlabor.org>
+##
+##  WRITTEN BY:	ks	2021-05-17
+##  CHANGED BY:
+##----------------------------------------------------------------------------
+##  Global variables:
+#-----------------------------------------------------------------------------
+EXAMPLE_package=@PACKAGE_TARNAME@	## Define source package name and
+EXAMPLE_version=@PACKAGE_VERSION@	## version.
+readonly EXAMPLE_package EXAMPLE_version; unset EXAMPLE_ro EXAMPLE_api
+					## Discard spurious environment.
+
+##----------------------------------------------------------------------------
+##  EXAMPLE_meta(META [ARG ...]) Perform META operation (with ARGs)
+##----------------------------------------------------------------------------
+EXAMPLE_meta() {
+    local mp=EXAMPLE_ ms=\;		## Set meta prefix and separator.
+					## (dl_apis() needs them!)
+
+    case ${2+=}${1+$1-}${2-} in		## Which META operation?
+	=get-apis)			## Inquire APIs...
+	    shift 2 && dl_apis ${1+"$@"} <<EOF
+a${ms}0
+f${ms}0${ms}meta(META [ARG ...])${ms}2-4
+EOF
+	    ;;
+	=get-package|=get-version|=get-api)
+					## Inquire internal variable...
+	    eval 'case ${'"$mp$2"'+=} in
+		=)  echo "$'"$mp$2"'"	;;
+		*)  return 1		;;
+	    esac'
+	    ;;
+	=set-*)				## Set internal variable once...
+	    case ${4+4}${3+=}$2 in	## Usage OK?
+		=api)	${mp}meta get apis | fgrep -qxe "$3"
+			;;		## Yes, try to validate API version.
+		*)	return 2	## No, indicate abuse!
+			;;
+	    esac && dl_readonly EXAMPLE "$2" "$3"
+	    ;;
+	=session-init|=session-load|=session-dump|=session-exit)
+	    :				## Session init/load/dump/exit...
+	    ;;				## ...is a no-op.
+	*)  return 2			## Anything else...
+	    ;;				## ...is abuse!
+    esac
+}
+
+##----------------------------------------------------------------------------
+##  Initialization:
+##----------------------------------------------------------------------------
+dl_readonly EXAMPLE api 0		## Set sole API version once.
