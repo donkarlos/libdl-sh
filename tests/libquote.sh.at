@@ -280,10 +280,6 @@ dnl API versions) indicate usage errors (i.e., return 2) when invoked with
 dnl insufficient arguments.
 dnl
 dnl NOTE:   (1)	The test is driven by the 3rd field of the inquiry's output!
-dnl		It is parsed into $min and $max by the extra sed(1) expr.
-dnl		with the alleged no-op 's/^//;t0;:0' making sure that the
-dnl		following 'tp' statements actually distinguish between the
-dnl		3rd field's three numeric range forms.
 dnl
 AT_SETUP([libquote.sh functions indicate usage errors?])
 AT_CHECK([dnl
@@ -302,8 +298,8 @@ for api in `${mp}meta get apis`; do (	## Foreach API version do...
     trap '' 0				## Ignore EXIT traps within sub-shell.
     echo "${mp}meta set api $api"
     if ${mp}meta set api $api; then	## Could we select that API version?
-	ifs=$IFS; IFS=$NL; set shiftee `${mp}meta get apis list '/^'"$api"';/!d;s///;t0
-		:0
+	ifs=$IFS; IFS=$NL; set shiftee `${mp}meta get apis list 's/^'"$api"';//;t0
+		d;:0
 		s/^\('"$dl_re_id"'\);\('"$dl_re_0n"'\)-\('"$dl_re_1n"'\)$/name=\1 min=\2 max=\3/;tp
 		s/^\('"$dl_re_id"'\);\('"$dl_re_0n"'\)-$/name=\1 min=\2 max=/;tp
 		s/^\('"$dl_re_id"'\);\('"$dl_re_0n"'\)$/name=\1 min=\2 max=\2/;tp
