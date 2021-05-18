@@ -367,11 +367,11 @@ esac
 eval "`libdl-sh load`"; dl_load quote	## Load libdl.sh and libquote.sh or die.
 
 echoable() {
-    sed '
+    local ifs string; ifs=$IFS; IFS=,; string=$*; IFS=$ifs; sed '
 	:N'"$NL"'$!{;N;bN'"$NL"'}
 	s/'"$BS$NL"'/<NL>/g;s/'"$CR"'/<CR>/g;s/	/<HT>/g
     ' <<EOF
-$1
+$string
 EOF
 }
 
@@ -545,11 +545,11 @@ esac
 eval "`libdl-sh load`"; dl_load quote	## Load libdl.sh and libquote.sh or die.
 
 echoable() {
-    sed '
+    local ifs string; ifs=$IFS; IFS=,; string=$*; IFS=$ifs; sed '
 	:N'"$NL"'$!{;N;bN'"$NL"'}
 	s/'"$BS$NL"'/<NL>/g;s/'"$CR"'/<CR>/g;s/	/<HT>/g
     ' <<EOF
-$1
+$string
 EOF
 }
 
@@ -708,11 +708,11 @@ esac
 eval "`libdl-sh load`"; dl_load quote	## Load libdl.sh and libquote.sh or die.
 
 echoable() {
-    sed '
+    local ifs string; ifs=$IFS; IFS=,; string=$*; IFS=$ifs; sed '
 	:N'"$NL"'$!{;N;bN'"$NL"'}
 	s/'"$BS$NL"'/<NL>/g;s/'"$CR"'/<CR>/g;s/	/<HT>/g
     ' <<EOF
-$1
+$string
 EOF
 }
 
@@ -865,11 +865,11 @@ esac
 eval "`libdl-sh load`"; dl_load quote	## Load libdl.sh and libquote.sh or die.
 
 echoable() {
-    sed '
+    local ifs string; ifs=$IFS; IFS=,; string=$*; IFS=$ifs; sed '
 	:N'"$NL"'$!{;N;bN'"$NL"'}
 	s/'"$BS$NL"'/<NL>/g;s/'"$CR"'/<CR>/g;s/	/<HT>/g
     ' <<EOF
-$1
+$string
 EOF
 }
 
@@ -994,11 +994,11 @@ esac
 eval "`libdl-sh load`"; dl_load quote	## Load libdl.sh and libquote.sh or die.
 
 echoable() {
-    sed '
+    local ifs string; ifs=$IFS; IFS=,; string=$*; IFS=$ifs; sed '
 	:N'"$NL"'$!{;N;bN'"$NL"'}
 	s/'"$BS$NL"'/<NL>/g;s/'"$CR"'/<CR>/g;s/	/<HT>/g
     ' <<EOF
-$1
+$string
 EOF
 }
 
@@ -1064,11 +1064,11 @@ esac
 eval "`libdl-sh load`"; dl_load quote	## Load libdl.sh and libquote.sh or die.
 
 echoable() {
-    sed '
+    local ifs string; ifs=$IFS; IFS=,; string=$*; IFS=$ifs; sed '
 	:N'"$NL"'$!{;N;bN'"$NL"'}
 	s/'"$BS$NL"'/<NL>/g;s/'"$CR"'/<CR>/g;s/	/<HT>/g
     ' <<EOF
-$1
+$string
 EOF
 }
 
@@ -1116,11 +1116,11 @@ esac
 eval "`libdl-sh load`"; dl_load quote	## Load libdl.sh and libquote.sh or die.
 
 echoable() {
-    sed '
+    local ifs string; ifs=$IFS; IFS=,; string=$*; IFS=$ifs; sed '
 	:N'"$NL"'$!{;N;bN'"$NL"'}
 	s/'"$BS$NL"'/<NL>/g;s/'"$CR"'/<CR>/g;s/	/<HT>/g
     ' <<EOF
-$1
+$string
 EOF
 }
 
