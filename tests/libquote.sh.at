@@ -348,10 +348,9 @@ dnl   -	tilde is considered special iff it's the 1st character,
 dnl   -	<NL> as well as all other special characters are considered special,
 dnl   -	and single quotes are escaped with backslashes.
 dnl
-dnl NOTE:   (1)	Quotees and their quoteds are made echoable with echoable()
-dnl		before being logged to stdout, so that no characters consid-
-dnl		ered "weird" by some editors have to appear in the reference
-dnl		output!
+dnl NOTE:   (1)	Quotees and their quoteds are rewritten with atlocal_log-
+dnl		gable() before logging them, so that no "dangerous" (to some
+dnl		editors or m4(1)) need to appear in the reference output!
 dnl	    (2)	The reference output is peppered with quadrigraphs because
 dnl		its as unbalanced as can be!
 dnl
@@ -368,62 +367,51 @@ case :$PATH: in				## Triggered by 'check-local:'?
 esac
 eval "`libdl-sh load`"; dl_load quote	## Load libdl.sh and libquote.sh or die.
 
-echoable() {
-    local ifs string; ifs=$IFS; IFS=,; string=$*; IFS=$ifs; sed '
-	:N'"$NL"'$!{;N;bN'"$NL"'}
-	s/'"$BS$NL"'/<NL>/g;s/'"$CR"'/<CR>/g;s/	/<HT>/g
-    ' <<EOF
-$string
-EOF
-}
-
-eval "set shiftee `sed '
-    s/^/%/;:0
-    s/%\(.\)/'"$BS$BS"'\1 %/;t0
-    s/ %//
-' <<EOF
-$quote_cs_sh~
-EOF`"; shift				## Split special characters into
+cs=`atlocal_get_special_cs` status=0	## Assume success.
+eval "set shiftee `atlocal_set_special_cs "$cs${de-}"`; shift"
+					## Split special characters into
 					## positional parameters.
-status=0				## Assume success.
-for quotee in '' ${1+"$@"} "$NL" embed~ded embed"$NL"ded embed"$SQ"ded; do
+for quotee in '' ${1+"$@"} "em~bed${DS}ded" "em${SQ}bed${NL}ded"; do
     quoted=`quote_sh "$quotee"`		## Foreach quotee do...
-    equotee=`echoable "$quotee"`	## Quote and transliterate quotee,
-    equoted=`echoable "$quoted"`	## then transliterate quoted.
-    echo "quote_sh($equotee)=>$equoted"
-
-    eval "test $DQ${DS}quotee$DQ = $quoted" || { status=1; echo 'OOPS!'; }
+    luotee=`atlocal_loggable "$quotee"`	## Quote it, then log invocation
+    luoted=`atlocal_loggable "$quoted"`	## with loggable quotee/quoted.
+    printf 'quote_sh(%s)=>%s\n' "$luotee" "$luoted"
+    eval 'test "_$quotee" = '"_$quoted" || {
+	status=1; echo '!='		## Quotee and unquoted quoted equal?
+    }					## No, fail test and log that fact.
 done; exit $status			## Indicate success or failure.
 ], 0, [dnl				## And the winner is...
 quote_sh@{:@@:}@=>''
-quote_sh@{:@@:>@@:}@=>'@:>@'
-quote_sh@{:@}@:}@=>'}'
+quote_sh@{:@<NL>@:}@=>'<NL>'
+quote_sh@{:@<HT>@:}@=>'<HT>'
+quote_sh@{:@<CR>@:}@=>'<CR>'
+quote_sh@{:@<SP>@:}@=>'<SP>'
+quote_sh@{:@!@:}@=>'!'
+quote_sh@{:@"@:}@=>'"'
+quote_sh@{:@#@:}@=>'#'
+quote_sh@{:@$@:}@=>'$'
+quote_sh@{:@&@:}@=>'&'
+quote_sh@{:@'@:}@=>''\'''
+quote_sh@{:@@{:@@:}@=>'@{:@'
 quote_sh@{:@@:}@@:}@=>'@:}@'
+quote_sh@{:@*@:}@=>'*'
+quote_sh@{:@+@:}@=>+
+quote_sh@{:@.@:}@=>.
+quote_sh@{:@;@:}@=>';'
+quote_sh@{:@<@:}@=>'<'
 quote_sh@{:@>@:}@=>'>'
 quote_sh@{:@?@:}@=>'?'
-quote_sh@{:@*@:}@=>'*'
-quote_sh@{:@!@:}@=>'!'
-quote_sh@{:@ @:}@=>' '
-quote_sh@{:@<HT>@:}@=>'<HT>'
-quote_sh@{:@$@:}@=>'$'
-quote_sh@{:@|@:}@=>'|'
-quote_sh@{:@&@:}@=>'&'
-quote_sh@{:@;@:}@=>';'
-quote_sh@{:@#@:}@=>'#'
-quote_sh@{:@`@:}@=>'`'
-quote_sh@{:@"@:}@=>'"'
-quote_sh@{:@'@:}@=>''\'''
-quote_sh@{:@\@:}@=>'\'
-quote_sh@{:@<CR>@:}@=>'<CR>'
-quote_sh@{:@<@:}@=>'<'
-quote_sh@{:@@{:@@:}@=>'@{:@'
-quote_sh@{:@{@:}@=>'{'
 quote_sh@{:@@<:@@:}@=>'@<:@'
+quote_sh@{:@\@:}@=>'\'
+quote_sh@{:@@:>@@:}@=>'@:>@'
+quote_sh@{:@^@:}@=>^
+quote_sh@{:@`@:}@=>'`'
+quote_sh@{:@{@:}@=>'{'
+quote_sh@{:@|@:}@=>'|'
+quote_sh@{:@}@:}@=>'}'
 quote_sh@{:@~@:}@=>'~'
-quote_sh@{:@<NL>@:}@=>'<NL>'
-quote_sh@{:@embed~ded@:}@=>embed~ded
-quote_sh@{:@embed<NL>ded@:}@=>'embed<NL>ded'
-quote_sh@{:@embed'ded@:}@=>'embed'\''ded'
+quote_sh@{:@em~bed$ded@:}@=>'em~bed$ded'
+quote_sh@{:@em'bed<NL>ded@:}@=>'em'\''bed<NL>ded'
 ], [dnl
 ])
 AT_CLEANUP
