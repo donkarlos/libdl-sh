@@ -21,8 +21,11 @@
 ##  AUTHOR(S):	ks	Karl Schmitz <ks@computerlabor.org>
 ##
 ##  WRITTEN BY:	ks	2021-04-28
-##  CHANGED BY:	ks	2021-05-03	Define PACKAGE_TARNAME and
-##					PACKAGE_VERSION.
+##  CHANGED BY:	ks	2021-05-03	Define PACKAGE_TARNAME, PACKAGE_-
+##					VERSION, and installation directories.
+##		ks	2021-05-18	Declare global variables readonly.
+##----------------------------------------------------------------------------
+##  Global variables:
 #-----------------------------------------------------------------------------
 PACKAGE_TARNAME=@PACKAGE_TARNAME@
 PACKAGE_VERSION=@PACKAGE_VERSION@
@@ -30,3 +33,4 @@ bindir=@bindir@
 libdir=@shlibdir@
 pkgdatadir=@pkgdatadir@
 sysconfdir=@sysconfdir@
+readonly PACKAGE_TARNAME PACKAGE_VERSION bindir libdir pkgdatadir sysconfdir
