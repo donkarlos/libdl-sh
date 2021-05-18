@@ -50,7 +50,7 @@ dnl		ks	2021-05-09	Export test group [dl_load() loads
 dnl					another library?] to libquote.sh.at.
 dnl		ks	2021-05-14	Prepare for multiple API versions.
 dnl		ks	2021-05-16	Add dl_readonly() and dl_apis().
-
+dnl		ks	2021-05-18	Add special characters '[' and ']'.
 dnl
 dnl Test group 'Demand-loading library libdl.sh'
 dnl
@@ -172,6 +172,8 @@ dl_meta get apis r/o
 1;QE
 1;CR
 1;NL
+1;LB
+1;RB
 1;dl_cs_ul
 1;dl_cs_ll
 1;dl_cs_1d
@@ -231,6 +233,8 @@ QB
 QE
 CR
 NL
+LB
+RB
 dl_cs_ul
 dl_cs_ll
 dl_cs_1d
@@ -281,6 +285,8 @@ QB
 QE
 CR
 NL
+LB
+RB
 dl_cs_ul
 dl_cs_ll
 dl_cs_1d
@@ -331,6 +337,8 @@ QB
 QE
 CR
 NL
+LB
+RB
 dl_cs_ul
 dl_cs_ll
 dl_cs_1d
@@ -374,9 +382,9 @@ done; od -bc <<EOF
 $specials
 EOF
 ], 0, [dnl				## And the winner is...
-0000000 140 042 047 134 043 044 041 140 047 015 012 012
-          `   "   '   \   #   $   !   `   '  \r  \n  \n
-0000014
+0000000 140 042 047 134 043 044 041 140 047 015 012 133 135 012
+          `   "   '   \   #   $   !   `   '  \r  \n   [   ]  \n
+0000016
 ], [dnl
 ])
 AT_CLEANUP

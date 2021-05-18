@@ -56,6 +56,7 @@
 ##		ks	2021-05-16	'set -u'-harden dl_readonly().
 ##					Add dl_apis() and use it to emit API
 ##					information.
+##		ks	2021-05-18	Add special characters '[' and ']'.
 ##
 ##  NOTE:   (1)	To avoid cluttering code, this library is exempted from need-
 ##		ing namespace prefixes for its special character definitions.
@@ -71,8 +72,8 @@
 ##							  .- see note (2)
 #---------------------------------------------------------v-------------------
 BQ=\` DQ=\" SQ=\' BS=\\ CS=\# DS=\$ HS=\! QB=\` QE=\' CR='' NL='
-'
-readonly BQ DQ SQ BS CS DS HS QB QE CR NL
+' LB=\[ RB=\]
+readonly BQ DQ SQ BS CS DS HS QB QE CR NL LB RB
 
 ##----------------------------------------------------------------------------
 ##  Global variables:
@@ -131,6 +132,8 @@ R${ms}1${ms}QB
 R${ms}1${ms}QE
 R${ms}1${ms}CR
 R${ms}1${ms}NL
+R${ms}1${ms}LB
+R${ms}1${ms}RB
 r${ms}1${ms}cs_ul
 r${ms}1${ms}cs_ll
 r${ms}1${ms}cs_1d
