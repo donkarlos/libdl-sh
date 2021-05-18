@@ -24,8 +24,8 @@
 ##  CHANGED BY:	ks	2021-05-03	Define PACKAGE_TARNAME, PACKAGE_-
 ##					VERSION, and installation directories.
 ##		ks	2021-05-18	Declare global variables readonly.
-##					Add atlocal_loggable() and atlocal_-
-##					get_specials().
+##					Add atlocal_loggable(), atlocal_get_-
+##					specials() and atlocal_set_specials().
 ##----------------------------------------------------------------------------
 ##  Global variables:
 #-----------------------------------------------------------------------------
@@ -76,5 +76,29 @@ atlocal_get_special_cs() {
 	:N'"$NL"'$!{;N;s/'"$BS$NL"'//2;tN'"$NL"'bN'"$NL"'}
     '
 $quote_cs_sh~$quote_cs_bre^$DS$quote_cs_ere$quote_cs_brs
+EOF
+}
+
+##----------------------------------------------------------------------------
+##  atlocal_set_special_cs(CS)	Split character set CS into quoted word list
+##				usable with 'eval set shiftee ...; shift'
+##
+##  Non-local variables:
+##	- NL		(R) The newline   character.
+##	- BS		(R) The backspace character.
+##	- SQ		(R) Single quote.
+##	- LB		(R) Left  (opening) bracket (i.e., '[').
+##	- RB		(R) Right (closing) bracket (i.e., ']').
+##	- quote_cs_sh	(R) Special sh(1) character set sans '~'.
+##----------------------------------------------------------------------------
+atlocal_set_special_cs() {
+    sed '
+	:N'"$NL"'$!{;N;bN'"$NL"'}
+	s/^'"$BS$NL"'/'"$SQ"'&'"$SQ"' %/;t0
+	:0'"$NL"'s/%\('"$LB$quote_cs_sh~$RB"'\)/'"$BS$BS"'\1 %/;t0
+	s/%\(.\)/\1 %/;t0
+	s/ %//
+    ' <<EOF
+$1
 EOF
 }
