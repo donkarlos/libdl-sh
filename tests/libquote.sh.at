@@ -352,7 +352,7 @@ dnl NOTE:   (1)	Quotees and their quoteds are rewritten with atlocal_log-
 dnl		gable() before logging them, so that no "dangerous" (to some
 dnl		editors or m4(1)) need to appear in the reference output!
 dnl	    (2)	The reference output is peppered with quadrigraphs because
-dnl		its as unbalanced as can be!
+dnl		it's as unbalanced as can be!
 dnl
 AT_SETUP([quote_sh() works as expected?])
 AT_CHECK([dnl
@@ -421,14 +421,13 @@ dnl Check if quote_command() works as expected, i.e.
 dnl	- all arguments except for the 1st (COMMAND) or a redirection are
 dnl	  quoted with quote_sh().
 dnl
-dnl NOTE:   (1)	Quotees and their quoteds are made echoable with echoable()
-dnl		before being logged to stdout, so that no characters consid-
-dnl		ered "weird" by some editors have to appear in the reference
-dnl		output!
+dnl NOTE:   (1)	Quotees and their quoteds are rewritten with atlocal_log-
+dnl		gable() before logging them, so that no "dangerous" (to some
+dnl		editors or m4(1)) need to appear in the reference output!
 dnl	    (2)	The reference output is peppered with quadrigraphs because
-dnl		its as unbalanced as can be!
-dnl	    (3)	As quote_command() is a wrapper around quote_sh(), we won't
-dnl		repeat the match test here!
+dnl		it's as unbalanced as can be!
+dnl	    (3)	As quote_command() is a wrapper around quote_sh(), we spare
+dnl		ourselves the matching test!
 dnl
 AT_SETUP([quote_command() works as expected?])
 AT_CHECK([dnl
@@ -443,63 +442,55 @@ case :$PATH: in				## Triggered by 'check-local:'?
 esac
 eval "`libdl-sh load`"; dl_load quote	## Load libdl.sh and libquote.sh or die.
 
-echoable() {
-    local ifs string; ifs=$IFS; IFS=,; string=$*; IFS=$ifs; sed '
-	:N'"$NL"'$!{;N;bN'"$NL"'}
-	s/'"$BS$NL"'/<NL>/g;s/'"$CR"'/<CR>/g;s/	/<HT>/g
-    ' <<EOF
-$string
-EOF
-}
-
-eval "set shiftee `sed '
-    s/^/%/;:0
-    s/%\(.\)/'"$BS$BS"'\1 %/;t0
-    s/ %//
-' <<EOF
-$quote_cs_sh~
-EOF`"; shift				## Split special characters into
+cs=`atlocal_get_special_cs` status=0	## Assume success.
+eval "set shiftee `atlocal_set_special_cs "$cs${de-}"`; shift"
+					## Split special characters into
 					## positional parameters.
-for quotee in '' ${1+"$@"} "$NL" embed~ded; do
+for quotee in '' ${1+"$@"} "em~bed${DS}ded" "em${SQ}bed${NL}ded"; do
     case $quotee in			## Foreach quotee do...
 	\<) quotee=${quotee}/dev/null	;;
 	\>) quotee=2${quotee}/dev/null	;;
     esac				## Construct redirection where
 					## applicable.
     quoted=`quote_command rm -f "$quotee"`
-					## Quote and transliterate test
-    equotee=`echoable rm -f "$quotee"`	## quotee, then transliterate
-    equoted=`echoable "$quoted"`	## quoted quotee.
-    echo "quote_command($equotee)=>$equoted"
-done
+    luotee=`atlocal_loggable rm -f "$quotee"`
+    luoted=`atlocal_loggable "$quoted"`
+    printf 'quote_command(%s)=>%s\n' "$luotee" "$luoted"
+					## Quote it, then log invocation
+					## with loggable quotee/quoted.
+done; exit $status			## Indicate success or failure.
 ], 0, [dnl				## And the winner is...
-quote_command@{:@rm,-f,@:}@=>rm -f ''
-quote_command@{:@rm,-f,@:>@@:}@=>rm -f '@:>@'
-quote_command@{:@rm,-f,}@:}@=>rm -f '}'
-quote_command@{:@rm,-f,@:}@@:}@=>rm -f '@:}@'
-quote_command@{:@rm,-f,2>/dev/null@:}@=>rm -f 2>/dev/null
-quote_command@{:@rm,-f,?@:}@=>rm -f '?'
-quote_command@{:@rm,-f,*@:}@=>rm -f '*'
-quote_command@{:@rm,-f,!@:}@=>rm -f '!'
-quote_command@{:@rm,-f, @:}@=>rm -f ' '
-quote_command@{:@rm,-f,<HT>@:}@=>rm -f '<HT>'
-quote_command@{:@rm,-f,$@:}@=>rm -f '$'
-quote_command@{:@rm,-f,|@:}@=>rm -f '|'
-quote_command@{:@rm,-f,&@:}@=>rm -f '&'
-quote_command@{:@rm,-f,;@:}@=>rm -f ';'
-quote_command@{:@rm,-f,#@:}@=>rm -f '#'
-quote_command@{:@rm,-f,`@:}@=>rm -f '`'
-quote_command@{:@rm,-f,"@:}@=>rm -f '"'
-quote_command@{:@rm,-f,'@:}@=>rm -f ''\'''
-quote_command@{:@rm,-f,\@:}@=>rm -f '\'
-quote_command@{:@rm,-f,<CR>@:}@=>rm -f '<CR>'
-quote_command@{:@rm,-f,</dev/null@:}@=>rm -f </dev/null
-quote_command@{:@rm,-f,@{:@@:}@=>rm -f '@{:@'
-quote_command@{:@rm,-f,{@:}@=>rm -f '{'
-quote_command@{:@rm,-f,@<:@@:}@=>rm -f '@<:@'
-quote_command@{:@rm,-f,~@:}@=>rm -f '~'
-quote_command@{:@rm,-f,<NL>@:}@=>rm -f '<NL>'
-quote_command@{:@rm,-f,embed~ded@:}@=>rm -f embed~ded
+quote_command@{:@rm,-f,@:}@=>rm<SP>-f<SP>''
+quote_command@{:@rm,-f,<NL>@:}@=>rm<SP>-f<SP>'<NL>'
+quote_command@{:@rm,-f,<HT>@:}@=>rm<SP>-f<SP>'<HT>'
+quote_command@{:@rm,-f,<CR>@:}@=>rm<SP>-f<SP>'<CR>'
+quote_command@{:@rm,-f,<SP>@:}@=>rm<SP>-f<SP>'<SP>'
+quote_command@{:@rm,-f,!@:}@=>rm<SP>-f<SP>'!'
+quote_command@{:@rm,-f,"@:}@=>rm<SP>-f<SP>'"'
+quote_command@{:@rm,-f,#@:}@=>rm<SP>-f<SP>'#'
+quote_command@{:@rm,-f,$@:}@=>rm<SP>-f<SP>'$'
+quote_command@{:@rm,-f,&@:}@=>rm<SP>-f<SP>'&'
+quote_command@{:@rm,-f,'@:}@=>rm<SP>-f<SP>''\'''
+quote_command@{:@rm,-f,@{:@@:}@=>rm<SP>-f<SP>'@{:@'
+quote_command@{:@rm,-f,@:}@@:}@=>rm<SP>-f<SP>'@:}@'
+quote_command@{:@rm,-f,*@:}@=>rm<SP>-f<SP>'*'
+quote_command@{:@rm,-f,+@:}@=>rm<SP>-f<SP>+
+quote_command@{:@rm,-f,.@:}@=>rm<SP>-f<SP>.
+quote_command@{:@rm,-f,;@:}@=>rm<SP>-f<SP>';'
+quote_command@{:@rm,-f,</dev/null@:}@=>rm<SP>-f<SP></dev/null
+quote_command@{:@rm,-f,2>/dev/null@:}@=>rm<SP>-f<SP>2>/dev/null
+quote_command@{:@rm,-f,?@:}@=>rm<SP>-f<SP>'?'
+quote_command@{:@rm,-f,@<:@@:}@=>rm<SP>-f<SP>'@<:@'
+quote_command@{:@rm,-f,\@:}@=>rm<SP>-f<SP>'\'
+quote_command@{:@rm,-f,@:>@@:}@=>rm<SP>-f<SP>'@:>@'
+quote_command@{:@rm,-f,^@:}@=>rm<SP>-f<SP>^
+quote_command@{:@rm,-f,`@:}@=>rm<SP>-f<SP>'`'
+quote_command@{:@rm,-f,{@:}@=>rm<SP>-f<SP>'{'
+quote_command@{:@rm,-f,|@:}@=>rm<SP>-f<SP>'|'
+quote_command@{:@rm,-f,}@:}@=>rm<SP>-f<SP>'}'
+quote_command@{:@rm,-f,~@:}@=>rm<SP>-f<SP>'~'
+quote_command@{:@rm,-f,em~bed$ded@:}@=>rm<SP>-f<SP>'em~bed$ded'
+quote_command@{:@rm,-f,em'bed<NL>ded@:}@=>rm<SP>-f<SP>'em'\''bed<NL>ded'
 ], [dnl
 ])
 AT_CLEANUP
