@@ -24,7 +24,8 @@
 ##  CHANGED BY:	ks	2021-05-03	Define PACKAGE_TARNAME, PACKAGE_-
 ##					VERSION, and installation directories.
 ##		ks	2021-05-18	Declare global variables readonly.
-##					Add atlocal_loggable().
+##					Add atlocal_loggable() and atlocal_-
+##					get_specials().
 ##----------------------------------------------------------------------------
 ##  Global variables:
 #-----------------------------------------------------------------------------
@@ -51,5 +52,29 @@ atlocal_loggable() {
 	s/'"$BS$NL"'/<NL>/g;s/'"$CR"'/<CR>/g;s/	/<HT>/g;s/ /<SP>/g
     ' <<EOF
 $string
+EOF
+}
+
+##----------------------------------------------------------------------------
+##  atlocal_get_special_cs()	Emit joint set of quote operator's special
+##				characters
+##
+##  Non-local variables:
+##	- NL		(R) The newline   character.
+##	- BS		(R) The backspace character.
+##	- quote_cs_sh	(R) Special sh(1) character set sans '~'.
+##	- quote_cs_bre	(R) Special BRE character set sans '^' and '$'.
+##	- quote_cs_ere	(R) Special ERE character set with '^' and '$'.
+##	- quote_cs_brs	(R) Special 's///' right-hand side character set
+##----------------------------------------------------------------------------
+atlocal_get_special_cs() {
+    sed '
+	:N'"$NL"'$!{;N;bN'"$NL"'}
+	s/^/%/;:0'"$NL"'s/%\(.\)/\1'"$BS$NL"'%/;t0
+	s/%$//
+    ' <<EOF | LC_COLLATE=C sort -u | sed '
+	:N'"$NL"'$!{;N;s/'"$BS$NL"'//2;tN'"$NL"'bN'"$NL"'}
+    '
+$quote_cs_sh~$quote_cs_bre^$DS$quote_cs_ere$quote_cs_brs
 EOF
 }
