@@ -968,14 +968,14 @@ dnl
 dnl Check if quote_rs() works as expected, i.e.
 dnl   -	<NL> as well as all other special characters are considered special.
 dnl
-dnl NOTE:   (1)	Quotees and their quoteds are made echoable with echoable()
-dnl		before being logged to stdout, so that no characters consid-
-dnl		ered "weird" by some editors have to appear in the reference
+dnl NOTE:   (1)	Quotees and their quoteds are rewritten with atlocal_log-
+dnl		gable() before logging them, so that no "dangerous" (to some
+dnl		editors or m4(1)) characters need to appear in the reference
 dnl		output!
 dnl	    (2)	The reference output is peppered with quadrigraphs because
-dnl		its as unbalanced as can be!
-dnl	    (3)	Quotees known to fail the match test (see section CAVEATS in
-dnl		libquote(3sh)) are logged as skipped.
+dnl		it's as unbalanced as can be!
+dnl	    (3)	If a quoted is known to be broken (see section CAVEATS in
+dnl		libquote(3sh)), the match test is skipped.
 dnl
 AT_SETUP([quote_rs() works as expected?])
 AT_CHECK([dnl
@@ -990,16 +990,7 @@ case :$PATH: in				## Triggered by 'check-local:'?
 esac
 eval "`libdl-sh load`"; dl_load quote	## Load libdl.sh and libquote.sh or die.
 
-echoable() {
-    local ifs string; ifs=$IFS; IFS=,; string=$*; IFS=$ifs; sed '
-	:N'"$NL"'$!{;N;bN'"$NL"'}
-	s/'"$BS$NL"'/<NL>/g;s/'"$CR"'/<CR>/g;s/	/<HT>/g
-    ' <<EOF
-$string
-EOF
-}
-
-status=0				## Assume success.
+cs=`atlocal_get_special_cs` status=0	## Assume success.
 quote_rs quotee / excess && status=1 || case $? in
     2)		;;			## Check if invocation with excess
     *)	status=1;;			## arguments results in usage error.
@@ -1015,27 +1006,21 @@ esac; for de in '' / \| //; do		## Foreach delimiter do...
 				;;	## Fail test and skip delimiter.
 	    esac
 	    ;;
-    esac; eval "set shiftee `
-	sed '
-	    s/^/%/;:0
-	    s/%\(.\)/'"$BS$BS"'\1 %/;t0
-	    s/ %//
-	' <<EOF
-$quote_cs_brs${de-/}
-EOF`"					## Split special characters into
-    shift				## positional parameters.
-    for quotee in '' ${1+"$@"} "$NL" em'^'bed"$DS"ded em${de-/}bed"$NL"ded; do
+    esac; eval "set shiftee `atlocal_set_special_cs "$cs${de-/}"`; shift"
+					## Split special characters into
+					## positional parameters.
+    for quotee in '' ${1+"$@"} "em^bed${DS}ded" "em${de-/}bed${NL}ded"; do
 					## Foreach quotee do...
 	search=`quote_re "$quotee" "${de-/}"`
 	quoted=`quote_rs "$quotee" ${de+"$de"}`
-	equotee=`echoable "$quotee"`	## Quote and transliterate quotee,
-	equoted=`echoable "$quoted"`	## then transliterate quoted.
-	echo "quote_rs($equotee${de+,$de})=>$equoted"
+	luotee=`atlocal_loggable "$quotee" ${de+"$de"}`
+	luoted=`atlocal_loggable "$quoted"`
+	printf 'quote_rs(%s)=>%s\n' "$luotee" "$luoted"
 	case $quotee in			## Delimiter/quotee combination...?
 	    *"$NL")			## ...is a known match test failure:
 		echo skipped		## Log 'skipped' result.
 		;;
-	    *)				## ...ought to be tested with sed(1):
+	    *)				## ...must be matched with sed(1):
 		sed '
 		    :N'"$NL"'$!{;N;bN'"$NL"'}
 		    s'"${de-/}"'^'"$search"'$'"${de-/}$quoted${de-/}"';tm'"$NL"'d;:m
@@ -1050,42 +1035,192 @@ done; exit $status			## Indicate success or failure.
 ], 0, [dnl				## And the winner is...
 quote_rs@{:@@:}@=>
 matched
-quote_rs@{:@\@:}@=>\\
+quote_rs@{:@<NL>@:}@=>\
+skipped
+quote_rs@{:@<HT>@:}@=><HT>
+matched
+quote_rs@{:@<CR>@:}@=><CR>
+matched
+quote_rs@{:@<SP>@:}@=><SP>
+matched
+quote_rs@{:@!@:}@=>!
+matched
+quote_rs@{:@"@:}@=>"
+matched
+quote_rs@{:@#@:}@=>#
+matched
+quote_rs@{:@$@:}@=>$
 matched
 quote_rs@{:@&@:}@=>\&
 matched
+quote_rs@{:@'@:}@=>'
+matched
+quote_rs@{:@@{:@@:}@=>@{:@
+matched
+quote_rs@{:@@:}@@:}@=>@:}@
+matched
+quote_rs@{:@*@:}@=>*
+matched
+quote_rs@{:@+@:}@=>+
+matched
+quote_rs@{:@.@:}@=>.
+matched
+quote_rs@{:@;@:}@=>;
+matched
+quote_rs@{:@<@:}@=><
+matched
+quote_rs@{:@>@:}@=>>
+matched
+quote_rs@{:@?@:}@=>?
+matched
+quote_rs@{:@@<:@@:}@=>@<:@
+matched
+quote_rs@{:@\@:}@=>\\
+matched
+quote_rs@{:@@:>@@:}@=>@:>@
+matched
+quote_rs@{:@^@:}@=>^
+matched
+quote_rs@{:@`@:}@=>`
+matched
+quote_rs@{:@{@:}@=>{
+matched
+quote_rs@{:@|@:}@=>|
+matched
+quote_rs@{:@}@:}@=>}
+matched
+quote_rs@{:@~@:}@=>~
+matched
 quote_rs@{:@/@:}@=>\/
 matched
-quote_rs@{:@<NL>@:}@=>\
-skipped
 quote_rs@{:@em^bed$ded@:}@=>em^bed$ded
 matched
 quote_rs@{:@em/bed<NL>ded@:}@=>em\/bed\<NL>ded
 matched
 quote_rs@{:@,/@:}@=>
 matched
-quote_rs@{:@\,/@:}@=>\\
+quote_rs@{:@<NL>,/@:}@=>\
+skipped
+quote_rs@{:@<HT>,/@:}@=><HT>
+matched
+quote_rs@{:@<CR>,/@:}@=><CR>
+matched
+quote_rs@{:@<SP>,/@:}@=><SP>
+matched
+quote_rs@{:@!,/@:}@=>!
+matched
+quote_rs@{:@",/@:}@=>"
+matched
+quote_rs@{:@#,/@:}@=>#
+matched
+quote_rs@{:@$,/@:}@=>$
 matched
 quote_rs@{:@&,/@:}@=>\&
 matched
+quote_rs@{:@',/@:}@=>'
+matched
+quote_rs@{:@@{:@,/@:}@=>@{:@
+matched
+quote_rs@{:@@:}@,/@:}@=>@:}@
+matched
+quote_rs@{:@*,/@:}@=>*
+matched
+quote_rs@{:@+,/@:}@=>+
+matched
+quote_rs@{:@.,/@:}@=>.
+matched
+quote_rs@{:@;,/@:}@=>;
+matched
+quote_rs@{:@<,/@:}@=><
+matched
+quote_rs@{:@>,/@:}@=>>
+matched
+quote_rs@{:@?,/@:}@=>?
+matched
+quote_rs@{:@@<:@,/@:}@=>@<:@
+matched
+quote_rs@{:@\,/@:}@=>\\
+matched
+quote_rs@{:@@:>@,/@:}@=>@:>@
+matched
+quote_rs@{:@^,/@:}@=>^
+matched
+quote_rs@{:@`,/@:}@=>`
+matched
+quote_rs@{:@{,/@:}@=>{
+matched
+quote_rs@{:@|,/@:}@=>|
+matched
+quote_rs@{:@},/@:}@=>}
+matched
+quote_rs@{:@~,/@:}@=>~
+matched
 quote_rs@{:@/,/@:}@=>\/
 matched
-quote_rs@{:@<NL>,/@:}@=>\
-skipped
 quote_rs@{:@em^bed$ded,/@:}@=>em^bed$ded
 matched
 quote_rs@{:@em/bed<NL>ded,/@:}@=>em\/bed\<NL>ded
 matched
 quote_rs@{:@,|@:}@=>
 matched
-quote_rs@{:@\,|@:}@=>\\
+quote_rs@{:@<NL>,|@:}@=>\
+skipped
+quote_rs@{:@<HT>,|@:}@=><HT>
+matched
+quote_rs@{:@<CR>,|@:}@=><CR>
+matched
+quote_rs@{:@<SP>,|@:}@=><SP>
+matched
+quote_rs@{:@!,|@:}@=>!
+matched
+quote_rs@{:@",|@:}@=>"
+matched
+quote_rs@{:@#,|@:}@=>#
+matched
+quote_rs@{:@$,|@:}@=>$
 matched
 quote_rs@{:@&,|@:}@=>\&
 matched
+quote_rs@{:@',|@:}@=>'
+matched
+quote_rs@{:@@{:@,|@:}@=>@{:@
+matched
+quote_rs@{:@@:}@,|@:}@=>@:}@
+matched
+quote_rs@{:@*,|@:}@=>*
+matched
+quote_rs@{:@+,|@:}@=>+
+matched
+quote_rs@{:@.,|@:}@=>.
+matched
+quote_rs@{:@;,|@:}@=>;
+matched
+quote_rs@{:@<,|@:}@=><
+matched
+quote_rs@{:@>,|@:}@=>>
+matched
+quote_rs@{:@?,|@:}@=>?
+matched
+quote_rs@{:@@<:@,|@:}@=>@<:@
+matched
+quote_rs@{:@\,|@:}@=>\\
+matched
+quote_rs@{:@@:>@,|@:}@=>@:>@
+matched
+quote_rs@{:@^,|@:}@=>^
+matched
+quote_rs@{:@`,|@:}@=>`
+matched
+quote_rs@{:@{,|@:}@=>{
+matched
 quote_rs@{:@|,|@:}@=>\|
 matched
-quote_rs@{:@<NL>,|@:}@=>\
-skipped
+quote_rs@{:@},|@:}@=>}
+matched
+quote_rs@{:@~,|@:}@=>~
+matched
+quote_rs@{:@|,|@:}@=>\|
+matched
 quote_rs@{:@em^bed$ded,|@:}@=>em^bed$ded
 matched
 quote_rs@{:@em|bed<NL>ded,|@:}@=>em\|bed\<NL>ded
