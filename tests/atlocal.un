@@ -24,6 +24,7 @@
 ##  CHANGED BY:	ks	2021-05-03	Define PACKAGE_TARNAME, PACKAGE_-
 ##					VERSION, and installation directories.
 ##		ks	2021-05-18	Declare global variables readonly.
+##					Add atlocal_loggable().
 ##----------------------------------------------------------------------------
 ##  Global variables:
 #-----------------------------------------------------------------------------
@@ -34,3 +35,21 @@ libdir=@shlibdir@
 pkgdatadir=@pkgdatadir@
 sysconfdir=@sysconfdir@
 readonly PACKAGE_TARNAME PACKAGE_VERSION bindir libdir pkgdatadir sysconfdir
+
+##----------------------------------------------------------------------------
+##  atlocal_loggable(ARG ...)	Make ARGument(s) loggable by rewriting cer-
+##				tain "dangerous" (to some editors or m4(1))
+##				characters
+##
+##  Non-local variables:
+##	- NL		(R) The newline   character.
+##	- BS		(R) The backspace character.
+##----------------------------------------------------------------------------
+atlocal_loggable() {
+    local ifs string; ifs=$IFS; IFS=,; string=$*; IFS=$ifs; sed '
+	:N'"$NL"'$!{;N;bN'"$NL"'}
+	s/'"$BS$NL"'/<NL>/g;s/'"$CR"'/<CR>/g;s/	/<HT>/g;s/ /<SP>/g
+    ' <<EOF
+$string
+EOF
+}
