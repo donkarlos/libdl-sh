@@ -1386,14 +1386,14 @@ AT_CLEANUP
 dnl
 dnl Check if quote_grep() works as expected.
 dnl
-dnl NOTE:   (1)	Quotees and their quoteds are made echoable with echoable()
-dnl		before being logged to stdout, so that no characters consid-
-dnl		ered "weird" by some editors have to appear in the reference
+dnl NOTE:   (1)	Quotees and their quoteds are rewritten with atlocal_log-
+dnl		gable() before logging them, so that no "dangerous" (to some
+dnl		editors or m4(1)) characters need to appear in the reference
 dnl		output!
 dnl	    (2)	The reference output is peppered with quadrigraphs because
-dnl		its as unbalanced as can be!
-dnl	    (3)	As quote_grep() is a wrapper around quote_re(), we won't re-
-dnl		peat the match test here!
+dnl		it's as unbalanced as can be!
+dnl	    (3)	As quote_grep() is a wrapper around quote_re(), we spare
+dnl		ourselves the match test!
 dnl
 AT_SETUP([quote_grep() works as expected?])
 AT_CHECK([dnl
@@ -1408,27 +1408,50 @@ case :$PATH: in				## Triggered by 'check-local:'?
 esac
 eval "`libdl-sh load`"; dl_load quote	## Load libdl.sh and libquote.sh or die.
 
-echoable() {
-    local ifs string; ifs=$IFS; IFS=,; string=$*; IFS=$ifs; sed '
-	:N'"$NL"'$!{;N;bN'"$NL"'}
-	s/'"$BS$NL"'/<NL>/g;s/'"$CR"'/<CR>/g;s/	/<HT>/g
-    ' <<EOF
-$string
-EOF
-}
-
-status=0				## Assume success.
+cs=`atlocal_get_special_cs` status=0	## Assume success.
 quote_grep quotee excess && status=1 || case $? in
     2)		;;			## Check if invocation with excess
     *)	status=1;;			## arguments results in usage error.
-esac; for quotee in em'^'bed"$DS"ded em/bed"$NL"ded; do
+esac; eval "set shiftee `atlocal_set_special_cs "$cs"`; shift"
+					## Split special characters into
+					## positional parameters.
+for quotee in '' ${1+"$@"} "em^bed${DS}ded" "em/bed${NL}ded"; do
 					## Foreach quotee do...
-    quoted=`quote_grep "$quotee"`
-    equotee=`echoable "$quotee"`	## Quote and transliterate quotee,
-    equoted=`echoable "$quoted"`	## then transliterate quoted.
-    echo "quote_grep($equotee)=>$equoted"
+    quoted=`quote_grep "$quotee"`	## Quote it, then log invocation
+    luotee=`atlocal_loggable "$quotee"`	## with loggable quotee/quoted.
+    luoted=`atlocal_loggable "$quoted"`
+    printf 'quote_grep(%s)=>%s\n' "$luotee" "$luoted"
 done; exit $status			## Indicate success or failure.
 ], 0, [dnl				## And the winner is...
+quote_grep@{:@@:}@=>
+quote_grep@{:@<NL>@:}@=>\
+quote_grep@{:@<HT>@:}@=><HT>
+quote_grep@{:@<CR>@:}@=><CR>
+quote_grep@{:@<SP>@:}@=><SP>
+quote_grep@{:@!@:}@=>!
+quote_grep@{:@"@:}@=>"
+quote_grep@{:@#@:}@=>#
+quote_grep@{:@$@:}@=>\$
+quote_grep@{:@&@:}@=>&
+quote_grep@{:@'@:}@=>'
+quote_grep@{:@@{:@@:}@=>@{:@
+quote_grep@{:@@:}@@:}@=>@:}@
+quote_grep@{:@*@:}@=>\*
+quote_grep@{:@+@:}@=>+
+quote_grep@{:@.@:}@=>\.
+quote_grep@{:@;@:}@=>;
+quote_grep@{:@<@:}@=><
+quote_grep@{:@>@:}@=>>
+quote_grep@{:@?@:}@=>?
+quote_grep@{:@@<:@@:}@=>\@<:@
+quote_grep@{:@\@:}@=>\\
+quote_grep@{:@@:>@@:}@=>\@:>@
+quote_grep@{:@^@:}@=>\^
+quote_grep@{:@`@:}@=>`
+quote_grep@{:@{@:}@=>{
+quote_grep@{:@|@:}@=>|
+quote_grep@{:@}@:}@=>}
+quote_grep@{:@~@:}@=>~
 quote_grep@{:@em^bed$ded@:}@=>em^bed$ded
 quote_grep@{:@em/bed<NL>ded@:}@=>em/bed\<NL>ded
 ], [dnl
