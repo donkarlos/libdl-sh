@@ -1537,27 +1537,23 @@ dnl
 dnl Check if quote() works as expected, i.e.
 dnl   -	'quote sh QUOTEE' produces the same output as
 dnl	'quote_sh QUOTEE',
-dnl   -	'quote re [DELIM] QUOTEE' produces the same output as
-dnl	'quote_re [DELIM] QUOTEE',
-dnl   -	'quote ere [DELIM] QUOTEE' produces the same output as
-dnl	'quote_ere [DELIM] QUOTEE',
-dnl   -	'quote rs [DELIM] QUOTEE' produces the same output as
-dnl	'quote_rs [DELIM] QUOTEE', and
-dnl   -	'quote QUOTEE' behaves like 'quote sh QUOTEE' (i.e., 'sh' is the
+dnl   -	'quote re [DELIMITER] QUOTEE' produces the same output as
+dnl	'quote_re [DELIMITER] QUOTEE',
+dnl   -	'quote ere [DELIMITER] QUOTEE' produces the same output as
+dnl	'quote_ere [DELIMITER] QUOTEE',
+dnl   -	'quote rs [DELIMITER] QUOTEE' produces the same output as
+dnl	'quote_rs [DELIMITER] QUOTEE', and
+dnl   -	'quote QUOTEE' behaves like 'quote sh QUOTEE' (i.e., that 'sh' is the
 dnl	default quoting operator).
 dnl
-dnl NOTE:   (1)	Quotees and their quoteds are made echoable with echoable()
-dnl		before being logged to stdout, so that no characters consid-
-dnl		ered "weird" by some editors have to appear in the reference
+dnl NOTE:   (1)	Quotees and their quoteds are rewritten with atlocal_log-
+dnl		gable() before logging them, so that no "dangerous" (to some
+dnl		editors or m4(1)) characters need to appear in the reference
 dnl		output!
 dnl	    (2)	The reference output is peppered with quadrigraphs because
-dnl		its as unbalanced as can be!
-dnl	    (3)	If quote_re() is invoked with DELIMITER the match test is
-dnl		done with sed(1), otherwise with grep(1).
-dnl	    (4)	Quotees known to fail the match test (see section CAVEATS in
-dnl		libquote(3sh)) are logged as skipped.
+dnl		it's as unbalanced as can be!
 dnl
-AT_SETUP([quote() works as expected?])
+AT_SETUP([quote() works as expected? (be patient...)])
 AT_CHECK([dnl
 set -eu					## Employ strict execution environment
 					## to ensure 'set -u' resilience.
@@ -1570,24 +1566,8 @@ case :$PATH: in				## Triggered by 'check-local:'?
 esac
 eval "`libdl-sh load`"; dl_load quote	## Load libdl.sh and libquote.sh or die.
 
-echoable() {
-    local ifs string; ifs=$IFS; IFS=,; string=$*; IFS=$ifs; sed '
-	:N'"$NL"'$!{;N;bN'"$NL"'}
-	s/'"$BS$NL"'/<NL>/g;s/'"$CR"'/<CR>/g;s/	/<HT>/g;s/ /<SP>/g
-    ' <<EOF
-$string
-EOF
-    IFS=$ifs
-}
-
-status=0				## Assume success.
-sx1=':N'"$NL"'$!{;N;bN'"$NL"'};s/^/%/;:0'"$NL"'s/%\(.\)/\1'"$BS$NL"'%/;t0'"$NL"'s/%$//'
-sx2=':N'"$NL"'$!{;N;s/'"$BS$NL"'//2;tN'"$NL"'bN'"$NL"'}'
-sx3=':N'"$NL"'$!{;N;bN'"$NL"'};s/^'"$BS$NL"'/'"$SQ"'&'"$SQ"' %/;t0'"$NL"':0'"$NL"'s/%\('"$LB$quote_cs_sh~$RB"'\)/'"$BS$BS"'\1 %/;t0'"$NL"'s/%\(.\)/\1 %/;t0'"$NL"'s/ %//'
-
-cs=`sed "$sx1" <<EOF | LC_COLLATE=C sort -u | sed "$sx2"
-$quote_cs_sh~$quote_cs_bre^$DS$quote_cs_ere$quote_cs_brs
-EOF`; for operators in ''						    \
+cs=`atlocal_get_special_cs` status=0	## Assume success.
+for operators in ''							    \
     'sh' 're' 're /' 'ere' 'ere /' 'rs' 'rs /'				    \
     'sh sh' 'sh re' 'sh re /' 'sh ere' 'sh ere /' 'sh rs' 'sh rs /'	    \
     're sh' 're re' 're re /' 're ere' 're ere /' 're rs' 're rs /'	    \
@@ -1596,39 +1576,39 @@ EOF`; for operators in ''						    \
 do					## Foreach operators list do...
     set shiftee $operators; shift	## Split it into pos. parameters.
     case ${1-sh}${2+,$2} in		## Which operator is 1st?
-	sh*)				## "sh"...
+	sh*)				## 'sh'...
 	    eq=${1-sh};	unset de;;
-	re,?)				## "re" DELIM...
+	re,?)				## 're' DELIMITER...
 	    eq=$1	de=$2	;;
-	re*)				## "re"...
+	re*)				## 're'...
 	    eq=$1;	unset de;;
-	ere,?)				## "ere" DELIM...
+	ere,?)				## 'ere' DELIMITER...
 	    eq=$1	de=$2	;;
-	ere*)				## "ere"...
+	ere*)				## 'ere'...
 	    eq=$1;	unset de;;
-	rs,?)				## "rs" DELIM...
+	rs,?)				## 'rs' DELIMITER...
 	    eq=$1	de=$2	;;
-	rs*)				## "rs"...
+	rs*)				## 'rs'...
 	    eq=$1	de=/	;;
 	*)  continue
 	    ;;
-    esac; eval "set shiftee `sed "$sx3" <<EOF
-$cs${de-}
-EOF`"					## Split special characters into
-    shift				## positional parameters.
+    esac; eval "set shiftee `atlocal_set_special_cs "$cs${de-}"`; shift"
+					## Split special characters into
+					## positional parameters.
     for quotee in '' ${1+"$@"} "em^bed${DS}ded" "em${de-}bed${NL}ded"; do
 					## Foreach quotee do...
 	quoted=`quote $operators "$quotee"`
-					## Quote quotee.
-	equotee=`echoable $operators "$quotee"`
-					## Transliterate quotee.
-	equoted=`echoable "$quoted"`	## Transliterate quoted.
-	printf 'quote(%s)=>%s\n' "$equotee" "$equoted"
-	set shiftee $operators; shift
-	case ${3+3}${1-sh}${2+,$2} in
-	    $eq${de+,$de})
+	luotee=`atlocal_loggable $operators "$quotee"`
+	luoted=`atlocal_loggable "$quoted"`
+	printf 'quote(%s)=>%s\n' "$luotee" "$luoted"
+					## Quote it, then log invocation
+					## with loggable quotee/quoted.
+	set shiftee $operators; shift	## Split operators list into posi-
+					## tional parameters.
+	case ${3+3}${1-sh}${2+,$2} in	## Is it atchable with equivalent?
+	    $eq${de+,$de})		## Yes: Match succeeded?
 		test "_$quoted" = "_`quote_$eq "$quotee" ${de+"$de"}`" || {
-		    status=1; echo '!='
+		    status=1; echo '!='	## No, fail test and log failure!
 		}
 		;;
 	esac
