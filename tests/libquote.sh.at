@@ -350,7 +350,8 @@ dnl   -	and single quotes are escaped with backslashes.
 dnl
 dnl NOTE:   (1)	Quotees and their quoteds are rewritten with atlocal_log-
 dnl		gable() before logging them, so that no "dangerous" (to some
-dnl		editors or m4(1)) need to appear in the reference output!
+dnl		editors or m4(1)) characters need to appear in the reference
+dnl		output!
 dnl	    (2)	The reference output is peppered with quadrigraphs because
 dnl		it's as unbalanced as can be!
 dnl
@@ -423,11 +424,12 @@ dnl	  quoted with quote_sh().
 dnl
 dnl NOTE:   (1)	Quotees and their quoteds are rewritten with atlocal_log-
 dnl		gable() before logging them, so that no "dangerous" (to some
-dnl		editors or m4(1)) need to appear in the reference output!
+dnl		editors or m4(1)) characters need to appear in the reference
+dnl		output!
 dnl	    (2)	The reference output is peppered with quadrigraphs because
 dnl		it's as unbalanced as can be!
 dnl	    (3)	As quote_command() is a wrapper around quote_sh(), we spare
-dnl		ourselves the matching test!
+dnl		ourselves the match test!
 dnl
 AT_SETUP([quote_command() works as expected?])
 AT_CHECK([dnl
@@ -503,13 +505,14 @@ dnl   -	<NL> as well as all other special characters are considered special.
 dnl
 dnl NOTE:   (1)	Quotees and their quoteds are rewritten with atlocal_log-
 dnl		gable() before logging them, so that no "dangerous" (to some
-dnl		editors or m4(1)) need to appear in the reference output!
+dnl		editors or m4(1)) characters need to appear in the reference
+dnl		output!
 dnl	    (2)	The reference output is peppered with quadrigraphs because
 dnl		it's as unbalanced as can be!
 dnl	    (3)	If quote_re() is invoked with DELIMITER, the match test is
 dnl		done with sed(1), else with grep(1).
 dnl	    (4)	If a quoted is known to be broken (see section CAVEATS in
-dnl		libquote(3sh)), the matching test is skipped.
+dnl		libquote(3sh)), the match test is skipped.
 dnl
 AT_SETUP([quote_re() works as expected?])
 AT_CHECK([dnl
