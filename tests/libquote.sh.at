@@ -555,10 +555,10 @@ esac; for de in '' / \| //; do		## Foreach delimiter do...
 					## Quote it, then log invocation
 					## with loggable quotee/quoted.
 	case ${de+=}:$quotee in		## Delimiter/quotee combination...?
-	    =:*"$NL"|:*"$NL"*)		## ...is a known match test failure:
-		echo skipped		## Skip matching test.
+	    =:*"$NL"|:*"$NL"*)		## ...is known to fail match test:
+		echo skipped		## Skip match test.
 		;;
-	    =:*)			## ...ought to be tested with sed(1):
+	    =:*)			## ...must be matched with sed(1):
 		sed '
 		    :N'"$NL"'$!{;N;bN'"$NL"'}
 		    s'"$de"'^'"$quoted"'$'"$de"'matched'"$de"';tp'"$NL"'d;:p
@@ -566,7 +566,7 @@ esac; for de in '' / \| //; do		## Foreach delimiter do...
 $quotee
 EOF
 		;;
-	    *)				## ...ought to be tested with grep(1):
+	    *)				## ...must be matched with grep(1):
 		grep '^'"$quoted"'$' >/dev/null <<EOF && echo matched || status=1
 $quotee
 EOF
