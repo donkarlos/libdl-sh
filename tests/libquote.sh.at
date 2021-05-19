@@ -1232,14 +1232,14 @@ AT_CLEANUP
 dnl
 dnl Check if quote_sed() works as expected.
 dnl
-dnl NOTE:   (1)	Quotees and their quoteds are made echoable with echoable()
-dnl		before being logged to stdout, so that no characters consid-
-dnl		ered "weird" by some editors have to appear in the reference
+dnl NOTE:   (1)	Quotees and their quoteds are rewritten with atlocal_log-
+dnl		gable() before logging them, so that no "dangerous" (to some
+dnl		editors or m4(1)) characters need to appear in the reference
 dnl		output!
 dnl	    (2)	The reference output is peppered with quadrigraphs because
-dnl		its as unbalanced as can be!
-dnl	    (3)	As quote_sed() is a wrapper around quote_re(), we won't re-
-dnl		peat the match test here!
+dnl		it's as unbalanced as can be!
+dnl	    (3)	As quote_sed() is a wrapper around quote_re(), we spare
+dnl		ourselves the match test!
 dnl
 AT_SETUP([quote_sed() works as expected?])
 AT_CHECK([dnl
@@ -1254,16 +1254,7 @@ case :$PATH: in				## Triggered by 'check-local:'?
 esac
 eval "`libdl-sh load`"; dl_load quote	## Load libdl.sh and libquote.sh or die.
 
-echoable() {
-    local ifs string; ifs=$IFS; IFS=,; string=$*; IFS=$ifs; sed '
-	:N'"$NL"'$!{;N;bN'"$NL"'}
-	s/'"$BS$NL"'/<NL>/g;s/'"$CR"'/<CR>/g;s/	/<HT>/g
-    ' <<EOF
-$string
-EOF
-}
-
-status=0				## Assume success.
+cs=`atlocal_get_special_cs` status=0	## Assume success.
 quote_sed quotee / excess && status=1 || case $? in
     2)		;;			## Check if invocation with excess
     *)	status=1;;			## arguments results in usage error.
@@ -1279,20 +1270,113 @@ esac; for de in '' / \| //; do		## Foreach delimiter do...
 				;;	## Fail test and skip delimiter.
 	    esac
 	    ;;
-    esac
-    for quotee in em'^'bed"$DS"ded em${de-/}bed"$NL"ded; do
+    esac; eval "set shiftee `atlocal_set_special_cs "$cs${de-}"`; shift"
+					## Split special characters into
+					## positional parameters.
+    for quotee in '' ${1+"$@"} "em^bed${DS}ded" "em${de-/}bed${NL}ded"; do
 					## Foreach quotee do...
 	quoted=`quote_sed "$quotee" ${de+"$de"}`
-	equotee=`echoable "$quotee"`	## Quote and transliterate quotee,
-	equoted=`echoable "$quoted"`	## then transliterate quoted.
-	echo "quote_sed($equotee${de+,$de})=>$equoted"
+	luotee=`atlocal_loggable "$quotee" ${de+"$de"}`
+	luoted=`atlocal_loggable "$quoted"`
+	printf 'quote_sed(%s)=>%s\n' "$luotee" "$luoted"
+					## Quote it, then log invocation
+					## with loggable quotee/quoted.
     done
 done; exit $status			## Indicate success or failure.
 ], 0, [dnl				## And the winner is...
+quote_sed@{:@@:}@=>
+quote_sed@{:@<NL>@:}@=>\
+quote_sed@{:@<HT>@:}@=><HT>
+quote_sed@{:@<CR>@:}@=><CR>
+quote_sed@{:@<SP>@:}@=><SP>
+quote_sed@{:@!@:}@=>!
+quote_sed@{:@"@:}@=>"
+quote_sed@{:@#@:}@=>#
+quote_sed@{:@$@:}@=>\$
+quote_sed@{:@&@:}@=>&
+quote_sed@{:@'@:}@=>'
+quote_sed@{:@@{:@@:}@=>@{:@
+quote_sed@{:@@:}@@:}@=>@:}@
+quote_sed@{:@*@:}@=>\*
+quote_sed@{:@+@:}@=>+
+quote_sed@{:@.@:}@=>\.
+quote_sed@{:@;@:}@=>;
+quote_sed@{:@<@:}@=><
+quote_sed@{:@>@:}@=>>
+quote_sed@{:@?@:}@=>?
+quote_sed@{:@@<:@@:}@=>\@<:@
+quote_sed@{:@\@:}@=>\\
+quote_sed@{:@@:>@@:}@=>\@:>@
+quote_sed@{:@^@:}@=>\^
+quote_sed@{:@`@:}@=>`
+quote_sed@{:@{@:}@=>{
+quote_sed@{:@|@:}@=>|
+quote_sed@{:@}@:}@=>}
+quote_sed@{:@~@:}@=>~
 quote_sed@{:@em^bed$ded@:}@=>em^bed$ded
 quote_sed@{:@em/bed<NL>ded@:}@=>em\/bed\<NL>ded
+quote_sed@{:@,/@:}@=>
+quote_sed@{:@<NL>,/@:}@=>\
+quote_sed@{:@<HT>,/@:}@=><HT>
+quote_sed@{:@<CR>,/@:}@=><CR>
+quote_sed@{:@<SP>,/@:}@=><SP>
+quote_sed@{:@!,/@:}@=>!
+quote_sed@{:@",/@:}@=>"
+quote_sed@{:@#,/@:}@=>#
+quote_sed@{:@$,/@:}@=>\$
+quote_sed@{:@&,/@:}@=>&
+quote_sed@{:@',/@:}@=>'
+quote_sed@{:@@{:@,/@:}@=>@{:@
+quote_sed@{:@@:}@,/@:}@=>@:}@
+quote_sed@{:@*,/@:}@=>\*
+quote_sed@{:@+,/@:}@=>+
+quote_sed@{:@.,/@:}@=>\.
+quote_sed@{:@;,/@:}@=>;
+quote_sed@{:@<,/@:}@=><
+quote_sed@{:@>,/@:}@=>>
+quote_sed@{:@?,/@:}@=>?
+quote_sed@{:@@<:@,/@:}@=>\@<:@
+quote_sed@{:@\,/@:}@=>\\
+quote_sed@{:@@:>@,/@:}@=>\@:>@
+quote_sed@{:@^,/@:}@=>\^
+quote_sed@{:@`,/@:}@=>`
+quote_sed@{:@{,/@:}@=>{
+quote_sed@{:@|,/@:}@=>|
+quote_sed@{:@},/@:}@=>}
+quote_sed@{:@~,/@:}@=>~
+quote_sed@{:@/,/@:}@=>\/
 quote_sed@{:@em^bed$ded,/@:}@=>em^bed$ded
 quote_sed@{:@em/bed<NL>ded,/@:}@=>em\/bed\<NL>ded
+quote_sed@{:@,|@:}@=>
+quote_sed@{:@<NL>,|@:}@=>\
+quote_sed@{:@<HT>,|@:}@=><HT>
+quote_sed@{:@<CR>,|@:}@=><CR>
+quote_sed@{:@<SP>,|@:}@=><SP>
+quote_sed@{:@!,|@:}@=>!
+quote_sed@{:@",|@:}@=>"
+quote_sed@{:@#,|@:}@=>#
+quote_sed@{:@$,|@:}@=>\$
+quote_sed@{:@&,|@:}@=>&
+quote_sed@{:@',|@:}@=>'
+quote_sed@{:@@{:@,|@:}@=>@{:@
+quote_sed@{:@@:}@,|@:}@=>@:}@
+quote_sed@{:@*,|@:}@=>\*
+quote_sed@{:@+,|@:}@=>+
+quote_sed@{:@.,|@:}@=>\.
+quote_sed@{:@;,|@:}@=>;
+quote_sed@{:@<,|@:}@=><
+quote_sed@{:@>,|@:}@=>>
+quote_sed@{:@?,|@:}@=>?
+quote_sed@{:@@<:@,|@:}@=>\@<:@
+quote_sed@{:@\,|@:}@=>\\
+quote_sed@{:@@:>@,|@:}@=>\@:>@
+quote_sed@{:@^,|@:}@=>\^
+quote_sed@{:@`,|@:}@=>`
+quote_sed@{:@{,|@:}@=>{
+quote_sed@{:@|,|@:}@=>\|
+quote_sed@{:@},|@:}@=>}
+quote_sed@{:@~,|@:}@=>~
+quote_sed@{:@|,|@:}@=>\|
 quote_sed@{:@em^bed$ded,|@:}@=>em^bed$ded
 quote_sed@{:@em|bed<NL>ded,|@:}@=>em\|bed\<NL>ded
 ], [dnl
