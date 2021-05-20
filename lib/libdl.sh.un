@@ -201,8 +201,8 @@ EOF
 dl_warn() {
     case ${6+6}${2+2} in		## Usage OK?
 	2)  local re_lib='['"$dl_cs_al"'][_'"$dl_cs_an"']*' invo lib	\
-		  package version	## Yes, declare local variables.
-	    ;;
+		  package version status=0
+	    ;;				## Yes, declare local variables.
 	*)  return 2			## No, indicate abuse!
 	    ;;
     esac; eval "`sed '
@@ -244,7 +244,7 @@ Function deprecated since release $3, to be withdrawn by release $4.
 See lib$lib(3SH) for suggestions on how to migrate your application or
 downgrade package $package to release $5.
 EOF
-	    }; return 0
+	    }
 	    ;;
 	43=api-wdr-func)		## API version withdrew function...
 	    cat >&2 <<EOF		## [WAPI CAPI]
@@ -253,6 +253,7 @@ Function withdrawn from API version $3 of lib$lib.sh.
 See lib$lib(3SH) for suggestions on how to migrate your application or
 stay with (probably deprecated) API version $4 for the time being.
 EOF
+	    status=127
 	    ;;
 	43=rel-wdr-meta)		## Release withdrew meta operation...
 					## [WREL CREL]
@@ -263,12 +264,14 @@ Meta operation withdrawn since release $3.
 See lib$lib(3SH) for suggestions on how to migrate your application or
 downgrade package $package to release $4.
 EOF
+		status=2
 	    }
 	    ;;
 	*)				## Catch-all...
 	    echo "$*; OOPS!" >&2
+	    status=3
 	    ;;
-    esac; return 1
+    esac; return $status
 }
 
 ##----------------------------------------------------------------------------
