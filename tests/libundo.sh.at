@@ -24,6 +24,8 @@ dnl CHANGED BY:	ks	2021-05-16	undo_meta(): Bound argument count
 dnl					range above 4.
 dnl CHANGED BY:	ks	2021-05-20	dl_warn(): Suppress warnings for pre-
 dnl					releases.
+dnl					Add test group [libundo.sh functions
+dnl					are propely withdrawn?].
 dnl
 dnl Test group 'String quoting library libundo.sh'
 dnl
@@ -263,6 +265,59 @@ for name in `undo_meta get apis r/o '/^'"$api"';/!d;s///'`; do
 					## subshell environment. 8-O
 done; exit $status
 ], 0, [dnl				## And the winner is...
+], [dnl
+])
+AT_CLEANUP
+
+dnl
+dnl Check if libundo.sh functions are properly withdrawn.
+dnl
+AT_SETUP([libundo.sh functions are propely withdrawn?])
+AT_KEYWORDS([libundo.sh libundo withdrawn])
+AT_CHECK([dnl
+set -eu					## Employ strict execution environment
+					## to ensure 'set -u' resilience.
+case :$PATH: in				## Triggered by 'check-local:'?
+    *:$abs_top_builddir/bin:*)		## Yes, export suitable LSP.
+	LIBDL_SH_LIBRARY_PATH=$abs_top_builddir/lib
+	LIBDL_SH_LIBEXECDIR=$abs_top_builddir/libexec
+	export LIBDL_SH_LIBRARY_PATH LIBDL_SH_LIBEXECDIR
+	;;
+esac
+eval "`libdl-sh load`"; dl_load undo	## Load libdl.sh and libundo.sh or die.
+lib=undo; status=0			## Assume success.
+atlocal_function_withdrawn $lib 1 ${lib}_init :TAG	|| status=1
+atlocal_function_withdrawn $lib 1 ${lib}_keep :TAG	|| status=1
+atlocal_function_withdrawn $lib 2 ${lib}_init :TAG	|| status=1
+atlocal_function_withdrawn $lib 2 ${lib}_mark ::MARK	|| status=1
+atlocal_function_withdrawn $lib 2 ${lib}_keep :TAG	|| status=1
+exit $status				## Indicate success or failure.
+], 0, [dnl				## And the winner is...
+undo_meta set api 1
+undo_meta get api list
+undo_init :TAG
+dl_warn api-wdr-func undo;_init([[1]]:TAG) 1 0
+127
+undo_meta set api 1
+undo_meta get api list
+undo_keep :TAG
+dl_warn api-wdr-func undo;_keep([[1]]:TAG) 1 0
+127
+undo_meta set api 2
+undo_meta get api list
+undo_init :TAG
+dl_warn api-wdr-func undo;_init([[1]]:TAG) 1 0
+127
+undo_meta set api 2
+undo_meta get api list
+undo_mark ::MARK
+dl_warn api-wdr-func undo;_mark([[1]]::MARK) 2 1
+127
+undo_meta set api 2
+undo_meta get api list
+undo_keep :TAG
+dl_warn api-wdr-func undo;_keep([[1]]:TAG) 1 0
+127
 ], [dnl
 ])
 AT_CLEANUP
