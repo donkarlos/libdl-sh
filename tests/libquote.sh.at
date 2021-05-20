@@ -49,6 +49,7 @@ dnl
 dnl Check if 'dl_load quote' loads libquote.sh
 dnl
 AT_SETUP(['dl_load quote' loads libquote.sh?])
+AT_KEYWORDS([libquote.sh libquote dl_load])
 AT_CHECK([dnl
 set -eu					## Employ strict execution environment
 					## to ensure 'set -u' resilience.
@@ -103,6 +104,7 @@ dnl	    (3)	The double brackets within the expected output provide "just
 dnl		the right amount" of m4(1) quoting.
 dnl
 AT_SETUP(['quote_meta get' inquiries give expected results?])
+AT_KEYWORDS([libquote.sh libquote quote_meta])
 AT_CHECK([dnl
 set -eu					## Employ strict execution environment
 					## to ensure 'set -u' resilience.
@@ -171,6 +173,7 @@ dnl   -	get apis r/o
 dnl hounour (i.e., apply) the extra sed(1) expression passed as 4th argument.
 dnl
 AT_SETUP(['quote_meta get apis' honours 4th argument?])
+AT_KEYWORDS([libquote.sh libquote quote_meta])
 AT_CHECK([dnl
 set -eu					## Employ strict execution environment
 					## to ensure 'set -u' resilience.
@@ -211,6 +214,7 @@ dnl Check if the constants reported by quote_meta() inquiry get apis r/o (for
 dnl the default API version) are actually defined after loading libquote.sh.
 dnl
 AT_SETUP(['quote_meta get apis r/o' constants defined?])
+AT_KEYWORDS([libquote.sh libquote quote_meta])
 AT_CHECK([dnl
 set -eu					## Employ strict execution environment
 					## to ensure 'set -u' resilience.
@@ -246,6 +250,7 @@ dnl the default API version) are actually readonly after loading libquote.sh
 dnl by trying to set them in a subshell environment.
 dnl
 AT_SETUP(['quote_meta get apis r/o' constants readonly?])
+AT_KEYWORDS([libquote.sh libquote quote_meta])
 AT_CHECK([dnl
 set -eu					## Employ strict execution environment
 					## to ensure 'set -u' resilience.
@@ -282,6 +287,7 @@ dnl
 dnl NOTE:   (1)	The test is driven by the 3rd field of the inquiry's output!
 dnl
 AT_SETUP([libquote.sh functions indicate usage errors?])
+AT_KEYWORDS([libquote.sh libquote usage])
 AT_CHECK([dnl
 set -eu					## Employ strict execution environment
 					## to ensure 'set -u' resilience.
@@ -356,6 +362,7 @@ dnl	    (2)	The reference output is peppered with quadrigraphs because
 dnl		it's as unbalanced as can be!
 dnl
 AT_SETUP([quote_sh() works as expected?])
+AT_KEYWORDS([libquote.sh libquote quote_sh])
 AT_CHECK([dnl
 set -eu					## Employ strict execution environment
 					## to ensure 'set -u' resilience.
@@ -432,6 +439,7 @@ dnl	    (3)	As quote_command() is a wrapper around quote_sh(), we spare
 dnl		ourselves the match test!
 dnl
 AT_SETUP([quote_command() works as expected?])
+AT_KEYWORDS([libquote.sh libquote quote_command])
 AT_CHECK([dnl
 set -eu					## Employ strict execution environment
 					## to ensure 'set -u' resilience.
@@ -515,6 +523,7 @@ dnl	    (4)	If a quoted is known to be broken (see section CAVEATS in
 dnl		libquote(3sh)), the match test is skipped.
 dnl
 AT_SETUP([quote_re() works as expected?])
+AT_KEYWORDS([libquote.sh libquote quote_bre quote_re])
 AT_CHECK([dnl
 set -eu					## Employ strict execution environment
 					## to ensure 'set -u' resilience.
@@ -785,6 +794,7 @@ dnl	    (4)	If a quoted is known to be broken (see section CAVEATS in
 dnl		libquote(3sh)), the match test is skipped.
 dnl
 AT_SETUP([quote_ere() works as expected?])
+AT_KEYWORDS([libquote.sh libquote quote_ere])
 AT_CHECK([dnl
 set -eu					## Employ strict execution environment
 					## to ensure 'set -u' resilience.
@@ -981,6 +991,7 @@ dnl	    (3)	If a quoted is known to be broken (see section CAVEATS in
 dnl		libquote(3sh)), the match test is skipped.
 dnl
 AT_SETUP([quote_rs() works as expected?])
+AT_KEYWORDS([libquote.sh libquote quote_brs quote_rs])
 AT_CHECK([dnl
 set -eu					## Employ strict execution environment
 					## to ensure 'set -u' resilience.
@@ -1245,6 +1256,7 @@ dnl	    (3)	As quote_sed() is a wrapper around quote_re(), we spare
 dnl		ourselves the match test!
 dnl
 AT_SETUP([quote_sed() works as expected?])
+AT_KEYWORDS([libquote.sh libquote quote_sed])
 AT_CHECK([dnl
 set -eu					## Employ strict execution environment
 					## to ensure 'set -u' resilience.
@@ -1399,6 +1411,7 @@ dnl	    (3)	As quote_grep() is a wrapper around quote_re(), we spare
 dnl		ourselves the match test!
 dnl
 AT_SETUP([quote_grep() works as expected?])
+AT_KEYWORDS([libquote.sh libquote quote_grep])
 AT_CHECK([dnl
 set -eu					## Employ strict execution environment
 					## to ensure 'set -u' resilience.
@@ -1474,6 +1487,7 @@ dnl	    (3)	As quote_egrep() is a wrapper around quote_ere(), we spare
 dnl		ourselves the match test!
 dnl
 AT_SETUP([quote_egrep() works as expected?])
+AT_KEYWORDS([libquote.sh libquote quote_egrep])
 AT_CHECK([dnl
 set -eu					## Employ strict execution environment
 					## to ensure 'set -u' resilience.
@@ -1557,6 +1571,7 @@ dnl	    (2)	The reference output is peppered with quadrigraphs because
 dnl		it's as unbalanced as can be!
 dnl
 AT_SETUP([quote() works as expected? (be patient...)])
+AT_KEYWORDS([libquote.sh libquote quote])
 AT_CHECK([dnl
 set -eu					## Employ strict execution environment
 					## to ensure 'set -u' resilience.

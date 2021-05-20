@@ -32,6 +32,7 @@ AT_TESTED([libdl-sh])
 AT_BANNER([Demand-loading helper libdl-sh(1)])
 
 AT_SETUP(['libdl-sh exec' prepends to $PATH at all?])
+AT_KEYWORDS([libdl-sh])
 AT_CHECK([dnl
 set -eu
 case `libdl-sh exec -- /bin/sh -c 'echo "$PATH"'` in
@@ -45,6 +46,7 @@ esac
 AT_CLEANUP
 
 AT_SETUP(['libdl-sh exec' prepends ${builddir}/bin to $PATH?])
+AT_KEYWORDS([libdl-sh])
 AT_CHECK([dnl
 set -eu
 case :$PATH: in				## Triggered by 'check-local:'?
@@ -62,6 +64,7 @@ esac
 AT_CLEANUP
 
 AT_SETUP(['libdl-sh load' honours $LIBDL_SH_LIBRARY_PATH?])
+AT_KEYWORDS([libdl-sh])
 AT_CHECK([dnl
 set -eu
 SQ=\'
@@ -83,6 +86,7 @@ esac
 AT_CLEANUP
 
 AT_SETUP(['eval "`libdl-sh load`"' loads libdl.sh?])
+AT_KEYWORDS([libdl-sh])
 AT_CHECK([dnl
 set -eu
 case :$PATH: in				## Triggered by 'check-local:'?

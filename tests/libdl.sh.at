@@ -61,6 +61,7 @@ dnl Check if libdl.sh's initialization code catches "signal" 0/EXIT by
 dnl appropriately invoking dl_exit().
 dnl
 AT_SETUP(['eval "`libdl-sh load`"' catches EXIT?])
+AT_KEYWORDS([libdl.sh libdl load trap])
 AT_CHECK([dnl
 set -eu					## Employ strict execution environment
 					## to ensure 'set -u' resilience.
@@ -105,6 +106,7 @@ dnl	    (3)	The double brackets within the expected output provide "just
 dnl		the right amount" of m4(1) quoting.
 dnl
 AT_SETUP(['dl_meta get' inquiries give expected results?])
+AT_KEYWORDS([libdl.sh libdl dl_meta])
 AT_CHECK([dnl
 set -eu					## Employ strict execution environment
 					## to ensure 'set -u' resilience.
@@ -195,6 +197,7 @@ dnl   -	get apis r/o
 dnl hounour (i.e., apply) the extra sed(1) expression passed as 4th argument.
 dnl
 AT_SETUP(['dl_meta get apis' honours 4th argument?])
+AT_KEYWORDS([libdl.sh libdl dl_meta])
 AT_CHECK([dnl
 set -eu					## Employ strict execution environment
 					## to ensure 'set -u' resilience.
@@ -253,6 +256,7 @@ dnl Check if the constants reported by dl_meta() inquiry get apis r/o (for the
 dnl default API version) are actually defined after loading libdl.sh.
 dnl
 AT_SETUP(['dl_meta get apis r/o' constants defined?])
+AT_KEYWORDS([libdl.sh libdl dl_meta])
 AT_CHECK([dnl
 set -eu					## Employ strict execution environment
 					## to ensure 'set -u' resilience.
@@ -306,6 +310,7 @@ dnl default API version) are actually readonly after loading libdl.sh by
 dnl trying to set them in a subshell environment.
 dnl
 AT_SETUP(['dl_meta get apis r/o' constants readonly?])
+AT_KEYWORDS([libdl.sh libdl dl_meta])
 AT_CHECK([dnl
 set -eu					## Employ strict execution environment
 					## to ensure 'set -u' resilience.
@@ -362,6 +367,7 @@ dnl		definition became pretty invisible now. That's why we check
 dnl		against 'od -bc' reference output!
 dnl
 AT_SETUP([libdl.sh's special characters pristine?])
+AT_KEYWORDS([libdl.sh libdl pristine])
 AT_CHECK([dnl
 set -eu					## Employ strict execution environment
 					## to ensure 'set -u' resilience.
@@ -400,6 +406,7 @@ dnl		tested, testing dl_exit() here would be pointless, wherefore
 dnl		it'll stay exempted!
 dnl
 AT_SETUP([libdl.sh functions indicate usage errors?])
+AT_KEYWORDS([libdl.sh libdl usage])
 AT_CHECK([dnl
 set -eu					## Employ strict execution environment
 					## to ensure 'set -u' resilience.
@@ -473,6 +480,7 @@ dnl		the just-registered HOOK. Hence this quality gets exercised,
 dnl		too!
 dnl
 AT_SETUP([dl_atload() registers load-time hook?])
+AT_KEYWORDS([libdl.sh libdl dl_atload])
 AT_CHECK([dnl
 set -eu					## Employ strict execution environment
 					## to ensure 'set -u' resilience.
@@ -502,6 +510,7 @@ dnl Check if dl_atexit() registers an exit-time hook and if it's triggered by
 dnl "signal" 0/EXIT's handler dl_exit().
 dnl
 AT_SETUP([dl_atexit() registers exit-time hook?])
+AT_KEYWORDS([libdl.sh libdl dl_atexit])
 AT_CHECK([dnl
 set -eu					## Employ strict execution environment
 					## to ensure 'set -u' resilience.
@@ -529,6 +538,7 @@ dnl Check if EXIT trap handler dl_exit() arranges to ignore "signal" EXIT
 dnl before triggering registered exit-time hooks.
 dnl
 AT_SETUP([dl_exit() ignores EXIT   before hooks?])
+AT_KEYWORDS([libdl.sh libdl dl_exit])
 AT_CHECK([dnl
 set -eu					## Employ strict execution environment
 					## to ensure 'set -u' resilience.
@@ -563,6 +573,7 @@ dnl NOTE:   (1)	The double brackets within the exit-time hook guard against
 dnl		m4(1)underquoting.
 dnl
 AT_SETUP([dl_exit() does 'set +eu' before hooks?])
+AT_KEYWORDS([libdl.sh libdl dl_exit])
 AT_CHECK([dnl
 set -eu					## Employ strict execution environment
 					## to ensure 'set -u' resilience.

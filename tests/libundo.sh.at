@@ -33,6 +33,7 @@ dnl
 dnl Check if 'dl_load undo' loads libundo.sh
 dnl
 AT_SETUP(['dl_load undo' loads libundo.sh?])
+AT_KEYWORDS([libundo.sh libundo dl_load])
 AT_CHECK([dnl
 set -eu					## Employ strict execution environment
 					## to ensure 'set -u' resilience.
@@ -87,6 +88,7 @@ dnl	    (3)	The double brackets within the expected output provide "just
 dnl		the right amount" of m4(1) quoting.
 dnl
 AT_SETUP(['undo_meta get' inquiries give expected results?])
+AT_KEYWORDS([libundo.sh libundo undo_meta])
 AT_CHECK([dnl
 set -eu					## Employ strict execution environment
 					## to ensure 'set -u' resilience.
@@ -167,6 +169,7 @@ dnl   -	get apis r/o
 dnl hounour (i.e., apply) the extra sed(1) expression passed as 4th argument.
 dnl
 AT_SETUP(['undo_meta get apis' honours 4th argument?])
+AT_KEYWORDS([libundo.sh libundo undo_meta])
 AT_CHECK([dnl
 set -eu					## Employ strict execution environment
 					## to ensure 'set -u' resilience.
@@ -207,6 +210,7 @@ dnl Check if the constants reported by undo_meta() inquiry get apis r/o (for
 dnl the default API version) are actually defined after loading libundo.sh.
 dnl
 AT_SETUP(['undo_meta get apis r/o' constants defined?])
+AT_KEYWORDS([libundo.sh libundo undo_meta])
 AT_CHECK([dnl
 set -eu					## Employ strict execution environment
 					## to ensure 'set -u' resilience.
@@ -238,6 +242,7 @@ dnl the default API version) are actually readonly after loading libundo.sh
 dnl by trying to set them in a subshell environment.
 dnl
 AT_SETUP(['undo_meta get apis r/o' constants readonly?])
+AT_KEYWORDS([libundo.sh libundo undo_meta])
 AT_CHECK([dnl
 set -eu					## Employ strict execution environment
 					## to ensure 'set -u' resilience.
@@ -270,6 +275,7 @@ dnl
 dnl NOTE:   (1)	The test is driven by the 3rd field of the inquiry's output!
 dnl
 AT_SETUP([libundo.sh functions indicate usage errors?])
+AT_KEYWORDS([libundo.sh libundo usage])
 AT_CHECK([dnl
 set -eu					## Employ strict execution environment
 					## to ensure 'set -u' resilience.
@@ -312,7 +318,7 @@ for api in `${mp}meta get apis`; do (	## Foreach API version do...
 	    esac
 	done
     fi
-) || status=1; done; exit $status
+) || status=1; done; exit $status	## Indicate success or failure.
 ], 0, [dnl				## And the winner is...
 undo_meta set api 0
 undo_meta

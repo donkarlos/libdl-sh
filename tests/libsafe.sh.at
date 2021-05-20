@@ -31,6 +31,7 @@ dnl
 dnl Check if 'dl_load safe' loads libsafe.sh
 dnl
 AT_SETUP(['dl_load safe' loads libsafe.sh?])
+AT_KEYWORDS([libsafe.sh libsafe dl_load])
 AT_CHECK([dnl
 set -eu					## Employ strict execution environment
 					## to ensure 'set -u' resilience.
@@ -85,6 +86,7 @@ dnl	    (3)	The double brackets within the expected output provide "just
 dnl		the right amount" of m4(1) quoting.
 dnl
 AT_SETUP(['safe_meta get' inquiries give expected results?])
+AT_KEYWORDS([libsafe.sh libsafe safe_meta])
 AT_CHECK([dnl
 set -eu					## Employ strict execution environment
 					## to ensure 'set -u' resilience.
@@ -181,6 +183,7 @@ dnl   -	get apis r/o
 dnl hounour (i.e., apply) the extra sed(1) expression passed as 4th argument.
 dnl
 AT_SETUP(['safe_meta get apis' honours 4th argument?])
+AT_KEYWORDS([libsafe.sh libsafe safe_meta])
 AT_CHECK([dnl
 set -eu					## Employ strict execution environment
 					## to ensure 'set -u' resilience.
@@ -219,6 +222,7 @@ dnl Check if the constants reported by safe_meta() inquiry get apis r/o (for
 dnl the default API version) are actually defined after loading libsafe.sh.
 dnl
 AT_SETUP(['safe_meta get apis r/o' constants defined?])
+AT_KEYWORDS([libsafe.sh libsafe safe_meta])
 AT_CHECK([dnl
 set -eu					## Employ strict execution environment
 					## to ensure 'set -u' resilience.
@@ -250,6 +254,7 @@ dnl the default API version) are actually readonly after loading libsafe.sh
 dnl by trying to set them in a subshell environment.
 dnl
 AT_SETUP(['safe_meta get apis r/o' constants readonly?])
+AT_KEYWORDS([libsafe.sh libsafe safe_meta])
 AT_CHECK([dnl
 set -eu					## Employ strict execution environment
 					## to ensure 'set -u' resilience.
@@ -282,6 +287,7 @@ dnl
 dnl NOTE:   (1)	The test is driven by the 3rd field of the inquiry's output!
 dnl
 AT_SETUP([libsafe.sh functions indicate usage errors?])
+AT_KEYWORDS([libsafe.sh libsafe usage])
 AT_CHECK([dnl
 set -eu					## Employ strict execution environment
 					## to ensure 'set -u' resilience.
