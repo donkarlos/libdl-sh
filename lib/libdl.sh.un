@@ -94,8 +94,8 @@ readonly dl_cs_ul dl_cs_ll dl_cs_1d dl_cs_0d dl_cs_al dl_cs_an		\
 dl_package=@PACKAGE_TARNAME@		## Define source package name
 dl_version=@PACKAGE_VERSION@		## and version.
 dl_libpath=`libdl-sh path` || exit 127	## Determine LSP or abort!
-dl_loaded=:dl:				## Register this library as loaded.
-dl_needed=
+dl_loaded=:dl:				## Register this library as loaded
+dl_needed=				## and none as needing to be loaded.
 dl_atexits='exit $status'		## Preset exit-hook's command.
 readonly dl_package dl_version; unset dl_ro dl_api dl_atloads dl_session
 					## Discard spurious environment.
@@ -209,45 +209,46 @@ dl_warn() {
 	};s/^/lib=LIB invo='"$SQ"'/;s/$/'"$SQ"' package=PACKAGE/;:p
     ' <<EOF
 $2
-EOF`"					## If possible, derive library and
-					## package from INVOcation.
-    case $1 in				## Warn user about WHAT?
-	rel-req-set-api)		## Release requires set API version...
+EOF`"					## Transform INVOcation and try to
+					## derive library.
+    case ${5+5}${4+4}${3+3}${package+=}$1 in
+					## Warn user about what?
+	43=rel-req-set-api)		## Release requires set API version...
 	    cat >&2 <<EOF		## [WREL CREL]
 $invo; CAUTION!
 Function invoked without API version of lib$lib.sh being selected before,
-which is required since release ${3-WREL}. I presume the application still wants
-to use a withdrawn API version. To prevent serious damage, the application
-is terminated now!
+which is required since release $3. Chances are that your application
+still wants to use a withdrawn API version. To prevent serious damage, the
+application is aborted now!
 
-Downgrade package $package to release ${4-CREL} to make the application
+Downgrade package $package to release $4 to make the application
 work again.
 EOF
 	    exit 127
 	    ;;
-	rel-dpr-func)			## Release deprecated function...
+	543=rel-dpr-func)		## Release deprecated function...
 	    cat >&2 <<EOF		## [DREL WREL CREL]
 $invo; WARNING:
-Function deprecated since release ${3-DREL}, to be withdrawn by release ${4-WREL}.
+Function deprecated since release $3, to be withdrawn by release $4.
 See lib$lib(3SH) for suggestions on how to migrate your application or
-downgrade package $package to release ${5-CREL}.
+downgrade package $package to release $5.
 EOF
 	    return 0
 	    ;;
-	api-wdr-func)			## API version withdrew function...
+	43=api-wdr-func)		## API version withdrew function...
 	    cat >&2 <<EOF		## [WAPI CAPI]
 $invo; WARNING:
-Function withdrawn from API version ${3-WAPI} of lib$lib.sh.
+Function withdrawn from API version $3 of lib$lib.sh.
 See lib$lib(3SH) for suggestions on how to migrate your application or
-stay with (probably deprecated) API version ${4-CAPI} for the time being.
+stay with (probably deprecated) API version $4 for the time being.
 EOF
 	    ;;
-	rel-wdr-meta)			## Release withdrew meta operation...
+	43=rel-wdr-meta)		## Release withdrew meta operation...
 	    cat >&2 <<EOF		## [WREL CREL]
 $invo; WARNING:
-Meta operation withdrawn since release ${3-WREL}.
+Meta operation withdrawn since release $3.
 See lib$lib(3SH) for suggestions on how to migrate your application or
-downgrade package $package to release ${4-CREL}.
+downgrade package $package to release $4.
 EOF
 	    ;;
 	*)				## Catch-all...
