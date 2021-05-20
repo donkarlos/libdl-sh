@@ -26,6 +26,7 @@
 ##		ks	2021-05-18	Declare global variables readonly.
 ##					Add atlocal_loggable(), atlocal_get_-
 ##					specials() and atlocal_set_specials().
+##		ks	2021-05-20	Add atlocal_function_withdrawn().
 ##----------------------------------------------------------------------------
 ##  Global variables:
 #-----------------------------------------------------------------------------
@@ -101,4 +102,48 @@ atlocal_set_special_cs() {
     ' <<EOF
 $1
 EOF
+}
+
+##----------------------------------------------------------------------------
+##  atlocal_function_withdrawn(LIB API FUNC [ARG ...])
+##				Check if LIBrary withdrew FUNC in API version
+##----------------------------------------------------------------------------
+atlocal_function_withdrawn() {
+    case ${3+=$3/`dl_meta get loaded`} in
+					## Usage OK?/LIB is prefix of FUNC?/
+					## LIB is demand-loaded?
+	=${1-}/*:${1-}:*|=${1-}_*/*:${1-}:*)
+	    local meta="${1}_meta"	## Y/Y/Y: Declare local variable.
+	    ;;
+	*)  return 2			## N/?/?: Indicate abuse!
+	    ;;
+    esac; (				## Within subshell environment do...
+	dl_warn() {			## Overload dl_warn() with simplified
+	    echo dl_warn ${1+"$@"}	## version...
+	    case ${6+6}${5+5}${4+4}${3+3}${1+=$1} in
+		43=rel-req-set-api)
+		    return 3    ;;
+		543=rel-dpr-func)
+		    return 0    ;;
+		43=api-wdr-func)
+		    return 127  ;;
+		43=rel-wdr-meta)
+		    return 2    ;;
+		*)  return 3    ;;
+	    esac
+	}
+	trap '' 0			## Ignore EXIT traps.
+	echo "$meta set api $2"		## Select library's API version.
+	$meta set api "$2"
+	echo "$meta get api list"
+	$meta get apis list | grep -e "^$2;$3;" >/dev/null 2>&1 && {
+					## Function still listed for library's
+					## API version?
+	    exit 1			## Yes, indicate failure!
+	}
+	shift 2; echo "$*"		## Log function invocation and disable
+	set +e				## shell's errexit feature.
+	"$@"; echo $?			## Invoke function to see if it trig-
+					## gers dl_warn() and log exit status.
+    ) || return $?			## Indicate success or failure.
 }
