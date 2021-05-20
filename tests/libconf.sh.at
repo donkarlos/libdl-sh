@@ -22,6 +22,8 @@ dnl
 dnl WRITTEN BY:	ks	2021-05-14
 dnl CHANGED BY:	ks	2021-05-20	dl_warn(): Suppress warnings for pre-
 dnl					releases.
+dnl					Add test group [libconf.sh functions
+dnl					are propely withdrawn?].
 dnl
 dnl Test group 'GIT-style configuration file processing library libconf.sh'
 dnl
@@ -246,6 +248,35 @@ for name in `conf_meta get apis r/o '/^'"$api"';/!d;s///'`; do
 					## subshell environment. 8-O
 done; exit $status
 ], 0, [dnl				## And the winner is...
+], [dnl
+])
+AT_CLEANUP
+
+dnl
+dnl Check if libconf.sh functions are properly withdrawn.
+dnl
+AT_SETUP([libconf.sh functions are propely withdrawn?])
+AT_KEYWORDS([libconf.sh libconf withdrawn])
+AT_CHECK([dnl
+set -eu					## Employ strict execution environment
+					## to ensure 'set -u' resilience.
+case :$PATH: in				## Triggered by 'check-local:'?
+    *:$abs_top_builddir/bin:*)		## Yes, export suitable LSP.
+	LIBDL_SH_LIBRARY_PATH=$abs_top_builddir/lib
+	LIBDL_SH_LIBEXECDIR=$abs_top_builddir/libexec
+	export LIBDL_SH_LIBRARY_PATH LIBDL_SH_LIBEXECDIR
+	;;
+esac
+eval "`libdl-sh load`"; dl_load conf	## Load libdl.sh and libconf.sh or die.
+lib=conf; status=0			## Assume success.
+atlocal_function_withdrawn $lib 2 ${lib}_getenv lib core.lib /dev/null || status=1
+exit $status				## Indicate success or failure.
+], 0, [dnl				## And the winner is...
+conf_meta set api 2
+conf_meta get api list
+conf_getenv lib core.lib /dev/null
+dl_warn api-wdr-func conf;_getenv([[3]]lib core.lib /dev/null) 2 1
+127
 ], [dnl
 ])
 AT_CLEANUP
