@@ -198,19 +198,25 @@ EOF
 ##----------------------------------------------------------------------------
 dl_warn() {
     case ${6+6}${2+2} in		## Usage OK?
-	2)  local lib invo package  ;;	## Yes, declare local variables.
-	*)  return 2		    ;;	## No, indicate abuse!
+	2)  local invo lib package re_lib='['"$dl_cs_al"'][_'"$dl_cs_an"']*'
+	    ;;				## Yes, declare local variables.
+	*)  return 2			## No, indicate abuse!
+	    ;;
     esac; eval "`sed '
 	:N'"$NL"'$!{;N;bN'"$NL"'}
 	s/'"$BS$NL"'/<NL>/g;s/'"$CR"'/<CR>/g;s/	/<HT>/g;s/'"$SQ"'/<SQ>/g
-	/^'"$dl_re_id"';/{
-	    s/^\([^;]*\);\(.*\)$/lib=\1 invo='"$SQ"'\1\2'"$SQ"' package='"$BQ"'\1_meta get package || echo PACKAGE'"$BQ"'/;bp
-	};s/^/lib=LIB invo='"$SQ"'/;s/$/'"$SQ"' package=PACKAGE/;:p
+	s/^//;t0'"$NL"':0
+	s/^\('"$re_lib"'\);\(.*\)$/invo='"$SQ"'\1\2'"$SQ"' lib=\1/;tp
+	s/^/invo='"$SQ"'/;s/$/'"$SQ"'/;:p
     ' <<EOF
 $2
 EOF`"					## Transform INVOcation and try to
 					## derive library.
-    case ${5+5}${4+4}${3+3}${package+=}$1 in
+    case $dl_loaded in			## Library loaded?
+	*:${lib-}:*)			## Yes, try to determine package...
+	    package=`${lib}_meta get package` || unset package
+	    ;;				## ...name and version.
+    esac; case ${5+5}${4+4}${3+3}${package+=}$1 in
 					## Warn user about what?
 	43=rel-req-set-api)		## Release requires set API version...
 	    cat >&2 <<EOF		## [WREL CREL]
