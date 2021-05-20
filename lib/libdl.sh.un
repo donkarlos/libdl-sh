@@ -201,9 +201,8 @@ dl_warn() {
 	2)  local lib invo package  ;;	## Yes, declare local variables.
 	*)  return 2		    ;;	## No, indicate abuse!
     esac; eval "`sed '
-	:0'"$NL"'$!{;N;b0'"$NL"'}
-	s/'"$BS$NL"'/'"$BS$BS"'n/g
-	s/'"$SQ"'/&'"$BS$BS"'&&/g
+	:N'"$NL"'$!{;N;bN'"$NL"'}
+	s/'"$BS$NL"'/<NL>/g;s/'"$CR"'/<CR>/g;s/	/<HT>/g;s/'"$SQ"'/<SQ>/g
 	/^'"$dl_re_id"';/{
 	    s/^\([^;]*\);\(.*\)$/lib=\1 invo='"$SQ"'\1\2'"$SQ"' package='"$BQ"'\1_meta get package || echo PACKAGE'"$BQ"'/;bp
 	};s/^/lib=LIB invo='"$SQ"'/;s/$/'"$SQ"' package=PACKAGE/;:p
