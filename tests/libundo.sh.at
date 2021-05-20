@@ -22,6 +22,8 @@ dnl
 dnl WRITTEN BY:	ks	2021-05-13
 dnl CHANGED BY:	ks	2021-05-16	undo_meta(): Bound argument count
 dnl					range above 4.
+dnl CHANGED BY:	ks	2021-05-20	dl_warn(): Suppress warnings for pre-
+dnl					releases.
 dnl
 dnl Test group 'String quoting library libundo.sh'
 dnl
@@ -328,17 +330,5 @@ undo_meta
 undo_meta 1
 undo_push
 ], [dnl
-undo_init([[0]]); WARNING:
-Function deprecated since release 0.4, to be withdrawn by release 0.5.
-See libundo(3SH) for suggestions on how to migrate your application or
-downgrade package libdl-sh to release 0.3.6.
-undo_mark([[0]]); WARNING:
-Function deprecated since release 0.4, to be withdrawn by release 0.5.
-See libundo(3SH) for suggestions on how to migrate your application or
-downgrade package libdl-sh to release 0.3.6.
-undo_mark([[0]]); WARNING:
-Function deprecated since release 0.4, to be withdrawn by release 0.5.
-See libundo(3SH) for suggestions on how to migrate your application or
-downgrade package libdl-sh to release 0.3.6.
 ])
 AT_CLEANUP

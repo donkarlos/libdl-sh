@@ -20,7 +20,8 @@ dnl
 dnl AUTHOR(S):	ks	Karl Schmitz <ks@computerlabor.org>
 dnl
 dnl WRITTEN BY:	ks	2021-05-13
-dnl CHANGED BY:
+dnl CHANGED BY:	ks	2021-05-20	dl_warn(): Suppress warnings for pre-
+dnl					releases.
 dnl
 dnl Test group 'Safe directory/file operations library libsafe.sh'
 dnl
@@ -359,9 +360,5 @@ safe_unlock
 safe_lock
 safe_wait
 ], [dnl
-safe_init([[0]]); WARNING:
-Function deprecated since release 0.4, to be withdrawn by release 0.5.
-See libsafe(3SH) for suggestions on how to migrate your application or
-downgrade package libdl-sh to release 0.3.6.
 ])
 AT_CLEANUP

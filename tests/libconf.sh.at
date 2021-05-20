@@ -20,7 +20,8 @@ dnl
 dnl AUTHOR(S):	ks	Karl Schmitz <ks@computerlabor.org>
 dnl
 dnl WRITTEN BY:	ks	2021-05-14
-dnl CHANGED BY:
+dnl CHANGED BY:	ks	2021-05-20	dl_warn(): Suppress warnings for pre-
+dnl					releases.
 dnl
 dnl Test group 'GIT-style configuration file processing library libconf.sh'
 dnl
@@ -320,17 +321,5 @@ conf_get 1
 conf_put
 conf_put 1
 ], [dnl
-conf_getenv([[0]]); WARNING:
-Function deprecated since release 0.4, to be withdrawn by release 0.5.
-See libconf(3SH) for suggestions on how to migrate your application or
-downgrade package libdl-sh to release 0.3.6.
-conf_getenv([[1]]1); WARNING:
-Function deprecated since release 0.4, to be withdrawn by release 0.5.
-See libconf(3SH) for suggestions on how to migrate your application or
-downgrade package libdl-sh to release 0.3.6.
-conf_getenv([[2]]1 2); WARNING:
-Function deprecated since release 0.4, to be withdrawn by release 0.5.
-See libconf(3SH) for suggestions on how to migrate your application or
-downgrade package libdl-sh to release 0.3.6.
 ])
 AT_CLEANUP
