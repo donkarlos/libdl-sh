@@ -27,7 +27,8 @@
 ##					Add atlocal_loggable(), atlocal_get_-
 ##					specials() and atlocal_set_specials().
 ##		ks	2021-05-20	Add atlocal_function_withdrawn().
-##		ks	2021-05-21	Add atlocal_function_deprecated().
+##		ks	2021-05-21	Add atlocal_function_deprecated() and
+##					atlocal_trace().
 ##----------------------------------------------------------------------------
 ##  Global variables:
 #-----------------------------------------------------------------------------
@@ -38,6 +39,31 @@ libdir=@shlibdir@
 pkgdatadir=@pkgdatadir@
 sysconfdir=@sysconfdir@
 readonly PACKAGE_TARNAME PACKAGE_VERSION bindir libdir pkgdatadir sysconfdir
+
+##----------------------------------------------------------------------------
+##  atlocal_trace(FUNC [ARG ...])
+##				Trace FUNCtion's invocation to stdout, re-
+##				writing certain "dangerous" characters
+##
+##  Non-local variables:
+##	- NL		(R) A newline.		(ASCII <LF>)
+##	- CR		(R) A carriage return.	(ASCII <CR>)
+##	- BS		(R) A backslash.	(\\)
+##----------------------------------------------------------------------------
+atlocal_trace() {
+    case ${1+=} in			## Usage OK?
+	=)  local func="$1"; shift	## Yes, fetch FUNC.
+	    local ifs args; ifs=$IFS; IFS=,; args=$*; IFS=$ifs
+	    ;;
+	*)  return 2			## No, indicate abuse!
+	    ;;
+    esac; sed '
+	:N'"$NL"'$!{;N;bN'"$NL"'}
+	s/'"$BS$NL"'/<NL>/g;s/'"$CR"'/<CR>/g;s/	/<HT>/g;s/ /<SP>/g
+    ' <<EOF
+$func([$#]$args)
+EOF
+}
 
 ##----------------------------------------------------------------------------
 ##  atlocal_loggable(ARG ...)	Make ARGument(s) loggable by rewriting cer-
