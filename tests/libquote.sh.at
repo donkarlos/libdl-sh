@@ -40,6 +40,8 @@ dnl		ks	2021-05-17	Add test group [quote_command() works
 dnl					as expected?].
 dnl		ks	2021-05-18	Add test group [quote() works as ex-
 dnl					pected?].
+dnl		ks	2021-05-21	Use atlocal_trace(), atlocal_trace_-
+dnl					with_output(), and atlocal_returns().
 dnl
 dnl Test group 'String quoting library libquote.sh'
 dnl
@@ -116,25 +118,31 @@ case :$PATH: in				## Triggered by 'check-local:'?
 	;;
 esac
 eval "`libdl-sh load`"; dl_load quote	## Load libdl.sh and libquote.sh or die.
+status=0				## Assume success.
 case `quote_meta get package`_`quote_meta get version` in
     ${PACKAGE_TARNAME}_${PACKAGE_VERSION})
-	:	;;			## See note (1).
-    *)	test	;;
-esac && for meta in							\
+	atlocal_trace quote_meta get package
+	atlocal_trace quote_meta get version
+	;;				## See note (1).
+    *)	status=1			## No, fail test.
+	;;
+esac; for meta in							\
     'get api' 'get apis'						\
     'get apis api' 'get apis full' 'get apis list' 'get apis r/o'
 do
-    echo 'quote_meta '"$meta" && quote_meta $meta
-					## Emit tag and inquiry result.
-done
+    atlocal_trace quote_meta $meta && quote_meta $meta || status=1
+					## Trace invocation and result.
+done; exit $status			## Indicate success or failure.
 ], 0, [dnl				## And the winner is...
-quote_meta get api
+quote_meta([[2]]get,package)
+quote_meta([[2]]get,version)
+quote_meta([[2]]get,api)
 0
-quote_meta get apis
+quote_meta([[2]]get,apis)
 0
-quote_meta get apis api
+quote_meta([[3]]get,apis,api)
 0
-quote_meta get apis full
+quote_meta([[3]]get,apis,full)
 0;quote_meta(META [[ARG ...]]);2-4
 0;quote([[[STYLE [DELIMITER]] ... STRING]]);0-
 0;quote_sh(STRING);1
@@ -145,7 +153,7 @@ quote_meta get apis full
 0;quote_grep(STRING);1
 0;quote_egrep(STRING);1
 0;quote_sed(STRING [[DELIMITER=/]]);1-2
-quote_meta get apis list
+quote_meta([[3]]get,apis,list)
 0;quote_meta;2-4
 0;quote;0-
 0;quote_sh;1
@@ -156,7 +164,7 @@ quote_meta get apis list
 0;quote_grep;1
 0;quote_egrep;1
 0;quote_sed;1-2
-quote_meta get apis r/o
+quote_meta([[3]]get,apis,r/o)
 0;quote_cs_sh
 0;quote_cs_bre
 0;quote_cs_ere
@@ -172,6 +180,9 @@ dnl   -	get apis list
 dnl   -	get apis r/o
 dnl hounour (i.e., apply) the extra sed(1) expression passed as 4th argument.
 dnl
+dnl NOTE:   (1)	The double brackets within the expected output provide "just
+dnl		the right amount" of m4(1) quoting.
+dnl
 AT_SETUP(['quote_meta get apis' honours 4th argument?])
 AT_KEYWORDS([libquote.sh libquote quote_meta])
 AT_CHECK([dnl
@@ -185,6 +196,7 @@ case :$PATH: in				## Triggered by 'check-local:'?
 	;;
 esac
 eval "`libdl-sh load`"; dl_load quote	## Load libdl.sh and libquote.sh or die.
+status=0				## Assume success.
 api=`quote_meta get api`		## Inquire default API version.
 for meta in 'get apis full' 'get apis list' 'get apis r/o'; do
     case $meta in
@@ -192,15 +204,15 @@ for meta in 'get apis full' 'get apis list' 'get apis r/o'; do
 	*list)	sx='/;quote_sh;/!d;s/;.*$//'	;;
 	*r/o)	sx='/^'"$api"';/!d;s///'	;;
     esac
-    echo 'quote_meta '"$meta" && quote_meta $meta "$sx"
-					## Emit tag and inquiry result.
-done
+    atlocal_trace quote_meta $meta "$sx" && quote_meta $meta "$sx" || status=1
+					## Trace invocation and result.
+done; exit $status			## Indicate success or failure.
 ], 0, [dnl				## And the winner is...
-quote_meta get apis full
+quote_meta([[4]]get,apis,full,/;quote_sh@{:@/!d;s/;.*$//)
 0
-quote_meta get apis list
+quote_meta([[4]]get,apis,list,/;quote_sh;/!d;s/;.*$//)
 0
-quote_meta get apis r/o
+quote_meta([[4]]get,apis,r/o,/^0;/!d;s///)
 quote_cs_sh
 quote_cs_bre
 quote_cs_ere
@@ -226,8 +238,8 @@ case :$PATH: in				## Triggered by 'check-local:'?
 	;;
 esac
 eval "`libdl-sh load`"; dl_load quote	## Load libdl.sh and libquote.sh or die.
-status=0				## Assume success and inquire
-api=`quote_meta get api`		## default API version.
+status=0				## Assume success.
+api=`quote_meta get api`		## Inquire default API version.
 for name in `quote_meta get apis r/o '/^'"$api"';/!d;s///'`; do
 					## Foreach constant do...
     eval 'case ${'"$name"'+=} in
@@ -262,8 +274,8 @@ case :$PATH: in				## Triggered by 'check-local:'?
 	;;
 esac
 eval "`libdl-sh load`"; dl_load quote	## Load libdl.sh and libquote.sh or die.
-status=0				## Assume success and inquire
-api=`quote_meta get api`			## default API version.
+status=0				## Assume success.
+api=`quote_meta get api`		## Inquire default API version.
 for name in `quote_meta get apis r/o '/^'"$api"';/!d;s///'`; do
 					## Foreach constant do...
     (eval "$name=" 2>/dev/null) && status=1 || echo "$name"
@@ -285,6 +297,8 @@ dnl API versions) indicate usage errors (i.e., return 2) when invoked with
 dnl insufficient arguments.
 dnl
 dnl NOTE:   (1)	The test is driven by the 3rd field of the inquiry's output!
+dnl	    (2)	The double brackets within the expected output provide "just
+dnl		the right amount" of m4(1) quoting.
 dnl
 AT_SETUP([libquote.sh functions indicate usage errors?])
 AT_KEYWORDS([libquote.sh libquote usage])
@@ -302,7 +316,7 @@ eval "`libdl-sh load`"; dl_load quote	## Load libdl.sh and libquote.sh or die.
 mp=quote_; status=0			## Assume success.
 for api in `${mp}meta get apis`; do (	## Foreach API version do...
     trap '' 0				## Ignore EXIT traps within subshell.
-    echo "${mp}meta set api $api"
+    atlocal_trace ${mp}meta set api "$api"
     if ${mp}meta set api $api; then	## Could we select that API version?
 	ifs=$IFS; IFS=$NL; set shiftee `${mp}meta get apis list 's/^'"$api"';//;t0
 		d;:0
@@ -319,11 +333,7 @@ for api in `${mp}meta get apis`; do (	## Foreach API version do...
 		    ;;
 		*)			## No, make passes at function.
 		    args= n=0; while test "$n" -lt "$min"; do
-			echo "$name$args"
-			$name $args && exit 1 || case $? in
-			    2)		;;
-			    *)  exit 1	;;
-			esac
+			atlocal_returns 2 $name $args || exit 1
 			n=`expr $n + 1`; args="$args $n"
 		    done
 		    ;;
@@ -332,17 +342,17 @@ for api in `${mp}meta get apis`; do (	## Foreach API version do...
     fi
 ) || status=1; done; exit $status
 ], 0, [dnl				## And the winner is...
-quote_meta set api 0
-quote_meta
-quote_meta 1
-quote_sh
-quote_command
-quote_re
-quote_ere
-quote_rs
-quote_grep
-quote_egrep
-quote_sed
+quote_meta([[3]]set,api,0)
+quote_meta([[0]])
+quote_meta([[1]]1)
+quote_sh([[0]])
+quote_command([[0]])
+quote_re([[0]])
+quote_ere([[0]])
+quote_rs([[0]])
+quote_grep([[0]])
+quote_egrep([[0]])
+quote_sed([[0]])
 ], [dnl
 ])
 AT_CLEANUP
@@ -354,11 +364,7 @@ dnl   -	tilde is considered special iff it's the 1st character,
 dnl   -	<NL> as well as all other special characters are considered special,
 dnl   -	and single quotes are escaped with backslashes.
 dnl
-dnl NOTE:   (1)	Quotees and their quoteds are rewritten with atlocal_log-
-dnl		gable() before logging them, so that no "dangerous" (to some
-dnl		editors or m4(1)) characters need to appear in the reference
-dnl		output!
-dnl	    (2)	The reference output is peppered with quadrigraphs because
+dnl NOTE:   (1)	The reference output is peppered with quadrigraphs because
 dnl		it's as unbalanced as can be!
 dnl
 AT_SETUP([quote_sh() works as expected?])
@@ -376,50 +382,54 @@ esac
 eval "`libdl-sh load`"; dl_load quote	## Load libdl.sh and libquote.sh or die.
 
 cs=`atlocal_get_special_cs` status=0	## Assume success.
-eval "set shiftee `atlocal_set_special_cs "$cs${de-}"`; shift"
+atlocal_returns 2 quote_sh quotee excess || status=1
+					## Check if invocation with excess
+					## argument results in usage error.
+eval "set shiftee `atlocal_set_special_cs "$cs"`; shift"
 					## Split special characters into
 					## positional parameters.
 for quotee in '' ${1+"$@"} "em~bed${DS}ded" "em${SQ}bed${NL}ded"; do
     quoted=`quote_sh "$quotee"`		## Foreach quotee do...
-    luotee=`atlocal_loggable "$quotee"`	## Quote it, then log invocation
-    luoted=`atlocal_loggable "$quoted"`	## with loggable quotee/quoted.
-    printf 'quote_sh(%s)=>%s\n' "$luotee" "$luoted"
+    atlocal_trace_with_output "$quoted" quote_sh "$quotee"
+					## Quote it, then trace invocation
+					## with result.
     eval 'test "_$quotee" = '"_$quoted" || {
-	status=1; echo '!='		## Quotee and unquoted quoted equal?
+	status=1; echo '!='		## Quotee and dequoted quoted equal?
     }					## No, fail test and log that fact.
 done; exit $status			## Indicate success or failure.
 ], 0, [dnl				## And the winner is...
-quote_sh@{:@@:}@=>''
-quote_sh@{:@<NL>@:}@=>'<NL>'
-quote_sh@{:@<HT>@:}@=>'<HT>'
-quote_sh@{:@<CR>@:}@=>'<CR>'
-quote_sh@{:@<SP>@:}@=>'<SP>'
-quote_sh@{:@!@:}@=>'!'
-quote_sh@{:@"@:}@=>'"'
-quote_sh@{:@#@:}@=>'#'
-quote_sh@{:@$@:}@=>'$'
-quote_sh@{:@&@:}@=>'&'
-quote_sh@{:@'@:}@=>''\'''
-quote_sh@{:@@{:@@:}@=>'@{:@'
-quote_sh@{:@@:}@@:}@=>'@:}@'
-quote_sh@{:@*@:}@=>'*'
-quote_sh@{:@+@:}@=>+
-quote_sh@{:@.@:}@=>.
-quote_sh@{:@;@:}@=>';'
-quote_sh@{:@<@:}@=>'<'
-quote_sh@{:@>@:}@=>'>'
-quote_sh@{:@?@:}@=>'?'
-quote_sh@{:@@<:@@:}@=>'@<:@'
-quote_sh@{:@\@:}@=>'\'
-quote_sh@{:@@:>@@:}@=>'@:>@'
-quote_sh@{:@^@:}@=>^
-quote_sh@{:@`@:}@=>'`'
-quote_sh@{:@{@:}@=>'{'
-quote_sh@{:@|@:}@=>'|'
-quote_sh@{:@}@:}@=>'}'
-quote_sh@{:@~@:}@=>'~'
-quote_sh@{:@em~bed$ded@:}@=>'em~bed$ded'
-quote_sh@{:@em'bed<NL>ded@:}@=>'em'\''bed<NL>ded'
+quote_sh@{:@@<:@2@:>@quotee,excess@:}@
+quote_sh@{:@@<:@1@:>@@:}@=>''
+quote_sh@{:@@<:@1@:>@<NL>@:}@=>'<NL>'
+quote_sh@{:@@<:@1@:>@<HT>@:}@=>'<HT>'
+quote_sh@{:@@<:@1@:>@<CR>@:}@=>'<CR>'
+quote_sh@{:@@<:@1@:>@<SP>@:}@=>'<SP>'
+quote_sh@{:@@<:@1@:>@!@:}@=>'!'
+quote_sh@{:@@<:@1@:>@"@:}@=>'"'
+quote_sh@{:@@<:@1@:>@#@:}@=>'#'
+quote_sh@{:@@<:@1@:>@$@:}@=>'$'
+quote_sh@{:@@<:@1@:>@&@:}@=>'&'
+quote_sh@{:@@<:@1@:>@'@:}@=>''\'''
+quote_sh@{:@@<:@1@:>@@{:@@:}@=>'@{:@'
+quote_sh@{:@@<:@1@:>@@:}@@:}@=>'@:}@'
+quote_sh@{:@@<:@1@:>@*@:}@=>'*'
+quote_sh@{:@@<:@1@:>@+@:}@=>+
+quote_sh@{:@@<:@1@:>@.@:}@=>.
+quote_sh@{:@@<:@1@:>@;@:}@=>';'
+quote_sh@{:@@<:@1@:>@<@:}@=>'<'
+quote_sh@{:@@<:@1@:>@>@:}@=>'>'
+quote_sh@{:@@<:@1@:>@?@:}@=>'?'
+quote_sh@{:@@<:@1@:>@@<:@@:}@=>'@<:@'
+quote_sh@{:@@<:@1@:>@\@:}@=>'\'
+quote_sh@{:@@<:@1@:>@@:>@@:}@=>'@:>@'
+quote_sh@{:@@<:@1@:>@^@:}@=>^
+quote_sh@{:@@<:@1@:>@`@:}@=>'`'
+quote_sh@{:@@<:@1@:>@{@:}@=>'{'
+quote_sh@{:@@<:@1@:>@|@:}@=>'|'
+quote_sh@{:@@<:@1@:>@}@:}@=>'}'
+quote_sh@{:@@<:@1@:>@~@:}@=>'~'
+quote_sh@{:@@<:@1@:>@em~bed$ded@:}@=>'em~bed$ded'
+quote_sh@{:@@<:@1@:>@em'bed<NL>ded@:}@=>'em'\''bed<NL>ded'
 ], [dnl
 ])
 AT_CLEANUP
@@ -429,13 +439,9 @@ dnl Check if quote_command() works as expected, i.e.
 dnl	- all arguments except for the 1st (COMMAND) or a redirection are
 dnl	  quoted with quote_sh().
 dnl
-dnl NOTE:   (1)	Quotees and their quoteds are rewritten with atlocal_log-
-dnl		gable() before logging them, so that no "dangerous" (to some
-dnl		editors or m4(1)) characters need to appear in the reference
-dnl		output!
-dnl	    (2)	The reference output is peppered with quadrigraphs because
+dnl NOTE:   (1)	The reference output is peppered with quadrigraphs because
 dnl		it's as unbalanced as can be!
-dnl	    (3)	As quote_command() is a wrapper around quote_sh(), we spare
+dnl	    (2)	As quote_command() is a wrapper around quote_sh(), we spare
 dnl		ourselves the match test!
 dnl
 AT_SETUP([quote_command() works as expected?])
@@ -453,7 +459,7 @@ esac
 eval "`libdl-sh load`"; dl_load quote	## Load libdl.sh and libquote.sh or die.
 
 cs=`atlocal_get_special_cs` status=0	## Assume success.
-eval "set shiftee `atlocal_set_special_cs "$cs${de-}"`; shift"
+eval "set shiftee `atlocal_set_special_cs "$cs"`; shift"
 					## Split special characters into
 					## positional parameters.
 for quotee in '' ${1+"$@"} "em~bed${DS}ded" "em${SQ}bed${NL}ded"; do
@@ -463,44 +469,42 @@ for quotee in '' ${1+"$@"} "em~bed${DS}ded" "em${SQ}bed${NL}ded"; do
     esac				## Construct redirection where
 					## applicable.
     quoted=`quote_command rm -f "$quotee"`
-    luotee=`atlocal_loggable rm -f "$quotee"`
-    luoted=`atlocal_loggable "$quoted"`
-    printf 'quote_command(%s)=>%s\n' "$luotee" "$luoted"
-					## Quote it, then log invocation
-					## with loggable quotee/quoted.
+    atlocal_trace_with_output "$quoted" quote_command rm -f "$quotee"
+					## Quote it, then trace invocation
+					## with result.
 done; exit $status			## Indicate success or failure.
 ], 0, [dnl				## And the winner is...
-quote_command@{:@rm,-f,@:}@=>rm<SP>-f<SP>''
-quote_command@{:@rm,-f,<NL>@:}@=>rm<SP>-f<SP>'<NL>'
-quote_command@{:@rm,-f,<HT>@:}@=>rm<SP>-f<SP>'<HT>'
-quote_command@{:@rm,-f,<CR>@:}@=>rm<SP>-f<SP>'<CR>'
-quote_command@{:@rm,-f,<SP>@:}@=>rm<SP>-f<SP>'<SP>'
-quote_command@{:@rm,-f,!@:}@=>rm<SP>-f<SP>'!'
-quote_command@{:@rm,-f,"@:}@=>rm<SP>-f<SP>'"'
-quote_command@{:@rm,-f,#@:}@=>rm<SP>-f<SP>'#'
-quote_command@{:@rm,-f,$@:}@=>rm<SP>-f<SP>'$'
-quote_command@{:@rm,-f,&@:}@=>rm<SP>-f<SP>'&'
-quote_command@{:@rm,-f,'@:}@=>rm<SP>-f<SP>''\'''
-quote_command@{:@rm,-f,@{:@@:}@=>rm<SP>-f<SP>'@{:@'
-quote_command@{:@rm,-f,@:}@@:}@=>rm<SP>-f<SP>'@:}@'
-quote_command@{:@rm,-f,*@:}@=>rm<SP>-f<SP>'*'
-quote_command@{:@rm,-f,+@:}@=>rm<SP>-f<SP>+
-quote_command@{:@rm,-f,.@:}@=>rm<SP>-f<SP>.
-quote_command@{:@rm,-f,;@:}@=>rm<SP>-f<SP>';'
-quote_command@{:@rm,-f,</dev/null@:}@=>rm<SP>-f<SP></dev/null
-quote_command@{:@rm,-f,2>/dev/null@:}@=>rm<SP>-f<SP>2>/dev/null
-quote_command@{:@rm,-f,?@:}@=>rm<SP>-f<SP>'?'
-quote_command@{:@rm,-f,@<:@@:}@=>rm<SP>-f<SP>'@<:@'
-quote_command@{:@rm,-f,\@:}@=>rm<SP>-f<SP>'\'
-quote_command@{:@rm,-f,@:>@@:}@=>rm<SP>-f<SP>'@:>@'
-quote_command@{:@rm,-f,^@:}@=>rm<SP>-f<SP>^
-quote_command@{:@rm,-f,`@:}@=>rm<SP>-f<SP>'`'
-quote_command@{:@rm,-f,{@:}@=>rm<SP>-f<SP>'{'
-quote_command@{:@rm,-f,|@:}@=>rm<SP>-f<SP>'|'
-quote_command@{:@rm,-f,}@:}@=>rm<SP>-f<SP>'}'
-quote_command@{:@rm,-f,~@:}@=>rm<SP>-f<SP>'~'
-quote_command@{:@rm,-f,em~bed$ded@:}@=>rm<SP>-f<SP>'em~bed$ded'
-quote_command@{:@rm,-f,em'bed<NL>ded@:}@=>rm<SP>-f<SP>'em'\''bed<NL>ded'
+quote_command@{:@@<:@3@:>@rm,-f,@:}@=>rm<SP>-f<SP>''
+quote_command@{:@@<:@3@:>@rm,-f,<NL>@:}@=>rm<SP>-f<SP>'<NL>'
+quote_command@{:@@<:@3@:>@rm,-f,<HT>@:}@=>rm<SP>-f<SP>'<HT>'
+quote_command@{:@@<:@3@:>@rm,-f,<CR>@:}@=>rm<SP>-f<SP>'<CR>'
+quote_command@{:@@<:@3@:>@rm,-f,<SP>@:}@=>rm<SP>-f<SP>'<SP>'
+quote_command@{:@@<:@3@:>@rm,-f,!@:}@=>rm<SP>-f<SP>'!'
+quote_command@{:@@<:@3@:>@rm,-f,"@:}@=>rm<SP>-f<SP>'"'
+quote_command@{:@@<:@3@:>@rm,-f,#@:}@=>rm<SP>-f<SP>'#'
+quote_command@{:@@<:@3@:>@rm,-f,$@:}@=>rm<SP>-f<SP>'$'
+quote_command@{:@@<:@3@:>@rm,-f,&@:}@=>rm<SP>-f<SP>'&'
+quote_command@{:@@<:@3@:>@rm,-f,'@:}@=>rm<SP>-f<SP>''\'''
+quote_command@{:@@<:@3@:>@rm,-f,@{:@@:}@=>rm<SP>-f<SP>'@{:@'
+quote_command@{:@@<:@3@:>@rm,-f,@:}@@:}@=>rm<SP>-f<SP>'@:}@'
+quote_command@{:@@<:@3@:>@rm,-f,*@:}@=>rm<SP>-f<SP>'*'
+quote_command@{:@@<:@3@:>@rm,-f,+@:}@=>rm<SP>-f<SP>+
+quote_command@{:@@<:@3@:>@rm,-f,.@:}@=>rm<SP>-f<SP>.
+quote_command@{:@@<:@3@:>@rm,-f,;@:}@=>rm<SP>-f<SP>';'
+quote_command@{:@@<:@3@:>@rm,-f,</dev/null@:}@=>rm<SP>-f<SP></dev/null
+quote_command@{:@@<:@3@:>@rm,-f,2>/dev/null@:}@=>rm<SP>-f<SP>2>/dev/null
+quote_command@{:@@<:@3@:>@rm,-f,?@:}@=>rm<SP>-f<SP>'?'
+quote_command@{:@@<:@3@:>@rm,-f,@<:@@:}@=>rm<SP>-f<SP>'@<:@'
+quote_command@{:@@<:@3@:>@rm,-f,\@:}@=>rm<SP>-f<SP>'\'
+quote_command@{:@@<:@3@:>@rm,-f,@:>@@:}@=>rm<SP>-f<SP>'@:>@'
+quote_command@{:@@<:@3@:>@rm,-f,^@:}@=>rm<SP>-f<SP>^
+quote_command@{:@@<:@3@:>@rm,-f,`@:}@=>rm<SP>-f<SP>'`'
+quote_command@{:@@<:@3@:>@rm,-f,{@:}@=>rm<SP>-f<SP>'{'
+quote_command@{:@@<:@3@:>@rm,-f,|@:}@=>rm<SP>-f<SP>'|'
+quote_command@{:@@<:@3@:>@rm,-f,}@:}@=>rm<SP>-f<SP>'}'
+quote_command@{:@@<:@3@:>@rm,-f,~@:}@=>rm<SP>-f<SP>'~'
+quote_command@{:@@<:@3@:>@rm,-f,em~bed$ded@:}@=>rm<SP>-f<SP>'em~bed$ded'
+quote_command@{:@@<:@3@:>@rm,-f,em'bed<NL>ded@:}@=>rm<SP>-f<SP>'em'\''bed<NL>ded'
 ], [dnl
 ])
 AT_CLEANUP
@@ -511,15 +515,11 @@ dnl   -	'^' is considered special iff it's the 1st character,
 dnl   -	'$' is considered special iff it's the last character,
 dnl   -	<NL> as well as all other special characters are considered special.
 dnl
-dnl NOTE:   (1)	Quotees and their quoteds are rewritten with atlocal_log-
-dnl		gable() before logging them, so that no "dangerous" (to some
-dnl		editors or m4(1)) characters need to appear in the reference
-dnl		output!
-dnl	    (2)	The reference output is peppered with quadrigraphs because
+dnl NOTE:   (1)	The reference output is peppered with quadrigraphs because
 dnl		it's as unbalanced as can be!
-dnl	    (3)	If quote_re() is invoked with DELIMITER, the match test is
+dnl	    (2)	If quote_re() is invoked with DELIMITER, the match test is
 dnl		done with sed(1), else with grep(1).
-dnl	    (4)	If a quoted is known to be broken (see section CAVEATS in
+dnl	    (3)	If a quoted is known to be broken (see section CAVEATS in
 dnl		libquote(3sh)), the match test is skipped.
 dnl
 AT_SETUP([quote_re() works as expected?])
@@ -537,10 +537,10 @@ esac
 eval "`libdl-sh load`"; dl_load quote	## Load libdl.sh and libquote.sh or die.
 
 cs=`atlocal_get_special_cs` status=0	## Assume success.
-quote_re quotee / excess && status=1 || case $? in
-    2)		;;			## Check if invocation with excess
-    *)	status=1;;			## arguments results in usage error.
-esac; for de in '' / \| //; do		## Foreach delimiter do...
+atlocal_returns 2 quote_re quotee / excess || status=1
+					## Check if invocation with excess
+					## argument results in usage error.
+for de in '' / \| //; do		## Foreach delimiter do...
     case $de in				## Is it valid?
 	??*|'')				## No, ...
 	    quote_re quotee "$de" && {	## Yet the invocation succeeded?
@@ -558,11 +558,9 @@ esac; for de in '' / \| //; do		## Foreach delimiter do...
     for quotee in '' ${1+"$@"} "em^bed${DS}ded" "em${de-/}bed${NL}ded"; do
 					## Foreach quotee do...
 	quoted=`quote_re "$quotee" ${de+"$de"}`
-	luotee=`atlocal_loggable "$quotee" ${de+"$de"}`
-	luoted=`atlocal_loggable "$quoted"`
-	printf 'quote_re(%s)=>%s\n' "$luotee" "$luoted"
-					## Quote it, then log invocation
-					## with loggable quotee/quoted.
+	atlocal_trace_with_output "$quoted" quote_re "$quotee" ${de+"$de"}
+					## Quote it, then trace invocation
+					## with result.
 	case ${de+=}:$quotee in		## Delimiter/quotee combination...?
 	    =:*"$NL"|:*"$NL"*)		## ...is known to fail match test:
 		echo skipped		## Skip match test.
@@ -584,195 +582,196 @@ EOF
     done
 done; exit $status			## Indicate success or failure.
 ], 0, [dnl				## And the winner is...
-quote_re@{:@@:}@=>
+quote_re@{:@@<:@3@:>@quotee,/,excess@:}@
+quote_re@{:@@<:@1@:>@@:}@=>
 matched
-quote_re@{:@<NL>@:}@=>\
+quote_re@{:@@<:@1@:>@<NL>@:}@=>\
 skipped
-quote_re@{:@<HT>@:}@=><HT>
+quote_re@{:@@<:@1@:>@<HT>@:}@=><HT>
 matched
-quote_re@{:@<CR>@:}@=><CR>
+quote_re@{:@@<:@1@:>@<CR>@:}@=><CR>
 matched
-quote_re@{:@<SP>@:}@=><SP>
+quote_re@{:@@<:@1@:>@<SP>@:}@=><SP>
 matched
-quote_re@{:@!@:}@=>!
+quote_re@{:@@<:@1@:>@!@:}@=>!
 matched
-quote_re@{:@"@:}@=>"
+quote_re@{:@@<:@1@:>@"@:}@=>"
 matched
-quote_re@{:@#@:}@=>#
+quote_re@{:@@<:@1@:>@#@:}@=>#
 matched
-quote_re@{:@$@:}@=>\$
+quote_re@{:@@<:@1@:>@$@:}@=>\$
 matched
-quote_re@{:@&@:}@=>&
+quote_re@{:@@<:@1@:>@&@:}@=>&
 matched
-quote_re@{:@'@:}@=>'
+quote_re@{:@@<:@1@:>@'@:}@=>'
 matched
-quote_re@{:@@{:@@:}@=>@{:@
+quote_re@{:@@<:@1@:>@@{:@@:}@=>@{:@
 matched
-quote_re@{:@@:}@@:}@=>@:}@
+quote_re@{:@@<:@1@:>@@:}@@:}@=>@:}@
 matched
-quote_re@{:@*@:}@=>\*
+quote_re@{:@@<:@1@:>@*@:}@=>\*
 matched
-quote_re@{:@+@:}@=>+
+quote_re@{:@@<:@1@:>@+@:}@=>+
 matched
-quote_re@{:@.@:}@=>\.
+quote_re@{:@@<:@1@:>@.@:}@=>\.
 matched
-quote_re@{:@;@:}@=>;
+quote_re@{:@@<:@1@:>@;@:}@=>;
 matched
-quote_re@{:@<@:}@=><
+quote_re@{:@@<:@1@:>@<@:}@=><
 matched
-quote_re@{:@>@:}@=>>
+quote_re@{:@@<:@1@:>@>@:}@=>>
 matched
-quote_re@{:@?@:}@=>?
+quote_re@{:@@<:@1@:>@?@:}@=>?
 matched
-quote_re@{:@@<:@@:}@=>\@<:@
+quote_re@{:@@<:@1@:>@@<:@@:}@=>\@<:@
 matched
-quote_re@{:@\@:}@=>\\
+quote_re@{:@@<:@1@:>@\@:}@=>\\
 matched
-quote_re@{:@@:>@@:}@=>\@:>@
+quote_re@{:@@<:@1@:>@@:>@@:}@=>\@:>@
 matched
-quote_re@{:@^@:}@=>\^
+quote_re@{:@@<:@1@:>@^@:}@=>\^
 matched
-quote_re@{:@`@:}@=>`
+quote_re@{:@@<:@1@:>@`@:}@=>`
 matched
-quote_re@{:@{@:}@=>{
+quote_re@{:@@<:@1@:>@{@:}@=>{
 matched
-quote_re@{:@|@:}@=>|
+quote_re@{:@@<:@1@:>@|@:}@=>|
 matched
-quote_re@{:@}@:}@=>}
+quote_re@{:@@<:@1@:>@}@:}@=>}
 matched
-quote_re@{:@~@:}@=>~
+quote_re@{:@@<:@1@:>@~@:}@=>~
 matched
-quote_re@{:@em^bed$ded@:}@=>em^bed$ded
+quote_re@{:@@<:@1@:>@em^bed$ded@:}@=>em^bed$ded
 matched
-quote_re@{:@em/bed<NL>ded@:}@=>em/bed\<NL>ded
+quote_re@{:@@<:@1@:>@em/bed<NL>ded@:}@=>em/bed\<NL>ded
 skipped
-quote_re@{:@,/@:}@=>
+quote_re@{:@@<:@2@:>@,/@:}@=>
 matched
-quote_re@{:@<NL>,/@:}@=>\
+quote_re@{:@@<:@2@:>@<NL>,/@:}@=>\
 skipped
-quote_re@{:@<HT>,/@:}@=><HT>
+quote_re@{:@@<:@2@:>@<HT>,/@:}@=><HT>
 matched
-quote_re@{:@<CR>,/@:}@=><CR>
+quote_re@{:@@<:@2@:>@<CR>,/@:}@=><CR>
 matched
-quote_re@{:@<SP>,/@:}@=><SP>
+quote_re@{:@@<:@2@:>@<SP>,/@:}@=><SP>
 matched
-quote_re@{:@!,/@:}@=>!
+quote_re@{:@@<:@2@:>@!,/@:}@=>!
 matched
-quote_re@{:@",/@:}@=>"
+quote_re@{:@@<:@2@:>@",/@:}@=>"
 matched
-quote_re@{:@#,/@:}@=>#
+quote_re@{:@@<:@2@:>@#,/@:}@=>#
 matched
-quote_re@{:@$,/@:}@=>\$
+quote_re@{:@@<:@2@:>@$,/@:}@=>\$
 matched
-quote_re@{:@&,/@:}@=>&
+quote_re@{:@@<:@2@:>@&,/@:}@=>&
 matched
-quote_re@{:@',/@:}@=>'
+quote_re@{:@@<:@2@:>@',/@:}@=>'
 matched
-quote_re@{:@@{:@,/@:}@=>@{:@
+quote_re@{:@@<:@2@:>@@{:@,/@:}@=>@{:@
 matched
-quote_re@{:@@:}@,/@:}@=>@:}@
+quote_re@{:@@<:@2@:>@@:}@,/@:}@=>@:}@
 matched
-quote_re@{:@*,/@:}@=>\*
+quote_re@{:@@<:@2@:>@*,/@:}@=>\*
 matched
-quote_re@{:@+,/@:}@=>+
+quote_re@{:@@<:@2@:>@+,/@:}@=>+
 matched
-quote_re@{:@.,/@:}@=>\.
+quote_re@{:@@<:@2@:>@.,/@:}@=>\.
 matched
-quote_re@{:@;,/@:}@=>;
+quote_re@{:@@<:@2@:>@;,/@:}@=>;
 matched
-quote_re@{:@<,/@:}@=><
+quote_re@{:@@<:@2@:>@<,/@:}@=><
 matched
-quote_re@{:@>,/@:}@=>>
+quote_re@{:@@<:@2@:>@>,/@:}@=>>
 matched
-quote_re@{:@?,/@:}@=>?
+quote_re@{:@@<:@2@:>@?,/@:}@=>?
 matched
-quote_re@{:@@<:@,/@:}@=>\@<:@
+quote_re@{:@@<:@2@:>@@<:@,/@:}@=>\@<:@
 matched
-quote_re@{:@\,/@:}@=>\\
+quote_re@{:@@<:@2@:>@\,/@:}@=>\\
 matched
-quote_re@{:@@:>@,/@:}@=>\@:>@
+quote_re@{:@@<:@2@:>@@:>@,/@:}@=>\@:>@
 matched
-quote_re@{:@^,/@:}@=>\^
+quote_re@{:@@<:@2@:>@^,/@:}@=>\^
 matched
-quote_re@{:@`,/@:}@=>`
+quote_re@{:@@<:@2@:>@`,/@:}@=>`
 matched
-quote_re@{:@{,/@:}@=>{
+quote_re@{:@@<:@2@:>@{,/@:}@=>{
 matched
-quote_re@{:@|,/@:}@=>|
+quote_re@{:@@<:@2@:>@|,/@:}@=>|
 matched
-quote_re@{:@},/@:}@=>}
+quote_re@{:@@<:@2@:>@},/@:}@=>}
 matched
-quote_re@{:@~,/@:}@=>~
+quote_re@{:@@<:@2@:>@~,/@:}@=>~
 matched
-quote_re@{:@/,/@:}@=>\/
+quote_re@{:@@<:@2@:>@/,/@:}@=>\/
 matched
-quote_re@{:@em^bed$ded,/@:}@=>em^bed$ded
+quote_re@{:@@<:@2@:>@em^bed$ded,/@:}@=>em^bed$ded
 matched
-quote_re@{:@em/bed<NL>ded,/@:}@=>em\/bed\<NL>ded
+quote_re@{:@@<:@2@:>@em/bed<NL>ded,/@:}@=>em\/bed\<NL>ded
 matched
-quote_re@{:@,|@:}@=>
+quote_re@{:@@<:@2@:>@,|@:}@=>
 matched
-quote_re@{:@<NL>,|@:}@=>\
+quote_re@{:@@<:@2@:>@<NL>,|@:}@=>\
 skipped
-quote_re@{:@<HT>,|@:}@=><HT>
+quote_re@{:@@<:@2@:>@<HT>,|@:}@=><HT>
 matched
-quote_re@{:@<CR>,|@:}@=><CR>
+quote_re@{:@@<:@2@:>@<CR>,|@:}@=><CR>
 matched
-quote_re@{:@<SP>,|@:}@=><SP>
+quote_re@{:@@<:@2@:>@<SP>,|@:}@=><SP>
 matched
-quote_re@{:@!,|@:}@=>!
+quote_re@{:@@<:@2@:>@!,|@:}@=>!
 matched
-quote_re@{:@",|@:}@=>"
+quote_re@{:@@<:@2@:>@",|@:}@=>"
 matched
-quote_re@{:@#,|@:}@=>#
+quote_re@{:@@<:@2@:>@#,|@:}@=>#
 matched
-quote_re@{:@$,|@:}@=>\$
+quote_re@{:@@<:@2@:>@$,|@:}@=>\$
 matched
-quote_re@{:@&,|@:}@=>&
+quote_re@{:@@<:@2@:>@&,|@:}@=>&
 matched
-quote_re@{:@',|@:}@=>'
+quote_re@{:@@<:@2@:>@',|@:}@=>'
 matched
-quote_re@{:@@{:@,|@:}@=>@{:@
+quote_re@{:@@<:@2@:>@@{:@,|@:}@=>@{:@
 matched
-quote_re@{:@@:}@,|@:}@=>@:}@
+quote_re@{:@@<:@2@:>@@:}@,|@:}@=>@:}@
 matched
-quote_re@{:@*,|@:}@=>\*
+quote_re@{:@@<:@2@:>@*,|@:}@=>\*
 matched
-quote_re@{:@+,|@:}@=>+
+quote_re@{:@@<:@2@:>@+,|@:}@=>+
 matched
-quote_re@{:@.,|@:}@=>\.
+quote_re@{:@@<:@2@:>@.,|@:}@=>\.
 matched
-quote_re@{:@;,|@:}@=>;
+quote_re@{:@@<:@2@:>@;,|@:}@=>;
 matched
-quote_re@{:@<,|@:}@=><
+quote_re@{:@@<:@2@:>@<,|@:}@=><
 matched
-quote_re@{:@>,|@:}@=>>
+quote_re@{:@@<:@2@:>@>,|@:}@=>>
 matched
-quote_re@{:@?,|@:}@=>?
+quote_re@{:@@<:@2@:>@?,|@:}@=>?
 matched
-quote_re@{:@@<:@,|@:}@=>\@<:@
+quote_re@{:@@<:@2@:>@@<:@,|@:}@=>\@<:@
 matched
-quote_re@{:@\,|@:}@=>\\
+quote_re@{:@@<:@2@:>@\,|@:}@=>\\
 matched
-quote_re@{:@@:>@,|@:}@=>\@:>@
+quote_re@{:@@<:@2@:>@@:>@,|@:}@=>\@:>@
 matched
-quote_re@{:@^,|@:}@=>\^
+quote_re@{:@@<:@2@:>@^,|@:}@=>\^
 matched
-quote_re@{:@`,|@:}@=>`
+quote_re@{:@@<:@2@:>@`,|@:}@=>`
 matched
-quote_re@{:@{,|@:}@=>{
+quote_re@{:@@<:@2@:>@{,|@:}@=>{
 matched
-quote_re@{:@|,|@:}@=>\|
+quote_re@{:@@<:@2@:>@|,|@:}@=>\|
 matched
-quote_re@{:@},|@:}@=>}
+quote_re@{:@@<:@2@:>@},|@:}@=>}
 matched
-quote_re@{:@~,|@:}@=>~
+quote_re@{:@@<:@2@:>@~,|@:}@=>~
 matched
-quote_re@{:@|,|@:}@=>\|
+quote_re@{:@@<:@2@:>@|,|@:}@=>\|
 matched
-quote_re@{:@em^bed$ded,|@:}@=>em^bed$ded
+quote_re@{:@@<:@2@:>@em^bed$ded,|@:}@=>em^bed$ded
 matched
-quote_re@{:@em|bed<NL>ded,|@:}@=>em\|bed\<NL>ded
+quote_re@{:@@<:@2@:>@em|bed<NL>ded,|@:}@=>em\|bed\<NL>ded
 matched
 ], [dnl
 ])
@@ -782,15 +781,11 @@ dnl
 dnl Check if quote_ere() works as expected, i.e.
 dnl   -	<NL> as well as all other special characters are considered special.
 dnl
-dnl NOTE:   (1)	Quotees and their quoteds are rewritten with atlocal_log-
-dnl		gable() before logging them, so that no "dangerous" (to some
-dnl		editors or m4(1)) characters need to appear in the reference
-dnl		output!
-dnl	    (2)	The reference output is peppered with quadrigraphs because
+dnl NOTE:   (1)	The reference output is peppered with quadrigraphs because
 dnl		it's as unbalanced as can be!
-dnl	    (3)	If quote_ere() is invoked with DELIMITER, the match test is
+dnl	    (2)	If quote_ere() is invoked with DELIMITER, the match test is
 dnl		skipped, else done with egrep(1).
-dnl	    (4)	If a quoted is known to be broken (see section CAVEATS in
+dnl	    (3)	If a quoted is known to be broken (see section CAVEATS in
 dnl		libquote(3sh)), the match test is skipped.
 dnl
 AT_SETUP([quote_ere() works as expected?])
@@ -808,10 +803,10 @@ esac
 eval "`libdl-sh load`"; dl_load quote	## Load libdl.sh and libquote.sh or die.
 
 cs=`atlocal_get_special_cs` status=0	## Assume success.
-quote_ere quotee / excess && status=1 || case $? in
-    2)		;;			## Check if invocation with excess
-    *)	status=1;;			## arguments results in usage error.
-esac; for de in '' / //; do		## Foreach delimiter do...
+atlocal_returns 2 quote_ere quotee / excess || status=1
+					## Check if invocation with excess
+					## argument results in usage error.
+for de in '' / //; do			## Foreach delimiter do...
     case $de in				## Is it valid?
 	??*|'')				## No, ...
 	    quote_ere quotee "$de" && {	## Yet the invocation succeeded?
@@ -829,11 +824,9 @@ esac; for de in '' / //; do		## Foreach delimiter do...
     for quotee in '' ${1+"$@"} "em^bed${DS}ded" "em${de-/}bed${NL}ded"; do
 					## Foreach quotee do...
 	quoted=`quote_ere "$quotee" ${de+"$de"}`
-	luotee=`atlocal_loggable "$quotee" ${de+"$de"}`
-	luoted=`atlocal_loggable "$quoted"`
-	printf 'quote_ere(%s)=>%s\n' "$luotee" "$luoted"
-					## Quote it, then log invocation
-					## with loggable quotee/quoted.
+	atlocal_trace_with_output "$quoted" quote_ere "$quotee" ${de+"$de"}
+					## Quote it, then trace invocation
+					## with result.
 	case ${de+=}:$quotee in		## Delimiter/quotee combination...?
 	    =:*|:*"$NL"*)		## ...is known to fail match test:
 		echo skipped		## Skip match test.
@@ -847,131 +840,132 @@ EOF
     done
 done; exit $status			## Indicate success or failure.
 ], 0, [dnl				## And the winner is...
-quote_ere@{:@@:}@=>
+quote_ere@{:@@<:@3@:>@quotee,/,excess@:}@
+quote_ere@{:@@<:@1@:>@@:}@=>
 matched
-quote_ere@{:@<NL>@:}@=>\
+quote_ere@{:@@<:@1@:>@<NL>@:}@=>\
 skipped
-quote_ere@{:@<HT>@:}@=><HT>
+quote_ere@{:@@<:@1@:>@<HT>@:}@=><HT>
 matched
-quote_ere@{:@<CR>@:}@=><CR>
+quote_ere@{:@@<:@1@:>@<CR>@:}@=><CR>
 matched
-quote_ere@{:@<SP>@:}@=><SP>
+quote_ere@{:@@<:@1@:>@<SP>@:}@=><SP>
 matched
-quote_ere@{:@!@:}@=>!
+quote_ere@{:@@<:@1@:>@!@:}@=>!
 matched
-quote_ere@{:@"@:}@=>"
+quote_ere@{:@@<:@1@:>@"@:}@=>"
 matched
-quote_ere@{:@#@:}@=>#
+quote_ere@{:@@<:@1@:>@#@:}@=>#
 matched
-quote_ere@{:@$@:}@=>\$
+quote_ere@{:@@<:@1@:>@$@:}@=>\$
 matched
-quote_ere@{:@&@:}@=>&
+quote_ere@{:@@<:@1@:>@&@:}@=>&
 matched
-quote_ere@{:@'@:}@=>'
+quote_ere@{:@@<:@1@:>@'@:}@=>'
 matched
-quote_ere@{:@@{:@@:}@=>\@{:@
+quote_ere@{:@@<:@1@:>@@{:@@:}@=>\@{:@
 matched
-quote_ere@{:@@:}@@:}@=>\@:}@
+quote_ere@{:@@<:@1@:>@@:}@@:}@=>\@:}@
 matched
-quote_ere@{:@*@:}@=>\*
+quote_ere@{:@@<:@1@:>@*@:}@=>\*
 matched
-quote_ere@{:@+@:}@=>\+
+quote_ere@{:@@<:@1@:>@+@:}@=>\+
 matched
-quote_ere@{:@.@:}@=>\.
+quote_ere@{:@@<:@1@:>@.@:}@=>\.
 matched
-quote_ere@{:@;@:}@=>;
+quote_ere@{:@@<:@1@:>@;@:}@=>;
 matched
-quote_ere@{:@<@:}@=><
+quote_ere@{:@@<:@1@:>@<@:}@=><
 matched
-quote_ere@{:@>@:}@=>>
+quote_ere@{:@@<:@1@:>@>@:}@=>>
 matched
-quote_ere@{:@?@:}@=>\?
+quote_ere@{:@@<:@1@:>@?@:}@=>\?
 matched
-quote_ere@{:@@<:@@:}@=>\@<:@
+quote_ere@{:@@<:@1@:>@@<:@@:}@=>\@<:@
 matched
-quote_ere@{:@\@:}@=>\\
+quote_ere@{:@@<:@1@:>@\@:}@=>\\
 matched
-quote_ere@{:@@:>@@:}@=>\@:>@
+quote_ere@{:@@<:@1@:>@@:>@@:}@=>\@:>@
 matched
-quote_ere@{:@^@:}@=>\^
+quote_ere@{:@@<:@1@:>@^@:}@=>\^
 matched
-quote_ere@{:@`@:}@=>`
+quote_ere@{:@@<:@1@:>@`@:}@=>`
 matched
-quote_ere@{:@{@:}@=>\{
+quote_ere@{:@@<:@1@:>@{@:}@=>\{
 matched
-quote_ere@{:@|@:}@=>\|
+quote_ere@{:@@<:@1@:>@|@:}@=>\|
 matched
-quote_ere@{:@}@:}@=>\}
+quote_ere@{:@@<:@1@:>@}@:}@=>\}
 matched
-quote_ere@{:@~@:}@=>~
+quote_ere@{:@@<:@1@:>@~@:}@=>~
 matched
-quote_ere@{:@em^bed$ded@:}@=>em\^bed\$ded
+quote_ere@{:@@<:@1@:>@em^bed$ded@:}@=>em\^bed\$ded
 matched
-quote_ere@{:@em/bed<NL>ded@:}@=>em/bed\<NL>ded
+quote_ere@{:@@<:@1@:>@em/bed<NL>ded@:}@=>em/bed\<NL>ded
 skipped
-quote_ere@{:@,/@:}@=>
+quote_ere@{:@@<:@2@:>@,/@:}@=>
 skipped
-quote_ere@{:@<NL>,/@:}@=>\
+quote_ere@{:@@<:@2@:>@<NL>,/@:}@=>\
 skipped
-quote_ere@{:@<HT>,/@:}@=><HT>
+quote_ere@{:@@<:@2@:>@<HT>,/@:}@=><HT>
 skipped
-quote_ere@{:@<CR>,/@:}@=><CR>
+quote_ere@{:@@<:@2@:>@<CR>,/@:}@=><CR>
 skipped
-quote_ere@{:@<SP>,/@:}@=><SP>
+quote_ere@{:@@<:@2@:>@<SP>,/@:}@=><SP>
 skipped
-quote_ere@{:@!,/@:}@=>!
+quote_ere@{:@@<:@2@:>@!,/@:}@=>!
 skipped
-quote_ere@{:@",/@:}@=>"
+quote_ere@{:@@<:@2@:>@",/@:}@=>"
 skipped
-quote_ere@{:@#,/@:}@=>#
+quote_ere@{:@@<:@2@:>@#,/@:}@=>#
 skipped
-quote_ere@{:@$,/@:}@=>\$
+quote_ere@{:@@<:@2@:>@$,/@:}@=>\$
 skipped
-quote_ere@{:@&,/@:}@=>&
+quote_ere@{:@@<:@2@:>@&,/@:}@=>&
 skipped
-quote_ere@{:@',/@:}@=>'
+quote_ere@{:@@<:@2@:>@',/@:}@=>'
 skipped
-quote_ere@{:@@{:@,/@:}@=>\@{:@
+quote_ere@{:@@<:@2@:>@@{:@,/@:}@=>\@{:@
 skipped
-quote_ere@{:@@:}@,/@:}@=>\@:}@
+quote_ere@{:@@<:@2@:>@@:}@,/@:}@=>\@:}@
 skipped
-quote_ere@{:@*,/@:}@=>\*
+quote_ere@{:@@<:@2@:>@*,/@:}@=>\*
 skipped
-quote_ere@{:@+,/@:}@=>\+
+quote_ere@{:@@<:@2@:>@+,/@:}@=>\+
 skipped
-quote_ere@{:@.,/@:}@=>\.
+quote_ere@{:@@<:@2@:>@.,/@:}@=>\.
 skipped
-quote_ere@{:@;,/@:}@=>;
+quote_ere@{:@@<:@2@:>@;,/@:}@=>;
 skipped
-quote_ere@{:@<,/@:}@=><
+quote_ere@{:@@<:@2@:>@<,/@:}@=><
 skipped
-quote_ere@{:@>,/@:}@=>>
+quote_ere@{:@@<:@2@:>@>,/@:}@=>>
 skipped
-quote_ere@{:@?,/@:}@=>\?
+quote_ere@{:@@<:@2@:>@?,/@:}@=>\?
 skipped
-quote_ere@{:@@<:@,/@:}@=>\@<:@
+quote_ere@{:@@<:@2@:>@@<:@,/@:}@=>\@<:@
 skipped
-quote_ere@{:@\,/@:}@=>\\
+quote_ere@{:@@<:@2@:>@\,/@:}@=>\\
 skipped
-quote_ere@{:@@:>@,/@:}@=>\@:>@
+quote_ere@{:@@<:@2@:>@@:>@,/@:}@=>\@:>@
 skipped
-quote_ere@{:@^,/@:}@=>\^
+quote_ere@{:@@<:@2@:>@^,/@:}@=>\^
 skipped
-quote_ere@{:@`,/@:}@=>`
+quote_ere@{:@@<:@2@:>@`,/@:}@=>`
 skipped
-quote_ere@{:@{,/@:}@=>\{
+quote_ere@{:@@<:@2@:>@{,/@:}@=>\{
 skipped
-quote_ere@{:@|,/@:}@=>\|
+quote_ere@{:@@<:@2@:>@|,/@:}@=>\|
 skipped
-quote_ere@{:@},/@:}@=>\}
+quote_ere@{:@@<:@2@:>@},/@:}@=>\}
 skipped
-quote_ere@{:@~,/@:}@=>~
+quote_ere@{:@@<:@2@:>@~,/@:}@=>~
 skipped
-quote_ere@{:@/,/@:}@=>\/
+quote_ere@{:@@<:@2@:>@/,/@:}@=>\/
 skipped
-quote_ere@{:@em^bed$ded,/@:}@=>em\^bed\$ded
+quote_ere@{:@@<:@2@:>@em^bed$ded,/@:}@=>em\^bed\$ded
 skipped
-quote_ere@{:@em/bed<NL>ded,/@:}@=>em\/bed\<NL>ded
+quote_ere@{:@@<:@2@:>@em/bed<NL>ded,/@:}@=>em\/bed\<NL>ded
 skipped
 ], [dnl
 ])
@@ -981,13 +975,9 @@ dnl
 dnl Check if quote_rs() works as expected, i.e.
 dnl   -	<NL> as well as all other special characters are considered special.
 dnl
-dnl NOTE:   (1)	Quotees and their quoteds are rewritten with atlocal_log-
-dnl		gable() before logging them, so that no "dangerous" (to some
-dnl		editors or m4(1)) characters need to appear in the reference
-dnl		output!
-dnl	    (2)	The reference output is peppered with quadrigraphs because
+dnl NOTE:   (1)	The reference output is peppered with quadrigraphs because
 dnl		it's as unbalanced as can be!
-dnl	    (3)	If a quoted is known to be broken (see section CAVEATS in
+dnl	    (2)	If a quoted is known to be broken (see section CAVEATS in
 dnl		libquote(3sh)), the match test is skipped.
 dnl
 AT_SETUP([quote_rs() works as expected?])
@@ -1005,10 +995,10 @@ esac
 eval "`libdl-sh load`"; dl_load quote	## Load libdl.sh and libquote.sh or die.
 
 cs=`atlocal_get_special_cs` status=0	## Assume success.
-quote_rs quotee / excess && status=1 || case $? in
-    2)		;;			## Check if invocation with excess
-    *)	status=1;;			## arguments results in usage error.
-esac; for de in '' / \| //; do		## Foreach delimiter do...
+atlocal_returns 2 quote_rs quotee / excess || status=1
+					## Check if invocation with excess
+					## argument results in usage error.
+for de in '' / \| //; do		## Foreach delimiter do...
     case $de in				## Is it valid?
 	??*|'')				## No, ...
 	    quote_rs quotee "$de" && {	## Yet the invocation succeeded?
@@ -1027,12 +1017,12 @@ esac; for de in '' / \| //; do		## Foreach delimiter do...
 					## Foreach quotee do...
 	search=`quote_re "$quotee" "${de-/}"`
 	quoted=`quote_rs "$quotee" ${de+"$de"}`
-	luotee=`atlocal_loggable "$quotee" ${de+"$de"}`
-	luoted=`atlocal_loggable "$quoted"`
-	printf 'quote_rs(%s)=>%s\n' "$luotee" "$luoted"
+	atlocal_trace_with_output "$quoted" quote_rs "$quotee" ${de+"$de"}
+					## Quote it, then trace invocation
+					## with result.
 	case $quotee in			## Delimiter/quotee combination...?
-	    *"$NL")			## ...is a known match test failure:
-		echo skipped		## Log 'skipped' result.
+	    *"$NL")			## ...is known to fail match test:
+		echo skipped		## Skip match test
 		;;
 	    *)				## ...must be matched with sed(1):
 		sed '
@@ -1047,197 +1037,198 @@ EOF
     done
 done; exit $status			## Indicate success or failure.
 ], 0, [dnl				## And the winner is...
-quote_rs@{:@@:}@=>
+quote_rs@{:@@<:@3@:>@quotee,/,excess@:}@
+quote_rs@{:@@<:@1@:>@@:}@=>
 matched
-quote_rs@{:@<NL>@:}@=>\
+quote_rs@{:@@<:@1@:>@<NL>@:}@=>\
 skipped
-quote_rs@{:@<HT>@:}@=><HT>
+quote_rs@{:@@<:@1@:>@<HT>@:}@=><HT>
 matched
-quote_rs@{:@<CR>@:}@=><CR>
+quote_rs@{:@@<:@1@:>@<CR>@:}@=><CR>
 matched
-quote_rs@{:@<SP>@:}@=><SP>
+quote_rs@{:@@<:@1@:>@<SP>@:}@=><SP>
 matched
-quote_rs@{:@!@:}@=>!
+quote_rs@{:@@<:@1@:>@!@:}@=>!
 matched
-quote_rs@{:@"@:}@=>"
+quote_rs@{:@@<:@1@:>@"@:}@=>"
 matched
-quote_rs@{:@#@:}@=>#
+quote_rs@{:@@<:@1@:>@#@:}@=>#
 matched
-quote_rs@{:@$@:}@=>$
+quote_rs@{:@@<:@1@:>@$@:}@=>$
 matched
-quote_rs@{:@&@:}@=>\&
+quote_rs@{:@@<:@1@:>@&@:}@=>\&
 matched
-quote_rs@{:@'@:}@=>'
+quote_rs@{:@@<:@1@:>@'@:}@=>'
 matched
-quote_rs@{:@@{:@@:}@=>@{:@
+quote_rs@{:@@<:@1@:>@@{:@@:}@=>@{:@
 matched
-quote_rs@{:@@:}@@:}@=>@:}@
+quote_rs@{:@@<:@1@:>@@:}@@:}@=>@:}@
 matched
-quote_rs@{:@*@:}@=>*
+quote_rs@{:@@<:@1@:>@*@:}@=>*
 matched
-quote_rs@{:@+@:}@=>+
+quote_rs@{:@@<:@1@:>@+@:}@=>+
 matched
-quote_rs@{:@.@:}@=>.
+quote_rs@{:@@<:@1@:>@.@:}@=>.
 matched
-quote_rs@{:@;@:}@=>;
+quote_rs@{:@@<:@1@:>@;@:}@=>;
 matched
-quote_rs@{:@<@:}@=><
+quote_rs@{:@@<:@1@:>@<@:}@=><
 matched
-quote_rs@{:@>@:}@=>>
+quote_rs@{:@@<:@1@:>@>@:}@=>>
 matched
-quote_rs@{:@?@:}@=>?
+quote_rs@{:@@<:@1@:>@?@:}@=>?
 matched
-quote_rs@{:@@<:@@:}@=>@<:@
+quote_rs@{:@@<:@1@:>@@<:@@:}@=>@<:@
 matched
-quote_rs@{:@\@:}@=>\\
+quote_rs@{:@@<:@1@:>@\@:}@=>\\
 matched
-quote_rs@{:@@:>@@:}@=>@:>@
+quote_rs@{:@@<:@1@:>@@:>@@:}@=>@:>@
 matched
-quote_rs@{:@^@:}@=>^
+quote_rs@{:@@<:@1@:>@^@:}@=>^
 matched
-quote_rs@{:@`@:}@=>`
+quote_rs@{:@@<:@1@:>@`@:}@=>`
 matched
-quote_rs@{:@{@:}@=>{
+quote_rs@{:@@<:@1@:>@{@:}@=>{
 matched
-quote_rs@{:@|@:}@=>|
+quote_rs@{:@@<:@1@:>@|@:}@=>|
 matched
-quote_rs@{:@}@:}@=>}
+quote_rs@{:@@<:@1@:>@}@:}@=>}
 matched
-quote_rs@{:@~@:}@=>~
+quote_rs@{:@@<:@1@:>@~@:}@=>~
 matched
-quote_rs@{:@/@:}@=>\/
+quote_rs@{:@@<:@1@:>@/@:}@=>\/
 matched
-quote_rs@{:@em^bed$ded@:}@=>em^bed$ded
+quote_rs@{:@@<:@1@:>@em^bed$ded@:}@=>em^bed$ded
 matched
-quote_rs@{:@em/bed<NL>ded@:}@=>em\/bed\<NL>ded
+quote_rs@{:@@<:@1@:>@em/bed<NL>ded@:}@=>em\/bed\<NL>ded
 matched
-quote_rs@{:@,/@:}@=>
+quote_rs@{:@@<:@2@:>@,/@:}@=>
 matched
-quote_rs@{:@<NL>,/@:}@=>\
+quote_rs@{:@@<:@2@:>@<NL>,/@:}@=>\
 skipped
-quote_rs@{:@<HT>,/@:}@=><HT>
+quote_rs@{:@@<:@2@:>@<HT>,/@:}@=><HT>
 matched
-quote_rs@{:@<CR>,/@:}@=><CR>
+quote_rs@{:@@<:@2@:>@<CR>,/@:}@=><CR>
 matched
-quote_rs@{:@<SP>,/@:}@=><SP>
+quote_rs@{:@@<:@2@:>@<SP>,/@:}@=><SP>
 matched
-quote_rs@{:@!,/@:}@=>!
+quote_rs@{:@@<:@2@:>@!,/@:}@=>!
 matched
-quote_rs@{:@",/@:}@=>"
+quote_rs@{:@@<:@2@:>@",/@:}@=>"
 matched
-quote_rs@{:@#,/@:}@=>#
+quote_rs@{:@@<:@2@:>@#,/@:}@=>#
 matched
-quote_rs@{:@$,/@:}@=>$
+quote_rs@{:@@<:@2@:>@$,/@:}@=>$
 matched
-quote_rs@{:@&,/@:}@=>\&
+quote_rs@{:@@<:@2@:>@&,/@:}@=>\&
 matched
-quote_rs@{:@',/@:}@=>'
+quote_rs@{:@@<:@2@:>@',/@:}@=>'
 matched
-quote_rs@{:@@{:@,/@:}@=>@{:@
+quote_rs@{:@@<:@2@:>@@{:@,/@:}@=>@{:@
 matched
-quote_rs@{:@@:}@,/@:}@=>@:}@
+quote_rs@{:@@<:@2@:>@@:}@,/@:}@=>@:}@
 matched
-quote_rs@{:@*,/@:}@=>*
+quote_rs@{:@@<:@2@:>@*,/@:}@=>*
 matched
-quote_rs@{:@+,/@:}@=>+
+quote_rs@{:@@<:@2@:>@+,/@:}@=>+
 matched
-quote_rs@{:@.,/@:}@=>.
+quote_rs@{:@@<:@2@:>@.,/@:}@=>.
 matched
-quote_rs@{:@;,/@:}@=>;
+quote_rs@{:@@<:@2@:>@;,/@:}@=>;
 matched
-quote_rs@{:@<,/@:}@=><
+quote_rs@{:@@<:@2@:>@<,/@:}@=><
 matched
-quote_rs@{:@>,/@:}@=>>
+quote_rs@{:@@<:@2@:>@>,/@:}@=>>
 matched
-quote_rs@{:@?,/@:}@=>?
+quote_rs@{:@@<:@2@:>@?,/@:}@=>?
 matched
-quote_rs@{:@@<:@,/@:}@=>@<:@
+quote_rs@{:@@<:@2@:>@@<:@,/@:}@=>@<:@
 matched
-quote_rs@{:@\,/@:}@=>\\
+quote_rs@{:@@<:@2@:>@\,/@:}@=>\\
 matched
-quote_rs@{:@@:>@,/@:}@=>@:>@
+quote_rs@{:@@<:@2@:>@@:>@,/@:}@=>@:>@
 matched
-quote_rs@{:@^,/@:}@=>^
+quote_rs@{:@@<:@2@:>@^,/@:}@=>^
 matched
-quote_rs@{:@`,/@:}@=>`
+quote_rs@{:@@<:@2@:>@`,/@:}@=>`
 matched
-quote_rs@{:@{,/@:}@=>{
+quote_rs@{:@@<:@2@:>@{,/@:}@=>{
 matched
-quote_rs@{:@|,/@:}@=>|
+quote_rs@{:@@<:@2@:>@|,/@:}@=>|
 matched
-quote_rs@{:@},/@:}@=>}
+quote_rs@{:@@<:@2@:>@},/@:}@=>}
 matched
-quote_rs@{:@~,/@:}@=>~
+quote_rs@{:@@<:@2@:>@~,/@:}@=>~
 matched
-quote_rs@{:@/,/@:}@=>\/
+quote_rs@{:@@<:@2@:>@/,/@:}@=>\/
 matched
-quote_rs@{:@em^bed$ded,/@:}@=>em^bed$ded
+quote_rs@{:@@<:@2@:>@em^bed$ded,/@:}@=>em^bed$ded
 matched
-quote_rs@{:@em/bed<NL>ded,/@:}@=>em\/bed\<NL>ded
+quote_rs@{:@@<:@2@:>@em/bed<NL>ded,/@:}@=>em\/bed\<NL>ded
 matched
-quote_rs@{:@,|@:}@=>
+quote_rs@{:@@<:@2@:>@,|@:}@=>
 matched
-quote_rs@{:@<NL>,|@:}@=>\
+quote_rs@{:@@<:@2@:>@<NL>,|@:}@=>\
 skipped
-quote_rs@{:@<HT>,|@:}@=><HT>
+quote_rs@{:@@<:@2@:>@<HT>,|@:}@=><HT>
 matched
-quote_rs@{:@<CR>,|@:}@=><CR>
+quote_rs@{:@@<:@2@:>@<CR>,|@:}@=><CR>
 matched
-quote_rs@{:@<SP>,|@:}@=><SP>
+quote_rs@{:@@<:@2@:>@<SP>,|@:}@=><SP>
 matched
-quote_rs@{:@!,|@:}@=>!
+quote_rs@{:@@<:@2@:>@!,|@:}@=>!
 matched
-quote_rs@{:@",|@:}@=>"
+quote_rs@{:@@<:@2@:>@",|@:}@=>"
 matched
-quote_rs@{:@#,|@:}@=>#
+quote_rs@{:@@<:@2@:>@#,|@:}@=>#
 matched
-quote_rs@{:@$,|@:}@=>$
+quote_rs@{:@@<:@2@:>@$,|@:}@=>$
 matched
-quote_rs@{:@&,|@:}@=>\&
+quote_rs@{:@@<:@2@:>@&,|@:}@=>\&
 matched
-quote_rs@{:@',|@:}@=>'
+quote_rs@{:@@<:@2@:>@',|@:}@=>'
 matched
-quote_rs@{:@@{:@,|@:}@=>@{:@
+quote_rs@{:@@<:@2@:>@@{:@,|@:}@=>@{:@
 matched
-quote_rs@{:@@:}@,|@:}@=>@:}@
+quote_rs@{:@@<:@2@:>@@:}@,|@:}@=>@:}@
 matched
-quote_rs@{:@*,|@:}@=>*
+quote_rs@{:@@<:@2@:>@*,|@:}@=>*
 matched
-quote_rs@{:@+,|@:}@=>+
+quote_rs@{:@@<:@2@:>@+,|@:}@=>+
 matched
-quote_rs@{:@.,|@:}@=>.
+quote_rs@{:@@<:@2@:>@.,|@:}@=>.
 matched
-quote_rs@{:@;,|@:}@=>;
+quote_rs@{:@@<:@2@:>@;,|@:}@=>;
 matched
-quote_rs@{:@<,|@:}@=><
+quote_rs@{:@@<:@2@:>@<,|@:}@=><
 matched
-quote_rs@{:@>,|@:}@=>>
+quote_rs@{:@@<:@2@:>@>,|@:}@=>>
 matched
-quote_rs@{:@?,|@:}@=>?
+quote_rs@{:@@<:@2@:>@?,|@:}@=>?
 matched
-quote_rs@{:@@<:@,|@:}@=>@<:@
+quote_rs@{:@@<:@2@:>@@<:@,|@:}@=>@<:@
 matched
-quote_rs@{:@\,|@:}@=>\\
+quote_rs@{:@@<:@2@:>@\,|@:}@=>\\
 matched
-quote_rs@{:@@:>@,|@:}@=>@:>@
+quote_rs@{:@@<:@2@:>@@:>@,|@:}@=>@:>@
 matched
-quote_rs@{:@^,|@:}@=>^
+quote_rs@{:@@<:@2@:>@^,|@:}@=>^
 matched
-quote_rs@{:@`,|@:}@=>`
+quote_rs@{:@@<:@2@:>@`,|@:}@=>`
 matched
-quote_rs@{:@{,|@:}@=>{
+quote_rs@{:@@<:@2@:>@{,|@:}@=>{
 matched
-quote_rs@{:@|,|@:}@=>\|
+quote_rs@{:@@<:@2@:>@|,|@:}@=>\|
 matched
-quote_rs@{:@},|@:}@=>}
+quote_rs@{:@@<:@2@:>@},|@:}@=>}
 matched
-quote_rs@{:@~,|@:}@=>~
+quote_rs@{:@@<:@2@:>@~,|@:}@=>~
 matched
-quote_rs@{:@|,|@:}@=>\|
+quote_rs@{:@@<:@2@:>@|,|@:}@=>\|
 matched
-quote_rs@{:@em^bed$ded,|@:}@=>em^bed$ded
+quote_rs@{:@@<:@2@:>@em^bed$ded,|@:}@=>em^bed$ded
 matched
-quote_rs@{:@em|bed<NL>ded,|@:}@=>em\|bed\<NL>ded
+quote_rs@{:@@<:@2@:>@em|bed<NL>ded,|@:}@=>em\|bed\<NL>ded
 matched
 ], [dnl
 ])
@@ -1246,13 +1237,9 @@ AT_CLEANUP
 dnl
 dnl Check if quote_sed() works as expected.
 dnl
-dnl NOTE:   (1)	Quotees and their quoteds are rewritten with atlocal_log-
-dnl		gable() before logging them, so that no "dangerous" (to some
-dnl		editors or m4(1)) characters need to appear in the reference
-dnl		output!
-dnl	    (2)	The reference output is peppered with quadrigraphs because
+dnl NOTE:   (1)	The reference output is peppered with quadrigraphs because
 dnl		it's as unbalanced as can be!
-dnl	    (3)	As quote_sed() is a wrapper around quote_re(), we spare
+dnl	    (2)	As quote_sed() is a wrapper around quote_re(), we spare
 dnl		ourselves the match test!
 dnl
 AT_SETUP([quote_sed() works as expected?])
@@ -1270,10 +1257,10 @@ esac
 eval "`libdl-sh load`"; dl_load quote	## Load libdl.sh and libquote.sh or die.
 
 cs=`atlocal_get_special_cs` status=0	## Assume success.
-quote_sed quotee / excess && status=1 || case $? in
-    2)		;;			## Check if invocation with excess
-    *)	status=1;;			## arguments results in usage error.
-esac; for de in '' / \| //; do		## Foreach delimiter do...
+atlocal_returns 2 quote_sed quotee / excess || status=1
+					## Check if invocation with excess
+					## argument results in usage error.
+for de in '' / \| //; do		## Foreach delimiter do...
     case $de in				## Is it valid?
 	??*|'')				## No, ...
 	    quote_sed quotee "$de" && {	## Yet the invocation succeeded?
@@ -1285,115 +1272,114 @@ esac; for de in '' / \| //; do		## Foreach delimiter do...
 				;;	## Fail test and skip delimiter.
 	    esac
 	    ;;
-    esac; eval "set shiftee `atlocal_set_special_cs "$cs${de-}"`; shift"
+    esac; eval "set shiftee `atlocal_set_special_cs "$cs${de-/}"`; shift"
 					## Split special characters into
 					## positional parameters.
     for quotee in '' ${1+"$@"} "em^bed${DS}ded" "em${de-/}bed${NL}ded"; do
 					## Foreach quotee do...
 	quoted=`quote_sed "$quotee" ${de+"$de"}`
-	luotee=`atlocal_loggable "$quotee" ${de+"$de"}`
-	luoted=`atlocal_loggable "$quoted"`
-	printf 'quote_sed(%s)=>%s\n' "$luotee" "$luoted"
-					## Quote it, then log invocation
-					## with loggable quotee/quoted.
-    done
+	atlocal_trace_with_output "$quoted" quote_sed "$quotee" ${de+"$de"}
+					## Quote it, then trace invocation
+    done				## with result.
 done; exit $status			## Indicate success or failure.
 ], 0, [dnl				## And the winner is...
-quote_sed@{:@@:}@=>
-quote_sed@{:@<NL>@:}@=>\
-quote_sed@{:@<HT>@:}@=><HT>
-quote_sed@{:@<CR>@:}@=><CR>
-quote_sed@{:@<SP>@:}@=><SP>
-quote_sed@{:@!@:}@=>!
-quote_sed@{:@"@:}@=>"
-quote_sed@{:@#@:}@=>#
-quote_sed@{:@$@:}@=>\$
-quote_sed@{:@&@:}@=>&
-quote_sed@{:@'@:}@=>'
-quote_sed@{:@@{:@@:}@=>@{:@
-quote_sed@{:@@:}@@:}@=>@:}@
-quote_sed@{:@*@:}@=>\*
-quote_sed@{:@+@:}@=>+
-quote_sed@{:@.@:}@=>\.
-quote_sed@{:@;@:}@=>;
-quote_sed@{:@<@:}@=><
-quote_sed@{:@>@:}@=>>
-quote_sed@{:@?@:}@=>?
-quote_sed@{:@@<:@@:}@=>\@<:@
-quote_sed@{:@\@:}@=>\\
-quote_sed@{:@@:>@@:}@=>\@:>@
-quote_sed@{:@^@:}@=>\^
-quote_sed@{:@`@:}@=>`
-quote_sed@{:@{@:}@=>{
-quote_sed@{:@|@:}@=>|
-quote_sed@{:@}@:}@=>}
-quote_sed@{:@~@:}@=>~
-quote_sed@{:@em^bed$ded@:}@=>em^bed$ded
-quote_sed@{:@em/bed<NL>ded@:}@=>em\/bed\<NL>ded
-quote_sed@{:@,/@:}@=>
-quote_sed@{:@<NL>,/@:}@=>\
-quote_sed@{:@<HT>,/@:}@=><HT>
-quote_sed@{:@<CR>,/@:}@=><CR>
-quote_sed@{:@<SP>,/@:}@=><SP>
-quote_sed@{:@!,/@:}@=>!
-quote_sed@{:@",/@:}@=>"
-quote_sed@{:@#,/@:}@=>#
-quote_sed@{:@$,/@:}@=>\$
-quote_sed@{:@&,/@:}@=>&
-quote_sed@{:@',/@:}@=>'
-quote_sed@{:@@{:@,/@:}@=>@{:@
-quote_sed@{:@@:}@,/@:}@=>@:}@
-quote_sed@{:@*,/@:}@=>\*
-quote_sed@{:@+,/@:}@=>+
-quote_sed@{:@.,/@:}@=>\.
-quote_sed@{:@;,/@:}@=>;
-quote_sed@{:@<,/@:}@=><
-quote_sed@{:@>,/@:}@=>>
-quote_sed@{:@?,/@:}@=>?
-quote_sed@{:@@<:@,/@:}@=>\@<:@
-quote_sed@{:@\,/@:}@=>\\
-quote_sed@{:@@:>@,/@:}@=>\@:>@
-quote_sed@{:@^,/@:}@=>\^
-quote_sed@{:@`,/@:}@=>`
-quote_sed@{:@{,/@:}@=>{
-quote_sed@{:@|,/@:}@=>|
-quote_sed@{:@},/@:}@=>}
-quote_sed@{:@~,/@:}@=>~
-quote_sed@{:@/,/@:}@=>\/
-quote_sed@{:@em^bed$ded,/@:}@=>em^bed$ded
-quote_sed@{:@em/bed<NL>ded,/@:}@=>em\/bed\<NL>ded
-quote_sed@{:@,|@:}@=>
-quote_sed@{:@<NL>,|@:}@=>\
-quote_sed@{:@<HT>,|@:}@=><HT>
-quote_sed@{:@<CR>,|@:}@=><CR>
-quote_sed@{:@<SP>,|@:}@=><SP>
-quote_sed@{:@!,|@:}@=>!
-quote_sed@{:@",|@:}@=>"
-quote_sed@{:@#,|@:}@=>#
-quote_sed@{:@$,|@:}@=>\$
-quote_sed@{:@&,|@:}@=>&
-quote_sed@{:@',|@:}@=>'
-quote_sed@{:@@{:@,|@:}@=>@{:@
-quote_sed@{:@@:}@,|@:}@=>@:}@
-quote_sed@{:@*,|@:}@=>\*
-quote_sed@{:@+,|@:}@=>+
-quote_sed@{:@.,|@:}@=>\.
-quote_sed@{:@;,|@:}@=>;
-quote_sed@{:@<,|@:}@=><
-quote_sed@{:@>,|@:}@=>>
-quote_sed@{:@?,|@:}@=>?
-quote_sed@{:@@<:@,|@:}@=>\@<:@
-quote_sed@{:@\,|@:}@=>\\
-quote_sed@{:@@:>@,|@:}@=>\@:>@
-quote_sed@{:@^,|@:}@=>\^
-quote_sed@{:@`,|@:}@=>`
-quote_sed@{:@{,|@:}@=>{
-quote_sed@{:@|,|@:}@=>\|
-quote_sed@{:@},|@:}@=>}
-quote_sed@{:@~,|@:}@=>~
-quote_sed@{:@|,|@:}@=>\|
-quote_sed@{:@em^bed$ded,|@:}@=>em^bed$ded
-quote_sed@{:@em|bed<NL>ded,|@:}@=>em\|bed\<NL>ded
+quote_sed@{:@@<:@3@:>@quotee,/,excess@:}@
+quote_sed@{:@@<:@1@:>@@:}@=>
+quote_sed@{:@@<:@1@:>@<NL>@:}@=>\
+quote_sed@{:@@<:@1@:>@<HT>@:}@=><HT>
+quote_sed@{:@@<:@1@:>@<CR>@:}@=><CR>
+quote_sed@{:@@<:@1@:>@<SP>@:}@=><SP>
+quote_sed@{:@@<:@1@:>@!@:}@=>!
+quote_sed@{:@@<:@1@:>@"@:}@=>"
+quote_sed@{:@@<:@1@:>@#@:}@=>#
+quote_sed@{:@@<:@1@:>@$@:}@=>\$
+quote_sed@{:@@<:@1@:>@&@:}@=>&
+quote_sed@{:@@<:@1@:>@'@:}@=>'
+quote_sed@{:@@<:@1@:>@@{:@@:}@=>@{:@
+quote_sed@{:@@<:@1@:>@@:}@@:}@=>@:}@
+quote_sed@{:@@<:@1@:>@*@:}@=>\*
+quote_sed@{:@@<:@1@:>@+@:}@=>+
+quote_sed@{:@@<:@1@:>@.@:}@=>\.
+quote_sed@{:@@<:@1@:>@;@:}@=>;
+quote_sed@{:@@<:@1@:>@<@:}@=><
+quote_sed@{:@@<:@1@:>@>@:}@=>>
+quote_sed@{:@@<:@1@:>@?@:}@=>?
+quote_sed@{:@@<:@1@:>@@<:@@:}@=>\@<:@
+quote_sed@{:@@<:@1@:>@\@:}@=>\\
+quote_sed@{:@@<:@1@:>@@:>@@:}@=>\@:>@
+quote_sed@{:@@<:@1@:>@^@:}@=>\^
+quote_sed@{:@@<:@1@:>@`@:}@=>`
+quote_sed@{:@@<:@1@:>@{@:}@=>{
+quote_sed@{:@@<:@1@:>@|@:}@=>|
+quote_sed@{:@@<:@1@:>@}@:}@=>}
+quote_sed@{:@@<:@1@:>@~@:}@=>~
+quote_sed@{:@@<:@1@:>@/@:}@=>\/
+quote_sed@{:@@<:@1@:>@em^bed$ded@:}@=>em^bed$ded
+quote_sed@{:@@<:@1@:>@em/bed<NL>ded@:}@=>em\/bed\<NL>ded
+quote_sed@{:@@<:@2@:>@,/@:}@=>
+quote_sed@{:@@<:@2@:>@<NL>,/@:}@=>\
+quote_sed@{:@@<:@2@:>@<HT>,/@:}@=><HT>
+quote_sed@{:@@<:@2@:>@<CR>,/@:}@=><CR>
+quote_sed@{:@@<:@2@:>@<SP>,/@:}@=><SP>
+quote_sed@{:@@<:@2@:>@!,/@:}@=>!
+quote_sed@{:@@<:@2@:>@",/@:}@=>"
+quote_sed@{:@@<:@2@:>@#,/@:}@=>#
+quote_sed@{:@@<:@2@:>@$,/@:}@=>\$
+quote_sed@{:@@<:@2@:>@&,/@:}@=>&
+quote_sed@{:@@<:@2@:>@',/@:}@=>'
+quote_sed@{:@@<:@2@:>@@{:@,/@:}@=>@{:@
+quote_sed@{:@@<:@2@:>@@:}@,/@:}@=>@:}@
+quote_sed@{:@@<:@2@:>@*,/@:}@=>\*
+quote_sed@{:@@<:@2@:>@+,/@:}@=>+
+quote_sed@{:@@<:@2@:>@.,/@:}@=>\.
+quote_sed@{:@@<:@2@:>@;,/@:}@=>;
+quote_sed@{:@@<:@2@:>@<,/@:}@=><
+quote_sed@{:@@<:@2@:>@>,/@:}@=>>
+quote_sed@{:@@<:@2@:>@?,/@:}@=>?
+quote_sed@{:@@<:@2@:>@@<:@,/@:}@=>\@<:@
+quote_sed@{:@@<:@2@:>@\,/@:}@=>\\
+quote_sed@{:@@<:@2@:>@@:>@,/@:}@=>\@:>@
+quote_sed@{:@@<:@2@:>@^,/@:}@=>\^
+quote_sed@{:@@<:@2@:>@`,/@:}@=>`
+quote_sed@{:@@<:@2@:>@{,/@:}@=>{
+quote_sed@{:@@<:@2@:>@|,/@:}@=>|
+quote_sed@{:@@<:@2@:>@},/@:}@=>}
+quote_sed@{:@@<:@2@:>@~,/@:}@=>~
+quote_sed@{:@@<:@2@:>@/,/@:}@=>\/
+quote_sed@{:@@<:@2@:>@em^bed$ded,/@:}@=>em^bed$ded
+quote_sed@{:@@<:@2@:>@em/bed<NL>ded,/@:}@=>em\/bed\<NL>ded
+quote_sed@{:@@<:@2@:>@,|@:}@=>
+quote_sed@{:@@<:@2@:>@<NL>,|@:}@=>\
+quote_sed@{:@@<:@2@:>@<HT>,|@:}@=><HT>
+quote_sed@{:@@<:@2@:>@<CR>,|@:}@=><CR>
+quote_sed@{:@@<:@2@:>@<SP>,|@:}@=><SP>
+quote_sed@{:@@<:@2@:>@!,|@:}@=>!
+quote_sed@{:@@<:@2@:>@",|@:}@=>"
+quote_sed@{:@@<:@2@:>@#,|@:}@=>#
+quote_sed@{:@@<:@2@:>@$,|@:}@=>\$
+quote_sed@{:@@<:@2@:>@&,|@:}@=>&
+quote_sed@{:@@<:@2@:>@',|@:}@=>'
+quote_sed@{:@@<:@2@:>@@{:@,|@:}@=>@{:@
+quote_sed@{:@@<:@2@:>@@:}@,|@:}@=>@:}@
+quote_sed@{:@@<:@2@:>@*,|@:}@=>\*
+quote_sed@{:@@<:@2@:>@+,|@:}@=>+
+quote_sed@{:@@<:@2@:>@.,|@:}@=>\.
+quote_sed@{:@@<:@2@:>@;,|@:}@=>;
+quote_sed@{:@@<:@2@:>@<,|@:}@=><
+quote_sed@{:@@<:@2@:>@>,|@:}@=>>
+quote_sed@{:@@<:@2@:>@?,|@:}@=>?
+quote_sed@{:@@<:@2@:>@@<:@,|@:}@=>\@<:@
+quote_sed@{:@@<:@2@:>@\,|@:}@=>\\
+quote_sed@{:@@<:@2@:>@@:>@,|@:}@=>\@:>@
+quote_sed@{:@@<:@2@:>@^,|@:}@=>\^
+quote_sed@{:@@<:@2@:>@`,|@:}@=>`
+quote_sed@{:@@<:@2@:>@{,|@:}@=>{
+quote_sed@{:@@<:@2@:>@|,|@:}@=>\|
+quote_sed@{:@@<:@2@:>@},|@:}@=>}
+quote_sed@{:@@<:@2@:>@~,|@:}@=>~
+quote_sed@{:@@<:@2@:>@|,|@:}@=>\|
+quote_sed@{:@@<:@2@:>@em^bed$ded,|@:}@=>em^bed$ded
+quote_sed@{:@@<:@2@:>@em|bed<NL>ded,|@:}@=>em\|bed\<NL>ded
 ], [dnl
 ])
 AT_CLEANUP
@@ -1401,13 +1387,9 @@ AT_CLEANUP
 dnl
 dnl Check if quote_grep() works as expected.
 dnl
-dnl NOTE:   (1)	Quotees and their quoteds are rewritten with atlocal_log-
-dnl		gable() before logging them, so that no "dangerous" (to some
-dnl		editors or m4(1)) characters need to appear in the reference
-dnl		output!
-dnl	    (2)	The reference output is peppered with quadrigraphs because
+dnl NOTE:   (1)	The reference output is peppered with quadrigraphs because
 dnl		it's as unbalanced as can be!
-dnl	    (3)	As quote_grep() is a wrapper around quote_re(), we spare
+dnl	    (2)	As quote_grep() is a wrapper around quote_re(), we spare
 dnl		ourselves the match test!
 dnl
 AT_SETUP([quote_grep() works as expected?])
@@ -1425,51 +1407,51 @@ esac
 eval "`libdl-sh load`"; dl_load quote	## Load libdl.sh and libquote.sh or die.
 
 cs=`atlocal_get_special_cs` status=0	## Assume success.
-quote_grep quotee excess && status=1 || case $? in
-    2)		;;			## Check if invocation with excess
-    *)	status=1;;			## arguments results in usage error.
-esac; eval "set shiftee `atlocal_set_special_cs "$cs"`; shift"
+atlocal_returns 2 quote_grep quotee excess || status=1
+					## Check if invocation with excess
+					## argument results in usage error.
+eval "set shiftee `atlocal_set_special_cs "$cs"`; shift"
 					## Split special characters into
 					## positional parameters.
 for quotee in '' ${1+"$@"} "em^bed${DS}ded" "em/bed${NL}ded"; do
-					## Foreach quotee do...
-    quoted=`quote_grep "$quotee"`	## Quote it, then log invocation
-    luotee=`atlocal_loggable "$quotee"`	## with loggable quotee/quoted.
-    luoted=`atlocal_loggable "$quoted"`
-    printf 'quote_grep(%s)=>%s\n' "$luotee" "$luoted"
+    quoted=`quote_grep "$quotee"`	## Foreach quotee do...
+    atlocal_trace_with_output "$quoted" quote_grep "$quotee"
+					## Quote it, then trace invocation
+					## with result.
 done; exit $status			## Indicate success or failure.
 ], 0, [dnl				## And the winner is...
-quote_grep@{:@@:}@=>
-quote_grep@{:@<NL>@:}@=>\
-quote_grep@{:@<HT>@:}@=><HT>
-quote_grep@{:@<CR>@:}@=><CR>
-quote_grep@{:@<SP>@:}@=><SP>
-quote_grep@{:@!@:}@=>!
-quote_grep@{:@"@:}@=>"
-quote_grep@{:@#@:}@=>#
-quote_grep@{:@$@:}@=>\$
-quote_grep@{:@&@:}@=>&
-quote_grep@{:@'@:}@=>'
-quote_grep@{:@@{:@@:}@=>@{:@
-quote_grep@{:@@:}@@:}@=>@:}@
-quote_grep@{:@*@:}@=>\*
-quote_grep@{:@+@:}@=>+
-quote_grep@{:@.@:}@=>\.
-quote_grep@{:@;@:}@=>;
-quote_grep@{:@<@:}@=><
-quote_grep@{:@>@:}@=>>
-quote_grep@{:@?@:}@=>?
-quote_grep@{:@@<:@@:}@=>\@<:@
-quote_grep@{:@\@:}@=>\\
-quote_grep@{:@@:>@@:}@=>\@:>@
-quote_grep@{:@^@:}@=>\^
-quote_grep@{:@`@:}@=>`
-quote_grep@{:@{@:}@=>{
-quote_grep@{:@|@:}@=>|
-quote_grep@{:@}@:}@=>}
-quote_grep@{:@~@:}@=>~
-quote_grep@{:@em^bed$ded@:}@=>em^bed$ded
-quote_grep@{:@em/bed<NL>ded@:}@=>em/bed\<NL>ded
+quote_grep@{:@@<:@2@:>@quotee,excess@:}@
+quote_grep@{:@@<:@1@:>@@:}@=>
+quote_grep@{:@@<:@1@:>@<NL>@:}@=>\
+quote_grep@{:@@<:@1@:>@<HT>@:}@=><HT>
+quote_grep@{:@@<:@1@:>@<CR>@:}@=><CR>
+quote_grep@{:@@<:@1@:>@<SP>@:}@=><SP>
+quote_grep@{:@@<:@1@:>@!@:}@=>!
+quote_grep@{:@@<:@1@:>@"@:}@=>"
+quote_grep@{:@@<:@1@:>@#@:}@=>#
+quote_grep@{:@@<:@1@:>@$@:}@=>\$
+quote_grep@{:@@<:@1@:>@&@:}@=>&
+quote_grep@{:@@<:@1@:>@'@:}@=>'
+quote_grep@{:@@<:@1@:>@@{:@@:}@=>@{:@
+quote_grep@{:@@<:@1@:>@@:}@@:}@=>@:}@
+quote_grep@{:@@<:@1@:>@*@:}@=>\*
+quote_grep@{:@@<:@1@:>@+@:}@=>+
+quote_grep@{:@@<:@1@:>@.@:}@=>\.
+quote_grep@{:@@<:@1@:>@;@:}@=>;
+quote_grep@{:@@<:@1@:>@<@:}@=><
+quote_grep@{:@@<:@1@:>@>@:}@=>>
+quote_grep@{:@@<:@1@:>@?@:}@=>?
+quote_grep@{:@@<:@1@:>@@<:@@:}@=>\@<:@
+quote_grep@{:@@<:@1@:>@\@:}@=>\\
+quote_grep@{:@@<:@1@:>@@:>@@:}@=>\@:>@
+quote_grep@{:@@<:@1@:>@^@:}@=>\^
+quote_grep@{:@@<:@1@:>@`@:}@=>`
+quote_grep@{:@@<:@1@:>@{@:}@=>{
+quote_grep@{:@@<:@1@:>@|@:}@=>|
+quote_grep@{:@@<:@1@:>@}@:}@=>}
+quote_grep@{:@@<:@1@:>@~@:}@=>~
+quote_grep@{:@@<:@1@:>@em^bed$ded@:}@=>em^bed$ded
+quote_grep@{:@@<:@1@:>@em/bed<NL>ded@:}@=>em/bed\<NL>ded
 ], [dnl
 ])
 AT_CLEANUP
@@ -1477,13 +1459,9 @@ AT_CLEANUP
 dnl
 dnl Check if quote_egrep() works as expected.
 dnl
-dnl NOTE:   (1)	Quotees and their quoteds are rewritten with atlocal_log-
-dnl		gable() before logging them, so that no "dangerous" (to some
-dnl		editors or m4(1)) characters need to appear in the reference
-dnl		output!
-dnl	    (2)	The reference output is peppered with quadrigraphs because
+dnl NOTE:   (1)	The reference output is peppered with quadrigraphs because
 dnl		it's as unbalanced as can be!
-dnl	    (3)	As quote_egrep() is a wrapper around quote_ere(), we spare
+dnl	    (2)	As quote_egrep() is a wrapper around quote_ere(), we spare
 dnl		ourselves the match test!
 dnl
 AT_SETUP([quote_egrep() works as expected?])
@@ -1501,51 +1479,51 @@ esac
 eval "`libdl-sh load`"; dl_load quote	## Load libdl.sh and libquote.sh or die.
 
 cs=`atlocal_get_special_cs` status=0	## Assume success.
-quote_egrep quotee excess && status=1 || case $? in
-    2)		;;			## Check if invocation with excess
-    *)	status=1;;			## arguments results in usage error.
-esac; eval "set shiftee `atlocal_set_special_cs "$cs"`; shift"
+atlocal_returns 2 quote_egrep quotee excess || status=1
+					## Check if invocation with excess
+					## argument results in usage error.
+eval "set shiftee `atlocal_set_special_cs "$cs"`; shift"
 					## Split special characters into
 					## positional parameters.
 for quotee in '' ${1+"$@"} "em^bed${DS}ded" "em/bed${NL}ded"; do
-					## Foreach quotee do...
-    quoted=`quote_egrep "$quotee"`	## Quote it, then log invocation
-    luotee=`atlocal_loggable "$quotee"`	## with loggable quotee/quoted.
-    luoted=`atlocal_loggable "$quoted"`
-    printf 'quote_egrep(%s)=>%s\n' "$luotee" "$luoted"
+    quoted=`quote_egrep "$quotee"`	## Foreach quotee do...
+    atlocal_trace_with_output "$quoted" quote_egrep "$quotee"
+					## Quote it, then trace invocation
+					## with result.
 done; exit $status			## Indicate success or failure.
 ], 0, [dnl				## And the winner is...
-quote_egrep@{:@@:}@=>
-quote_egrep@{:@<NL>@:}@=>\
-quote_egrep@{:@<HT>@:}@=><HT>
-quote_egrep@{:@<CR>@:}@=><CR>
-quote_egrep@{:@<SP>@:}@=><SP>
-quote_egrep@{:@!@:}@=>!
-quote_egrep@{:@"@:}@=>"
-quote_egrep@{:@#@:}@=>#
-quote_egrep@{:@$@:}@=>\$
-quote_egrep@{:@&@:}@=>&
-quote_egrep@{:@'@:}@=>'
-quote_egrep@{:@@{:@@:}@=>\@{:@
-quote_egrep@{:@@:}@@:}@=>\@:}@
-quote_egrep@{:@*@:}@=>\*
-quote_egrep@{:@+@:}@=>\+
-quote_egrep@{:@.@:}@=>\.
-quote_egrep@{:@;@:}@=>;
-quote_egrep@{:@<@:}@=><
-quote_egrep@{:@>@:}@=>>
-quote_egrep@{:@?@:}@=>\?
-quote_egrep@{:@@<:@@:}@=>\@<:@
-quote_egrep@{:@\@:}@=>\\
-quote_egrep@{:@@:>@@:}@=>\@:>@
-quote_egrep@{:@^@:}@=>\^
-quote_egrep@{:@`@:}@=>`
-quote_egrep@{:@{@:}@=>\{
-quote_egrep@{:@|@:}@=>\|
-quote_egrep@{:@}@:}@=>\}
-quote_egrep@{:@~@:}@=>~
-quote_egrep@{:@em^bed$ded@:}@=>em\^bed\$ded
-quote_egrep@{:@em/bed<NL>ded@:}@=>em/bed\<NL>ded
+quote_egrep@{:@@<:@2@:>@quotee,excess@:}@
+quote_egrep@{:@@<:@1@:>@@:}@=>
+quote_egrep@{:@@<:@1@:>@<NL>@:}@=>\
+quote_egrep@{:@@<:@1@:>@<HT>@:}@=><HT>
+quote_egrep@{:@@<:@1@:>@<CR>@:}@=><CR>
+quote_egrep@{:@@<:@1@:>@<SP>@:}@=><SP>
+quote_egrep@{:@@<:@1@:>@!@:}@=>!
+quote_egrep@{:@@<:@1@:>@"@:}@=>"
+quote_egrep@{:@@<:@1@:>@#@:}@=>#
+quote_egrep@{:@@<:@1@:>@$@:}@=>\$
+quote_egrep@{:@@<:@1@:>@&@:}@=>&
+quote_egrep@{:@@<:@1@:>@'@:}@=>'
+quote_egrep@{:@@<:@1@:>@@{:@@:}@=>\@{:@
+quote_egrep@{:@@<:@1@:>@@:}@@:}@=>\@:}@
+quote_egrep@{:@@<:@1@:>@*@:}@=>\*
+quote_egrep@{:@@<:@1@:>@+@:}@=>\+
+quote_egrep@{:@@<:@1@:>@.@:}@=>\.
+quote_egrep@{:@@<:@1@:>@;@:}@=>;
+quote_egrep@{:@@<:@1@:>@<@:}@=><
+quote_egrep@{:@@<:@1@:>@>@:}@=>>
+quote_egrep@{:@@<:@1@:>@?@:}@=>\?
+quote_egrep@{:@@<:@1@:>@@<:@@:}@=>\@<:@
+quote_egrep@{:@@<:@1@:>@\@:}@=>\\
+quote_egrep@{:@@<:@1@:>@@:>@@:}@=>\@:>@
+quote_egrep@{:@@<:@1@:>@^@:}@=>\^
+quote_egrep@{:@@<:@1@:>@`@:}@=>`
+quote_egrep@{:@@<:@1@:>@{@:}@=>\{
+quote_egrep@{:@@<:@1@:>@|@:}@=>\|
+quote_egrep@{:@@<:@1@:>@}@:}@=>\}
+quote_egrep@{:@@<:@1@:>@~@:}@=>~
+quote_egrep@{:@@<:@1@:>@em^bed$ded@:}@=>em\^bed\$ded
+quote_egrep@{:@@<:@1@:>@em/bed<NL>ded@:}@=>em/bed\<NL>ded
 ], [dnl
 ])
 AT_CLEANUP
@@ -1563,11 +1541,7 @@ dnl	'quote_rs [DELIMITER] QUOTEE', and
 dnl   -	'quote QUOTEE' behaves like 'quote sh QUOTEE' (i.e., that 'sh' is the
 dnl	default quoting operator).
 dnl
-dnl NOTE:   (1)	Quotees and their quoteds are rewritten with atlocal_log-
-dnl		gable() before logging them, so that no "dangerous" (to some
-dnl		editors or m4(1)) characters need to appear in the reference
-dnl		output!
-dnl	    (2)	The reference output is peppered with quadrigraphs because
+dnl NOTE:   (1)	The reference output is peppered with quadrigraphs because
 dnl		it's as unbalanced as can be!
 dnl
 AT_SETUP([quote() works as expected? (be patient...)])
@@ -1616,11 +1590,9 @@ do					## Foreach operators list do...
     for quotee in '' ${1+"$@"} "em^bed${DS}ded" "em${de-}bed${NL}ded"; do
 					## Foreach quotee do...
 	quoted=`quote $operators "$quotee"`
-	luotee=`atlocal_loggable $operators "$quotee"`
-	luoted=`atlocal_loggable "$quoted"`
-	printf 'quote(%s)=>%s\n' "$luotee" "$luoted"
-					## Quote it, then log invocation
-					## with loggable quotee/quoted.
+	atlocal_trace_with_output "$quoted" quote $operators "$quotee"
+					## Quote it, then trace invocation
+					## with result.
 	set shiftee $operators; shift	## Split operators list into posi-
 					## tional parameters.
 	case ${3+3}${1-sh}${2+,$2} in	## Is it atchable with equivalent?
@@ -1633,1133 +1605,1133 @@ do					## Foreach operators list do...
     done
 done; exit $status			## Indicate success or failure.
 ], 0, [dnl				## And the winner is...
-quote@{:@@:}@=>''
-quote@{:@<NL>@:}@=>'<NL>'
-quote@{:@<HT>@:}@=>'<HT>'
-quote@{:@<CR>@:}@=>'<CR>'
-quote@{:@<SP>@:}@=>'<SP>'
-quote@{:@!@:}@=>'!'
-quote@{:@"@:}@=>'"'
-quote@{:@#@:}@=>'#'
-quote@{:@$@:}@=>'$'
-quote@{:@&@:}@=>'&'
-quote@{:@'@:}@=>''\'''
-quote@{:@@{:@@:}@=>'@{:@'
-quote@{:@@:}@@:}@=>'@:}@'
-quote@{:@*@:}@=>'*'
-quote@{:@+@:}@=>+
-quote@{:@.@:}@=>.
-quote@{:@;@:}@=>';'
-quote@{:@<@:}@=>'<'
-quote@{:@>@:}@=>'>'
-quote@{:@?@:}@=>'?'
-quote@{:@@<:@@:}@=>'@<:@'
-quote@{:@\@:}@=>'\'
-quote@{:@@:>@@:}@=>'@:>@'
-quote@{:@^@:}@=>^
-quote@{:@`@:}@=>'`'
-quote@{:@{@:}@=>'{'
-quote@{:@|@:}@=>'|'
-quote@{:@}@:}@=>'}'
-quote@{:@~@:}@=>'~'
-quote@{:@em^bed$ded@:}@=>'em^bed$ded'
-quote@{:@embed<NL>ded@:}@=>'embed<NL>ded'
-quote@{:@sh,@:}@=>''
-quote@{:@sh,<NL>@:}@=>'<NL>'
-quote@{:@sh,<HT>@:}@=>'<HT>'
-quote@{:@sh,<CR>@:}@=>'<CR>'
-quote@{:@sh,<SP>@:}@=>'<SP>'
-quote@{:@sh,!@:}@=>'!'
-quote@{:@sh,"@:}@=>'"'
-quote@{:@sh,#@:}@=>'#'
-quote@{:@sh,$@:}@=>'$'
-quote@{:@sh,&@:}@=>'&'
-quote@{:@sh,'@:}@=>''\'''
-quote@{:@sh,@{:@@:}@=>'@{:@'
-quote@{:@sh,@:}@@:}@=>'@:}@'
-quote@{:@sh,*@:}@=>'*'
-quote@{:@sh,+@:}@=>+
-quote@{:@sh,.@:}@=>.
-quote@{:@sh,;@:}@=>';'
-quote@{:@sh,<@:}@=>'<'
-quote@{:@sh,>@:}@=>'>'
-quote@{:@sh,?@:}@=>'?'
-quote@{:@sh,@<:@@:}@=>'@<:@'
-quote@{:@sh,\@:}@=>'\'
-quote@{:@sh,@:>@@:}@=>'@:>@'
-quote@{:@sh,^@:}@=>^
-quote@{:@sh,`@:}@=>'`'
-quote@{:@sh,{@:}@=>'{'
-quote@{:@sh,|@:}@=>'|'
-quote@{:@sh,}@:}@=>'}'
-quote@{:@sh,~@:}@=>'~'
-quote@{:@sh,em^bed$ded@:}@=>'em^bed$ded'
-quote@{:@sh,embed<NL>ded@:}@=>'embed<NL>ded'
-quote@{:@re,@:}@=>
-quote@{:@re,<NL>@:}@=>\
-quote@{:@re,<HT>@:}@=><HT>
-quote@{:@re,<CR>@:}@=><CR>
-quote@{:@re,<SP>@:}@=><SP>
-quote@{:@re,!@:}@=>!
-quote@{:@re,"@:}@=>"
-quote@{:@re,#@:}@=>#
-quote@{:@re,$@:}@=>\$
-quote@{:@re,&@:}@=>&
-quote@{:@re,'@:}@=>'
-quote@{:@re,@{:@@:}@=>@{:@
-quote@{:@re,@:}@@:}@=>@:}@
-quote@{:@re,*@:}@=>\*
-quote@{:@re,+@:}@=>+
-quote@{:@re,.@:}@=>\.
-quote@{:@re,;@:}@=>;
-quote@{:@re,<@:}@=><
-quote@{:@re,>@:}@=>>
-quote@{:@re,?@:}@=>?
-quote@{:@re,@<:@@:}@=>\@<:@
-quote@{:@re,\@:}@=>\\
-quote@{:@re,@:>@@:}@=>\@:>@
-quote@{:@re,^@:}@=>\^
-quote@{:@re,`@:}@=>`
-quote@{:@re,{@:}@=>{
-quote@{:@re,|@:}@=>|
-quote@{:@re,}@:}@=>}
-quote@{:@re,~@:}@=>~
-quote@{:@re,em^bed$ded@:}@=>em^bed$ded
-quote@{:@re,embed<NL>ded@:}@=>embed\<NL>ded
-quote@{:@re,/,@:}@=>
-quote@{:@re,/,<NL>@:}@=>\
-quote@{:@re,/,<HT>@:}@=><HT>
-quote@{:@re,/,<CR>@:}@=><CR>
-quote@{:@re,/,<SP>@:}@=><SP>
-quote@{:@re,/,!@:}@=>!
-quote@{:@re,/,"@:}@=>"
-quote@{:@re,/,#@:}@=>#
-quote@{:@re,/,$@:}@=>\$
-quote@{:@re,/,&@:}@=>&
-quote@{:@re,/,'@:}@=>'
-quote@{:@re,/,@{:@@:}@=>@{:@
-quote@{:@re,/,@:}@@:}@=>@:}@
-quote@{:@re,/,*@:}@=>\*
-quote@{:@re,/,+@:}@=>+
-quote@{:@re,/,.@:}@=>\.
-quote@{:@re,/,;@:}@=>;
-quote@{:@re,/,<@:}@=><
-quote@{:@re,/,>@:}@=>>
-quote@{:@re,/,?@:}@=>?
-quote@{:@re,/,@<:@@:}@=>\@<:@
-quote@{:@re,/,\@:}@=>\\
-quote@{:@re,/,@:>@@:}@=>\@:>@
-quote@{:@re,/,^@:}@=>\^
-quote@{:@re,/,`@:}@=>`
-quote@{:@re,/,{@:}@=>{
-quote@{:@re,/,|@:}@=>|
-quote@{:@re,/,}@:}@=>}
-quote@{:@re,/,~@:}@=>~
-quote@{:@re,/,/@:}@=>\/
-quote@{:@re,/,em^bed$ded@:}@=>em^bed$ded
-quote@{:@re,/,em/bed<NL>ded@:}@=>em\/bed\<NL>ded
-quote@{:@ere,@:}@=>
-quote@{:@ere,<NL>@:}@=>\
-quote@{:@ere,<HT>@:}@=><HT>
-quote@{:@ere,<CR>@:}@=><CR>
-quote@{:@ere,<SP>@:}@=><SP>
-quote@{:@ere,!@:}@=>!
-quote@{:@ere,"@:}@=>"
-quote@{:@ere,#@:}@=>#
-quote@{:@ere,$@:}@=>\$
-quote@{:@ere,&@:}@=>&
-quote@{:@ere,'@:}@=>'
-quote@{:@ere,@{:@@:}@=>\@{:@
-quote@{:@ere,@:}@@:}@=>\@:}@
-quote@{:@ere,*@:}@=>\*
-quote@{:@ere,+@:}@=>\+
-quote@{:@ere,.@:}@=>\.
-quote@{:@ere,;@:}@=>;
-quote@{:@ere,<@:}@=><
-quote@{:@ere,>@:}@=>>
-quote@{:@ere,?@:}@=>\?
-quote@{:@ere,@<:@@:}@=>\@<:@
-quote@{:@ere,\@:}@=>\\
-quote@{:@ere,@:>@@:}@=>\@:>@
-quote@{:@ere,^@:}@=>\^
-quote@{:@ere,`@:}@=>`
-quote@{:@ere,{@:}@=>\{
-quote@{:@ere,|@:}@=>\|
-quote@{:@ere,}@:}@=>\}
-quote@{:@ere,~@:}@=>~
-quote@{:@ere,em^bed$ded@:}@=>em\^bed\$ded
-quote@{:@ere,embed<NL>ded@:}@=>embed\<NL>ded
-quote@{:@ere,/,@:}@=>
-quote@{:@ere,/,<NL>@:}@=>\
-quote@{:@ere,/,<HT>@:}@=><HT>
-quote@{:@ere,/,<CR>@:}@=><CR>
-quote@{:@ere,/,<SP>@:}@=><SP>
-quote@{:@ere,/,!@:}@=>!
-quote@{:@ere,/,"@:}@=>"
-quote@{:@ere,/,#@:}@=>#
-quote@{:@ere,/,$@:}@=>\$
-quote@{:@ere,/,&@:}@=>&
-quote@{:@ere,/,'@:}@=>'
-quote@{:@ere,/,@{:@@:}@=>\@{:@
-quote@{:@ere,/,@:}@@:}@=>\@:}@
-quote@{:@ere,/,*@:}@=>\*
-quote@{:@ere,/,+@:}@=>\+
-quote@{:@ere,/,.@:}@=>\.
-quote@{:@ere,/,;@:}@=>;
-quote@{:@ere,/,<@:}@=><
-quote@{:@ere,/,>@:}@=>>
-quote@{:@ere,/,?@:}@=>\?
-quote@{:@ere,/,@<:@@:}@=>\@<:@
-quote@{:@ere,/,\@:}@=>\\
-quote@{:@ere,/,@:>@@:}@=>\@:>@
-quote@{:@ere,/,^@:}@=>\^
-quote@{:@ere,/,`@:}@=>`
-quote@{:@ere,/,{@:}@=>\{
-quote@{:@ere,/,|@:}@=>\|
-quote@{:@ere,/,}@:}@=>\}
-quote@{:@ere,/,~@:}@=>~
-quote@{:@ere,/,/@:}@=>\/
-quote@{:@ere,/,em^bed$ded@:}@=>em\^bed\$ded
-quote@{:@ere,/,em/bed<NL>ded@:}@=>em\/bed\<NL>ded
-quote@{:@rs,@:}@=>
-quote@{:@rs,<NL>@:}@=>\
-quote@{:@rs,<HT>@:}@=><HT>
-quote@{:@rs,<CR>@:}@=><CR>
-quote@{:@rs,<SP>@:}@=><SP>
-quote@{:@rs,!@:}@=>!
-quote@{:@rs,"@:}@=>"
-quote@{:@rs,#@:}@=>#
-quote@{:@rs,$@:}@=>$
-quote@{:@rs,&@:}@=>\&
-quote@{:@rs,'@:}@=>'
-quote@{:@rs,@{:@@:}@=>@{:@
-quote@{:@rs,@:}@@:}@=>@:}@
-quote@{:@rs,*@:}@=>*
-quote@{:@rs,+@:}@=>+
-quote@{:@rs,.@:}@=>.
-quote@{:@rs,;@:}@=>;
-quote@{:@rs,<@:}@=><
-quote@{:@rs,>@:}@=>>
-quote@{:@rs,?@:}@=>?
-quote@{:@rs,@<:@@:}@=>@<:@
-quote@{:@rs,\@:}@=>\\
-quote@{:@rs,@:>@@:}@=>@:>@
-quote@{:@rs,^@:}@=>^
-quote@{:@rs,`@:}@=>`
-quote@{:@rs,{@:}@=>{
-quote@{:@rs,|@:}@=>|
-quote@{:@rs,}@:}@=>}
-quote@{:@rs,~@:}@=>~
-quote@{:@rs,/@:}@=>/
-quote@{:@rs,em^bed$ded@:}@=>em^bed$ded
-quote@{:@rs,em/bed<NL>ded@:}@=>em/bed\<NL>ded
-quote@{:@rs,/,@:}@=>
-quote@{:@rs,/,<NL>@:}@=>\
-quote@{:@rs,/,<HT>@:}@=><HT>
-quote@{:@rs,/,<CR>@:}@=><CR>
-quote@{:@rs,/,<SP>@:}@=><SP>
-quote@{:@rs,/,!@:}@=>!
-quote@{:@rs,/,"@:}@=>"
-quote@{:@rs,/,#@:}@=>#
-quote@{:@rs,/,$@:}@=>$
-quote@{:@rs,/,&@:}@=>\&
-quote@{:@rs,/,'@:}@=>'
-quote@{:@rs,/,@{:@@:}@=>@{:@
-quote@{:@rs,/,@:}@@:}@=>@:}@
-quote@{:@rs,/,*@:}@=>*
-quote@{:@rs,/,+@:}@=>+
-quote@{:@rs,/,.@:}@=>.
-quote@{:@rs,/,;@:}@=>;
-quote@{:@rs,/,<@:}@=><
-quote@{:@rs,/,>@:}@=>>
-quote@{:@rs,/,?@:}@=>?
-quote@{:@rs,/,@<:@@:}@=>@<:@
-quote@{:@rs,/,\@:}@=>\\
-quote@{:@rs,/,@:>@@:}@=>@:>@
-quote@{:@rs,/,^@:}@=>^
-quote@{:@rs,/,`@:}@=>`
-quote@{:@rs,/,{@:}@=>{
-quote@{:@rs,/,|@:}@=>|
-quote@{:@rs,/,}@:}@=>}
-quote@{:@rs,/,~@:}@=>~
-quote@{:@rs,/,/@:}@=>\/
-quote@{:@rs,/,em^bed$ded@:}@=>em^bed$ded
-quote@{:@rs,/,em/bed<NL>ded@:}@=>em\/bed\<NL>ded
-quote@{:@sh,sh,@:}@=>''\'''\'''
-quote@{:@sh,sh,<NL>@:}@=>''\''<NL>'\'''
-quote@{:@sh,sh,<HT>@:}@=>''\''<HT>'\'''
-quote@{:@sh,sh,<CR>@:}@=>''\''<CR>'\'''
-quote@{:@sh,sh,<SP>@:}@=>''\''<SP>'\'''
-quote@{:@sh,sh,!@:}@=>''\''!'\'''
-quote@{:@sh,sh,"@:}@=>''\''"'\'''
-quote@{:@sh,sh,#@:}@=>''\''#'\'''
-quote@{:@sh,sh,$@:}@=>''\''$'\'''
-quote@{:@sh,sh,&@:}@=>''\''&'\'''
-quote@{:@sh,sh,'@:}@=>''\'''\''\'\'''\'''\'''
-quote@{:@sh,sh,@{:@@:}@=>''\''@{:@'\'''
-quote@{:@sh,sh,@:}@@:}@=>''\''@:}@'\'''
-quote@{:@sh,sh,*@:}@=>''\''*'\'''
-quote@{:@sh,sh,+@:}@=>+
-quote@{:@sh,sh,.@:}@=>.
-quote@{:@sh,sh,;@:}@=>''\'';'\'''
-quote@{:@sh,sh,<@:}@=>''\''<'\'''
-quote@{:@sh,sh,>@:}@=>''\''>'\'''
-quote@{:@sh,sh,?@:}@=>''\''?'\'''
-quote@{:@sh,sh,@<:@@:}@=>''\''@<:@'\'''
-quote@{:@sh,sh,\@:}@=>''\''\'\'''
-quote@{:@sh,sh,@:>@@:}@=>''\''@:>@'\'''
-quote@{:@sh,sh,^@:}@=>^
-quote@{:@sh,sh,`@:}@=>''\''`'\'''
-quote@{:@sh,sh,{@:}@=>''\''{'\'''
-quote@{:@sh,sh,|@:}@=>''\''|'\'''
-quote@{:@sh,sh,}@:}@=>''\''}'\'''
-quote@{:@sh,sh,~@:}@=>''\''~'\'''
-quote@{:@sh,sh,em^bed$ded@:}@=>''\''em^bed$ded'\'''
-quote@{:@sh,sh,embed<NL>ded@:}@=>''\''embed<NL>ded'\'''
-quote@{:@sh,re,@:}@=>''
-quote@{:@sh,re,<NL>@:}@=>'\<NL>'
-quote@{:@sh,re,<HT>@:}@=>'<HT>'
-quote@{:@sh,re,<CR>@:}@=>'<CR>'
-quote@{:@sh,re,<SP>@:}@=>'<SP>'
-quote@{:@sh,re,!@:}@=>'!'
-quote@{:@sh,re,"@:}@=>'"'
-quote@{:@sh,re,#@:}@=>'#'
-quote@{:@sh,re,$@:}@=>'$'
-quote@{:@sh,re,&@:}@=>'&'
-quote@{:@sh,re,'@:}@=>''\\'''
-quote@{:@sh,re,@{:@@:}@=>'@{:@'
-quote@{:@sh,re,@:}@@:}@=>'@:}@'
-quote@{:@sh,re,*@:}@=>'\*'
-quote@{:@sh,re,+@:}@=>+
-quote@{:@sh,re,.@:}@=>\.
-quote@{:@sh,re,;@:}@=>';'
-quote@{:@sh,re,<@:}@=>'<'
-quote@{:@sh,re,>@:}@=>'>'
-quote@{:@sh,re,?@:}@=>'?'
-quote@{:@sh,re,@<:@@:}@=>'\@<:@'
-quote@{:@sh,re,\@:}@=>'\\'
-quote@{:@sh,re,@:>@@:}@=>'\@:>@'
-quote@{:@sh,re,^@:}@=>\^
-quote@{:@sh,re,`@:}@=>'`'
-quote@{:@sh,re,{@:}@=>'{'
-quote@{:@sh,re,|@:}@=>'|'
-quote@{:@sh,re,}@:}@=>'}'
-quote@{:@sh,re,~@:}@=>'~'
-quote@{:@sh,re,em^bed$ded@:}@=>'em^bed$ded'
-quote@{:@sh,re,embed<NL>ded@:}@=>'embed\<NL>ded'
-quote@{:@sh,re,/,@:}@=>''
-quote@{:@sh,re,/,<NL>@:}@=>'\<NL>'
-quote@{:@sh,re,/,<HT>@:}@=>'<HT>'
-quote@{:@sh,re,/,<CR>@:}@=>'<CR>'
-quote@{:@sh,re,/,<SP>@:}@=>'<SP>'
-quote@{:@sh,re,/,!@:}@=>'!'
-quote@{:@sh,re,/,"@:}@=>'"'
-quote@{:@sh,re,/,#@:}@=>'#'
-quote@{:@sh,re,/,$@:}@=>'$'
-quote@{:@sh,re,/,&@:}@=>'&'
-quote@{:@sh,re,/,'@:}@=>''\\'''
-quote@{:@sh,re,/,@{:@@:}@=>'@{:@'
-quote@{:@sh,re,/,@:}@@:}@=>'@:}@'
-quote@{:@sh,re,/,*@:}@=>'\*'
-quote@{:@sh,re,/,+@:}@=>+
-quote@{:@sh,re,/,.@:}@=>\.
-quote@{:@sh,re,/,;@:}@=>';'
-quote@{:@sh,re,/,<@:}@=>'<'
-quote@{:@sh,re,/,>@:}@=>'>'
-quote@{:@sh,re,/,?@:}@=>'?'
-quote@{:@sh,re,/,@<:@@:}@=>'\@<:@'
-quote@{:@sh,re,/,\@:}@=>'\\'
-quote@{:@sh,re,/,@:>@@:}@=>'\@:>@'
-quote@{:@sh,re,/,^@:}@=>\^
-quote@{:@sh,re,/,`@:}@=>'`'
-quote@{:@sh,re,/,{@:}@=>'{'
-quote@{:@sh,re,/,|@:}@=>'|'
-quote@{:@sh,re,/,}@:}@=>'}'
-quote@{:@sh,re,/,~@:}@=>'~'
-quote@{:@sh,re,/,em^bed$ded@:}@=>'em^bed$ded'
-quote@{:@sh,re,/,embed<NL>ded@:}@=>'embed\<NL>ded'
-quote@{:@sh,ere,@:}@=>''
-quote@{:@sh,ere,<NL>@:}@=>'\<NL>'
-quote@{:@sh,ere,<HT>@:}@=>'<HT>'
-quote@{:@sh,ere,<CR>@:}@=>'<CR>'
-quote@{:@sh,ere,<SP>@:}@=>'<SP>'
-quote@{:@sh,ere,!@:}@=>'!'
-quote@{:@sh,ere,"@:}@=>'"'
-quote@{:@sh,ere,#@:}@=>'#'
-quote@{:@sh,ere,$@:}@=>'\$'
-quote@{:@sh,ere,&@:}@=>'&'
-quote@{:@sh,ere,'@:}@=>''\\'''
-quote@{:@sh,ere,@{:@@:}@=>'\@{:@'
-quote@{:@sh,ere,@:}@@:}@=>'\@:}@'
-quote@{:@sh,ere,*@:}@=>'\*'
-quote@{:@sh,ere,+@:}@=>\+
-quote@{:@sh,ere,.@:}@=>\.
-quote@{:@sh,ere,;@:}@=>';'
-quote@{:@sh,ere,<@:}@=>'<'
-quote@{:@sh,ere,>@:}@=>'>'
-quote@{:@sh,ere,?@:}@=>'\?'
-quote@{:@sh,ere,@<:@@:}@=>'\@<:@'
-quote@{:@sh,ere,\@:}@=>'\\'
-quote@{:@sh,ere,@:>@@:}@=>'\@:>@'
-quote@{:@sh,ere,^@:}@=>\^
-quote@{:@sh,ere,`@:}@=>'`'
-quote@{:@sh,ere,{@:}@=>'\{'
-quote@{:@sh,ere,|@:}@=>'\|'
-quote@{:@sh,ere,}@:}@=>'\}'
-quote@{:@sh,ere,~@:}@=>'~'
-quote@{:@sh,ere,em^bed$ded@:}@=>'em\^bed\$ded'
-quote@{:@sh,ere,embed<NL>ded@:}@=>'embed\<NL>ded'
-quote@{:@sh,ere,/,@:}@=>''
-quote@{:@sh,ere,/,<NL>@:}@=>'\<NL>'
-quote@{:@sh,ere,/,<HT>@:}@=>'<HT>'
-quote@{:@sh,ere,/,<CR>@:}@=>'<CR>'
-quote@{:@sh,ere,/,<SP>@:}@=>'<SP>'
-quote@{:@sh,ere,/,!@:}@=>'!'
-quote@{:@sh,ere,/,"@:}@=>'"'
-quote@{:@sh,ere,/,#@:}@=>'#'
-quote@{:@sh,ere,/,$@:}@=>'\$'
-quote@{:@sh,ere,/,&@:}@=>'&'
-quote@{:@sh,ere,/,'@:}@=>''\\'''
-quote@{:@sh,ere,/,@{:@@:}@=>'\@{:@'
-quote@{:@sh,ere,/,@:}@@:}@=>'\@:}@'
-quote@{:@sh,ere,/,*@:}@=>'\*'
-quote@{:@sh,ere,/,+@:}@=>\+
-quote@{:@sh,ere,/,.@:}@=>\.
-quote@{:@sh,ere,/,;@:}@=>';'
-quote@{:@sh,ere,/,<@:}@=>'<'
-quote@{:@sh,ere,/,>@:}@=>'>'
-quote@{:@sh,ere,/,?@:}@=>'\?'
-quote@{:@sh,ere,/,@<:@@:}@=>'\@<:@'
-quote@{:@sh,ere,/,\@:}@=>'\\'
-quote@{:@sh,ere,/,@:>@@:}@=>'\@:>@'
-quote@{:@sh,ere,/,^@:}@=>\^
-quote@{:@sh,ere,/,`@:}@=>'`'
-quote@{:@sh,ere,/,{@:}@=>'\{'
-quote@{:@sh,ere,/,|@:}@=>'\|'
-quote@{:@sh,ere,/,}@:}@=>'\}'
-quote@{:@sh,ere,/,~@:}@=>'~'
-quote@{:@sh,ere,/,em^bed$ded@:}@=>'em\^bed\$ded'
-quote@{:@sh,ere,/,embed<NL>ded@:}@=>'embed\<NL>ded'
-quote@{:@sh,rs,@:}@=>''
-quote@{:@sh,rs,<NL>@:}@=>'\<NL>'
-quote@{:@sh,rs,<HT>@:}@=>'<HT>'
-quote@{:@sh,rs,<CR>@:}@=>'<CR>'
-quote@{:@sh,rs,<SP>@:}@=>'<SP>'
-quote@{:@sh,rs,!@:}@=>'!'
-quote@{:@sh,rs,"@:}@=>'"'
-quote@{:@sh,rs,#@:}@=>'#'
-quote@{:@sh,rs,$@:}@=>'$'
-quote@{:@sh,rs,&@:}@=>'\&'
-quote@{:@sh,rs,'@:}@=>''\\'''
-quote@{:@sh,rs,@{:@@:}@=>'@{:@'
-quote@{:@sh,rs,@:}@@:}@=>'@:}@'
-quote@{:@sh,rs,*@:}@=>'*'
-quote@{:@sh,rs,+@:}@=>+
-quote@{:@sh,rs,.@:}@=>.
-quote@{:@sh,rs,;@:}@=>';'
-quote@{:@sh,rs,<@:}@=>'<'
-quote@{:@sh,rs,>@:}@=>'>'
-quote@{:@sh,rs,?@:}@=>'?'
-quote@{:@sh,rs,@<:@@:}@=>'@<:@'
-quote@{:@sh,rs,\@:}@=>'\\'
-quote@{:@sh,rs,@:>@@:}@=>'@:>@'
-quote@{:@sh,rs,^@:}@=>^
-quote@{:@sh,rs,`@:}@=>'`'
-quote@{:@sh,rs,{@:}@=>'{'
-quote@{:@sh,rs,|@:}@=>'|'
-quote@{:@sh,rs,}@:}@=>'}'
-quote@{:@sh,rs,~@:}@=>'~'
-quote@{:@sh,rs,em^bed$ded@:}@=>'em^bed$ded'
-quote@{:@sh,rs,embed<NL>ded@:}@=>'embed\<NL>ded'
-quote@{:@sh,rs,/,@:}@=>''
-quote@{:@sh,rs,/,<NL>@:}@=>'\<NL>'
-quote@{:@sh,rs,/,<HT>@:}@=>'<HT>'
-quote@{:@sh,rs,/,<CR>@:}@=>'<CR>'
-quote@{:@sh,rs,/,<SP>@:}@=>'<SP>'
-quote@{:@sh,rs,/,!@:}@=>'!'
-quote@{:@sh,rs,/,"@:}@=>'"'
-quote@{:@sh,rs,/,#@:}@=>'#'
-quote@{:@sh,rs,/,$@:}@=>'$'
-quote@{:@sh,rs,/,&@:}@=>'\&'
-quote@{:@sh,rs,/,'@:}@=>''\\'''
-quote@{:@sh,rs,/,@{:@@:}@=>'@{:@'
-quote@{:@sh,rs,/,@:}@@:}@=>'@:}@'
-quote@{:@sh,rs,/,*@:}@=>'*'
-quote@{:@sh,rs,/,+@:}@=>+
-quote@{:@sh,rs,/,.@:}@=>.
-quote@{:@sh,rs,/,;@:}@=>';'
-quote@{:@sh,rs,/,<@:}@=>'<'
-quote@{:@sh,rs,/,>@:}@=>'>'
-quote@{:@sh,rs,/,?@:}@=>'?'
-quote@{:@sh,rs,/,@<:@@:}@=>'@<:@'
-quote@{:@sh,rs,/,\@:}@=>'\\'
-quote@{:@sh,rs,/,@:>@@:}@=>'@:>@'
-quote@{:@sh,rs,/,^@:}@=>^
-quote@{:@sh,rs,/,`@:}@=>'`'
-quote@{:@sh,rs,/,{@:}@=>'{'
-quote@{:@sh,rs,/,|@:}@=>'|'
-quote@{:@sh,rs,/,}@:}@=>'}'
-quote@{:@sh,rs,/,~@:}@=>'~'
-quote@{:@sh,rs,/,em^bed$ded@:}@=>'em^bed$ded'
-quote@{:@sh,rs,/,embed<NL>ded@:}@=>'embed\<NL>ded'
-quote@{:@re,sh,@:}@=>''
-quote@{:@re,sh,<NL>@:}@=>'\<NL>'
-quote@{:@re,sh,<HT>@:}@=>'<HT>'
-quote@{:@re,sh,<CR>@:}@=>'<CR>'
-quote@{:@re,sh,<SP>@:}@=>'<SP>'
-quote@{:@re,sh,!@:}@=>'!'
-quote@{:@re,sh,"@:}@=>'"'
-quote@{:@re,sh,#@:}@=>'#'
-quote@{:@re,sh,$@:}@=>'\$'
-quote@{:@re,sh,&@:}@=>'&'
-quote@{:@re,sh,'@:}@=>''\'''
-quote@{:@re,sh,@{:@@:}@=>'@{:@'
-quote@{:@re,sh,@:}@@:}@=>'@:}@'
-quote@{:@re,sh,*@:}@=>'\*'
-quote@{:@re,sh,+@:}@=>+
-quote@{:@re,sh,.@:}@=>'\.'
-quote@{:@re,sh,;@:}@=>';'
-quote@{:@re,sh,<@:}@=>'<'
-quote@{:@re,sh,>@:}@=>'>'
-quote@{:@re,sh,?@:}@=>'?'
-quote@{:@re,sh,@<:@@:}@=>'\@<:@'
-quote@{:@re,sh,\@:}@=>'\\'
-quote@{:@re,sh,@:>@@:}@=>'\@:>@'
-quote@{:@re,sh,^@:}@=>'\^'
-quote@{:@re,sh,`@:}@=>'`'
-quote@{:@re,sh,{@:}@=>'{'
-quote@{:@re,sh,|@:}@=>'|'
-quote@{:@re,sh,}@:}@=>'}'
-quote@{:@re,sh,~@:}@=>'~'
-quote@{:@re,sh,em^bed$ded@:}@=>'em^bed$ded'
-quote@{:@re,sh,embed<NL>ded@:}@=>'embed\<NL>ded'
-quote@{:@re,re,@:}@=>
-quote@{:@re,re,<NL>@:}@=>\\\
-quote@{:@re,re,<HT>@:}@=><HT>
-quote@{:@re,re,<CR>@:}@=><CR>
-quote@{:@re,re,<SP>@:}@=><SP>
-quote@{:@re,re,!@:}@=>!
-quote@{:@re,re,"@:}@=>"
-quote@{:@re,re,#@:}@=>#
-quote@{:@re,re,$@:}@=>\\\$
-quote@{:@re,re,&@:}@=>&
-quote@{:@re,re,'@:}@=>'
-quote@{:@re,re,@{:@@:}@=>@{:@
-quote@{:@re,re,@:}@@:}@=>@:}@
-quote@{:@re,re,*@:}@=>\\\*
-quote@{:@re,re,+@:}@=>+
-quote@{:@re,re,.@:}@=>\\\.
-quote@{:@re,re,;@:}@=>;
-quote@{:@re,re,<@:}@=><
-quote@{:@re,re,>@:}@=>>
-quote@{:@re,re,?@:}@=>?
-quote@{:@re,re,@<:@@:}@=>\\\@<:@
-quote@{:@re,re,\@:}@=>\\\\
-quote@{:@re,re,@:>@@:}@=>\\\@:>@
-quote@{:@re,re,^@:}@=>\\^
-quote@{:@re,re,`@:}@=>`
-quote@{:@re,re,{@:}@=>{
-quote@{:@re,re,|@:}@=>|
-quote@{:@re,re,}@:}@=>}
-quote@{:@re,re,~@:}@=>~
-quote@{:@re,re,em^bed$ded@:}@=>em^bed$ded
-quote@{:@re,re,embed<NL>ded@:}@=>embed\\\<NL>ded
-quote@{:@re,re,/,@:}@=>
-quote@{:@re,re,/,<NL>@:}@=>\\\
-quote@{:@re,re,/,<HT>@:}@=><HT>
-quote@{:@re,re,/,<CR>@:}@=><CR>
-quote@{:@re,re,/,<SP>@:}@=><SP>
-quote@{:@re,re,/,!@:}@=>!
-quote@{:@re,re,/,"@:}@=>"
-quote@{:@re,re,/,#@:}@=>#
-quote@{:@re,re,/,$@:}@=>\\\$
-quote@{:@re,re,/,&@:}@=>&
-quote@{:@re,re,/,'@:}@=>'
-quote@{:@re,re,/,@{:@@:}@=>@{:@
-quote@{:@re,re,/,@:}@@:}@=>@:}@
-quote@{:@re,re,/,*@:}@=>\\\*
-quote@{:@re,re,/,+@:}@=>+
-quote@{:@re,re,/,.@:}@=>\\\.
-quote@{:@re,re,/,;@:}@=>;
-quote@{:@re,re,/,<@:}@=><
-quote@{:@re,re,/,>@:}@=>>
-quote@{:@re,re,/,?@:}@=>?
-quote@{:@re,re,/,@<:@@:}@=>\\\@<:@
-quote@{:@re,re,/,\@:}@=>\\\\
-quote@{:@re,re,/,@:>@@:}@=>\\\@:>@
-quote@{:@re,re,/,^@:}@=>\\^
-quote@{:@re,re,/,`@:}@=>`
-quote@{:@re,re,/,{@:}@=>{
-quote@{:@re,re,/,|@:}@=>|
-quote@{:@re,re,/,}@:}@=>}
-quote@{:@re,re,/,~@:}@=>~
-quote@{:@re,re,/,em^bed$ded@:}@=>em^bed$ded
-quote@{:@re,re,/,embed<NL>ded@:}@=>embed\\\<NL>ded
-quote@{:@re,ere,@:}@=>
-quote@{:@re,ere,<NL>@:}@=>\\\
-quote@{:@re,ere,<HT>@:}@=><HT>
-quote@{:@re,ere,<CR>@:}@=><CR>
-quote@{:@re,ere,<SP>@:}@=><SP>
-quote@{:@re,ere,!@:}@=>!
-quote@{:@re,ere,"@:}@=>"
-quote@{:@re,ere,#@:}@=>#
-quote@{:@re,ere,$@:}@=>\\\$
-quote@{:@re,ere,&@:}@=>&
-quote@{:@re,ere,'@:}@=>'
-quote@{:@re,ere,@{:@@:}@=>\@{:@
-quote@{:@re,ere,@:}@@:}@=>\@:}@
-quote@{:@re,ere,*@:}@=>\\\*
-quote@{:@re,ere,+@:}@=>\+
-quote@{:@re,ere,.@:}@=>\\\.
-quote@{:@re,ere,;@:}@=>;
-quote@{:@re,ere,<@:}@=><
-quote@{:@re,ere,>@:}@=>>
-quote@{:@re,ere,?@:}@=>\?
-quote@{:@re,ere,@<:@@:}@=>\\\@<:@
-quote@{:@re,ere,\@:}@=>\\\\
-quote@{:@re,ere,@:>@@:}@=>\\\@:>@
-quote@{:@re,ere,^@:}@=>\\\^
-quote@{:@re,ere,`@:}@=>`
-quote@{:@re,ere,{@:}@=>\{
-quote@{:@re,ere,|@:}@=>\|
-quote@{:@re,ere,}@:}@=>\}
-quote@{:@re,ere,~@:}@=>~
-quote@{:@re,ere,em^bed$ded@:}@=>em\^bed\$ded
-quote@{:@re,ere,embed<NL>ded@:}@=>embed\\\<NL>ded
-quote@{:@re,ere,/,@:}@=>
-quote@{:@re,ere,/,<NL>@:}@=>\\\
-quote@{:@re,ere,/,<HT>@:}@=><HT>
-quote@{:@re,ere,/,<CR>@:}@=><CR>
-quote@{:@re,ere,/,<SP>@:}@=><SP>
-quote@{:@re,ere,/,!@:}@=>!
-quote@{:@re,ere,/,"@:}@=>"
-quote@{:@re,ere,/,#@:}@=>#
-quote@{:@re,ere,/,$@:}@=>\\\$
-quote@{:@re,ere,/,&@:}@=>&
-quote@{:@re,ere,/,'@:}@=>'
-quote@{:@re,ere,/,@{:@@:}@=>\@{:@
-quote@{:@re,ere,/,@:}@@:}@=>\@:}@
-quote@{:@re,ere,/,*@:}@=>\\\*
-quote@{:@re,ere,/,+@:}@=>\+
-quote@{:@re,ere,/,.@:}@=>\\\.
-quote@{:@re,ere,/,;@:}@=>;
-quote@{:@re,ere,/,<@:}@=><
-quote@{:@re,ere,/,>@:}@=>>
-quote@{:@re,ere,/,?@:}@=>\?
-quote@{:@re,ere,/,@<:@@:}@=>\\\@<:@
-quote@{:@re,ere,/,\@:}@=>\\\\
-quote@{:@re,ere,/,@:>@@:}@=>\\\@:>@
-quote@{:@re,ere,/,^@:}@=>\\\^
-quote@{:@re,ere,/,`@:}@=>`
-quote@{:@re,ere,/,{@:}@=>\{
-quote@{:@re,ere,/,|@:}@=>\|
-quote@{:@re,ere,/,}@:}@=>\}
-quote@{:@re,ere,/,~@:}@=>~
-quote@{:@re,ere,/,em^bed$ded@:}@=>em\^bed\$ded
-quote@{:@re,ere,/,embed<NL>ded@:}@=>embed\\\<NL>ded
-quote@{:@re,rs,@:}@=>
-quote@{:@re,rs,<NL>@:}@=>\\\
-quote@{:@re,rs,<HT>@:}@=><HT>
-quote@{:@re,rs,<CR>@:}@=><CR>
-quote@{:@re,rs,<SP>@:}@=><SP>
-quote@{:@re,rs,!@:}@=>!
-quote@{:@re,rs,"@:}@=>"
-quote@{:@re,rs,#@:}@=>#
-quote@{:@re,rs,$@:}@=>\\$
-quote@{:@re,rs,&@:}@=>\&
-quote@{:@re,rs,'@:}@=>'
-quote@{:@re,rs,@{:@@:}@=>@{:@
-quote@{:@re,rs,@:}@@:}@=>@:}@
-quote@{:@re,rs,*@:}@=>\\*
-quote@{:@re,rs,+@:}@=>+
-quote@{:@re,rs,.@:}@=>\\.
-quote@{:@re,rs,;@:}@=>;
-quote@{:@re,rs,<@:}@=><
-quote@{:@re,rs,>@:}@=>>
-quote@{:@re,rs,?@:}@=>?
-quote@{:@re,rs,@<:@@:}@=>\\@<:@
-quote@{:@re,rs,\@:}@=>\\\\
-quote@{:@re,rs,@:>@@:}@=>\\@:>@
-quote@{:@re,rs,^@:}@=>\\^
-quote@{:@re,rs,`@:}@=>`
-quote@{:@re,rs,{@:}@=>{
-quote@{:@re,rs,|@:}@=>|
-quote@{:@re,rs,}@:}@=>}
-quote@{:@re,rs,~@:}@=>~
-quote@{:@re,rs,em^bed$ded@:}@=>em^bed$ded
-quote@{:@re,rs,embed<NL>ded@:}@=>embed\\\<NL>ded
-quote@{:@re,rs,/,@:}@=>
-quote@{:@re,rs,/,<NL>@:}@=>\\\
-quote@{:@re,rs,/,<HT>@:}@=><HT>
-quote@{:@re,rs,/,<CR>@:}@=><CR>
-quote@{:@re,rs,/,<SP>@:}@=><SP>
-quote@{:@re,rs,/,!@:}@=>!
-quote@{:@re,rs,/,"@:}@=>"
-quote@{:@re,rs,/,#@:}@=>#
-quote@{:@re,rs,/,$@:}@=>\\$
-quote@{:@re,rs,/,&@:}@=>\&
-quote@{:@re,rs,/,'@:}@=>'
-quote@{:@re,rs,/,@{:@@:}@=>@{:@
-quote@{:@re,rs,/,@:}@@:}@=>@:}@
-quote@{:@re,rs,/,*@:}@=>\\*
-quote@{:@re,rs,/,+@:}@=>+
-quote@{:@re,rs,/,.@:}@=>\\.
-quote@{:@re,rs,/,;@:}@=>;
-quote@{:@re,rs,/,<@:}@=><
-quote@{:@re,rs,/,>@:}@=>>
-quote@{:@re,rs,/,?@:}@=>?
-quote@{:@re,rs,/,@<:@@:}@=>\\@<:@
-quote@{:@re,rs,/,\@:}@=>\\\\
-quote@{:@re,rs,/,@:>@@:}@=>\\@:>@
-quote@{:@re,rs,/,^@:}@=>\\^
-quote@{:@re,rs,/,`@:}@=>`
-quote@{:@re,rs,/,{@:}@=>{
-quote@{:@re,rs,/,|@:}@=>|
-quote@{:@re,rs,/,}@:}@=>}
-quote@{:@re,rs,/,~@:}@=>~
-quote@{:@re,rs,/,em^bed$ded@:}@=>em^bed$ded
-quote@{:@re,rs,/,embed<NL>ded@:}@=>embed\\\<NL>ded
-quote@{:@ere,sh,@:}@=>''
-quote@{:@ere,sh,<NL>@:}@=>'\<NL>'
-quote@{:@ere,sh,<HT>@:}@=>'<HT>'
-quote@{:@ere,sh,<CR>@:}@=>'<CR>'
-quote@{:@ere,sh,<SP>@:}@=>'<SP>'
-quote@{:@ere,sh,!@:}@=>'!'
-quote@{:@ere,sh,"@:}@=>'"'
-quote@{:@ere,sh,#@:}@=>'#'
-quote@{:@ere,sh,$@:}@=>'\$'
-quote@{:@ere,sh,&@:}@=>'&'
-quote@{:@ere,sh,'@:}@=>''\'''
-quote@{:@ere,sh,@{:@@:}@=>'\@{:@'
-quote@{:@ere,sh,@:}@@:}@=>'\@:}@'
-quote@{:@ere,sh,*@:}@=>'\*'
-quote@{:@ere,sh,+@:}@=>'\+'
-quote@{:@ere,sh,.@:}@=>'\.'
-quote@{:@ere,sh,;@:}@=>';'
-quote@{:@ere,sh,<@:}@=>'<'
-quote@{:@ere,sh,>@:}@=>'>'
-quote@{:@ere,sh,?@:}@=>'\?'
-quote@{:@ere,sh,@<:@@:}@=>'\@<:@'
-quote@{:@ere,sh,\@:}@=>'\\'
-quote@{:@ere,sh,@:>@@:}@=>'\@:>@'
-quote@{:@ere,sh,^@:}@=>'\^'
-quote@{:@ere,sh,`@:}@=>'`'
-quote@{:@ere,sh,{@:}@=>'\{'
-quote@{:@ere,sh,|@:}@=>'\|'
-quote@{:@ere,sh,}@:}@=>'\}'
-quote@{:@ere,sh,~@:}@=>'~'
-quote@{:@ere,sh,em^bed$ded@:}@=>'em\^bed\$ded'
-quote@{:@ere,sh,embed<NL>ded@:}@=>'embed\<NL>ded'
-quote@{:@ere,re,@:}@=>
-quote@{:@ere,re,<NL>@:}@=>\\\
-quote@{:@ere,re,<HT>@:}@=><HT>
-quote@{:@ere,re,<CR>@:}@=><CR>
-quote@{:@ere,re,<SP>@:}@=><SP>
-quote@{:@ere,re,!@:}@=>!
-quote@{:@ere,re,"@:}@=>"
-quote@{:@ere,re,#@:}@=>#
-quote@{:@ere,re,$@:}@=>\\\$
-quote@{:@ere,re,&@:}@=>&
-quote@{:@ere,re,'@:}@=>'
-quote@{:@ere,re,@{:@@:}@=>\\@{:@
-quote@{:@ere,re,@:}@@:}@=>\\@:}@
-quote@{:@ere,re,*@:}@=>\\\*
-quote@{:@ere,re,+@:}@=>\\+
-quote@{:@ere,re,.@:}@=>\\\.
-quote@{:@ere,re,;@:}@=>;
-quote@{:@ere,re,<@:}@=><
-quote@{:@ere,re,>@:}@=>>
-quote@{:@ere,re,?@:}@=>\\?
-quote@{:@ere,re,@<:@@:}@=>\\\@<:@
-quote@{:@ere,re,\@:}@=>\\\\
-quote@{:@ere,re,@:>@@:}@=>\\\@:>@
-quote@{:@ere,re,^@:}@=>\\^
-quote@{:@ere,re,`@:}@=>`
-quote@{:@ere,re,{@:}@=>\\{
-quote@{:@ere,re,|@:}@=>\\|
-quote@{:@ere,re,}@:}@=>\\}
-quote@{:@ere,re,~@:}@=>~
-quote@{:@ere,re,em^bed$ded@:}@=>em\\^bed\\$ded
-quote@{:@ere,re,embed<NL>ded@:}@=>embed\\\<NL>ded
-quote@{:@ere,re,/,@:}@=>
-quote@{:@ere,re,/,<NL>@:}@=>\\\
-quote@{:@ere,re,/,<HT>@:}@=><HT>
-quote@{:@ere,re,/,<CR>@:}@=><CR>
-quote@{:@ere,re,/,<SP>@:}@=><SP>
-quote@{:@ere,re,/,!@:}@=>!
-quote@{:@ere,re,/,"@:}@=>"
-quote@{:@ere,re,/,#@:}@=>#
-quote@{:@ere,re,/,$@:}@=>\\\$
-quote@{:@ere,re,/,&@:}@=>&
-quote@{:@ere,re,/,'@:}@=>'
-quote@{:@ere,re,/,@{:@@:}@=>\\@{:@
-quote@{:@ere,re,/,@:}@@:}@=>\\@:}@
-quote@{:@ere,re,/,*@:}@=>\\\*
-quote@{:@ere,re,/,+@:}@=>\\+
-quote@{:@ere,re,/,.@:}@=>\\\.
-quote@{:@ere,re,/,;@:}@=>;
-quote@{:@ere,re,/,<@:}@=><
-quote@{:@ere,re,/,>@:}@=>>
-quote@{:@ere,re,/,?@:}@=>\\?
-quote@{:@ere,re,/,@<:@@:}@=>\\\@<:@
-quote@{:@ere,re,/,\@:}@=>\\\\
-quote@{:@ere,re,/,@:>@@:}@=>\\\@:>@
-quote@{:@ere,re,/,^@:}@=>\\^
-quote@{:@ere,re,/,`@:}@=>`
-quote@{:@ere,re,/,{@:}@=>\\{
-quote@{:@ere,re,/,|@:}@=>\\|
-quote@{:@ere,re,/,}@:}@=>\\}
-quote@{:@ere,re,/,~@:}@=>~
-quote@{:@ere,re,/,em^bed$ded@:}@=>em\\^bed\\$ded
-quote@{:@ere,re,/,embed<NL>ded@:}@=>embed\\\<NL>ded
-quote@{:@ere,ere,@:}@=>
-quote@{:@ere,ere,<NL>@:}@=>\\\
-quote@{:@ere,ere,<HT>@:}@=><HT>
-quote@{:@ere,ere,<CR>@:}@=><CR>
-quote@{:@ere,ere,<SP>@:}@=><SP>
-quote@{:@ere,ere,!@:}@=>!
-quote@{:@ere,ere,"@:}@=>"
-quote@{:@ere,ere,#@:}@=>#
-quote@{:@ere,ere,$@:}@=>\\\$
-quote@{:@ere,ere,&@:}@=>&
-quote@{:@ere,ere,'@:}@=>'
-quote@{:@ere,ere,@{:@@:}@=>\\\@{:@
-quote@{:@ere,ere,@:}@@:}@=>\\\@:}@
-quote@{:@ere,ere,*@:}@=>\\\*
-quote@{:@ere,ere,+@:}@=>\\\+
-quote@{:@ere,ere,.@:}@=>\\\.
-quote@{:@ere,ere,;@:}@=>;
-quote@{:@ere,ere,<@:}@=><
-quote@{:@ere,ere,>@:}@=>>
-quote@{:@ere,ere,?@:}@=>\\\?
-quote@{:@ere,ere,@<:@@:}@=>\\\@<:@
-quote@{:@ere,ere,\@:}@=>\\\\
-quote@{:@ere,ere,@:>@@:}@=>\\\@:>@
-quote@{:@ere,ere,^@:}@=>\\\^
-quote@{:@ere,ere,`@:}@=>`
-quote@{:@ere,ere,{@:}@=>\\\{
-quote@{:@ere,ere,|@:}@=>\\\|
-quote@{:@ere,ere,}@:}@=>\\\}
-quote@{:@ere,ere,~@:}@=>~
-quote@{:@ere,ere,em^bed$ded@:}@=>em\\\^bed\\\$ded
-quote@{:@ere,ere,embed<NL>ded@:}@=>embed\\\<NL>ded
-quote@{:@ere,ere,/,@:}@=>
-quote@{:@ere,ere,/,<NL>@:}@=>\\\
-quote@{:@ere,ere,/,<HT>@:}@=><HT>
-quote@{:@ere,ere,/,<CR>@:}@=><CR>
-quote@{:@ere,ere,/,<SP>@:}@=><SP>
-quote@{:@ere,ere,/,!@:}@=>!
-quote@{:@ere,ere,/,"@:}@=>"
-quote@{:@ere,ere,/,#@:}@=>#
-quote@{:@ere,ere,/,$@:}@=>\\\$
-quote@{:@ere,ere,/,&@:}@=>&
-quote@{:@ere,ere,/,'@:}@=>'
-quote@{:@ere,ere,/,@{:@@:}@=>\\\@{:@
-quote@{:@ere,ere,/,@:}@@:}@=>\\\@:}@
-quote@{:@ere,ere,/,*@:}@=>\\\*
-quote@{:@ere,ere,/,+@:}@=>\\\+
-quote@{:@ere,ere,/,.@:}@=>\\\.
-quote@{:@ere,ere,/,;@:}@=>;
-quote@{:@ere,ere,/,<@:}@=><
-quote@{:@ere,ere,/,>@:}@=>>
-quote@{:@ere,ere,/,?@:}@=>\\\?
-quote@{:@ere,ere,/,@<:@@:}@=>\\\@<:@
-quote@{:@ere,ere,/,\@:}@=>\\\\
-quote@{:@ere,ere,/,@:>@@:}@=>\\\@:>@
-quote@{:@ere,ere,/,^@:}@=>\\\^
-quote@{:@ere,ere,/,`@:}@=>`
-quote@{:@ere,ere,/,{@:}@=>\\\{
-quote@{:@ere,ere,/,|@:}@=>\\\|
-quote@{:@ere,ere,/,}@:}@=>\\\}
-quote@{:@ere,ere,/,~@:}@=>~
-quote@{:@ere,ere,/,em^bed$ded@:}@=>em\\\^bed\\\$ded
-quote@{:@ere,ere,/,embed<NL>ded@:}@=>embed\\\<NL>ded
-quote@{:@ere,rs,@:}@=>
-quote@{:@ere,rs,<NL>@:}@=>\\\
-quote@{:@ere,rs,<HT>@:}@=><HT>
-quote@{:@ere,rs,<CR>@:}@=><CR>
-quote@{:@ere,rs,<SP>@:}@=><SP>
-quote@{:@ere,rs,!@:}@=>!
-quote@{:@ere,rs,"@:}@=>"
-quote@{:@ere,rs,#@:}@=>#
-quote@{:@ere,rs,$@:}@=>\\$
-quote@{:@ere,rs,&@:}@=>\&
-quote@{:@ere,rs,'@:}@=>'
-quote@{:@ere,rs,@{:@@:}@=>\\@{:@
-quote@{:@ere,rs,@:}@@:}@=>\\@:}@
-quote@{:@ere,rs,*@:}@=>\\*
-quote@{:@ere,rs,+@:}@=>\\+
-quote@{:@ere,rs,.@:}@=>\\.
-quote@{:@ere,rs,;@:}@=>;
-quote@{:@ere,rs,<@:}@=><
-quote@{:@ere,rs,>@:}@=>>
-quote@{:@ere,rs,?@:}@=>\\?
-quote@{:@ere,rs,@<:@@:}@=>\\@<:@
-quote@{:@ere,rs,\@:}@=>\\\\
-quote@{:@ere,rs,@:>@@:}@=>\\@:>@
-quote@{:@ere,rs,^@:}@=>\\^
-quote@{:@ere,rs,`@:}@=>`
-quote@{:@ere,rs,{@:}@=>\\{
-quote@{:@ere,rs,|@:}@=>\\|
-quote@{:@ere,rs,}@:}@=>\\}
-quote@{:@ere,rs,~@:}@=>~
-quote@{:@ere,rs,em^bed$ded@:}@=>em\\^bed\\$ded
-quote@{:@ere,rs,embed<NL>ded@:}@=>embed\\\<NL>ded
-quote@{:@ere,rs,/,@:}@=>
-quote@{:@ere,rs,/,<NL>@:}@=>\\\
-quote@{:@ere,rs,/,<HT>@:}@=><HT>
-quote@{:@ere,rs,/,<CR>@:}@=><CR>
-quote@{:@ere,rs,/,<SP>@:}@=><SP>
-quote@{:@ere,rs,/,!@:}@=>!
-quote@{:@ere,rs,/,"@:}@=>"
-quote@{:@ere,rs,/,#@:}@=>#
-quote@{:@ere,rs,/,$@:}@=>\\$
-quote@{:@ere,rs,/,&@:}@=>\&
-quote@{:@ere,rs,/,'@:}@=>'
-quote@{:@ere,rs,/,@{:@@:}@=>\\@{:@
-quote@{:@ere,rs,/,@:}@@:}@=>\\@:}@
-quote@{:@ere,rs,/,*@:}@=>\\*
-quote@{:@ere,rs,/,+@:}@=>\\+
-quote@{:@ere,rs,/,.@:}@=>\\.
-quote@{:@ere,rs,/,;@:}@=>;
-quote@{:@ere,rs,/,<@:}@=><
-quote@{:@ere,rs,/,>@:}@=>>
-quote@{:@ere,rs,/,?@:}@=>\\?
-quote@{:@ere,rs,/,@<:@@:}@=>\\@<:@
-quote@{:@ere,rs,/,\@:}@=>\\\\
-quote@{:@ere,rs,/,@:>@@:}@=>\\@:>@
-quote@{:@ere,rs,/,^@:}@=>\\^
-quote@{:@ere,rs,/,`@:}@=>`
-quote@{:@ere,rs,/,{@:}@=>\\{
-quote@{:@ere,rs,/,|@:}@=>\\|
-quote@{:@ere,rs,/,}@:}@=>\\}
-quote@{:@ere,rs,/,~@:}@=>~
-quote@{:@ere,rs,/,em^bed$ded@:}@=>em\\^bed\\$ded
-quote@{:@ere,rs,/,embed<NL>ded@:}@=>embed\\\<NL>ded
-quote@{:@rs,sh,@:}@=>''
-quote@{:@rs,sh,<NL>@:}@=>'\<NL>'
-quote@{:@rs,sh,<HT>@:}@=>'<HT>'
-quote@{:@rs,sh,<CR>@:}@=>'<CR>'
-quote@{:@rs,sh,<SP>@:}@=>'<SP>'
-quote@{:@rs,sh,!@:}@=>'!'
-quote@{:@rs,sh,"@:}@=>'"'
-quote@{:@rs,sh,#@:}@=>'#'
-quote@{:@rs,sh,$@:}@=>'$'
-quote@{:@rs,sh,&@:}@=>'\&'
-quote@{:@rs,sh,'@:}@=>''\'''
-quote@{:@rs,sh,@{:@@:}@=>'@{:@'
-quote@{:@rs,sh,@:}@@:}@=>'@:}@'
-quote@{:@rs,sh,*@:}@=>'*'
-quote@{:@rs,sh,+@:}@=>+
-quote@{:@rs,sh,.@:}@=>.
-quote@{:@rs,sh,;@:}@=>';'
-quote@{:@rs,sh,<@:}@=>'<'
-quote@{:@rs,sh,>@:}@=>'>'
-quote@{:@rs,sh,?@:}@=>'?'
-quote@{:@rs,sh,@<:@@:}@=>'@<:@'
-quote@{:@rs,sh,\@:}@=>'\\'
-quote@{:@rs,sh,@:>@@:}@=>'@:>@'
-quote@{:@rs,sh,^@:}@=>^
-quote@{:@rs,sh,`@:}@=>'`'
-quote@{:@rs,sh,{@:}@=>'{'
-quote@{:@rs,sh,|@:}@=>'|'
-quote@{:@rs,sh,}@:}@=>'}'
-quote@{:@rs,sh,~@:}@=>'~'
-quote@{:@rs,sh,/@:}@=>/
-quote@{:@rs,sh,em^bed$ded@:}@=>'em^bed$ded'
-quote@{:@rs,sh,em/bed<NL>ded@:}@=>'em/bed\<NL>ded'
-quote@{:@rs,re,@:}@=>
-quote@{:@rs,re,<NL>@:}@=>\\\
-quote@{:@rs,re,<HT>@:}@=><HT>
-quote@{:@rs,re,<CR>@:}@=><CR>
-quote@{:@rs,re,<SP>@:}@=><SP>
-quote@{:@rs,re,!@:}@=>!
-quote@{:@rs,re,"@:}@=>"
-quote@{:@rs,re,#@:}@=>#
-quote@{:@rs,re,$@:}@=>\$
-quote@{:@rs,re,&@:}@=>\\&
-quote@{:@rs,re,'@:}@=>'
-quote@{:@rs,re,@{:@@:}@=>@{:@
-quote@{:@rs,re,@:}@@:}@=>@:}@
-quote@{:@rs,re,*@:}@=>\*
-quote@{:@rs,re,+@:}@=>+
-quote@{:@rs,re,.@:}@=>\.
-quote@{:@rs,re,;@:}@=>;
-quote@{:@rs,re,<@:}@=><
-quote@{:@rs,re,>@:}@=>>
-quote@{:@rs,re,?@:}@=>?
-quote@{:@rs,re,@<:@@:}@=>\@<:@
-quote@{:@rs,re,\@:}@=>\\\\
-quote@{:@rs,re,@:>@@:}@=>\@:>@
-quote@{:@rs,re,^@:}@=>\^
-quote@{:@rs,re,`@:}@=>`
-quote@{:@rs,re,{@:}@=>{
-quote@{:@rs,re,|@:}@=>|
-quote@{:@rs,re,}@:}@=>}
-quote@{:@rs,re,~@:}@=>~
-quote@{:@rs,re,/@:}@=>/
-quote@{:@rs,re,em^bed$ded@:}@=>em^bed$ded
-quote@{:@rs,re,em/bed<NL>ded@:}@=>em/bed\\\<NL>ded
-quote@{:@rs,re,/,@:}@=>
-quote@{:@rs,re,/,<NL>@:}@=>\\\
-quote@{:@rs,re,/,<HT>@:}@=><HT>
-quote@{:@rs,re,/,<CR>@:}@=><CR>
-quote@{:@rs,re,/,<SP>@:}@=><SP>
-quote@{:@rs,re,/,!@:}@=>!
-quote@{:@rs,re,/,"@:}@=>"
-quote@{:@rs,re,/,#@:}@=>#
-quote@{:@rs,re,/,$@:}@=>\$
-quote@{:@rs,re,/,&@:}@=>\\&
-quote@{:@rs,re,/,'@:}@=>'
-quote@{:@rs,re,/,@{:@@:}@=>@{:@
-quote@{:@rs,re,/,@:}@@:}@=>@:}@
-quote@{:@rs,re,/,*@:}@=>\*
-quote@{:@rs,re,/,+@:}@=>+
-quote@{:@rs,re,/,.@:}@=>\.
-quote@{:@rs,re,/,;@:}@=>;
-quote@{:@rs,re,/,<@:}@=><
-quote@{:@rs,re,/,>@:}@=>>
-quote@{:@rs,re,/,?@:}@=>?
-quote@{:@rs,re,/,@<:@@:}@=>\@<:@
-quote@{:@rs,re,/,\@:}@=>\\\\
-quote@{:@rs,re,/,@:>@@:}@=>\@:>@
-quote@{:@rs,re,/,^@:}@=>\^
-quote@{:@rs,re,/,`@:}@=>`
-quote@{:@rs,re,/,{@:}@=>{
-quote@{:@rs,re,/,|@:}@=>|
-quote@{:@rs,re,/,}@:}@=>}
-quote@{:@rs,re,/,~@:}@=>~
-quote@{:@rs,re,/,/@:}@=>\/
-quote@{:@rs,re,/,em^bed$ded@:}@=>em^bed$ded
-quote@{:@rs,re,/,em/bed<NL>ded@:}@=>em\/bed\\\<NL>ded
-quote@{:@rs,ere,@:}@=>
-quote@{:@rs,ere,<NL>@:}@=>\\\
-quote@{:@rs,ere,<HT>@:}@=><HT>
-quote@{:@rs,ere,<CR>@:}@=><CR>
-quote@{:@rs,ere,<SP>@:}@=><SP>
-quote@{:@rs,ere,!@:}@=>!
-quote@{:@rs,ere,"@:}@=>"
-quote@{:@rs,ere,#@:}@=>#
-quote@{:@rs,ere,$@:}@=>\$
-quote@{:@rs,ere,&@:}@=>\\&
-quote@{:@rs,ere,'@:}@=>'
-quote@{:@rs,ere,@{:@@:}@=>\@{:@
-quote@{:@rs,ere,@:}@@:}@=>\@:}@
-quote@{:@rs,ere,*@:}@=>\*
-quote@{:@rs,ere,+@:}@=>\+
-quote@{:@rs,ere,.@:}@=>\.
-quote@{:@rs,ere,;@:}@=>;
-quote@{:@rs,ere,<@:}@=><
-quote@{:@rs,ere,>@:}@=>>
-quote@{:@rs,ere,?@:}@=>\?
-quote@{:@rs,ere,@<:@@:}@=>\@<:@
-quote@{:@rs,ere,\@:}@=>\\\\
-quote@{:@rs,ere,@:>@@:}@=>\@:>@
-quote@{:@rs,ere,^@:}@=>\^
-quote@{:@rs,ere,`@:}@=>`
-quote@{:@rs,ere,{@:}@=>\{
-quote@{:@rs,ere,|@:}@=>\|
-quote@{:@rs,ere,}@:}@=>\}
-quote@{:@rs,ere,~@:}@=>~
-quote@{:@rs,ere,/@:}@=>/
-quote@{:@rs,ere,em^bed$ded@:}@=>em\^bed\$ded
-quote@{:@rs,ere,em/bed<NL>ded@:}@=>em/bed\\\<NL>ded
-quote@{:@rs,ere,/,@:}@=>
-quote@{:@rs,ere,/,<NL>@:}@=>\\\
-quote@{:@rs,ere,/,<HT>@:}@=><HT>
-quote@{:@rs,ere,/,<CR>@:}@=><CR>
-quote@{:@rs,ere,/,<SP>@:}@=><SP>
-quote@{:@rs,ere,/,!@:}@=>!
-quote@{:@rs,ere,/,"@:}@=>"
-quote@{:@rs,ere,/,#@:}@=>#
-quote@{:@rs,ere,/,$@:}@=>\$
-quote@{:@rs,ere,/,&@:}@=>\\&
-quote@{:@rs,ere,/,'@:}@=>'
-quote@{:@rs,ere,/,@{:@@:}@=>\@{:@
-quote@{:@rs,ere,/,@:}@@:}@=>\@:}@
-quote@{:@rs,ere,/,*@:}@=>\*
-quote@{:@rs,ere,/,+@:}@=>\+
-quote@{:@rs,ere,/,.@:}@=>\.
-quote@{:@rs,ere,/,;@:}@=>;
-quote@{:@rs,ere,/,<@:}@=><
-quote@{:@rs,ere,/,>@:}@=>>
-quote@{:@rs,ere,/,?@:}@=>\?
-quote@{:@rs,ere,/,@<:@@:}@=>\@<:@
-quote@{:@rs,ere,/,\@:}@=>\\\\
-quote@{:@rs,ere,/,@:>@@:}@=>\@:>@
-quote@{:@rs,ere,/,^@:}@=>\^
-quote@{:@rs,ere,/,`@:}@=>`
-quote@{:@rs,ere,/,{@:}@=>\{
-quote@{:@rs,ere,/,|@:}@=>\|
-quote@{:@rs,ere,/,}@:}@=>\}
-quote@{:@rs,ere,/,~@:}@=>~
-quote@{:@rs,ere,/,/@:}@=>\/
-quote@{:@rs,ere,/,em^bed$ded@:}@=>em\^bed\$ded
-quote@{:@rs,ere,/,em/bed<NL>ded@:}@=>em\/bed\\\<NL>ded
-quote@{:@rs,rs,@:}@=>
-quote@{:@rs,rs,<NL>@:}@=>\\\
-quote@{:@rs,rs,<HT>@:}@=><HT>
-quote@{:@rs,rs,<CR>@:}@=><CR>
-quote@{:@rs,rs,<SP>@:}@=><SP>
-quote@{:@rs,rs,!@:}@=>!
-quote@{:@rs,rs,"@:}@=>"
-quote@{:@rs,rs,#@:}@=>#
-quote@{:@rs,rs,$@:}@=>$
-quote@{:@rs,rs,&@:}@=>\\\&
-quote@{:@rs,rs,'@:}@=>'
-quote@{:@rs,rs,@{:@@:}@=>@{:@
-quote@{:@rs,rs,@:}@@:}@=>@:}@
-quote@{:@rs,rs,*@:}@=>*
-quote@{:@rs,rs,+@:}@=>+
-quote@{:@rs,rs,.@:}@=>.
-quote@{:@rs,rs,;@:}@=>;
-quote@{:@rs,rs,<@:}@=><
-quote@{:@rs,rs,>@:}@=>>
-quote@{:@rs,rs,?@:}@=>?
-quote@{:@rs,rs,@<:@@:}@=>@<:@
-quote@{:@rs,rs,\@:}@=>\\\\
-quote@{:@rs,rs,@:>@@:}@=>@:>@
-quote@{:@rs,rs,^@:}@=>^
-quote@{:@rs,rs,`@:}@=>`
-quote@{:@rs,rs,{@:}@=>{
-quote@{:@rs,rs,|@:}@=>|
-quote@{:@rs,rs,}@:}@=>}
-quote@{:@rs,rs,~@:}@=>~
-quote@{:@rs,rs,/@:}@=>/
-quote@{:@rs,rs,em^bed$ded@:}@=>em^bed$ded
-quote@{:@rs,rs,em/bed<NL>ded@:}@=>em/bed\\\<NL>ded
-quote@{:@rs,rs,/,@:}@=>
-quote@{:@rs,rs,/,<NL>@:}@=>\\\
-quote@{:@rs,rs,/,<HT>@:}@=><HT>
-quote@{:@rs,rs,/,<CR>@:}@=><CR>
-quote@{:@rs,rs,/,<SP>@:}@=><SP>
-quote@{:@rs,rs,/,!@:}@=>!
-quote@{:@rs,rs,/,"@:}@=>"
-quote@{:@rs,rs,/,#@:}@=>#
-quote@{:@rs,rs,/,$@:}@=>$
-quote@{:@rs,rs,/,&@:}@=>\\\&
-quote@{:@rs,rs,/,'@:}@=>'
-quote@{:@rs,rs,/,@{:@@:}@=>@{:@
-quote@{:@rs,rs,/,@:}@@:}@=>@:}@
-quote@{:@rs,rs,/,*@:}@=>*
-quote@{:@rs,rs,/,+@:}@=>+
-quote@{:@rs,rs,/,.@:}@=>.
-quote@{:@rs,rs,/,;@:}@=>;
-quote@{:@rs,rs,/,<@:}@=><
-quote@{:@rs,rs,/,>@:}@=>>
-quote@{:@rs,rs,/,?@:}@=>?
-quote@{:@rs,rs,/,@<:@@:}@=>@<:@
-quote@{:@rs,rs,/,\@:}@=>\\\\
-quote@{:@rs,rs,/,@:>@@:}@=>@:>@
-quote@{:@rs,rs,/,^@:}@=>^
-quote@{:@rs,rs,/,`@:}@=>`
-quote@{:@rs,rs,/,{@:}@=>{
-quote@{:@rs,rs,/,|@:}@=>|
-quote@{:@rs,rs,/,}@:}@=>}
-quote@{:@rs,rs,/,~@:}@=>~
-quote@{:@rs,rs,/,/@:}@=>\/
-quote@{:@rs,rs,/,em^bed$ded@:}@=>em^bed$ded
-quote@{:@rs,rs,/,em/bed<NL>ded@:}@=>em\/bed\\\<NL>ded
+quote@{:@@<:@1@:>@@:}@=>''
+quote@{:@@<:@1@:>@<NL>@:}@=>'<NL>'
+quote@{:@@<:@1@:>@<HT>@:}@=>'<HT>'
+quote@{:@@<:@1@:>@<CR>@:}@=>'<CR>'
+quote@{:@@<:@1@:>@<SP>@:}@=>'<SP>'
+quote@{:@@<:@1@:>@!@:}@=>'!'
+quote@{:@@<:@1@:>@"@:}@=>'"'
+quote@{:@@<:@1@:>@#@:}@=>'#'
+quote@{:@@<:@1@:>@$@:}@=>'$'
+quote@{:@@<:@1@:>@&@:}@=>'&'
+quote@{:@@<:@1@:>@'@:}@=>''\'''
+quote@{:@@<:@1@:>@@{:@@:}@=>'@{:@'
+quote@{:@@<:@1@:>@@:}@@:}@=>'@:}@'
+quote@{:@@<:@1@:>@*@:}@=>'*'
+quote@{:@@<:@1@:>@+@:}@=>+
+quote@{:@@<:@1@:>@.@:}@=>.
+quote@{:@@<:@1@:>@;@:}@=>';'
+quote@{:@@<:@1@:>@<@:}@=>'<'
+quote@{:@@<:@1@:>@>@:}@=>'>'
+quote@{:@@<:@1@:>@?@:}@=>'?'
+quote@{:@@<:@1@:>@@<:@@:}@=>'@<:@'
+quote@{:@@<:@1@:>@\@:}@=>'\'
+quote@{:@@<:@1@:>@@:>@@:}@=>'@:>@'
+quote@{:@@<:@1@:>@^@:}@=>^
+quote@{:@@<:@1@:>@`@:}@=>'`'
+quote@{:@@<:@1@:>@{@:}@=>'{'
+quote@{:@@<:@1@:>@|@:}@=>'|'
+quote@{:@@<:@1@:>@}@:}@=>'}'
+quote@{:@@<:@1@:>@~@:}@=>'~'
+quote@{:@@<:@1@:>@em^bed$ded@:}@=>'em^bed$ded'
+quote@{:@@<:@1@:>@embed<NL>ded@:}@=>'embed<NL>ded'
+quote@{:@@<:@2@:>@sh,@:}@=>''
+quote@{:@@<:@2@:>@sh,<NL>@:}@=>'<NL>'
+quote@{:@@<:@2@:>@sh,<HT>@:}@=>'<HT>'
+quote@{:@@<:@2@:>@sh,<CR>@:}@=>'<CR>'
+quote@{:@@<:@2@:>@sh,<SP>@:}@=>'<SP>'
+quote@{:@@<:@2@:>@sh,!@:}@=>'!'
+quote@{:@@<:@2@:>@sh,"@:}@=>'"'
+quote@{:@@<:@2@:>@sh,#@:}@=>'#'
+quote@{:@@<:@2@:>@sh,$@:}@=>'$'
+quote@{:@@<:@2@:>@sh,&@:}@=>'&'
+quote@{:@@<:@2@:>@sh,'@:}@=>''\'''
+quote@{:@@<:@2@:>@sh,@{:@@:}@=>'@{:@'
+quote@{:@@<:@2@:>@sh,@:}@@:}@=>'@:}@'
+quote@{:@@<:@2@:>@sh,*@:}@=>'*'
+quote@{:@@<:@2@:>@sh,+@:}@=>+
+quote@{:@@<:@2@:>@sh,.@:}@=>.
+quote@{:@@<:@2@:>@sh,;@:}@=>';'
+quote@{:@@<:@2@:>@sh,<@:}@=>'<'
+quote@{:@@<:@2@:>@sh,>@:}@=>'>'
+quote@{:@@<:@2@:>@sh,?@:}@=>'?'
+quote@{:@@<:@2@:>@sh,@<:@@:}@=>'@<:@'
+quote@{:@@<:@2@:>@sh,\@:}@=>'\'
+quote@{:@@<:@2@:>@sh,@:>@@:}@=>'@:>@'
+quote@{:@@<:@2@:>@sh,^@:}@=>^
+quote@{:@@<:@2@:>@sh,`@:}@=>'`'
+quote@{:@@<:@2@:>@sh,{@:}@=>'{'
+quote@{:@@<:@2@:>@sh,|@:}@=>'|'
+quote@{:@@<:@2@:>@sh,}@:}@=>'}'
+quote@{:@@<:@2@:>@sh,~@:}@=>'~'
+quote@{:@@<:@2@:>@sh,em^bed$ded@:}@=>'em^bed$ded'
+quote@{:@@<:@2@:>@sh,embed<NL>ded@:}@=>'embed<NL>ded'
+quote@{:@@<:@2@:>@re,@:}@=>
+quote@{:@@<:@2@:>@re,<NL>@:}@=>\
+quote@{:@@<:@2@:>@re,<HT>@:}@=><HT>
+quote@{:@@<:@2@:>@re,<CR>@:}@=><CR>
+quote@{:@@<:@2@:>@re,<SP>@:}@=><SP>
+quote@{:@@<:@2@:>@re,!@:}@=>!
+quote@{:@@<:@2@:>@re,"@:}@=>"
+quote@{:@@<:@2@:>@re,#@:}@=>#
+quote@{:@@<:@2@:>@re,$@:}@=>\$
+quote@{:@@<:@2@:>@re,&@:}@=>&
+quote@{:@@<:@2@:>@re,'@:}@=>'
+quote@{:@@<:@2@:>@re,@{:@@:}@=>@{:@
+quote@{:@@<:@2@:>@re,@:}@@:}@=>@:}@
+quote@{:@@<:@2@:>@re,*@:}@=>\*
+quote@{:@@<:@2@:>@re,+@:}@=>+
+quote@{:@@<:@2@:>@re,.@:}@=>\.
+quote@{:@@<:@2@:>@re,;@:}@=>;
+quote@{:@@<:@2@:>@re,<@:}@=><
+quote@{:@@<:@2@:>@re,>@:}@=>>
+quote@{:@@<:@2@:>@re,?@:}@=>?
+quote@{:@@<:@2@:>@re,@<:@@:}@=>\@<:@
+quote@{:@@<:@2@:>@re,\@:}@=>\\
+quote@{:@@<:@2@:>@re,@:>@@:}@=>\@:>@
+quote@{:@@<:@2@:>@re,^@:}@=>\^
+quote@{:@@<:@2@:>@re,`@:}@=>`
+quote@{:@@<:@2@:>@re,{@:}@=>{
+quote@{:@@<:@2@:>@re,|@:}@=>|
+quote@{:@@<:@2@:>@re,}@:}@=>}
+quote@{:@@<:@2@:>@re,~@:}@=>~
+quote@{:@@<:@2@:>@re,em^bed$ded@:}@=>em^bed$ded
+quote@{:@@<:@2@:>@re,embed<NL>ded@:}@=>embed\<NL>ded
+quote@{:@@<:@3@:>@re,/,@:}@=>
+quote@{:@@<:@3@:>@re,/,<NL>@:}@=>\
+quote@{:@@<:@3@:>@re,/,<HT>@:}@=><HT>
+quote@{:@@<:@3@:>@re,/,<CR>@:}@=><CR>
+quote@{:@@<:@3@:>@re,/,<SP>@:}@=><SP>
+quote@{:@@<:@3@:>@re,/,!@:}@=>!
+quote@{:@@<:@3@:>@re,/,"@:}@=>"
+quote@{:@@<:@3@:>@re,/,#@:}@=>#
+quote@{:@@<:@3@:>@re,/,$@:}@=>\$
+quote@{:@@<:@3@:>@re,/,&@:}@=>&
+quote@{:@@<:@3@:>@re,/,'@:}@=>'
+quote@{:@@<:@3@:>@re,/,@{:@@:}@=>@{:@
+quote@{:@@<:@3@:>@re,/,@:}@@:}@=>@:}@
+quote@{:@@<:@3@:>@re,/,*@:}@=>\*
+quote@{:@@<:@3@:>@re,/,+@:}@=>+
+quote@{:@@<:@3@:>@re,/,.@:}@=>\.
+quote@{:@@<:@3@:>@re,/,;@:}@=>;
+quote@{:@@<:@3@:>@re,/,<@:}@=><
+quote@{:@@<:@3@:>@re,/,>@:}@=>>
+quote@{:@@<:@3@:>@re,/,?@:}@=>?
+quote@{:@@<:@3@:>@re,/,@<:@@:}@=>\@<:@
+quote@{:@@<:@3@:>@re,/,\@:}@=>\\
+quote@{:@@<:@3@:>@re,/,@:>@@:}@=>\@:>@
+quote@{:@@<:@3@:>@re,/,^@:}@=>\^
+quote@{:@@<:@3@:>@re,/,`@:}@=>`
+quote@{:@@<:@3@:>@re,/,{@:}@=>{
+quote@{:@@<:@3@:>@re,/,|@:}@=>|
+quote@{:@@<:@3@:>@re,/,}@:}@=>}
+quote@{:@@<:@3@:>@re,/,~@:}@=>~
+quote@{:@@<:@3@:>@re,/,/@:}@=>\/
+quote@{:@@<:@3@:>@re,/,em^bed$ded@:}@=>em^bed$ded
+quote@{:@@<:@3@:>@re,/,em/bed<NL>ded@:}@=>em\/bed\<NL>ded
+quote@{:@@<:@2@:>@ere,@:}@=>
+quote@{:@@<:@2@:>@ere,<NL>@:}@=>\
+quote@{:@@<:@2@:>@ere,<HT>@:}@=><HT>
+quote@{:@@<:@2@:>@ere,<CR>@:}@=><CR>
+quote@{:@@<:@2@:>@ere,<SP>@:}@=><SP>
+quote@{:@@<:@2@:>@ere,!@:}@=>!
+quote@{:@@<:@2@:>@ere,"@:}@=>"
+quote@{:@@<:@2@:>@ere,#@:}@=>#
+quote@{:@@<:@2@:>@ere,$@:}@=>\$
+quote@{:@@<:@2@:>@ere,&@:}@=>&
+quote@{:@@<:@2@:>@ere,'@:}@=>'
+quote@{:@@<:@2@:>@ere,@{:@@:}@=>\@{:@
+quote@{:@@<:@2@:>@ere,@:}@@:}@=>\@:}@
+quote@{:@@<:@2@:>@ere,*@:}@=>\*
+quote@{:@@<:@2@:>@ere,+@:}@=>\+
+quote@{:@@<:@2@:>@ere,.@:}@=>\.
+quote@{:@@<:@2@:>@ere,;@:}@=>;
+quote@{:@@<:@2@:>@ere,<@:}@=><
+quote@{:@@<:@2@:>@ere,>@:}@=>>
+quote@{:@@<:@2@:>@ere,?@:}@=>\?
+quote@{:@@<:@2@:>@ere,@<:@@:}@=>\@<:@
+quote@{:@@<:@2@:>@ere,\@:}@=>\\
+quote@{:@@<:@2@:>@ere,@:>@@:}@=>\@:>@
+quote@{:@@<:@2@:>@ere,^@:}@=>\^
+quote@{:@@<:@2@:>@ere,`@:}@=>`
+quote@{:@@<:@2@:>@ere,{@:}@=>\{
+quote@{:@@<:@2@:>@ere,|@:}@=>\|
+quote@{:@@<:@2@:>@ere,}@:}@=>\}
+quote@{:@@<:@2@:>@ere,~@:}@=>~
+quote@{:@@<:@2@:>@ere,em^bed$ded@:}@=>em\^bed\$ded
+quote@{:@@<:@2@:>@ere,embed<NL>ded@:}@=>embed\<NL>ded
+quote@{:@@<:@3@:>@ere,/,@:}@=>
+quote@{:@@<:@3@:>@ere,/,<NL>@:}@=>\
+quote@{:@@<:@3@:>@ere,/,<HT>@:}@=><HT>
+quote@{:@@<:@3@:>@ere,/,<CR>@:}@=><CR>
+quote@{:@@<:@3@:>@ere,/,<SP>@:}@=><SP>
+quote@{:@@<:@3@:>@ere,/,!@:}@=>!
+quote@{:@@<:@3@:>@ere,/,"@:}@=>"
+quote@{:@@<:@3@:>@ere,/,#@:}@=>#
+quote@{:@@<:@3@:>@ere,/,$@:}@=>\$
+quote@{:@@<:@3@:>@ere,/,&@:}@=>&
+quote@{:@@<:@3@:>@ere,/,'@:}@=>'
+quote@{:@@<:@3@:>@ere,/,@{:@@:}@=>\@{:@
+quote@{:@@<:@3@:>@ere,/,@:}@@:}@=>\@:}@
+quote@{:@@<:@3@:>@ere,/,*@:}@=>\*
+quote@{:@@<:@3@:>@ere,/,+@:}@=>\+
+quote@{:@@<:@3@:>@ere,/,.@:}@=>\.
+quote@{:@@<:@3@:>@ere,/,;@:}@=>;
+quote@{:@@<:@3@:>@ere,/,<@:}@=><
+quote@{:@@<:@3@:>@ere,/,>@:}@=>>
+quote@{:@@<:@3@:>@ere,/,?@:}@=>\?
+quote@{:@@<:@3@:>@ere,/,@<:@@:}@=>\@<:@
+quote@{:@@<:@3@:>@ere,/,\@:}@=>\\
+quote@{:@@<:@3@:>@ere,/,@:>@@:}@=>\@:>@
+quote@{:@@<:@3@:>@ere,/,^@:}@=>\^
+quote@{:@@<:@3@:>@ere,/,`@:}@=>`
+quote@{:@@<:@3@:>@ere,/,{@:}@=>\{
+quote@{:@@<:@3@:>@ere,/,|@:}@=>\|
+quote@{:@@<:@3@:>@ere,/,}@:}@=>\}
+quote@{:@@<:@3@:>@ere,/,~@:}@=>~
+quote@{:@@<:@3@:>@ere,/,/@:}@=>\/
+quote@{:@@<:@3@:>@ere,/,em^bed$ded@:}@=>em\^bed\$ded
+quote@{:@@<:@3@:>@ere,/,em/bed<NL>ded@:}@=>em\/bed\<NL>ded
+quote@{:@@<:@2@:>@rs,@:}@=>
+quote@{:@@<:@2@:>@rs,<NL>@:}@=>\
+quote@{:@@<:@2@:>@rs,<HT>@:}@=><HT>
+quote@{:@@<:@2@:>@rs,<CR>@:}@=><CR>
+quote@{:@@<:@2@:>@rs,<SP>@:}@=><SP>
+quote@{:@@<:@2@:>@rs,!@:}@=>!
+quote@{:@@<:@2@:>@rs,"@:}@=>"
+quote@{:@@<:@2@:>@rs,#@:}@=>#
+quote@{:@@<:@2@:>@rs,$@:}@=>$
+quote@{:@@<:@2@:>@rs,&@:}@=>\&
+quote@{:@@<:@2@:>@rs,'@:}@=>'
+quote@{:@@<:@2@:>@rs,@{:@@:}@=>@{:@
+quote@{:@@<:@2@:>@rs,@:}@@:}@=>@:}@
+quote@{:@@<:@2@:>@rs,*@:}@=>*
+quote@{:@@<:@2@:>@rs,+@:}@=>+
+quote@{:@@<:@2@:>@rs,.@:}@=>.
+quote@{:@@<:@2@:>@rs,;@:}@=>;
+quote@{:@@<:@2@:>@rs,<@:}@=><
+quote@{:@@<:@2@:>@rs,>@:}@=>>
+quote@{:@@<:@2@:>@rs,?@:}@=>?
+quote@{:@@<:@2@:>@rs,@<:@@:}@=>@<:@
+quote@{:@@<:@2@:>@rs,\@:}@=>\\
+quote@{:@@<:@2@:>@rs,@:>@@:}@=>@:>@
+quote@{:@@<:@2@:>@rs,^@:}@=>^
+quote@{:@@<:@2@:>@rs,`@:}@=>`
+quote@{:@@<:@2@:>@rs,{@:}@=>{
+quote@{:@@<:@2@:>@rs,|@:}@=>|
+quote@{:@@<:@2@:>@rs,}@:}@=>}
+quote@{:@@<:@2@:>@rs,~@:}@=>~
+quote@{:@@<:@2@:>@rs,/@:}@=>/
+quote@{:@@<:@2@:>@rs,em^bed$ded@:}@=>em^bed$ded
+quote@{:@@<:@2@:>@rs,em/bed<NL>ded@:}@=>em/bed\<NL>ded
+quote@{:@@<:@3@:>@rs,/,@:}@=>
+quote@{:@@<:@3@:>@rs,/,<NL>@:}@=>\
+quote@{:@@<:@3@:>@rs,/,<HT>@:}@=><HT>
+quote@{:@@<:@3@:>@rs,/,<CR>@:}@=><CR>
+quote@{:@@<:@3@:>@rs,/,<SP>@:}@=><SP>
+quote@{:@@<:@3@:>@rs,/,!@:}@=>!
+quote@{:@@<:@3@:>@rs,/,"@:}@=>"
+quote@{:@@<:@3@:>@rs,/,#@:}@=>#
+quote@{:@@<:@3@:>@rs,/,$@:}@=>$
+quote@{:@@<:@3@:>@rs,/,&@:}@=>\&
+quote@{:@@<:@3@:>@rs,/,'@:}@=>'
+quote@{:@@<:@3@:>@rs,/,@{:@@:}@=>@{:@
+quote@{:@@<:@3@:>@rs,/,@:}@@:}@=>@:}@
+quote@{:@@<:@3@:>@rs,/,*@:}@=>*
+quote@{:@@<:@3@:>@rs,/,+@:}@=>+
+quote@{:@@<:@3@:>@rs,/,.@:}@=>.
+quote@{:@@<:@3@:>@rs,/,;@:}@=>;
+quote@{:@@<:@3@:>@rs,/,<@:}@=><
+quote@{:@@<:@3@:>@rs,/,>@:}@=>>
+quote@{:@@<:@3@:>@rs,/,?@:}@=>?
+quote@{:@@<:@3@:>@rs,/,@<:@@:}@=>@<:@
+quote@{:@@<:@3@:>@rs,/,\@:}@=>\\
+quote@{:@@<:@3@:>@rs,/,@:>@@:}@=>@:>@
+quote@{:@@<:@3@:>@rs,/,^@:}@=>^
+quote@{:@@<:@3@:>@rs,/,`@:}@=>`
+quote@{:@@<:@3@:>@rs,/,{@:}@=>{
+quote@{:@@<:@3@:>@rs,/,|@:}@=>|
+quote@{:@@<:@3@:>@rs,/,}@:}@=>}
+quote@{:@@<:@3@:>@rs,/,~@:}@=>~
+quote@{:@@<:@3@:>@rs,/,/@:}@=>\/
+quote@{:@@<:@3@:>@rs,/,em^bed$ded@:}@=>em^bed$ded
+quote@{:@@<:@3@:>@rs,/,em/bed<NL>ded@:}@=>em\/bed\<NL>ded
+quote@{:@@<:@3@:>@sh,sh,@:}@=>''\'''\'''
+quote@{:@@<:@3@:>@sh,sh,<NL>@:}@=>''\''<NL>'\'''
+quote@{:@@<:@3@:>@sh,sh,<HT>@:}@=>''\''<HT>'\'''
+quote@{:@@<:@3@:>@sh,sh,<CR>@:}@=>''\''<CR>'\'''
+quote@{:@@<:@3@:>@sh,sh,<SP>@:}@=>''\''<SP>'\'''
+quote@{:@@<:@3@:>@sh,sh,!@:}@=>''\''!'\'''
+quote@{:@@<:@3@:>@sh,sh,"@:}@=>''\''"'\'''
+quote@{:@@<:@3@:>@sh,sh,#@:}@=>''\''#'\'''
+quote@{:@@<:@3@:>@sh,sh,$@:}@=>''\''$'\'''
+quote@{:@@<:@3@:>@sh,sh,&@:}@=>''\''&'\'''
+quote@{:@@<:@3@:>@sh,sh,'@:}@=>''\'''\''\'\'''\'''\'''
+quote@{:@@<:@3@:>@sh,sh,@{:@@:}@=>''\''@{:@'\'''
+quote@{:@@<:@3@:>@sh,sh,@:}@@:}@=>''\''@:}@'\'''
+quote@{:@@<:@3@:>@sh,sh,*@:}@=>''\''*'\'''
+quote@{:@@<:@3@:>@sh,sh,+@:}@=>+
+quote@{:@@<:@3@:>@sh,sh,.@:}@=>.
+quote@{:@@<:@3@:>@sh,sh,;@:}@=>''\'';'\'''
+quote@{:@@<:@3@:>@sh,sh,<@:}@=>''\''<'\'''
+quote@{:@@<:@3@:>@sh,sh,>@:}@=>''\''>'\'''
+quote@{:@@<:@3@:>@sh,sh,?@:}@=>''\''?'\'''
+quote@{:@@<:@3@:>@sh,sh,@<:@@:}@=>''\''@<:@'\'''
+quote@{:@@<:@3@:>@sh,sh,\@:}@=>''\''\'\'''
+quote@{:@@<:@3@:>@sh,sh,@:>@@:}@=>''\''@:>@'\'''
+quote@{:@@<:@3@:>@sh,sh,^@:}@=>^
+quote@{:@@<:@3@:>@sh,sh,`@:}@=>''\''`'\'''
+quote@{:@@<:@3@:>@sh,sh,{@:}@=>''\''{'\'''
+quote@{:@@<:@3@:>@sh,sh,|@:}@=>''\''|'\'''
+quote@{:@@<:@3@:>@sh,sh,}@:}@=>''\''}'\'''
+quote@{:@@<:@3@:>@sh,sh,~@:}@=>''\''~'\'''
+quote@{:@@<:@3@:>@sh,sh,em^bed$ded@:}@=>''\''em^bed$ded'\'''
+quote@{:@@<:@3@:>@sh,sh,embed<NL>ded@:}@=>''\''embed<NL>ded'\'''
+quote@{:@@<:@3@:>@sh,re,@:}@=>''
+quote@{:@@<:@3@:>@sh,re,<NL>@:}@=>'\<NL>'
+quote@{:@@<:@3@:>@sh,re,<HT>@:}@=>'<HT>'
+quote@{:@@<:@3@:>@sh,re,<CR>@:}@=>'<CR>'
+quote@{:@@<:@3@:>@sh,re,<SP>@:}@=>'<SP>'
+quote@{:@@<:@3@:>@sh,re,!@:}@=>'!'
+quote@{:@@<:@3@:>@sh,re,"@:}@=>'"'
+quote@{:@@<:@3@:>@sh,re,#@:}@=>'#'
+quote@{:@@<:@3@:>@sh,re,$@:}@=>'$'
+quote@{:@@<:@3@:>@sh,re,&@:}@=>'&'
+quote@{:@@<:@3@:>@sh,re,'@:}@=>''\\'''
+quote@{:@@<:@3@:>@sh,re,@{:@@:}@=>'@{:@'
+quote@{:@@<:@3@:>@sh,re,@:}@@:}@=>'@:}@'
+quote@{:@@<:@3@:>@sh,re,*@:}@=>'\*'
+quote@{:@@<:@3@:>@sh,re,+@:}@=>+
+quote@{:@@<:@3@:>@sh,re,.@:}@=>\.
+quote@{:@@<:@3@:>@sh,re,;@:}@=>';'
+quote@{:@@<:@3@:>@sh,re,<@:}@=>'<'
+quote@{:@@<:@3@:>@sh,re,>@:}@=>'>'
+quote@{:@@<:@3@:>@sh,re,?@:}@=>'?'
+quote@{:@@<:@3@:>@sh,re,@<:@@:}@=>'\@<:@'
+quote@{:@@<:@3@:>@sh,re,\@:}@=>'\\'
+quote@{:@@<:@3@:>@sh,re,@:>@@:}@=>'\@:>@'
+quote@{:@@<:@3@:>@sh,re,^@:}@=>\^
+quote@{:@@<:@3@:>@sh,re,`@:}@=>'`'
+quote@{:@@<:@3@:>@sh,re,{@:}@=>'{'
+quote@{:@@<:@3@:>@sh,re,|@:}@=>'|'
+quote@{:@@<:@3@:>@sh,re,}@:}@=>'}'
+quote@{:@@<:@3@:>@sh,re,~@:}@=>'~'
+quote@{:@@<:@3@:>@sh,re,em^bed$ded@:}@=>'em^bed$ded'
+quote@{:@@<:@3@:>@sh,re,embed<NL>ded@:}@=>'embed\<NL>ded'
+quote@{:@@<:@4@:>@sh,re,/,@:}@=>''
+quote@{:@@<:@4@:>@sh,re,/,<NL>@:}@=>'\<NL>'
+quote@{:@@<:@4@:>@sh,re,/,<HT>@:}@=>'<HT>'
+quote@{:@@<:@4@:>@sh,re,/,<CR>@:}@=>'<CR>'
+quote@{:@@<:@4@:>@sh,re,/,<SP>@:}@=>'<SP>'
+quote@{:@@<:@4@:>@sh,re,/,!@:}@=>'!'
+quote@{:@@<:@4@:>@sh,re,/,"@:}@=>'"'
+quote@{:@@<:@4@:>@sh,re,/,#@:}@=>'#'
+quote@{:@@<:@4@:>@sh,re,/,$@:}@=>'$'
+quote@{:@@<:@4@:>@sh,re,/,&@:}@=>'&'
+quote@{:@@<:@4@:>@sh,re,/,'@:}@=>''\\'''
+quote@{:@@<:@4@:>@sh,re,/,@{:@@:}@=>'@{:@'
+quote@{:@@<:@4@:>@sh,re,/,@:}@@:}@=>'@:}@'
+quote@{:@@<:@4@:>@sh,re,/,*@:}@=>'\*'
+quote@{:@@<:@4@:>@sh,re,/,+@:}@=>+
+quote@{:@@<:@4@:>@sh,re,/,.@:}@=>\.
+quote@{:@@<:@4@:>@sh,re,/,;@:}@=>';'
+quote@{:@@<:@4@:>@sh,re,/,<@:}@=>'<'
+quote@{:@@<:@4@:>@sh,re,/,>@:}@=>'>'
+quote@{:@@<:@4@:>@sh,re,/,?@:}@=>'?'
+quote@{:@@<:@4@:>@sh,re,/,@<:@@:}@=>'\@<:@'
+quote@{:@@<:@4@:>@sh,re,/,\@:}@=>'\\'
+quote@{:@@<:@4@:>@sh,re,/,@:>@@:}@=>'\@:>@'
+quote@{:@@<:@4@:>@sh,re,/,^@:}@=>\^
+quote@{:@@<:@4@:>@sh,re,/,`@:}@=>'`'
+quote@{:@@<:@4@:>@sh,re,/,{@:}@=>'{'
+quote@{:@@<:@4@:>@sh,re,/,|@:}@=>'|'
+quote@{:@@<:@4@:>@sh,re,/,}@:}@=>'}'
+quote@{:@@<:@4@:>@sh,re,/,~@:}@=>'~'
+quote@{:@@<:@4@:>@sh,re,/,em^bed$ded@:}@=>'em^bed$ded'
+quote@{:@@<:@4@:>@sh,re,/,embed<NL>ded@:}@=>'embed\<NL>ded'
+quote@{:@@<:@3@:>@sh,ere,@:}@=>''
+quote@{:@@<:@3@:>@sh,ere,<NL>@:}@=>'\<NL>'
+quote@{:@@<:@3@:>@sh,ere,<HT>@:}@=>'<HT>'
+quote@{:@@<:@3@:>@sh,ere,<CR>@:}@=>'<CR>'
+quote@{:@@<:@3@:>@sh,ere,<SP>@:}@=>'<SP>'
+quote@{:@@<:@3@:>@sh,ere,!@:}@=>'!'
+quote@{:@@<:@3@:>@sh,ere,"@:}@=>'"'
+quote@{:@@<:@3@:>@sh,ere,#@:}@=>'#'
+quote@{:@@<:@3@:>@sh,ere,$@:}@=>'\$'
+quote@{:@@<:@3@:>@sh,ere,&@:}@=>'&'
+quote@{:@@<:@3@:>@sh,ere,'@:}@=>''\\'''
+quote@{:@@<:@3@:>@sh,ere,@{:@@:}@=>'\@{:@'
+quote@{:@@<:@3@:>@sh,ere,@:}@@:}@=>'\@:}@'
+quote@{:@@<:@3@:>@sh,ere,*@:}@=>'\*'
+quote@{:@@<:@3@:>@sh,ere,+@:}@=>\+
+quote@{:@@<:@3@:>@sh,ere,.@:}@=>\.
+quote@{:@@<:@3@:>@sh,ere,;@:}@=>';'
+quote@{:@@<:@3@:>@sh,ere,<@:}@=>'<'
+quote@{:@@<:@3@:>@sh,ere,>@:}@=>'>'
+quote@{:@@<:@3@:>@sh,ere,?@:}@=>'\?'
+quote@{:@@<:@3@:>@sh,ere,@<:@@:}@=>'\@<:@'
+quote@{:@@<:@3@:>@sh,ere,\@:}@=>'\\'
+quote@{:@@<:@3@:>@sh,ere,@:>@@:}@=>'\@:>@'
+quote@{:@@<:@3@:>@sh,ere,^@:}@=>\^
+quote@{:@@<:@3@:>@sh,ere,`@:}@=>'`'
+quote@{:@@<:@3@:>@sh,ere,{@:}@=>'\{'
+quote@{:@@<:@3@:>@sh,ere,|@:}@=>'\|'
+quote@{:@@<:@3@:>@sh,ere,}@:}@=>'\}'
+quote@{:@@<:@3@:>@sh,ere,~@:}@=>'~'
+quote@{:@@<:@3@:>@sh,ere,em^bed$ded@:}@=>'em\^bed\$ded'
+quote@{:@@<:@3@:>@sh,ere,embed<NL>ded@:}@=>'embed\<NL>ded'
+quote@{:@@<:@4@:>@sh,ere,/,@:}@=>''
+quote@{:@@<:@4@:>@sh,ere,/,<NL>@:}@=>'\<NL>'
+quote@{:@@<:@4@:>@sh,ere,/,<HT>@:}@=>'<HT>'
+quote@{:@@<:@4@:>@sh,ere,/,<CR>@:}@=>'<CR>'
+quote@{:@@<:@4@:>@sh,ere,/,<SP>@:}@=>'<SP>'
+quote@{:@@<:@4@:>@sh,ere,/,!@:}@=>'!'
+quote@{:@@<:@4@:>@sh,ere,/,"@:}@=>'"'
+quote@{:@@<:@4@:>@sh,ere,/,#@:}@=>'#'
+quote@{:@@<:@4@:>@sh,ere,/,$@:}@=>'\$'
+quote@{:@@<:@4@:>@sh,ere,/,&@:}@=>'&'
+quote@{:@@<:@4@:>@sh,ere,/,'@:}@=>''\\'''
+quote@{:@@<:@4@:>@sh,ere,/,@{:@@:}@=>'\@{:@'
+quote@{:@@<:@4@:>@sh,ere,/,@:}@@:}@=>'\@:}@'
+quote@{:@@<:@4@:>@sh,ere,/,*@:}@=>'\*'
+quote@{:@@<:@4@:>@sh,ere,/,+@:}@=>\+
+quote@{:@@<:@4@:>@sh,ere,/,.@:}@=>\.
+quote@{:@@<:@4@:>@sh,ere,/,;@:}@=>';'
+quote@{:@@<:@4@:>@sh,ere,/,<@:}@=>'<'
+quote@{:@@<:@4@:>@sh,ere,/,>@:}@=>'>'
+quote@{:@@<:@4@:>@sh,ere,/,?@:}@=>'\?'
+quote@{:@@<:@4@:>@sh,ere,/,@<:@@:}@=>'\@<:@'
+quote@{:@@<:@4@:>@sh,ere,/,\@:}@=>'\\'
+quote@{:@@<:@4@:>@sh,ere,/,@:>@@:}@=>'\@:>@'
+quote@{:@@<:@4@:>@sh,ere,/,^@:}@=>\^
+quote@{:@@<:@4@:>@sh,ere,/,`@:}@=>'`'
+quote@{:@@<:@4@:>@sh,ere,/,{@:}@=>'\{'
+quote@{:@@<:@4@:>@sh,ere,/,|@:}@=>'\|'
+quote@{:@@<:@4@:>@sh,ere,/,}@:}@=>'\}'
+quote@{:@@<:@4@:>@sh,ere,/,~@:}@=>'~'
+quote@{:@@<:@4@:>@sh,ere,/,em^bed$ded@:}@=>'em\^bed\$ded'
+quote@{:@@<:@4@:>@sh,ere,/,embed<NL>ded@:}@=>'embed\<NL>ded'
+quote@{:@@<:@3@:>@sh,rs,@:}@=>''
+quote@{:@@<:@3@:>@sh,rs,<NL>@:}@=>'\<NL>'
+quote@{:@@<:@3@:>@sh,rs,<HT>@:}@=>'<HT>'
+quote@{:@@<:@3@:>@sh,rs,<CR>@:}@=>'<CR>'
+quote@{:@@<:@3@:>@sh,rs,<SP>@:}@=>'<SP>'
+quote@{:@@<:@3@:>@sh,rs,!@:}@=>'!'
+quote@{:@@<:@3@:>@sh,rs,"@:}@=>'"'
+quote@{:@@<:@3@:>@sh,rs,#@:}@=>'#'
+quote@{:@@<:@3@:>@sh,rs,$@:}@=>'$'
+quote@{:@@<:@3@:>@sh,rs,&@:}@=>'\&'
+quote@{:@@<:@3@:>@sh,rs,'@:}@=>''\\'''
+quote@{:@@<:@3@:>@sh,rs,@{:@@:}@=>'@{:@'
+quote@{:@@<:@3@:>@sh,rs,@:}@@:}@=>'@:}@'
+quote@{:@@<:@3@:>@sh,rs,*@:}@=>'*'
+quote@{:@@<:@3@:>@sh,rs,+@:}@=>+
+quote@{:@@<:@3@:>@sh,rs,.@:}@=>.
+quote@{:@@<:@3@:>@sh,rs,;@:}@=>';'
+quote@{:@@<:@3@:>@sh,rs,<@:}@=>'<'
+quote@{:@@<:@3@:>@sh,rs,>@:}@=>'>'
+quote@{:@@<:@3@:>@sh,rs,?@:}@=>'?'
+quote@{:@@<:@3@:>@sh,rs,@<:@@:}@=>'@<:@'
+quote@{:@@<:@3@:>@sh,rs,\@:}@=>'\\'
+quote@{:@@<:@3@:>@sh,rs,@:>@@:}@=>'@:>@'
+quote@{:@@<:@3@:>@sh,rs,^@:}@=>^
+quote@{:@@<:@3@:>@sh,rs,`@:}@=>'`'
+quote@{:@@<:@3@:>@sh,rs,{@:}@=>'{'
+quote@{:@@<:@3@:>@sh,rs,|@:}@=>'|'
+quote@{:@@<:@3@:>@sh,rs,}@:}@=>'}'
+quote@{:@@<:@3@:>@sh,rs,~@:}@=>'~'
+quote@{:@@<:@3@:>@sh,rs,em^bed$ded@:}@=>'em^bed$ded'
+quote@{:@@<:@3@:>@sh,rs,embed<NL>ded@:}@=>'embed\<NL>ded'
+quote@{:@@<:@4@:>@sh,rs,/,@:}@=>''
+quote@{:@@<:@4@:>@sh,rs,/,<NL>@:}@=>'\<NL>'
+quote@{:@@<:@4@:>@sh,rs,/,<HT>@:}@=>'<HT>'
+quote@{:@@<:@4@:>@sh,rs,/,<CR>@:}@=>'<CR>'
+quote@{:@@<:@4@:>@sh,rs,/,<SP>@:}@=>'<SP>'
+quote@{:@@<:@4@:>@sh,rs,/,!@:}@=>'!'
+quote@{:@@<:@4@:>@sh,rs,/,"@:}@=>'"'
+quote@{:@@<:@4@:>@sh,rs,/,#@:}@=>'#'
+quote@{:@@<:@4@:>@sh,rs,/,$@:}@=>'$'
+quote@{:@@<:@4@:>@sh,rs,/,&@:}@=>'\&'
+quote@{:@@<:@4@:>@sh,rs,/,'@:}@=>''\\'''
+quote@{:@@<:@4@:>@sh,rs,/,@{:@@:}@=>'@{:@'
+quote@{:@@<:@4@:>@sh,rs,/,@:}@@:}@=>'@:}@'
+quote@{:@@<:@4@:>@sh,rs,/,*@:}@=>'*'
+quote@{:@@<:@4@:>@sh,rs,/,+@:}@=>+
+quote@{:@@<:@4@:>@sh,rs,/,.@:}@=>.
+quote@{:@@<:@4@:>@sh,rs,/,;@:}@=>';'
+quote@{:@@<:@4@:>@sh,rs,/,<@:}@=>'<'
+quote@{:@@<:@4@:>@sh,rs,/,>@:}@=>'>'
+quote@{:@@<:@4@:>@sh,rs,/,?@:}@=>'?'
+quote@{:@@<:@4@:>@sh,rs,/,@<:@@:}@=>'@<:@'
+quote@{:@@<:@4@:>@sh,rs,/,\@:}@=>'\\'
+quote@{:@@<:@4@:>@sh,rs,/,@:>@@:}@=>'@:>@'
+quote@{:@@<:@4@:>@sh,rs,/,^@:}@=>^
+quote@{:@@<:@4@:>@sh,rs,/,`@:}@=>'`'
+quote@{:@@<:@4@:>@sh,rs,/,{@:}@=>'{'
+quote@{:@@<:@4@:>@sh,rs,/,|@:}@=>'|'
+quote@{:@@<:@4@:>@sh,rs,/,}@:}@=>'}'
+quote@{:@@<:@4@:>@sh,rs,/,~@:}@=>'~'
+quote@{:@@<:@4@:>@sh,rs,/,em^bed$ded@:}@=>'em^bed$ded'
+quote@{:@@<:@4@:>@sh,rs,/,embed<NL>ded@:}@=>'embed\<NL>ded'
+quote@{:@@<:@3@:>@re,sh,@:}@=>''
+quote@{:@@<:@3@:>@re,sh,<NL>@:}@=>'\<NL>'
+quote@{:@@<:@3@:>@re,sh,<HT>@:}@=>'<HT>'
+quote@{:@@<:@3@:>@re,sh,<CR>@:}@=>'<CR>'
+quote@{:@@<:@3@:>@re,sh,<SP>@:}@=>'<SP>'
+quote@{:@@<:@3@:>@re,sh,!@:}@=>'!'
+quote@{:@@<:@3@:>@re,sh,"@:}@=>'"'
+quote@{:@@<:@3@:>@re,sh,#@:}@=>'#'
+quote@{:@@<:@3@:>@re,sh,$@:}@=>'\$'
+quote@{:@@<:@3@:>@re,sh,&@:}@=>'&'
+quote@{:@@<:@3@:>@re,sh,'@:}@=>''\'''
+quote@{:@@<:@3@:>@re,sh,@{:@@:}@=>'@{:@'
+quote@{:@@<:@3@:>@re,sh,@:}@@:}@=>'@:}@'
+quote@{:@@<:@3@:>@re,sh,*@:}@=>'\*'
+quote@{:@@<:@3@:>@re,sh,+@:}@=>+
+quote@{:@@<:@3@:>@re,sh,.@:}@=>'\.'
+quote@{:@@<:@3@:>@re,sh,;@:}@=>';'
+quote@{:@@<:@3@:>@re,sh,<@:}@=>'<'
+quote@{:@@<:@3@:>@re,sh,>@:}@=>'>'
+quote@{:@@<:@3@:>@re,sh,?@:}@=>'?'
+quote@{:@@<:@3@:>@re,sh,@<:@@:}@=>'\@<:@'
+quote@{:@@<:@3@:>@re,sh,\@:}@=>'\\'
+quote@{:@@<:@3@:>@re,sh,@:>@@:}@=>'\@:>@'
+quote@{:@@<:@3@:>@re,sh,^@:}@=>'\^'
+quote@{:@@<:@3@:>@re,sh,`@:}@=>'`'
+quote@{:@@<:@3@:>@re,sh,{@:}@=>'{'
+quote@{:@@<:@3@:>@re,sh,|@:}@=>'|'
+quote@{:@@<:@3@:>@re,sh,}@:}@=>'}'
+quote@{:@@<:@3@:>@re,sh,~@:}@=>'~'
+quote@{:@@<:@3@:>@re,sh,em^bed$ded@:}@=>'em^bed$ded'
+quote@{:@@<:@3@:>@re,sh,embed<NL>ded@:}@=>'embed\<NL>ded'
+quote@{:@@<:@3@:>@re,re,@:}@=>
+quote@{:@@<:@3@:>@re,re,<NL>@:}@=>\\\
+quote@{:@@<:@3@:>@re,re,<HT>@:}@=><HT>
+quote@{:@@<:@3@:>@re,re,<CR>@:}@=><CR>
+quote@{:@@<:@3@:>@re,re,<SP>@:}@=><SP>
+quote@{:@@<:@3@:>@re,re,!@:}@=>!
+quote@{:@@<:@3@:>@re,re,"@:}@=>"
+quote@{:@@<:@3@:>@re,re,#@:}@=>#
+quote@{:@@<:@3@:>@re,re,$@:}@=>\\\$
+quote@{:@@<:@3@:>@re,re,&@:}@=>&
+quote@{:@@<:@3@:>@re,re,'@:}@=>'
+quote@{:@@<:@3@:>@re,re,@{:@@:}@=>@{:@
+quote@{:@@<:@3@:>@re,re,@:}@@:}@=>@:}@
+quote@{:@@<:@3@:>@re,re,*@:}@=>\\\*
+quote@{:@@<:@3@:>@re,re,+@:}@=>+
+quote@{:@@<:@3@:>@re,re,.@:}@=>\\\.
+quote@{:@@<:@3@:>@re,re,;@:}@=>;
+quote@{:@@<:@3@:>@re,re,<@:}@=><
+quote@{:@@<:@3@:>@re,re,>@:}@=>>
+quote@{:@@<:@3@:>@re,re,?@:}@=>?
+quote@{:@@<:@3@:>@re,re,@<:@@:}@=>\\\@<:@
+quote@{:@@<:@3@:>@re,re,\@:}@=>\\\\
+quote@{:@@<:@3@:>@re,re,@:>@@:}@=>\\\@:>@
+quote@{:@@<:@3@:>@re,re,^@:}@=>\\^
+quote@{:@@<:@3@:>@re,re,`@:}@=>`
+quote@{:@@<:@3@:>@re,re,{@:}@=>{
+quote@{:@@<:@3@:>@re,re,|@:}@=>|
+quote@{:@@<:@3@:>@re,re,}@:}@=>}
+quote@{:@@<:@3@:>@re,re,~@:}@=>~
+quote@{:@@<:@3@:>@re,re,em^bed$ded@:}@=>em^bed$ded
+quote@{:@@<:@3@:>@re,re,embed<NL>ded@:}@=>embed\\\<NL>ded
+quote@{:@@<:@4@:>@re,re,/,@:}@=>
+quote@{:@@<:@4@:>@re,re,/,<NL>@:}@=>\\\
+quote@{:@@<:@4@:>@re,re,/,<HT>@:}@=><HT>
+quote@{:@@<:@4@:>@re,re,/,<CR>@:}@=><CR>
+quote@{:@@<:@4@:>@re,re,/,<SP>@:}@=><SP>
+quote@{:@@<:@4@:>@re,re,/,!@:}@=>!
+quote@{:@@<:@4@:>@re,re,/,"@:}@=>"
+quote@{:@@<:@4@:>@re,re,/,#@:}@=>#
+quote@{:@@<:@4@:>@re,re,/,$@:}@=>\\\$
+quote@{:@@<:@4@:>@re,re,/,&@:}@=>&
+quote@{:@@<:@4@:>@re,re,/,'@:}@=>'
+quote@{:@@<:@4@:>@re,re,/,@{:@@:}@=>@{:@
+quote@{:@@<:@4@:>@re,re,/,@:}@@:}@=>@:}@
+quote@{:@@<:@4@:>@re,re,/,*@:}@=>\\\*
+quote@{:@@<:@4@:>@re,re,/,+@:}@=>+
+quote@{:@@<:@4@:>@re,re,/,.@:}@=>\\\.
+quote@{:@@<:@4@:>@re,re,/,;@:}@=>;
+quote@{:@@<:@4@:>@re,re,/,<@:}@=><
+quote@{:@@<:@4@:>@re,re,/,>@:}@=>>
+quote@{:@@<:@4@:>@re,re,/,?@:}@=>?
+quote@{:@@<:@4@:>@re,re,/,@<:@@:}@=>\\\@<:@
+quote@{:@@<:@4@:>@re,re,/,\@:}@=>\\\\
+quote@{:@@<:@4@:>@re,re,/,@:>@@:}@=>\\\@:>@
+quote@{:@@<:@4@:>@re,re,/,^@:}@=>\\^
+quote@{:@@<:@4@:>@re,re,/,`@:}@=>`
+quote@{:@@<:@4@:>@re,re,/,{@:}@=>{
+quote@{:@@<:@4@:>@re,re,/,|@:}@=>|
+quote@{:@@<:@4@:>@re,re,/,}@:}@=>}
+quote@{:@@<:@4@:>@re,re,/,~@:}@=>~
+quote@{:@@<:@4@:>@re,re,/,em^bed$ded@:}@=>em^bed$ded
+quote@{:@@<:@4@:>@re,re,/,embed<NL>ded@:}@=>embed\\\<NL>ded
+quote@{:@@<:@3@:>@re,ere,@:}@=>
+quote@{:@@<:@3@:>@re,ere,<NL>@:}@=>\\\
+quote@{:@@<:@3@:>@re,ere,<HT>@:}@=><HT>
+quote@{:@@<:@3@:>@re,ere,<CR>@:}@=><CR>
+quote@{:@@<:@3@:>@re,ere,<SP>@:}@=><SP>
+quote@{:@@<:@3@:>@re,ere,!@:}@=>!
+quote@{:@@<:@3@:>@re,ere,"@:}@=>"
+quote@{:@@<:@3@:>@re,ere,#@:}@=>#
+quote@{:@@<:@3@:>@re,ere,$@:}@=>\\\$
+quote@{:@@<:@3@:>@re,ere,&@:}@=>&
+quote@{:@@<:@3@:>@re,ere,'@:}@=>'
+quote@{:@@<:@3@:>@re,ere,@{:@@:}@=>\@{:@
+quote@{:@@<:@3@:>@re,ere,@:}@@:}@=>\@:}@
+quote@{:@@<:@3@:>@re,ere,*@:}@=>\\\*
+quote@{:@@<:@3@:>@re,ere,+@:}@=>\+
+quote@{:@@<:@3@:>@re,ere,.@:}@=>\\\.
+quote@{:@@<:@3@:>@re,ere,;@:}@=>;
+quote@{:@@<:@3@:>@re,ere,<@:}@=><
+quote@{:@@<:@3@:>@re,ere,>@:}@=>>
+quote@{:@@<:@3@:>@re,ere,?@:}@=>\?
+quote@{:@@<:@3@:>@re,ere,@<:@@:}@=>\\\@<:@
+quote@{:@@<:@3@:>@re,ere,\@:}@=>\\\\
+quote@{:@@<:@3@:>@re,ere,@:>@@:}@=>\\\@:>@
+quote@{:@@<:@3@:>@re,ere,^@:}@=>\\\^
+quote@{:@@<:@3@:>@re,ere,`@:}@=>`
+quote@{:@@<:@3@:>@re,ere,{@:}@=>\{
+quote@{:@@<:@3@:>@re,ere,|@:}@=>\|
+quote@{:@@<:@3@:>@re,ere,}@:}@=>\}
+quote@{:@@<:@3@:>@re,ere,~@:}@=>~
+quote@{:@@<:@3@:>@re,ere,em^bed$ded@:}@=>em\^bed\$ded
+quote@{:@@<:@3@:>@re,ere,embed<NL>ded@:}@=>embed\\\<NL>ded
+quote@{:@@<:@4@:>@re,ere,/,@:}@=>
+quote@{:@@<:@4@:>@re,ere,/,<NL>@:}@=>\\\
+quote@{:@@<:@4@:>@re,ere,/,<HT>@:}@=><HT>
+quote@{:@@<:@4@:>@re,ere,/,<CR>@:}@=><CR>
+quote@{:@@<:@4@:>@re,ere,/,<SP>@:}@=><SP>
+quote@{:@@<:@4@:>@re,ere,/,!@:}@=>!
+quote@{:@@<:@4@:>@re,ere,/,"@:}@=>"
+quote@{:@@<:@4@:>@re,ere,/,#@:}@=>#
+quote@{:@@<:@4@:>@re,ere,/,$@:}@=>\\\$
+quote@{:@@<:@4@:>@re,ere,/,&@:}@=>&
+quote@{:@@<:@4@:>@re,ere,/,'@:}@=>'
+quote@{:@@<:@4@:>@re,ere,/,@{:@@:}@=>\@{:@
+quote@{:@@<:@4@:>@re,ere,/,@:}@@:}@=>\@:}@
+quote@{:@@<:@4@:>@re,ere,/,*@:}@=>\\\*
+quote@{:@@<:@4@:>@re,ere,/,+@:}@=>\+
+quote@{:@@<:@4@:>@re,ere,/,.@:}@=>\\\.
+quote@{:@@<:@4@:>@re,ere,/,;@:}@=>;
+quote@{:@@<:@4@:>@re,ere,/,<@:}@=><
+quote@{:@@<:@4@:>@re,ere,/,>@:}@=>>
+quote@{:@@<:@4@:>@re,ere,/,?@:}@=>\?
+quote@{:@@<:@4@:>@re,ere,/,@<:@@:}@=>\\\@<:@
+quote@{:@@<:@4@:>@re,ere,/,\@:}@=>\\\\
+quote@{:@@<:@4@:>@re,ere,/,@:>@@:}@=>\\\@:>@
+quote@{:@@<:@4@:>@re,ere,/,^@:}@=>\\\^
+quote@{:@@<:@4@:>@re,ere,/,`@:}@=>`
+quote@{:@@<:@4@:>@re,ere,/,{@:}@=>\{
+quote@{:@@<:@4@:>@re,ere,/,|@:}@=>\|
+quote@{:@@<:@4@:>@re,ere,/,}@:}@=>\}
+quote@{:@@<:@4@:>@re,ere,/,~@:}@=>~
+quote@{:@@<:@4@:>@re,ere,/,em^bed$ded@:}@=>em\^bed\$ded
+quote@{:@@<:@4@:>@re,ere,/,embed<NL>ded@:}@=>embed\\\<NL>ded
+quote@{:@@<:@3@:>@re,rs,@:}@=>
+quote@{:@@<:@3@:>@re,rs,<NL>@:}@=>\\\
+quote@{:@@<:@3@:>@re,rs,<HT>@:}@=><HT>
+quote@{:@@<:@3@:>@re,rs,<CR>@:}@=><CR>
+quote@{:@@<:@3@:>@re,rs,<SP>@:}@=><SP>
+quote@{:@@<:@3@:>@re,rs,!@:}@=>!
+quote@{:@@<:@3@:>@re,rs,"@:}@=>"
+quote@{:@@<:@3@:>@re,rs,#@:}@=>#
+quote@{:@@<:@3@:>@re,rs,$@:}@=>\\$
+quote@{:@@<:@3@:>@re,rs,&@:}@=>\&
+quote@{:@@<:@3@:>@re,rs,'@:}@=>'
+quote@{:@@<:@3@:>@re,rs,@{:@@:}@=>@{:@
+quote@{:@@<:@3@:>@re,rs,@:}@@:}@=>@:}@
+quote@{:@@<:@3@:>@re,rs,*@:}@=>\\*
+quote@{:@@<:@3@:>@re,rs,+@:}@=>+
+quote@{:@@<:@3@:>@re,rs,.@:}@=>\\.
+quote@{:@@<:@3@:>@re,rs,;@:}@=>;
+quote@{:@@<:@3@:>@re,rs,<@:}@=><
+quote@{:@@<:@3@:>@re,rs,>@:}@=>>
+quote@{:@@<:@3@:>@re,rs,?@:}@=>?
+quote@{:@@<:@3@:>@re,rs,@<:@@:}@=>\\@<:@
+quote@{:@@<:@3@:>@re,rs,\@:}@=>\\\\
+quote@{:@@<:@3@:>@re,rs,@:>@@:}@=>\\@:>@
+quote@{:@@<:@3@:>@re,rs,^@:}@=>\\^
+quote@{:@@<:@3@:>@re,rs,`@:}@=>`
+quote@{:@@<:@3@:>@re,rs,{@:}@=>{
+quote@{:@@<:@3@:>@re,rs,|@:}@=>|
+quote@{:@@<:@3@:>@re,rs,}@:}@=>}
+quote@{:@@<:@3@:>@re,rs,~@:}@=>~
+quote@{:@@<:@3@:>@re,rs,em^bed$ded@:}@=>em^bed$ded
+quote@{:@@<:@3@:>@re,rs,embed<NL>ded@:}@=>embed\\\<NL>ded
+quote@{:@@<:@4@:>@re,rs,/,@:}@=>
+quote@{:@@<:@4@:>@re,rs,/,<NL>@:}@=>\\\
+quote@{:@@<:@4@:>@re,rs,/,<HT>@:}@=><HT>
+quote@{:@@<:@4@:>@re,rs,/,<CR>@:}@=><CR>
+quote@{:@@<:@4@:>@re,rs,/,<SP>@:}@=><SP>
+quote@{:@@<:@4@:>@re,rs,/,!@:}@=>!
+quote@{:@@<:@4@:>@re,rs,/,"@:}@=>"
+quote@{:@@<:@4@:>@re,rs,/,#@:}@=>#
+quote@{:@@<:@4@:>@re,rs,/,$@:}@=>\\$
+quote@{:@@<:@4@:>@re,rs,/,&@:}@=>\&
+quote@{:@@<:@4@:>@re,rs,/,'@:}@=>'
+quote@{:@@<:@4@:>@re,rs,/,@{:@@:}@=>@{:@
+quote@{:@@<:@4@:>@re,rs,/,@:}@@:}@=>@:}@
+quote@{:@@<:@4@:>@re,rs,/,*@:}@=>\\*
+quote@{:@@<:@4@:>@re,rs,/,+@:}@=>+
+quote@{:@@<:@4@:>@re,rs,/,.@:}@=>\\.
+quote@{:@@<:@4@:>@re,rs,/,;@:}@=>;
+quote@{:@@<:@4@:>@re,rs,/,<@:}@=><
+quote@{:@@<:@4@:>@re,rs,/,>@:}@=>>
+quote@{:@@<:@4@:>@re,rs,/,?@:}@=>?
+quote@{:@@<:@4@:>@re,rs,/,@<:@@:}@=>\\@<:@
+quote@{:@@<:@4@:>@re,rs,/,\@:}@=>\\\\
+quote@{:@@<:@4@:>@re,rs,/,@:>@@:}@=>\\@:>@
+quote@{:@@<:@4@:>@re,rs,/,^@:}@=>\\^
+quote@{:@@<:@4@:>@re,rs,/,`@:}@=>`
+quote@{:@@<:@4@:>@re,rs,/,{@:}@=>{
+quote@{:@@<:@4@:>@re,rs,/,|@:}@=>|
+quote@{:@@<:@4@:>@re,rs,/,}@:}@=>}
+quote@{:@@<:@4@:>@re,rs,/,~@:}@=>~
+quote@{:@@<:@4@:>@re,rs,/,em^bed$ded@:}@=>em^bed$ded
+quote@{:@@<:@4@:>@re,rs,/,embed<NL>ded@:}@=>embed\\\<NL>ded
+quote@{:@@<:@3@:>@ere,sh,@:}@=>''
+quote@{:@@<:@3@:>@ere,sh,<NL>@:}@=>'\<NL>'
+quote@{:@@<:@3@:>@ere,sh,<HT>@:}@=>'<HT>'
+quote@{:@@<:@3@:>@ere,sh,<CR>@:}@=>'<CR>'
+quote@{:@@<:@3@:>@ere,sh,<SP>@:}@=>'<SP>'
+quote@{:@@<:@3@:>@ere,sh,!@:}@=>'!'
+quote@{:@@<:@3@:>@ere,sh,"@:}@=>'"'
+quote@{:@@<:@3@:>@ere,sh,#@:}@=>'#'
+quote@{:@@<:@3@:>@ere,sh,$@:}@=>'\$'
+quote@{:@@<:@3@:>@ere,sh,&@:}@=>'&'
+quote@{:@@<:@3@:>@ere,sh,'@:}@=>''\'''
+quote@{:@@<:@3@:>@ere,sh,@{:@@:}@=>'\@{:@'
+quote@{:@@<:@3@:>@ere,sh,@:}@@:}@=>'\@:}@'
+quote@{:@@<:@3@:>@ere,sh,*@:}@=>'\*'
+quote@{:@@<:@3@:>@ere,sh,+@:}@=>'\+'
+quote@{:@@<:@3@:>@ere,sh,.@:}@=>'\.'
+quote@{:@@<:@3@:>@ere,sh,;@:}@=>';'
+quote@{:@@<:@3@:>@ere,sh,<@:}@=>'<'
+quote@{:@@<:@3@:>@ere,sh,>@:}@=>'>'
+quote@{:@@<:@3@:>@ere,sh,?@:}@=>'\?'
+quote@{:@@<:@3@:>@ere,sh,@<:@@:}@=>'\@<:@'
+quote@{:@@<:@3@:>@ere,sh,\@:}@=>'\\'
+quote@{:@@<:@3@:>@ere,sh,@:>@@:}@=>'\@:>@'
+quote@{:@@<:@3@:>@ere,sh,^@:}@=>'\^'
+quote@{:@@<:@3@:>@ere,sh,`@:}@=>'`'
+quote@{:@@<:@3@:>@ere,sh,{@:}@=>'\{'
+quote@{:@@<:@3@:>@ere,sh,|@:}@=>'\|'
+quote@{:@@<:@3@:>@ere,sh,}@:}@=>'\}'
+quote@{:@@<:@3@:>@ere,sh,~@:}@=>'~'
+quote@{:@@<:@3@:>@ere,sh,em^bed$ded@:}@=>'em\^bed\$ded'
+quote@{:@@<:@3@:>@ere,sh,embed<NL>ded@:}@=>'embed\<NL>ded'
+quote@{:@@<:@3@:>@ere,re,@:}@=>
+quote@{:@@<:@3@:>@ere,re,<NL>@:}@=>\\\
+quote@{:@@<:@3@:>@ere,re,<HT>@:}@=><HT>
+quote@{:@@<:@3@:>@ere,re,<CR>@:}@=><CR>
+quote@{:@@<:@3@:>@ere,re,<SP>@:}@=><SP>
+quote@{:@@<:@3@:>@ere,re,!@:}@=>!
+quote@{:@@<:@3@:>@ere,re,"@:}@=>"
+quote@{:@@<:@3@:>@ere,re,#@:}@=>#
+quote@{:@@<:@3@:>@ere,re,$@:}@=>\\\$
+quote@{:@@<:@3@:>@ere,re,&@:}@=>&
+quote@{:@@<:@3@:>@ere,re,'@:}@=>'
+quote@{:@@<:@3@:>@ere,re,@{:@@:}@=>\\@{:@
+quote@{:@@<:@3@:>@ere,re,@:}@@:}@=>\\@:}@
+quote@{:@@<:@3@:>@ere,re,*@:}@=>\\\*
+quote@{:@@<:@3@:>@ere,re,+@:}@=>\\+
+quote@{:@@<:@3@:>@ere,re,.@:}@=>\\\.
+quote@{:@@<:@3@:>@ere,re,;@:}@=>;
+quote@{:@@<:@3@:>@ere,re,<@:}@=><
+quote@{:@@<:@3@:>@ere,re,>@:}@=>>
+quote@{:@@<:@3@:>@ere,re,?@:}@=>\\?
+quote@{:@@<:@3@:>@ere,re,@<:@@:}@=>\\\@<:@
+quote@{:@@<:@3@:>@ere,re,\@:}@=>\\\\
+quote@{:@@<:@3@:>@ere,re,@:>@@:}@=>\\\@:>@
+quote@{:@@<:@3@:>@ere,re,^@:}@=>\\^
+quote@{:@@<:@3@:>@ere,re,`@:}@=>`
+quote@{:@@<:@3@:>@ere,re,{@:}@=>\\{
+quote@{:@@<:@3@:>@ere,re,|@:}@=>\\|
+quote@{:@@<:@3@:>@ere,re,}@:}@=>\\}
+quote@{:@@<:@3@:>@ere,re,~@:}@=>~
+quote@{:@@<:@3@:>@ere,re,em^bed$ded@:}@=>em\\^bed\\$ded
+quote@{:@@<:@3@:>@ere,re,embed<NL>ded@:}@=>embed\\\<NL>ded
+quote@{:@@<:@4@:>@ere,re,/,@:}@=>
+quote@{:@@<:@4@:>@ere,re,/,<NL>@:}@=>\\\
+quote@{:@@<:@4@:>@ere,re,/,<HT>@:}@=><HT>
+quote@{:@@<:@4@:>@ere,re,/,<CR>@:}@=><CR>
+quote@{:@@<:@4@:>@ere,re,/,<SP>@:}@=><SP>
+quote@{:@@<:@4@:>@ere,re,/,!@:}@=>!
+quote@{:@@<:@4@:>@ere,re,/,"@:}@=>"
+quote@{:@@<:@4@:>@ere,re,/,#@:}@=>#
+quote@{:@@<:@4@:>@ere,re,/,$@:}@=>\\\$
+quote@{:@@<:@4@:>@ere,re,/,&@:}@=>&
+quote@{:@@<:@4@:>@ere,re,/,'@:}@=>'
+quote@{:@@<:@4@:>@ere,re,/,@{:@@:}@=>\\@{:@
+quote@{:@@<:@4@:>@ere,re,/,@:}@@:}@=>\\@:}@
+quote@{:@@<:@4@:>@ere,re,/,*@:}@=>\\\*
+quote@{:@@<:@4@:>@ere,re,/,+@:}@=>\\+
+quote@{:@@<:@4@:>@ere,re,/,.@:}@=>\\\.
+quote@{:@@<:@4@:>@ere,re,/,;@:}@=>;
+quote@{:@@<:@4@:>@ere,re,/,<@:}@=><
+quote@{:@@<:@4@:>@ere,re,/,>@:}@=>>
+quote@{:@@<:@4@:>@ere,re,/,?@:}@=>\\?
+quote@{:@@<:@4@:>@ere,re,/,@<:@@:}@=>\\\@<:@
+quote@{:@@<:@4@:>@ere,re,/,\@:}@=>\\\\
+quote@{:@@<:@4@:>@ere,re,/,@:>@@:}@=>\\\@:>@
+quote@{:@@<:@4@:>@ere,re,/,^@:}@=>\\^
+quote@{:@@<:@4@:>@ere,re,/,`@:}@=>`
+quote@{:@@<:@4@:>@ere,re,/,{@:}@=>\\{
+quote@{:@@<:@4@:>@ere,re,/,|@:}@=>\\|
+quote@{:@@<:@4@:>@ere,re,/,}@:}@=>\\}
+quote@{:@@<:@4@:>@ere,re,/,~@:}@=>~
+quote@{:@@<:@4@:>@ere,re,/,em^bed$ded@:}@=>em\\^bed\\$ded
+quote@{:@@<:@4@:>@ere,re,/,embed<NL>ded@:}@=>embed\\\<NL>ded
+quote@{:@@<:@3@:>@ere,ere,@:}@=>
+quote@{:@@<:@3@:>@ere,ere,<NL>@:}@=>\\\
+quote@{:@@<:@3@:>@ere,ere,<HT>@:}@=><HT>
+quote@{:@@<:@3@:>@ere,ere,<CR>@:}@=><CR>
+quote@{:@@<:@3@:>@ere,ere,<SP>@:}@=><SP>
+quote@{:@@<:@3@:>@ere,ere,!@:}@=>!
+quote@{:@@<:@3@:>@ere,ere,"@:}@=>"
+quote@{:@@<:@3@:>@ere,ere,#@:}@=>#
+quote@{:@@<:@3@:>@ere,ere,$@:}@=>\\\$
+quote@{:@@<:@3@:>@ere,ere,&@:}@=>&
+quote@{:@@<:@3@:>@ere,ere,'@:}@=>'
+quote@{:@@<:@3@:>@ere,ere,@{:@@:}@=>\\\@{:@
+quote@{:@@<:@3@:>@ere,ere,@:}@@:}@=>\\\@:}@
+quote@{:@@<:@3@:>@ere,ere,*@:}@=>\\\*
+quote@{:@@<:@3@:>@ere,ere,+@:}@=>\\\+
+quote@{:@@<:@3@:>@ere,ere,.@:}@=>\\\.
+quote@{:@@<:@3@:>@ere,ere,;@:}@=>;
+quote@{:@@<:@3@:>@ere,ere,<@:}@=><
+quote@{:@@<:@3@:>@ere,ere,>@:}@=>>
+quote@{:@@<:@3@:>@ere,ere,?@:}@=>\\\?
+quote@{:@@<:@3@:>@ere,ere,@<:@@:}@=>\\\@<:@
+quote@{:@@<:@3@:>@ere,ere,\@:}@=>\\\\
+quote@{:@@<:@3@:>@ere,ere,@:>@@:}@=>\\\@:>@
+quote@{:@@<:@3@:>@ere,ere,^@:}@=>\\\^
+quote@{:@@<:@3@:>@ere,ere,`@:}@=>`
+quote@{:@@<:@3@:>@ere,ere,{@:}@=>\\\{
+quote@{:@@<:@3@:>@ere,ere,|@:}@=>\\\|
+quote@{:@@<:@3@:>@ere,ere,}@:}@=>\\\}
+quote@{:@@<:@3@:>@ere,ere,~@:}@=>~
+quote@{:@@<:@3@:>@ere,ere,em^bed$ded@:}@=>em\\\^bed\\\$ded
+quote@{:@@<:@3@:>@ere,ere,embed<NL>ded@:}@=>embed\\\<NL>ded
+quote@{:@@<:@4@:>@ere,ere,/,@:}@=>
+quote@{:@@<:@4@:>@ere,ere,/,<NL>@:}@=>\\\
+quote@{:@@<:@4@:>@ere,ere,/,<HT>@:}@=><HT>
+quote@{:@@<:@4@:>@ere,ere,/,<CR>@:}@=><CR>
+quote@{:@@<:@4@:>@ere,ere,/,<SP>@:}@=><SP>
+quote@{:@@<:@4@:>@ere,ere,/,!@:}@=>!
+quote@{:@@<:@4@:>@ere,ere,/,"@:}@=>"
+quote@{:@@<:@4@:>@ere,ere,/,#@:}@=>#
+quote@{:@@<:@4@:>@ere,ere,/,$@:}@=>\\\$
+quote@{:@@<:@4@:>@ere,ere,/,&@:}@=>&
+quote@{:@@<:@4@:>@ere,ere,/,'@:}@=>'
+quote@{:@@<:@4@:>@ere,ere,/,@{:@@:}@=>\\\@{:@
+quote@{:@@<:@4@:>@ere,ere,/,@:}@@:}@=>\\\@:}@
+quote@{:@@<:@4@:>@ere,ere,/,*@:}@=>\\\*
+quote@{:@@<:@4@:>@ere,ere,/,+@:}@=>\\\+
+quote@{:@@<:@4@:>@ere,ere,/,.@:}@=>\\\.
+quote@{:@@<:@4@:>@ere,ere,/,;@:}@=>;
+quote@{:@@<:@4@:>@ere,ere,/,<@:}@=><
+quote@{:@@<:@4@:>@ere,ere,/,>@:}@=>>
+quote@{:@@<:@4@:>@ere,ere,/,?@:}@=>\\\?
+quote@{:@@<:@4@:>@ere,ere,/,@<:@@:}@=>\\\@<:@
+quote@{:@@<:@4@:>@ere,ere,/,\@:}@=>\\\\
+quote@{:@@<:@4@:>@ere,ere,/,@:>@@:}@=>\\\@:>@
+quote@{:@@<:@4@:>@ere,ere,/,^@:}@=>\\\^
+quote@{:@@<:@4@:>@ere,ere,/,`@:}@=>`
+quote@{:@@<:@4@:>@ere,ere,/,{@:}@=>\\\{
+quote@{:@@<:@4@:>@ere,ere,/,|@:}@=>\\\|
+quote@{:@@<:@4@:>@ere,ere,/,}@:}@=>\\\}
+quote@{:@@<:@4@:>@ere,ere,/,~@:}@=>~
+quote@{:@@<:@4@:>@ere,ere,/,em^bed$ded@:}@=>em\\\^bed\\\$ded
+quote@{:@@<:@4@:>@ere,ere,/,embed<NL>ded@:}@=>embed\\\<NL>ded
+quote@{:@@<:@3@:>@ere,rs,@:}@=>
+quote@{:@@<:@3@:>@ere,rs,<NL>@:}@=>\\\
+quote@{:@@<:@3@:>@ere,rs,<HT>@:}@=><HT>
+quote@{:@@<:@3@:>@ere,rs,<CR>@:}@=><CR>
+quote@{:@@<:@3@:>@ere,rs,<SP>@:}@=><SP>
+quote@{:@@<:@3@:>@ere,rs,!@:}@=>!
+quote@{:@@<:@3@:>@ere,rs,"@:}@=>"
+quote@{:@@<:@3@:>@ere,rs,#@:}@=>#
+quote@{:@@<:@3@:>@ere,rs,$@:}@=>\\$
+quote@{:@@<:@3@:>@ere,rs,&@:}@=>\&
+quote@{:@@<:@3@:>@ere,rs,'@:}@=>'
+quote@{:@@<:@3@:>@ere,rs,@{:@@:}@=>\\@{:@
+quote@{:@@<:@3@:>@ere,rs,@:}@@:}@=>\\@:}@
+quote@{:@@<:@3@:>@ere,rs,*@:}@=>\\*
+quote@{:@@<:@3@:>@ere,rs,+@:}@=>\\+
+quote@{:@@<:@3@:>@ere,rs,.@:}@=>\\.
+quote@{:@@<:@3@:>@ere,rs,;@:}@=>;
+quote@{:@@<:@3@:>@ere,rs,<@:}@=><
+quote@{:@@<:@3@:>@ere,rs,>@:}@=>>
+quote@{:@@<:@3@:>@ere,rs,?@:}@=>\\?
+quote@{:@@<:@3@:>@ere,rs,@<:@@:}@=>\\@<:@
+quote@{:@@<:@3@:>@ere,rs,\@:}@=>\\\\
+quote@{:@@<:@3@:>@ere,rs,@:>@@:}@=>\\@:>@
+quote@{:@@<:@3@:>@ere,rs,^@:}@=>\\^
+quote@{:@@<:@3@:>@ere,rs,`@:}@=>`
+quote@{:@@<:@3@:>@ere,rs,{@:}@=>\\{
+quote@{:@@<:@3@:>@ere,rs,|@:}@=>\\|
+quote@{:@@<:@3@:>@ere,rs,}@:}@=>\\}
+quote@{:@@<:@3@:>@ere,rs,~@:}@=>~
+quote@{:@@<:@3@:>@ere,rs,em^bed$ded@:}@=>em\\^bed\\$ded
+quote@{:@@<:@3@:>@ere,rs,embed<NL>ded@:}@=>embed\\\<NL>ded
+quote@{:@@<:@4@:>@ere,rs,/,@:}@=>
+quote@{:@@<:@4@:>@ere,rs,/,<NL>@:}@=>\\\
+quote@{:@@<:@4@:>@ere,rs,/,<HT>@:}@=><HT>
+quote@{:@@<:@4@:>@ere,rs,/,<CR>@:}@=><CR>
+quote@{:@@<:@4@:>@ere,rs,/,<SP>@:}@=><SP>
+quote@{:@@<:@4@:>@ere,rs,/,!@:}@=>!
+quote@{:@@<:@4@:>@ere,rs,/,"@:}@=>"
+quote@{:@@<:@4@:>@ere,rs,/,#@:}@=>#
+quote@{:@@<:@4@:>@ere,rs,/,$@:}@=>\\$
+quote@{:@@<:@4@:>@ere,rs,/,&@:}@=>\&
+quote@{:@@<:@4@:>@ere,rs,/,'@:}@=>'
+quote@{:@@<:@4@:>@ere,rs,/,@{:@@:}@=>\\@{:@
+quote@{:@@<:@4@:>@ere,rs,/,@:}@@:}@=>\\@:}@
+quote@{:@@<:@4@:>@ere,rs,/,*@:}@=>\\*
+quote@{:@@<:@4@:>@ere,rs,/,+@:}@=>\\+
+quote@{:@@<:@4@:>@ere,rs,/,.@:}@=>\\.
+quote@{:@@<:@4@:>@ere,rs,/,;@:}@=>;
+quote@{:@@<:@4@:>@ere,rs,/,<@:}@=><
+quote@{:@@<:@4@:>@ere,rs,/,>@:}@=>>
+quote@{:@@<:@4@:>@ere,rs,/,?@:}@=>\\?
+quote@{:@@<:@4@:>@ere,rs,/,@<:@@:}@=>\\@<:@
+quote@{:@@<:@4@:>@ere,rs,/,\@:}@=>\\\\
+quote@{:@@<:@4@:>@ere,rs,/,@:>@@:}@=>\\@:>@
+quote@{:@@<:@4@:>@ere,rs,/,^@:}@=>\\^
+quote@{:@@<:@4@:>@ere,rs,/,`@:}@=>`
+quote@{:@@<:@4@:>@ere,rs,/,{@:}@=>\\{
+quote@{:@@<:@4@:>@ere,rs,/,|@:}@=>\\|
+quote@{:@@<:@4@:>@ere,rs,/,}@:}@=>\\}
+quote@{:@@<:@4@:>@ere,rs,/,~@:}@=>~
+quote@{:@@<:@4@:>@ere,rs,/,em^bed$ded@:}@=>em\\^bed\\$ded
+quote@{:@@<:@4@:>@ere,rs,/,embed<NL>ded@:}@=>embed\\\<NL>ded
+quote@{:@@<:@3@:>@rs,sh,@:}@=>''
+quote@{:@@<:@3@:>@rs,sh,<NL>@:}@=>'\<NL>'
+quote@{:@@<:@3@:>@rs,sh,<HT>@:}@=>'<HT>'
+quote@{:@@<:@3@:>@rs,sh,<CR>@:}@=>'<CR>'
+quote@{:@@<:@3@:>@rs,sh,<SP>@:}@=>'<SP>'
+quote@{:@@<:@3@:>@rs,sh,!@:}@=>'!'
+quote@{:@@<:@3@:>@rs,sh,"@:}@=>'"'
+quote@{:@@<:@3@:>@rs,sh,#@:}@=>'#'
+quote@{:@@<:@3@:>@rs,sh,$@:}@=>'$'
+quote@{:@@<:@3@:>@rs,sh,&@:}@=>'\&'
+quote@{:@@<:@3@:>@rs,sh,'@:}@=>''\'''
+quote@{:@@<:@3@:>@rs,sh,@{:@@:}@=>'@{:@'
+quote@{:@@<:@3@:>@rs,sh,@:}@@:}@=>'@:}@'
+quote@{:@@<:@3@:>@rs,sh,*@:}@=>'*'
+quote@{:@@<:@3@:>@rs,sh,+@:}@=>+
+quote@{:@@<:@3@:>@rs,sh,.@:}@=>.
+quote@{:@@<:@3@:>@rs,sh,;@:}@=>';'
+quote@{:@@<:@3@:>@rs,sh,<@:}@=>'<'
+quote@{:@@<:@3@:>@rs,sh,>@:}@=>'>'
+quote@{:@@<:@3@:>@rs,sh,?@:}@=>'?'
+quote@{:@@<:@3@:>@rs,sh,@<:@@:}@=>'@<:@'
+quote@{:@@<:@3@:>@rs,sh,\@:}@=>'\\'
+quote@{:@@<:@3@:>@rs,sh,@:>@@:}@=>'@:>@'
+quote@{:@@<:@3@:>@rs,sh,^@:}@=>^
+quote@{:@@<:@3@:>@rs,sh,`@:}@=>'`'
+quote@{:@@<:@3@:>@rs,sh,{@:}@=>'{'
+quote@{:@@<:@3@:>@rs,sh,|@:}@=>'|'
+quote@{:@@<:@3@:>@rs,sh,}@:}@=>'}'
+quote@{:@@<:@3@:>@rs,sh,~@:}@=>'~'
+quote@{:@@<:@3@:>@rs,sh,/@:}@=>/
+quote@{:@@<:@3@:>@rs,sh,em^bed$ded@:}@=>'em^bed$ded'
+quote@{:@@<:@3@:>@rs,sh,em/bed<NL>ded@:}@=>'em/bed\<NL>ded'
+quote@{:@@<:@3@:>@rs,re,@:}@=>
+quote@{:@@<:@3@:>@rs,re,<NL>@:}@=>\\\
+quote@{:@@<:@3@:>@rs,re,<HT>@:}@=><HT>
+quote@{:@@<:@3@:>@rs,re,<CR>@:}@=><CR>
+quote@{:@@<:@3@:>@rs,re,<SP>@:}@=><SP>
+quote@{:@@<:@3@:>@rs,re,!@:}@=>!
+quote@{:@@<:@3@:>@rs,re,"@:}@=>"
+quote@{:@@<:@3@:>@rs,re,#@:}@=>#
+quote@{:@@<:@3@:>@rs,re,$@:}@=>\$
+quote@{:@@<:@3@:>@rs,re,&@:}@=>\\&
+quote@{:@@<:@3@:>@rs,re,'@:}@=>'
+quote@{:@@<:@3@:>@rs,re,@{:@@:}@=>@{:@
+quote@{:@@<:@3@:>@rs,re,@:}@@:}@=>@:}@
+quote@{:@@<:@3@:>@rs,re,*@:}@=>\*
+quote@{:@@<:@3@:>@rs,re,+@:}@=>+
+quote@{:@@<:@3@:>@rs,re,.@:}@=>\.
+quote@{:@@<:@3@:>@rs,re,;@:}@=>;
+quote@{:@@<:@3@:>@rs,re,<@:}@=><
+quote@{:@@<:@3@:>@rs,re,>@:}@=>>
+quote@{:@@<:@3@:>@rs,re,?@:}@=>?
+quote@{:@@<:@3@:>@rs,re,@<:@@:}@=>\@<:@
+quote@{:@@<:@3@:>@rs,re,\@:}@=>\\\\
+quote@{:@@<:@3@:>@rs,re,@:>@@:}@=>\@:>@
+quote@{:@@<:@3@:>@rs,re,^@:}@=>\^
+quote@{:@@<:@3@:>@rs,re,`@:}@=>`
+quote@{:@@<:@3@:>@rs,re,{@:}@=>{
+quote@{:@@<:@3@:>@rs,re,|@:}@=>|
+quote@{:@@<:@3@:>@rs,re,}@:}@=>}
+quote@{:@@<:@3@:>@rs,re,~@:}@=>~
+quote@{:@@<:@3@:>@rs,re,/@:}@=>/
+quote@{:@@<:@3@:>@rs,re,em^bed$ded@:}@=>em^bed$ded
+quote@{:@@<:@3@:>@rs,re,em/bed<NL>ded@:}@=>em/bed\\\<NL>ded
+quote@{:@@<:@4@:>@rs,re,/,@:}@=>
+quote@{:@@<:@4@:>@rs,re,/,<NL>@:}@=>\\\
+quote@{:@@<:@4@:>@rs,re,/,<HT>@:}@=><HT>
+quote@{:@@<:@4@:>@rs,re,/,<CR>@:}@=><CR>
+quote@{:@@<:@4@:>@rs,re,/,<SP>@:}@=><SP>
+quote@{:@@<:@4@:>@rs,re,/,!@:}@=>!
+quote@{:@@<:@4@:>@rs,re,/,"@:}@=>"
+quote@{:@@<:@4@:>@rs,re,/,#@:}@=>#
+quote@{:@@<:@4@:>@rs,re,/,$@:}@=>\$
+quote@{:@@<:@4@:>@rs,re,/,&@:}@=>\\&
+quote@{:@@<:@4@:>@rs,re,/,'@:}@=>'
+quote@{:@@<:@4@:>@rs,re,/,@{:@@:}@=>@{:@
+quote@{:@@<:@4@:>@rs,re,/,@:}@@:}@=>@:}@
+quote@{:@@<:@4@:>@rs,re,/,*@:}@=>\*
+quote@{:@@<:@4@:>@rs,re,/,+@:}@=>+
+quote@{:@@<:@4@:>@rs,re,/,.@:}@=>\.
+quote@{:@@<:@4@:>@rs,re,/,;@:}@=>;
+quote@{:@@<:@4@:>@rs,re,/,<@:}@=><
+quote@{:@@<:@4@:>@rs,re,/,>@:}@=>>
+quote@{:@@<:@4@:>@rs,re,/,?@:}@=>?
+quote@{:@@<:@4@:>@rs,re,/,@<:@@:}@=>\@<:@
+quote@{:@@<:@4@:>@rs,re,/,\@:}@=>\\\\
+quote@{:@@<:@4@:>@rs,re,/,@:>@@:}@=>\@:>@
+quote@{:@@<:@4@:>@rs,re,/,^@:}@=>\^
+quote@{:@@<:@4@:>@rs,re,/,`@:}@=>`
+quote@{:@@<:@4@:>@rs,re,/,{@:}@=>{
+quote@{:@@<:@4@:>@rs,re,/,|@:}@=>|
+quote@{:@@<:@4@:>@rs,re,/,}@:}@=>}
+quote@{:@@<:@4@:>@rs,re,/,~@:}@=>~
+quote@{:@@<:@4@:>@rs,re,/,/@:}@=>\/
+quote@{:@@<:@4@:>@rs,re,/,em^bed$ded@:}@=>em^bed$ded
+quote@{:@@<:@4@:>@rs,re,/,em/bed<NL>ded@:}@=>em\/bed\\\<NL>ded
+quote@{:@@<:@3@:>@rs,ere,@:}@=>
+quote@{:@@<:@3@:>@rs,ere,<NL>@:}@=>\\\
+quote@{:@@<:@3@:>@rs,ere,<HT>@:}@=><HT>
+quote@{:@@<:@3@:>@rs,ere,<CR>@:}@=><CR>
+quote@{:@@<:@3@:>@rs,ere,<SP>@:}@=><SP>
+quote@{:@@<:@3@:>@rs,ere,!@:}@=>!
+quote@{:@@<:@3@:>@rs,ere,"@:}@=>"
+quote@{:@@<:@3@:>@rs,ere,#@:}@=>#
+quote@{:@@<:@3@:>@rs,ere,$@:}@=>\$
+quote@{:@@<:@3@:>@rs,ere,&@:}@=>\\&
+quote@{:@@<:@3@:>@rs,ere,'@:}@=>'
+quote@{:@@<:@3@:>@rs,ere,@{:@@:}@=>\@{:@
+quote@{:@@<:@3@:>@rs,ere,@:}@@:}@=>\@:}@
+quote@{:@@<:@3@:>@rs,ere,*@:}@=>\*
+quote@{:@@<:@3@:>@rs,ere,+@:}@=>\+
+quote@{:@@<:@3@:>@rs,ere,.@:}@=>\.
+quote@{:@@<:@3@:>@rs,ere,;@:}@=>;
+quote@{:@@<:@3@:>@rs,ere,<@:}@=><
+quote@{:@@<:@3@:>@rs,ere,>@:}@=>>
+quote@{:@@<:@3@:>@rs,ere,?@:}@=>\?
+quote@{:@@<:@3@:>@rs,ere,@<:@@:}@=>\@<:@
+quote@{:@@<:@3@:>@rs,ere,\@:}@=>\\\\
+quote@{:@@<:@3@:>@rs,ere,@:>@@:}@=>\@:>@
+quote@{:@@<:@3@:>@rs,ere,^@:}@=>\^
+quote@{:@@<:@3@:>@rs,ere,`@:}@=>`
+quote@{:@@<:@3@:>@rs,ere,{@:}@=>\{
+quote@{:@@<:@3@:>@rs,ere,|@:}@=>\|
+quote@{:@@<:@3@:>@rs,ere,}@:}@=>\}
+quote@{:@@<:@3@:>@rs,ere,~@:}@=>~
+quote@{:@@<:@3@:>@rs,ere,/@:}@=>/
+quote@{:@@<:@3@:>@rs,ere,em^bed$ded@:}@=>em\^bed\$ded
+quote@{:@@<:@3@:>@rs,ere,em/bed<NL>ded@:}@=>em/bed\\\<NL>ded
+quote@{:@@<:@4@:>@rs,ere,/,@:}@=>
+quote@{:@@<:@4@:>@rs,ere,/,<NL>@:}@=>\\\
+quote@{:@@<:@4@:>@rs,ere,/,<HT>@:}@=><HT>
+quote@{:@@<:@4@:>@rs,ere,/,<CR>@:}@=><CR>
+quote@{:@@<:@4@:>@rs,ere,/,<SP>@:}@=><SP>
+quote@{:@@<:@4@:>@rs,ere,/,!@:}@=>!
+quote@{:@@<:@4@:>@rs,ere,/,"@:}@=>"
+quote@{:@@<:@4@:>@rs,ere,/,#@:}@=>#
+quote@{:@@<:@4@:>@rs,ere,/,$@:}@=>\$
+quote@{:@@<:@4@:>@rs,ere,/,&@:}@=>\\&
+quote@{:@@<:@4@:>@rs,ere,/,'@:}@=>'
+quote@{:@@<:@4@:>@rs,ere,/,@{:@@:}@=>\@{:@
+quote@{:@@<:@4@:>@rs,ere,/,@:}@@:}@=>\@:}@
+quote@{:@@<:@4@:>@rs,ere,/,*@:}@=>\*
+quote@{:@@<:@4@:>@rs,ere,/,+@:}@=>\+
+quote@{:@@<:@4@:>@rs,ere,/,.@:}@=>\.
+quote@{:@@<:@4@:>@rs,ere,/,;@:}@=>;
+quote@{:@@<:@4@:>@rs,ere,/,<@:}@=><
+quote@{:@@<:@4@:>@rs,ere,/,>@:}@=>>
+quote@{:@@<:@4@:>@rs,ere,/,?@:}@=>\?
+quote@{:@@<:@4@:>@rs,ere,/,@<:@@:}@=>\@<:@
+quote@{:@@<:@4@:>@rs,ere,/,\@:}@=>\\\\
+quote@{:@@<:@4@:>@rs,ere,/,@:>@@:}@=>\@:>@
+quote@{:@@<:@4@:>@rs,ere,/,^@:}@=>\^
+quote@{:@@<:@4@:>@rs,ere,/,`@:}@=>`
+quote@{:@@<:@4@:>@rs,ere,/,{@:}@=>\{
+quote@{:@@<:@4@:>@rs,ere,/,|@:}@=>\|
+quote@{:@@<:@4@:>@rs,ere,/,}@:}@=>\}
+quote@{:@@<:@4@:>@rs,ere,/,~@:}@=>~
+quote@{:@@<:@4@:>@rs,ere,/,/@:}@=>\/
+quote@{:@@<:@4@:>@rs,ere,/,em^bed$ded@:}@=>em\^bed\$ded
+quote@{:@@<:@4@:>@rs,ere,/,em/bed<NL>ded@:}@=>em\/bed\\\<NL>ded
+quote@{:@@<:@3@:>@rs,rs,@:}@=>
+quote@{:@@<:@3@:>@rs,rs,<NL>@:}@=>\\\
+quote@{:@@<:@3@:>@rs,rs,<HT>@:}@=><HT>
+quote@{:@@<:@3@:>@rs,rs,<CR>@:}@=><CR>
+quote@{:@@<:@3@:>@rs,rs,<SP>@:}@=><SP>
+quote@{:@@<:@3@:>@rs,rs,!@:}@=>!
+quote@{:@@<:@3@:>@rs,rs,"@:}@=>"
+quote@{:@@<:@3@:>@rs,rs,#@:}@=>#
+quote@{:@@<:@3@:>@rs,rs,$@:}@=>$
+quote@{:@@<:@3@:>@rs,rs,&@:}@=>\\\&
+quote@{:@@<:@3@:>@rs,rs,'@:}@=>'
+quote@{:@@<:@3@:>@rs,rs,@{:@@:}@=>@{:@
+quote@{:@@<:@3@:>@rs,rs,@:}@@:}@=>@:}@
+quote@{:@@<:@3@:>@rs,rs,*@:}@=>*
+quote@{:@@<:@3@:>@rs,rs,+@:}@=>+
+quote@{:@@<:@3@:>@rs,rs,.@:}@=>.
+quote@{:@@<:@3@:>@rs,rs,;@:}@=>;
+quote@{:@@<:@3@:>@rs,rs,<@:}@=><
+quote@{:@@<:@3@:>@rs,rs,>@:}@=>>
+quote@{:@@<:@3@:>@rs,rs,?@:}@=>?
+quote@{:@@<:@3@:>@rs,rs,@<:@@:}@=>@<:@
+quote@{:@@<:@3@:>@rs,rs,\@:}@=>\\\\
+quote@{:@@<:@3@:>@rs,rs,@:>@@:}@=>@:>@
+quote@{:@@<:@3@:>@rs,rs,^@:}@=>^
+quote@{:@@<:@3@:>@rs,rs,`@:}@=>`
+quote@{:@@<:@3@:>@rs,rs,{@:}@=>{
+quote@{:@@<:@3@:>@rs,rs,|@:}@=>|
+quote@{:@@<:@3@:>@rs,rs,}@:}@=>}
+quote@{:@@<:@3@:>@rs,rs,~@:}@=>~
+quote@{:@@<:@3@:>@rs,rs,/@:}@=>/
+quote@{:@@<:@3@:>@rs,rs,em^bed$ded@:}@=>em^bed$ded
+quote@{:@@<:@3@:>@rs,rs,em/bed<NL>ded@:}@=>em/bed\\\<NL>ded
+quote@{:@@<:@4@:>@rs,rs,/,@:}@=>
+quote@{:@@<:@4@:>@rs,rs,/,<NL>@:}@=>\\\
+quote@{:@@<:@4@:>@rs,rs,/,<HT>@:}@=><HT>
+quote@{:@@<:@4@:>@rs,rs,/,<CR>@:}@=><CR>
+quote@{:@@<:@4@:>@rs,rs,/,<SP>@:}@=><SP>
+quote@{:@@<:@4@:>@rs,rs,/,!@:}@=>!
+quote@{:@@<:@4@:>@rs,rs,/,"@:}@=>"
+quote@{:@@<:@4@:>@rs,rs,/,#@:}@=>#
+quote@{:@@<:@4@:>@rs,rs,/,$@:}@=>$
+quote@{:@@<:@4@:>@rs,rs,/,&@:}@=>\\\&
+quote@{:@@<:@4@:>@rs,rs,/,'@:}@=>'
+quote@{:@@<:@4@:>@rs,rs,/,@{:@@:}@=>@{:@
+quote@{:@@<:@4@:>@rs,rs,/,@:}@@:}@=>@:}@
+quote@{:@@<:@4@:>@rs,rs,/,*@:}@=>*
+quote@{:@@<:@4@:>@rs,rs,/,+@:}@=>+
+quote@{:@@<:@4@:>@rs,rs,/,.@:}@=>.
+quote@{:@@<:@4@:>@rs,rs,/,;@:}@=>;
+quote@{:@@<:@4@:>@rs,rs,/,<@:}@=><
+quote@{:@@<:@4@:>@rs,rs,/,>@:}@=>>
+quote@{:@@<:@4@:>@rs,rs,/,?@:}@=>?
+quote@{:@@<:@4@:>@rs,rs,/,@<:@@:}@=>@<:@
+quote@{:@@<:@4@:>@rs,rs,/,\@:}@=>\\\\
+quote@{:@@<:@4@:>@rs,rs,/,@:>@@:}@=>@:>@
+quote@{:@@<:@4@:>@rs,rs,/,^@:}@=>^
+quote@{:@@<:@4@:>@rs,rs,/,`@:}@=>`
+quote@{:@@<:@4@:>@rs,rs,/,{@:}@=>{
+quote@{:@@<:@4@:>@rs,rs,/,|@:}@=>|
+quote@{:@@<:@4@:>@rs,rs,/,}@:}@=>}
+quote@{:@@<:@4@:>@rs,rs,/,~@:}@=>~
+quote@{:@@<:@4@:>@rs,rs,/,/@:}@=>\/
+quote@{:@@<:@4@:>@rs,rs,/,em^bed$ded@:}@=>em^bed$ded
+quote@{:@@<:@4@:>@rs,rs,/,em/bed<NL>ded@:}@=>em\/bed\\\<NL>ded
 ], [dnl
 ])
 AT_CLEANUP
