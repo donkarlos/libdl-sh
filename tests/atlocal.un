@@ -28,8 +28,8 @@
 ##					specials() and atlocal_set_specials().
 ##		ks	2021-05-20	Add atlocal_function_withdrawn().
 ##		ks	2021-05-21	Add atlocal_function_deprecated(),
-##					atlocal_trace(), and atlocal_trace_-
-##					with_output().
+##					atlocal_trace(), atlocal_trace_with_-
+##					output(), and atlocal_returns().
 ##----------------------------------------------------------------------------
 ##  Global variables:
 #-----------------------------------------------------------------------------
@@ -90,6 +90,25 @@ atlocal_trace_with_output() {
     ' <<EOF
 $func([$#]$args)=>$output
 EOF
+}
+
+##----------------------------------------------------------------------------
+##  atlocal_returns(STATUS FUNC [ARG ...])
+##				Check if FUNC's invocation returns STATUS
+##----------------------------------------------------------------------------
+atlocal_returns() {
+    case ${2+=} in			## Usage OK?
+	=)  local expected="$1" returned; shift
+	    atlocal_trace "$@"		## Yes, fetch expected exit status
+	    ;;				## and trace function invocation.
+	*)  return 2			## No, indicate abuse!
+	    ;;
+    esac; (				## Invoke function within relaxed
+	trap '' 0; set +e; "$@"		## environment.
+    ); returned=$?; test $returned -eq "$expected" || {
+	echo "returned $returned; expected $expected"
+	return 1
+    }
 }
 
 ##----------------------------------------------------------------------------
