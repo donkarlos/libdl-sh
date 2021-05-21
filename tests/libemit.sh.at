@@ -258,7 +258,7 @@ esac
 eval "`libdl-sh load`"; dl_load emit	## Load libdl.sh and libemit.sh or die.
 mp=emit_; status=0			## Assume success.
 for api in `${mp}meta get apis`; do (	## Foreach API version do...
-    trap '' 0				## Ignore EXIT traps within sub-shell.
+    trap '' 0				## Ignore EXIT traps within subshell.
     echo "${mp}meta set api $api"
     if ${mp}meta set api $api; then
 	ifs=$IFS; IFS=$NL; set shiftee `${mp}meta get apis list 's/^'"$api"';//;t0
