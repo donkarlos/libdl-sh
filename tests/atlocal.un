@@ -24,8 +24,8 @@
 ##  CHANGED BY:	ks	2021-05-03	Define PACKAGE_TARNAME, PACKAGE_-
 ##					VERSION, and installation directories.
 ##		ks	2021-05-18	Declare global variables readonly.
-##					Add atlocal_loggable(), atlocal_get_-
-##					specials() and atlocal_set_specials().
+##					Add atlocal_get_specials()
+##					and atlocal_set_specials().
 ##		ks	2021-05-20	Add atlocal_function_withdrawn().
 ##		ks	2021-05-21	Add atlocal_function_deprecated(),
 ##					atlocal_trace(), atlocal_trace_with_-
@@ -109,24 +109,6 @@ atlocal_returns() {
 	echo "returned $returned; expected $expected"
 	return 1
     }
-}
-
-##----------------------------------------------------------------------------
-##  atlocal_loggable(ARG ...)	Make ARGument(s) loggable by rewriting cer-
-##				tain "dangerous" (to some editors or m4(1))
-##				characters
-##
-##  Non-local variables:
-##	- NL		(R) The newline   character.
-##	- BS		(R) The backspace character.
-##----------------------------------------------------------------------------
-atlocal_loggable() {
-    local ifs string; ifs=$IFS; IFS=,; string=$*; IFS=$ifs; sed '
-	:N'"$NL"'$!{;N;bN'"$NL"'}
-	s/'"$BS$NL"'/<NL>/g;s/'"$CR"'/<CR>/g;s/	/<HT>/g;s/ /<SP>/g
-    ' <<EOF
-$string
-EOF
 }
 
 ##----------------------------------------------------------------------------
