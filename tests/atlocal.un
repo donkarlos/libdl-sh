@@ -30,6 +30,7 @@
 ##		ks	2021-05-21	Add atlocal_function_deprecated(),
 ##					atlocal_trace(), atlocal_trace_with_-
 ##					output(), and atlocal_returns().
+##		ks	2021-05-23	Add atlocal_trace_variable().
 ##----------------------------------------------------------------------------
 ##  Global variables:
 #-----------------------------------------------------------------------------
@@ -109,6 +110,31 @@ atlocal_returns() {
 	echo "returned $returned; expected $expected"
 	return 1
     }
+}
+
+##----------------------------------------------------------------------------
+##  atlocal_trace_variable(NAME)
+##				Trace assignment to NAME if it's set or just
+##				'unset NAME' otherwise
+##
+##  Non-local variables:
+##	- NL		(R) A newline.		(ASCII <LF>)
+##	- CR		(R) A carriage return.	(ASCII <CR>)
+##	- BS		(R) A backslash.	(\\)
+##----------------------------------------------------------------------------
+atlocal_trace_variable() {
+    expr "${1+_$1}" : "_$dl_re_id" >/dev/null || return 2
+    local sx='
+	:N'"$NL"'$!{;N;bN'"$NL"'}
+	s/'"$BS$NL"'/<NL>/g;s/'"$CR"'/<CR>/g;s/	/<HT>/g;s/ /<SP>/g
+    '; eval 'case ${'"$1"'+=} in
+	=)  sed "$sx" <<EOF
+'"$1"'=`quote_sh "$'"$1"'"`
+EOF
+	    ;;
+	*)	echo unset '"$1"'
+	    ;;
+    esac'
 }
 
 ##----------------------------------------------------------------------------
