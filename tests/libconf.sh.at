@@ -26,6 +26,7 @@ dnl					Add test group [libconf.sh functions
 dnl					are propely withdrawn?].
 dnl		ks	2021-05-21	Add test group [libconf.sh functions
 dnl					are propely deprecated?].
+dnl		ks	2021-05-23	Simplify embedded dl_warn().
 dnl
 dnl Test group 'GIT-style configuration file processing library libconf.sh'
 dnl
@@ -277,8 +278,6 @@ exit $status				## Indicate success or failure.
 conf_meta set api 1
 conf_meta get api list
 conf_getenv lib core.lib /dev/null
-dl_warn rel-dpr-func conf;_getenv([[3]]lib core.lib /dev/null) 0.4 0.5 0.3.6
-lt-nl
 126
 ], [dnl
 ])
@@ -307,7 +306,6 @@ exit $status				## Indicate success or failure.
 conf_meta set api 2
 conf_meta get api list
 conf_getenv lib core.lib /dev/null
-dl_warn api-wdr-func conf;_getenv([[3]]lib core.lib /dev/null) 2 1
 127
 ], [dnl
 ])

@@ -30,8 +30,9 @@ dnl		ks	2021-05-21	Add test group [libundo.sh functions
 dnl					are propely deprecated?].
 dnl		ks	2021-05-23	Use atlocal_trace_invocation() and
 dnl					atlocal_trace_invocation_returns().
+dnl					Simplify embedded dl_warn().
 dnl
-dnl Test group 'String quoting library libundo.sh'
+dnl Test group 'Undo stack management library libundo.sh'
 dnl
 AT_BANNER([Undo stack management library libundo.sh])
 
@@ -299,26 +300,18 @@ exit $status				## Indicate success or failure.
 undo_meta set api 0
 undo_meta get api list
 undo_init :TAG
-dl_warn rel-dpr-func undo;_init([[1]]:TAG) 0.4 0.5 0.3.6
-lt-nl
 126
 undo_meta set api 0
 undo_meta get api list
 undo_keep :TAG
-dl_warn rel-dpr-func undo;_keep([[1]]:TAG) 0.4 0.5 0.3.6
-lt-nl
 126
 undo_meta set api 0
 undo_meta get api list
 undo_mark ::MARK
-dl_warn rel-dpr-func undo;_mark([[1]]::MARK) 0.4 0.5 0.3.6
-lt-nl
 126
 undo_meta set api 1
 undo_meta get api list
 undo_mark ::MARK
-dl_warn rel-dpr-func undo;_mark([[1]]::MARK) 0.4 0.5 0.3.6
-lt-nl
 126
 ], [dnl
 ])
@@ -351,27 +344,22 @@ exit $status				## Indicate success or failure.
 undo_meta set api 1
 undo_meta get api list
 undo_init :TAG
-dl_warn api-wdr-func undo;_init([[1]]:TAG) 1 0
 127
 undo_meta set api 1
 undo_meta get api list
 undo_keep :TAG
-dl_warn api-wdr-func undo;_keep([[1]]:TAG) 1 0
 127
 undo_meta set api 2
 undo_meta get api list
 undo_init :TAG
-dl_warn api-wdr-func undo;_init([[1]]:TAG) 1 0
 127
 undo_meta set api 2
 undo_meta get api list
 undo_mark ::MARK
-dl_warn api-wdr-func undo;_mark([[1]]::MARK) 2 1
 127
 undo_meta set api 2
 undo_meta get api list
 undo_keep :TAG
-dl_warn api-wdr-func undo;_keep([[1]]:TAG) 1 0
 127
 ], [dnl
 ])

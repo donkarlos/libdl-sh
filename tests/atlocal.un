@@ -33,6 +33,7 @@
 ##		ks	2021-05-23	Add atlocal_trace_variable(),
 ##					atlocal_trace_invocation(), and
 ##					atlocal_trace_invocation_returns().
+##					Simplify embedded dl_warn().
 ##----------------------------------------------------------------------------
 ##  Global variables:
 #-----------------------------------------------------------------------------
@@ -247,18 +248,10 @@ atlocal_function_deprecated() {
 	*)  return 2			## N/?/?: Indicate abuse!
 	    ;;
     esac; (				## Within subshell environment do...
-	dl_warn() {			## Overload dl_warn() with simplified
-	    echo dl_warn ${1+"$@"}	## version...
+	dl_warn() {
 	    case ${6+6}${5+5}${4+4}${3+3}${1+=$1} in
-		43=rel-req-set-api)
-		    return 3    ;;
 		543=rel-dpr-func)
-		    verscmp --target=fast -- "$version" lt-nl "$3" && echo lt-nl
 		    return 126  ;;	## Suppress FUNC's execution!
-		43=api-wdr-func)
-		    return 127  ;;
-		43=rel-wdr-meta)
-		    return 2    ;;
 		*)  return 3    ;;
 	    esac
 	}
@@ -292,17 +285,10 @@ atlocal_function_withdrawn() {
 	*)  return 2			## N/?/?: Indicate abuse!
 	    ;;
     esac; (				## Within subshell environment do...
-	dl_warn() {			## Overload dl_warn() with simplified
-	    echo dl_warn ${1+"$@"}	## version...
+	dl_warn() {
 	    case ${6+6}${5+5}${4+4}${3+3}${1+=$1} in
-		43=rel-req-set-api)
-		    return 3    ;;
-		543=rel-dpr-func)
-		    return 0    ;;
 		43=api-wdr-func)
-		    return 127  ;;
-		43=rel-wdr-meta)
-		    return 2    ;;
+		    return 127  ;;	## Suppress FUNC's execution!
 		*)  return 3    ;;
 	    esac
 	}

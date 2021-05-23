@@ -26,6 +26,7 @@ dnl					Add test group [libsafe.sh functions
 dnl					are propely withdrawn?].
 dnl		ks	2021-05-21	Add test group [libsafe.sh functions
 dnl					are propely deprecated?].
+dnl		ks	2021-05-23	Simplify embedded dl_warn().
 dnl
 dnl Test group 'Safe directory/file operations library libsafe.sh'
 dnl
@@ -306,8 +307,6 @@ exit $status				## Indicate success or failure.
 safe_meta set api 0
 safe_meta get api list
 safe_init :TAG
-dl_warn rel-dpr-func safe;_init([[1]]:TAG) 0.4 0.5 0.3.6
-lt-nl
 126
 ], [dnl
 ])
@@ -336,7 +335,6 @@ exit $status				## Indicate success or failure.
 safe_meta set api 1
 safe_meta get api list
 safe_init :TAG
-dl_warn api-wdr-func safe;_init([[1]]:TAG) 1 0
 127
 ], [dnl
 ])
