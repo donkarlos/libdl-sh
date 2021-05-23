@@ -37,8 +37,9 @@
 ##					atlocal_function_deprecated(), and
 ##					atlocal_function_withdrawn().
 ##					Add atlocal_trace_invocation_raw_out-
-##					put() and atlocal_trace_invocation_-
-##					set_output().
+##					put(), atlocal_trace_invocation_set_-
+##					output(), and atlocal_check_meta_-
+##					inquiries().
 ##----------------------------------------------------------------------------
 ##  Global variables:
 #-----------------------------------------------------------------------------
@@ -373,4 +374,28 @@ atlocal_function_withdrawn() {
 	    shift 2 && atlocal_trace_invocation_returns 127 "$@" || exit 1
 	}				## Fail unless function returns with
     )					## withdrawn status.
+}
+
+##----------------------------------------------------------------------------
+##  atlocal_check_meta_inquiries(LIB [WHAT ...])
+##				Check if LIBrary provides the required set of
+##				meta inquiries
+##----------------------------------------------------------------------------
+atlocal_check_meta_inquiries() {
+    case ${1+=`dl_meta get loaded`} in
+					## Usage OK?/LIB is demand-loaded?
+	=*:${1-}:*)			## Y/Y: Declare local variables.
+	    local status=0 meta="$1"_meta what; shift
+	    ;;
+	*)  return 2			## N/?: Indicate abuse!
+	    ;;
+    esac; for what in							\
+	package version api apis					\
+	'apis api' 'apis full' 'apis list' 'apis r/o' ${1+"$@"}
+    do
+	atlocal_trace_invocation_raw_output $meta get $what || case $?/$what in
+	    1/api)	;;		## Trace invocation with result and
+	    *)  status=1;;		## fail test unless inquiry succeeeded.
+	esac
+    done; return $status		## Indicate success or failure.
 }
