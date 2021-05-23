@@ -325,8 +325,8 @@ for api in `${mp}meta get apis`; do (	## Foreach API version do...
 		s/^\('"$dl_re_id"'\);\('"$dl_re_0n"'\)$/name=\1 min=\2 max=\2/;tp
 		s/^.*$/test/;:p
 	'`; shift; IFS=$ifs
-	for signature in ${1+"$@"}; do	## Yes, foreach parsed signature (see
-					## note (1)) do...
+	for signature in ${1+"$@"}; do	## Foreach parsed signature (see note
+					## (1)) do...
 	    eval "$signature" && case $name in
 					## Function exempted?
 		_)			## Yes.
@@ -340,7 +340,7 @@ for api in `${mp}meta get apis`; do (	## Foreach API version do...
 	    esac
 	done
     fi
-) || status=1; done; exit $status
+) || status=1; done; exit $status	## Indicate success or failure.
 ], 0, [dnl				## And the winner is...
 quote_meta([[3]]set,api,0)
 quote_meta([[0]])
