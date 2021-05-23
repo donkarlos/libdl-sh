@@ -214,18 +214,16 @@ EOF
 ##				usable with 'eval set shiftee ...; shift'
 ##
 ##  Non-local variables:
-##	- NL		(R) The newline   character.
-##	- BS		(R) The backspace character.
-##	- SQ		(R) Single quote.
-##	- LB		(R) Left  (opening) bracket (i.e., '[').
-##	- RB		(R) Right (closing) bracket (i.e., ']').
+##	- NL		(R) A newline.		(ASCII <LF>)
+##	- BS		(R) A backslash.	(\\)
+##	- SQ		(R) A single quote.
 ##	- quote_cs_sh	(R) Special sh(1) character set sans '~'.
 ##----------------------------------------------------------------------------
 atlocal_set_special_cs() {
     sed '
 	:N'"$NL"'$!{;N;bN'"$NL"'}
 	s/^'"$BS$NL"'/'"$SQ"'&'"$SQ"' %/;t0
-	:0'"$NL"'s/%\('"$LB$quote_cs_sh~$RB"'\)/'"$BS$BS"'\1 %/;t0
+	:0'"$NL"'s/%\(['"$quote_cs_sh"'~]\)/'"$BS$BS"'\1 %/;t0
 	s/%\(.\)/\1 %/;t0
 	s/ %//
     ' <<EOF
