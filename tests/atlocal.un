@@ -38,8 +38,9 @@
 ##					atlocal_function_withdrawn().
 ##					Add atlocal_trace_invocation_raw_out-
 ##					put(), atlocal_trace_invocation_set_-
-##					output(), and atlocal_check_meta_-
-##					inquiries().
+##					output(), atlocal_check_meta_in-
+##					quiries(), and atlocal_check_con-
+##					stants().
 ##----------------------------------------------------------------------------
 ##  Global variables:
 #-----------------------------------------------------------------------------
@@ -398,4 +399,35 @@ atlocal_check_meta_inquiries() {
 	    *)  status=1;;		## fail test unless inquiry succeeeded.
 	esac
     done; return $status		## Indicate success or failure.
+}
+
+##----------------------------------------------------------------------------
+##  atlocal_check_constants(LIB)
+##				Check if the constants reported by LIBrary's
+##				'get apis r/o' meta inquiry (for the default
+##				API version) are actually defined
+##----------------------------------------------------------------------------
+atlocal_check_constants() {
+    case ${1+=`dl_meta get loaded`} in
+					## Usage OK?/LIB is demand-loaded?
+	=*:${1-}:*)			## Y/Y: Declare local variables.
+	    local status=0 meta="$1"_meta api name
+	    ;;
+	*)  return 2			## N/?: Indicate abuse!
+	    ;;
+    esac; atlocal_trace_invocation_set_output api $meta get api && {
+					## Inquired default API version?
+	for name in `$meta get apis r/o '/^'"$api"';/!d;s///'`; do
+					## Yes, foreach constant do...
+	    eval 'case ${'"$name"'+=} in
+					## Does it have a value?
+		=)  (eval "$name=" 2>/dev/null) && status=1 || echo "$name"
+					## Yes, but fail test if we could set
+		    ;;			## it in a subshell environment! 8-O
+		*)  status=1		## No, fail test as it is unset! :-(
+		    ;;
+	    esac'
+	done
+    } || status=1
+    return $status			## Indicate success or failure.
 }
