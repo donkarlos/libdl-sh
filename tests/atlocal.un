@@ -30,8 +30,9 @@
 ##		ks	2021-05-21	Add atlocal_function_deprecated(),
 ##					atlocal_trace(), atlocal_trace_with_-
 ##					output(), and atlocal_returns().
-##		ks	2021-05-23	Add atlocal_trace_variable() and
-##					atlocal_trace_invocation().
+##		ks	2021-05-23	Add atlocal_trace_variable(),
+##					atlocal_trace_invocation(), and
+##					atlocal_trace_invocation_returns().
 ##----------------------------------------------------------------------------
 ##  Global variables:
 #-----------------------------------------------------------------------------
@@ -167,6 +168,20 @@ atlocal_trace_invocation() {
 $func([$#]$args)=$returned
 EOF
     return $returned
+}
+
+##----------------------------------------------------------------------------
+##  atlocal_trace_invocation_returns(STATUS FUNC [ARG ...])
+##				Invoke FUNC, capture returned status, trace
+##				invocation with status, and check if FUNC's
+##				invocation returned STATUS
+##----------------------------------------------------------------------------
+atlocal_trace_invocation_returns() {
+    expr "${2+_$2}" : "_$dl_re_id" >/dev/null || return 2
+					## Indicate abuse if necesssary.
+    local expected="$1" returned; shift
+    atlocal_trace_invocation "$@" && returned=$? || returned=$?
+    test $returned -eq "$expected" 2>/dev/null || return 1
 }
 
 ##----------------------------------------------------------------------------
