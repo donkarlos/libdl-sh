@@ -145,7 +145,7 @@ sysconf_DATA		= etc/libdl-sh.conf
 ##----------------------------------------------------------------------------
 ##  Build, run, and distribute test suite:
 ##----------------------------------------------------------------------------
-TESTSUITE 		= $(srcdir)/tests/testsuite
+TESTSUITE		= $(srcdir)/tests/testsuite
 TESTSUITE_AT		= $(TESTSUITE).at
 TESTSUITE_INCLUDEES	= $(srcdir)/tests/package.m4			\
 			  tests/libconf.sh.at				\
@@ -160,7 +160,7 @@ TESTSUITE_INCLUDEES	= $(srcdir)/tests/package.m4			\
 EXTRA_DIST		= $(TESTSUITE_AT) $(TESTSUITE_INCLUDEES) $(TESTSUITE)
 
 $(srcdir)/tests/package.m4: $(top_srcdir)/configure.ac
-	:;{ 								\
+	:;{								\
 	echo 'm4_define([AT_PACKAGE_NAME], [$(PACKAGE_NAME)])' &&	\
 	echo 'm4_define([AT_PACKAGE_TARNAME], [$(PACKAGE_TARNAME)])' &&	\
 	echo 'm4_define([AT_PACKAGE_VERSION], [$(PACKAGE_VERSION)])' && \
@@ -172,7 +172,7 @@ $(srcdir)/tests/package.m4: $(top_srcdir)/configure.ac
 $(TESTSUITE):		$(TESTSUITE_AT) $(TESTSUITE_INCLUDEES)
 	$(AUTOTEST) $(AUTOTESTFLAGS) -o $@.tmp $@.at && mv $@.tmp $@ || rm -f $@.tmp
 
-check-local: 		tests/atconfig tests/atlocal $(TESTSUITE)
+check-local:		tests/atconfig tests/atlocal $(TESTSUITE)
 	$(SHELL) $(TESTSUITE) $(TESTSUITEFLAGS) -C tests
 
 installcheck-local:	tests/atconfig tests/atlocal $(TESTSUITE)
