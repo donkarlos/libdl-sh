@@ -189,8 +189,9 @@ atlocal_trace_invocation_returns() {
 ##				characters
 ##
 ##  Non-local variables:
-##	- NL		(R) The newline   character.
-##	- BS		(R) The backspace character.
+##	- NL		(R) A newline.		(ASCII <LF>)
+##	- BS		(R) A backslash.	(\\)
+##	- DS		(R) A dollar sign.	(\$)
 ##	- quote_cs_sh	(R) Special sh(1) character set sans '~'.
 ##	- quote_cs_bre	(R) Special BRE character set sans '^' and '$'.
 ##	- quote_cs_ere	(R) Special ERE character set with '^' and '$'.
