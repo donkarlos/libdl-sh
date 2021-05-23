@@ -33,6 +33,8 @@ dnl					atlocal_trace_invocation_returns().
 dnl					Simplify embedded dl_warn(),
 dnl					atlocal_function_deprecated(), and
 dnl					atlocal_function_withdrawn().
+dnl					Add test group ['undo_meta set 0tag'
+dnl					works as expected?].
 dnl
 dnl Test group 'Undo stack management library libundo.sh'
 dnl
@@ -414,6 +416,43 @@ undo_meta([[3]]set,api,2)=0
 undo_meta([[0]])=2
 undo_meta([[1]]1)=2
 undo_push([[0]])=2
+], [dnl
+])
+AT_CLEANUP
+
+dnl
+dnl Check if 'undo_meta set 0tag' works as expected.
+dnl
+AT_SETUP(['undo_meta set 0tag' works as expected?])
+AT_KEYWORDS([libundo.sh libundo undo_meta cleanups])
+AT_CHECK([dnl
+set -eu					## Employ strict execution environment
+					## to ensure 'set -u' resilience.
+case :$PATH: in				## Triggered by 'check-local:'?
+    *:$abs_top_builddir/bin:*)		## Yes, export suitable LSP.
+	LIBDL_SH_LIBRARY_PATH=$abs_top_builddir/lib
+	LIBDL_SH_LIBEXECDIR=$abs_top_builddir/libexec
+	export LIBDL_SH_LIBRARY_PATH LIBDL_SH_LIBEXECDIR
+	;;
+esac
+eval "`libdl-sh load`"; dl_load undo	## Load libdl.sh and libundo.sh or die.
+status=0				## Assume success.
+atlocal_trace_variable undo_0tag
+atlocal_trace_invocation undo_meta set 0tag :0	|| status=1
+atlocal_trace_variable undo_0tag
+atlocal_trace_invocation undo_meta set 0tag :0	|| status=1
+atlocal_trace_variable undo_0tag
+atlocal_trace_invocation undo_meta set 0tag :1	&& status=1
+atlocal_trace_variable undo_0tag
+exit $status				## Indicate success or failure.
+], 0, [dnl				## And the winner is...
+unset undo_0tag
+undo_meta([[3]]set,0tag,:0)=0
+undo_0tag=:0
+undo_meta([[3]]set,0tag,:0)=0
+undo_0tag=:0
+undo_meta([[3]]set,0tag,:1)=1
+undo_0tag=:0
 ], [dnl
 ])
 AT_CLEANUP
