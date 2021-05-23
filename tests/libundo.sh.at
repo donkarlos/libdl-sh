@@ -30,8 +30,9 @@ dnl		ks	2021-05-21	Add test group [libundo.sh functions
 dnl					are propely deprecated?].
 dnl		ks	2021-05-23	Use atlocal_trace_invocation() and
 dnl					atlocal_trace_invocation_returns().
-dnl					Simplify embedded dl_warn() and
-dnl					atlocal_function_deprecated().
+dnl					Simplify embedded dl_warn(),
+dnl					atlocal_function_deprecated(), and
+dnl					atlocal_function_withdrawn().
 dnl
 dnl Test group 'Undo stack management library libundo.sh'
 dnl
@@ -334,26 +335,16 @@ atlocal_function_withdrawn $lib 2 ${lib}_mark ::MARK	|| status=1
 atlocal_function_withdrawn $lib 2 ${lib}_keep :TAG	|| status=1
 exit $status				## Indicate success or failure.
 ], 0, [dnl				## And the winner is...
-undo_meta set api 1
-undo_meta get api list
-undo_init :TAG
-127
-undo_meta set api 1
-undo_meta get api list
-undo_keep :TAG
-127
-undo_meta set api 2
-undo_meta get api list
-undo_init :TAG
-127
-undo_meta set api 2
-undo_meta get api list
-undo_mark ::MARK
-127
-undo_meta set api 2
-undo_meta get api list
-undo_keep :TAG
-127
+undo_meta([[3]]set,api,1)=0
+undo_init([[1]]:TAG)=127
+undo_meta([[3]]set,api,1)=0
+undo_keep([[1]]:TAG)=127
+undo_meta([[3]]set,api,2)=0
+undo_init([[1]]:TAG)=127
+undo_meta([[3]]set,api,2)=0
+undo_mark([[1]]::MARK)=127
+undo_meta([[3]]set,api,2)=0
+undo_keep([[1]]:TAG)=127
 ], [dnl
 ])
 AT_CLEANUP
