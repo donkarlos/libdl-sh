@@ -37,7 +37,8 @@
 ##					atlocal_function_deprecated(), and
 ##					atlocal_function_withdrawn().
 ##					Add atlocal_trace_invocation_raw_out-
-##					put().
+##					put() and atlocal_trace_invocation_-
+##					set_output().
 ##----------------------------------------------------------------------------
 ##  Global variables:
 #-----------------------------------------------------------------------------
@@ -218,6 +219,47 @@ atlocal_trace_invocation_raw_output() {
 	:N'"$NL"'$!{;N;bN'"$NL"'}
     ' <<EOF
 $func([$#]$args)=$returned${output:+$NL$output}
+EOF
+    return $returned
+}
+
+##----------------------------------------------------------------------------
+##  atlocal_trace_invocation_set_output(&NAME FUNC [ARG ...])
+##				Invoke FUNC, capture output as well as return-
+##				ed status, trace invocation with status and
+##				rewritten output, and assign output to NAME
+##
+##  NOTE:   (1)	Temporarily disables sh(1) option errexit to avoid triggering
+##		EXIT trap if FUNC's invocation fails!
+##
+##  Non-local variables:
+##	- NL		(R) A newline.		(ASCII <LF>)
+##	- CR		(R) A carriage return.	(ASCII <CR>)
+##	- BS		(R) A backslash.	(\\)
+##----------------------------------------------------------------------------
+atlocal_trace_invocation_set_output() {
+    case ${1+1$1_}${2+2$2_} in		## Usage OK?
+	1name_*|1func_*|1flags_*|1ifs_*|1args_*|1output_*|1returned_*)
+	    return 3			## No, indicate internal error!
+	    ;;
+	1?*_2?*_)			## Generally yes, but...
+	    expr "_$1/$2" : "_$dl_re_id/$dl_re_id" >/dev/null || return 2
+					## ...indicate abuse if necesssary.
+	    local name="$1" func="$2" flags ifs args output returned; shift 2
+	    ;;
+	*)  return 2			## Anything else is abuse!
+	    ;;
+    esac; case $- in
+	*e*)	flags=${flags-}e;;
+    esac; ifs=$IFS; IFS=,; args=$*; IFS=$ifs
+    ${flags+set +$flags}
+    output=`$func ${1+"$@"}`; returned=$?; eval "$name"'=$output'
+    ${flags+set -$flags}
+    sed '
+	:N'"$NL"'$!{;N;bN'"$NL"'}
+	s/'"$BS$NL"'/<NL>/g;s/'"$CR"'/<CR>/g;s/	/<HT>/g;s/ /<SP>/g
+    ' <<EOF
+$func([$#]$args)=$returned=>$output
 EOF
     return $returned
 }
