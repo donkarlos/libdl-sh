@@ -28,6 +28,8 @@ dnl					Add test group [libundo.sh functions
 dnl					are propely withdrawn?].
 dnl		ks	2021-05-21	Add test group [libundo.sh functions
 dnl					are propely deprecated?].
+dnl		ks	2021-05-23	Use atlocal_trace_invocation() and
+dnl					atlocal_trace_invocation_returns().
 dnl
 dnl Test group 'String quoting library libundo.sh'
 dnl
@@ -381,6 +383,8 @@ dnl API versions) indicate usage errors (i.e., return 2) when invoked with
 dnl insufficient arguments.
 dnl
 dnl NOTE:   (1)	The test is driven by the 3rd field of the inquiry's output!
+dnl	    (2)	The double brackets within the expected output provide "just
+dnl		the right amount" of m4(1) quoting.
 dnl
 AT_SETUP([libundo.sh functions indicate usage errors?])
 AT_KEYWORDS([libundo.sh libundo usage])
@@ -398,8 +402,7 @@ eval "`libdl-sh load`"; dl_load undo	## Load libdl.sh and libundo.sh or die.
 mp=undo_; status=0			## Assume success.
 for api in `${mp}meta get apis`; do (	## Foreach API version do...
     trap '' 0				## Ignore EXIT traps within subshell.
-    echo "${mp}meta set api $api"
-    if ${mp}meta set api $api; then
+    atlocal_trace_invocation ${mp}meta set api $api && {
 	ifs=$IFS; IFS=$NL; set shiftee `${mp}meta get apis list 's/^'"$api"';//;t0
 		d;:0
 		s/^\('"$dl_re_id"'\);\('"$dl_re_0n"'\)-\('"$dl_re_1n"'\)$/name=\1 min=\2 max=\3/;tp
@@ -415,34 +418,30 @@ for api in `${mp}meta get apis`; do (	## Foreach API version do...
 		    ;;
 		*)			## No, make passes at function.
 		    args= n=0; while test "$n" -lt "$min"; do
-			echo "$name$args"
-			$name $args && exit 1 || case $? in
-			    2)		;;
-			    *)  exit 1	;;
-			esac
+			atlocal_trace_invocation_returns 2 $name $args || exit 1
 			n=`expr $n + 1`; args="$args $n"
 		    done
 		    ;;
 	    esac
 	done
-    fi
+    }
 ) || status=1; done; exit $status	## Indicate success or failure.
 ], 0, [dnl				## And the winner is...
-undo_meta set api 0
-undo_meta
-undo_meta 1
-undo_init
-undo_mark
-undo_push
-undo_meta set api 1
-undo_meta
-undo_meta 1
-undo_mark
-undo_push
-undo_meta set api 2
-undo_meta
-undo_meta 1
-undo_push
+undo_meta([[3]]set,api,0)=0
+undo_meta([[0]])=2
+undo_meta([[1]]1)=2
+undo_init([[0]])=2
+undo_mark([[0]])=2
+undo_push([[0]])=2
+undo_meta([[3]]set,api,1)=0
+undo_meta([[0]])=2
+undo_meta([[1]]1)=2
+undo_mark([[0]])=2
+undo_push([[0]])=2
+undo_meta([[3]]set,api,2)=0
+undo_meta([[0]])=2
+undo_meta([[1]]1)=2
+undo_push([[0]])=2
 ], [dnl
 ])
 AT_CLEANUP
