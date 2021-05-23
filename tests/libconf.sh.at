@@ -26,7 +26,8 @@ dnl					Add test group [libconf.sh functions
 dnl					are propely withdrawn?].
 dnl		ks	2021-05-21	Add test group [libconf.sh functions
 dnl					are propely deprecated?].
-dnl		ks	2021-05-23	Simplify embedded dl_warn().
+dnl		ks	2021-05-23	Simplify embedded dl_warn() and
+dnl					atlocal_function_deprecated().
 dnl
 dnl Test group 'GIT-style configuration file processing library libconf.sh'
 dnl
@@ -275,10 +276,8 @@ lib=conf; status=0			## Assume success.
 atlocal_function_deprecated $lib 1 ${lib}_getenv lib core.lib /dev/null || status=1
 exit $status				## Indicate success or failure.
 ], 0, [dnl				## And the winner is...
-conf_meta set api 1
-conf_meta get api list
-conf_getenv lib core.lib /dev/null
-126
+conf_meta([[3]]set,api,1)=0
+conf_getenv([[3]]lib,core.lib,/dev/null)=126
 ], [dnl
 ])
 AT_CLEANUP

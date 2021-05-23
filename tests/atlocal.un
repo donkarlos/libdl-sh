@@ -33,7 +33,8 @@
 ##		ks	2021-05-23	Add atlocal_trace_variable(),
 ##					atlocal_trace_invocation(), and
 ##					atlocal_trace_invocation_returns().
-##					Simplify embedded dl_warn().
+##					Simplify embedded dl_warn() and
+##					atlocal_function_deprecated().
 ##----------------------------------------------------------------------------
 ##  Global variables:
 #-----------------------------------------------------------------------------
@@ -255,20 +256,14 @@ atlocal_function_deprecated() {
 		*)  return 3    ;;
 	    esac
 	}
-	trap '' 0			## Ignore EXIT traps.
-	echo "$meta set api $2"		## Select library's API version.
-	$meta set api "$2"
-	echo "$meta get api list"
-	$meta get apis list | grep -e "^$2;$3;" >/dev/null 2>&1 || {
-					## Function listed for library's API
-					## version?
-	    exit 1			## No, indicate failure!
-	}
-	shift 2; echo "$*"		## Log function invocation and disable
-	set +e				## shell's errexit feature.
-	"$@"; echo $?			## Invoke function to see if it trig-
-					## gers dl_warn() and log exit status.
-    ) || return $?			## Indicate success or failure.
+	atlocal_trace_invocation $meta set api "$2" && {
+					## Library's API version selected?
+	    $meta get apis list | grep -e "^$2;$3;" >/dev/null 2>&1 || exit 1
+					## Fail unless function is listed
+					## for library's API version.
+	    shift 2 && atlocal_trace_invocation_returns 126 "$@" || exit 1
+	}				## Fail unless function returns with
+    )					## deprecated status.
 }
 
 ##----------------------------------------------------------------------------
