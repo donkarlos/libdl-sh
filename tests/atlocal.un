@@ -36,6 +36,8 @@
 ##					Simplify embedded dl_warn(),
 ##					atlocal_function_deprecated(), and
 ##					atlocal_function_withdrawn().
+##					Add atlocal_trace_invocation_raw_out-
+##					put().
 ##----------------------------------------------------------------------------
 ##  Global variables:
 #-----------------------------------------------------------------------------
@@ -185,6 +187,39 @@ atlocal_trace_invocation_returns() {
     local expected="$1" returned; shift
     atlocal_trace_invocation "$@" && returned=$? || returned=$?
     test $returned -eq "$expected" 2>/dev/null || return 1
+}
+
+##----------------------------------------------------------------------------
+##  atlocal_trace_invocation_raw_output(FUNC [ARG ...])
+##				Invoke FUNC, capture output as well as return-
+##				ed status and trace invocation with status and
+##				raw output
+##
+##  NOTE:   (1)	Temporarily disables sh(1) option errexit to avoid triggering
+##		EXIT trap if FUNC's invocation fails!
+##
+##  Non-local variables:
+##	- NL		(R) A newline.		(ASCII <LF>)
+##	- CR		(R) A carriage return.	(ASCII <CR>)
+##	- BS		(R) A backslash.	(\\)
+##----------------------------------------------------------------------------
+atlocal_trace_invocation_raw_output() {
+    expr "${1+_$1}" : "_$dl_re_id" >/dev/null || return 2
+					## Indicate abuse if necesssary.
+    local func="$1" flags ifs args output returned; shift; case $- in
+	*e*)	flags=${flags-}e;;
+    esac; ifs=$IFS; IFS=,; args=$*; IFS=$ifs
+    ${flags+set +$flags}
+    output=`$func ${1+"$@"}`; returned=$?
+    ${flags+set -$flags}
+    sed '
+	:I'"$NL"'/)='"$returned"'$/!{;N;bI'"$NL"'}
+	s/'"$BS$NL"'/<NL>/g;s/'"$CR"'/<CR>/g;s/	/<HT>/g;s/ /<SP>/g
+	:N'"$NL"'$!{;N;bN'"$NL"'}
+    ' <<EOF
+$func([$#]$args)=$returned${output:+$NL$output}
+EOF
+    return $returned
 }
 
 ##----------------------------------------------------------------------------
