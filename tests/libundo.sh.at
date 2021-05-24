@@ -36,6 +36,11 @@ dnl					atlocal_function_withdrawn().
 dnl					Add test groups ['undo_meta set 0tag'
 dnl					works as expected?] and [undo_init()
 dnl					works as expected?].
+dnl		ks	2021-05-24	Use atlocal_check_meta_inquiries(),
+dnl					atlocal_trace_invocation_set_output(),
+dnl					atlocal_trace_invocation_raw_output(),
+dnl					atlocal_check_constants(), and
+dnl					atlocal_check_function_usage_errors().
 dnl
 dnl Test group 'Undo stack management library libundo.sh'
 dnl
@@ -89,14 +94,8 @@ dnl   -	get apis list
 dnl   -	get apis r/o
 dnl produce expected results.
 dnl
-dnl NOTE:   (1)	The first two of them can't be checked by the 'for' loop
-dnl		because GNU Autotest implements any form of expected output
-dnl		by means of undod here scripts, thus making parameter
-dnl		substitutions impossible! |-(
-dnl	    (2)	As a side effect, this check also ensures that libundo.sh
-dnl		supports only one API version which at the same time is
-dnl		the default API version.
-dnl	    (3)	The double brackets within the expected output provide "just
+dnl NOTE:   (1)	This is just a wrapper around atlocal_check_meta_inquiries()!
+dnl	    (2)	The double brackets within the expected output provide "just
 dnl		the right amount" of m4(1) quoting.
 dnl
 AT_SETUP(['undo_meta get' inquiries give expected results?])
@@ -112,29 +111,23 @@ case :$PATH: in				## Triggered by 'check-local:'?
 	;;
 esac
 eval "`libdl-sh load`"; dl_load undo	## Load libdl.sh and libundo.sh or die.
-case `undo_meta get package`_`undo_meta get version` in
-    ${PACKAGE_TARNAME}_${PACKAGE_VERSION})
-	:	;;			## See note (1).
-    *)	test	;;
-esac && for meta in							\
-    'get api' 'get apis'						\
-    'get apis api' 'get apis full' 'get apis list' 'get apis r/o'
-do
-    echo 'undo_meta '"$meta" && undo_meta $meta
-					## Emit tag and inquiry result.
-done
+atlocal_check_meta_inquiries undo	## Perform check for libundo.sh.
 ], 0, [dnl				## And the winner is...
-undo_meta get api
+undo_meta([[2]]get,package)=0
+libdl-sh
+undo_meta([[2]]get,version)=0
+0.4~7
+undo_meta([[2]]get,api)=0
 1
-undo_meta get apis
+undo_meta([[2]]get,apis)=0
 0
 1
 2
-undo_meta get apis api
+undo_meta([[3]]get,apis,api)=0
 0
 1
 2
-undo_meta get apis full
+undo_meta([[3]]get,apis,full)=0
 0;undo_meta(META [[ARG ...]]);2-4
 0;undo_init(TAG);1
 0;undo_mark(MARK);1
@@ -151,7 +144,7 @@ undo_meta get apis full
 2;undo_push(MARK|[[TAG] COMMAND [ARGUMENT|REDIRECTION ...]]);1-
 2;undo_pull(MARK [[TAG] | TAG | [COUNT=1]]);0-2
 2;undo_drop(MARK [[TAG] | TAG | [COUNT=1]]);0-2
-undo_meta get apis list
+undo_meta([[3]]get,apis,list)=0
 0;undo_meta;2-4
 0;undo_init;1
 0;undo_mark;1
@@ -168,7 +161,7 @@ undo_meta get apis list
 2;undo_push;1-
 2;undo_pull;0-2
 2;undo_drop;0-2
-undo_meta get apis r/o
+undo_meta([[3]]get,apis,r/o)=0
 ], [dnl
 ])
 AT_CLEANUP
@@ -179,6 +172,11 @@ dnl   -	get apis full
 dnl   -	get apis list
 dnl   -	get apis r/o
 dnl hounour (i.e., apply) the extra sed(1) expression passed as 4th argument.
+dnl
+dnl NOTE:   (1)	The double brackets within the expected output provide "just
+dnl		the right amount" of m4(1) quoting.
+dnl	    (2)	The expected output contains one quadrigraph to account for
+dnl		the unmatched '(' in "full" format's sed(1) expression!
 dnl
 AT_SETUP(['undo_meta get apis' honours 4th argument?])
 AT_KEYWORDS([libundo.sh libundo undo_meta])
@@ -193,36 +191,44 @@ case :$PATH: in				## Triggered by 'check-local:'?
 	;;
 esac
 eval "`libdl-sh load`"; dl_load undo	## Load libdl.sh and libundo.sh or die.
-api=`undo_meta get api`			## Inquire default API version.
-for meta in 'get apis full' 'get apis list' 'get apis r/o'; do
-    case $meta in
-	*full)	sx='/;undo_push(/!d;s/;.*$//'	;;
-	*list)	sx='/;undo_push;/!d;s/;.*$//'	;;
-	*r/o)	sx='/^'"$api"';/!d;s///'	;;
-    esac
-    echo 'undo_meta '"$meta" && undo_meta $meta "$sx"
-					## Emit tag and inquiry result.
-done
+lib=undo; get="${lib}_meta get" status=0
+					## Assume success.
+atlocal_trace_invocation_set_output api $get api && {
+					## Inquired default API version?
+    for format in full list r/o; do	## Yes, foreach format do...
+	case $format in
+	    full)	sx='/;'"$lib"'_push(/!d;s/;.*$//'	;;
+	    list)	sx='/;'"$lib"'_push;/!d;s/;.*$//'	;;
+	    r/o)	sx='/^'"$api"';/!d;s///;/^'"$lib"'_/!d'	;;
+	esac
+	atlocal_trace_invocation_raw_output $get apis $format "$sx" || status=1
+    done				## Trace invocation and result.
+} || status=1; exit $status		## Indicate success or failure.
 ], 0, [dnl				## And the winner is...
-undo_meta get apis full
+undo_meta([[2]]get,api)=0=>1
+undo_meta([[4]]get,apis,full,/;undo_push@{:@/!d;s/;.*$//)=0
 0
 1
 2
-undo_meta get apis list
+undo_meta([[4]]get,apis,list,/;undo_push;/!d;s/;.*$//)=0
 0
 1
 2
-undo_meta get apis r/o
+undo_meta([[4]]get,apis,r/o,/^1;/!d;s///;/^undo_/!d)=0
 ], [dnl
 ])
 AT_CLEANUP
 
 dnl
-dnl Check if the constants reported by undo_meta() inquiry get apis r/o (for
-dnl the default API version) are actually defined after loading libundo.sh.
+dnl Check if the constants reported by 'undo_meta get apis r/o (for the
+dnl default API version) are defined and readonly after loading libundo.sh.
 dnl
-AT_SETUP(['undo_meta get apis r/o' constants defined?])
-AT_KEYWORDS([libundo.sh libundo undo_meta])
+dnl NOTE:   (1)	This is just a wrapper around atlocal_check_constants()!
+dnl	    (2)	The double brackets within the expected output provide "just
+dnl		the right amount" of m4(1) quoting.
+dnl
+AT_SETUP(['undo_meta get apis r/o' var.s set and readonly?])
+AT_KEYWORDS([libundo.sh libundo undo_meta constants readonly])
 AT_CHECK([dnl
 set -eu					## Employ strict execution environment
 					## to ensure 'set -u' resilience.
@@ -234,53 +240,19 @@ case :$PATH: in				## Triggered by 'check-local:'?
 	;;
 esac
 eval "`libdl-sh load`"; dl_load undo	## Load libdl.sh and libundo.sh or die.
-status=0				## Assume success and inquire
-api=`undo_meta get api`		## default API version.
-for name in `undo_meta get apis r/o '/^'"$api"';/!d;s///'`; do
-					## Foreach constant do...
-    eval 'case ${'"$name"'+=} in
-	=)  echo "$name";;
-	*)  status=1	;;
-    esac'				## Assume failure if it's unset. :-(
-done; exit $status			## Indicate success or failure.
+atlocal_check_constants undo		## Perform check for libundo.sh.
 ], 0, [dnl				## And the winner is...
-], [dnl
-])
-AT_CLEANUP
-
-dnl
-dnl Check if the constants reported by undo_meta() inquiry get apis r/o (for
-dnl the default API version) are actually readonly after loading libundo.sh
-dnl by trying to set them in a subshell environment.
-dnl
-AT_SETUP(['undo_meta get apis r/o' constants readonly?])
-AT_KEYWORDS([libundo.sh libundo undo_meta])
-AT_CHECK([dnl
-set -eu					## Employ strict execution environment
-					## to ensure 'set -u' resilience.
-case :$PATH: in				## Triggered by 'check-local:'?
-    *:$abs_top_builddir/bin:*)		## Yes, export suitable LSP.
-	LIBDL_SH_LIBRARY_PATH=$abs_top_builddir/lib
-	LIBDL_SH_LIBEXECDIR=$abs_top_builddir/libexec
-	export LIBDL_SH_LIBRARY_PATH LIBDL_SH_LIBEXECDIR
-	;;
-esac
-eval "`libdl-sh load`"; dl_load undo	## Load libdl.sh and libundo.sh or die.
-status=0				## Assume success and inquire
-api=`undo_meta get api`			## default API version.
-for name in `undo_meta get apis r/o '/^'"$api"';/!d;s///'`; do
-					## Foreach constant do...
-    (eval "$name=" 2>/dev/null) && status=1 || echo "$name"
-					## Assume failure if we set it in a
-					## subshell environment. 8-O
-done; exit $status
-], 0, [dnl				## And the winner is...
+undo_meta([[2]]get,api)=0=>1
 ], [dnl
 ])
 AT_CLEANUP
 
 dnl
 dnl Check if libundo.sh functions are properly deprecated.
+dnl
+dnl NOTE:   (1)	This is just a wrapper around atlocal_function_deprecated()!
+dnl	    (2)	The double brackets within the expected output provide "just
+dnl		the right amount" of m4(1) quoting.
 dnl
 AT_SETUP([libundo.sh functions are propely deprecated?])
 AT_KEYWORDS([libundo.sh libundo deprecated])
@@ -316,6 +288,10 @@ AT_CLEANUP
 
 dnl
 dnl Check if libundo.sh functions are properly withdrawn.
+dnl
+dnl NOTE:   (1)	This is just a wrapper around atlocal_function_withdrawn()!
+dnl	    (2)	The double brackets within the expected output provide "just
+dnl		the right amount" of m4(1) quoting.
 dnl
 AT_SETUP([libundo.sh functions are propely withdrawn?])
 AT_KEYWORDS([libundo.sh libundo withdrawn])
@@ -357,7 +333,8 @@ dnl Check if the functions reported by 'undo_meta get apis list' (for all
 dnl API versions) indicate usage errors (i.e., return 2) when invoked with
 dnl insufficient arguments.
 dnl
-dnl NOTE:   (1)	The test is driven by the 3rd field of the inquiry's output!
+dnl NOTE:   (1)	This is just a wrapper around atlocal_check_function_usage_-
+dnl		errors()!
 dnl	    (2)	The double brackets within the expected output provide "just
 dnl		the right amount" of m4(1) quoting.
 dnl
@@ -374,33 +351,8 @@ case :$PATH: in				## Triggered by 'check-local:'?
 	;;
 esac
 eval "`libdl-sh load`"; dl_load undo	## Load libdl.sh and libundo.sh or die.
-mp=undo_; status=0			## Assume success.
-for api in `${mp}meta get apis`; do (	## Foreach API version do...
-    trap '' 0				## Ignore EXIT traps within subshell.
-    atlocal_trace_invocation ${mp}meta set api $api && {
-	ifs=$IFS; IFS=$NL; set shiftee `${mp}meta get apis list 's/^'"$api"';//;t0
-		d;:0
-		s/^\('"$dl_re_id"'\);\('"$dl_re_0n"'\)-\('"$dl_re_1n"'\)$/name=\1 min=\2 max=\3/;tp
-		s/^\('"$dl_re_id"'\);\('"$dl_re_0n"'\)-$/name=\1 min=\2 max=/;tp
-		s/^\('"$dl_re_id"'\);\('"$dl_re_0n"'\)$/name=\1 min=\2 max=\2/;tp
-		s/^.*$/test/;:p
-	'`; shift; IFS=$ifs
-	for signature in ${1+"$@"}; do	## Foreach parsed signature (see note
-					## (1)) do...
-	    eval "$signature" && case $name in
-					## Function exempted?
-		_)			## Yes.
-		    ;;
-		*)			## No, make passes at function.
-		    args= n=0; while test "$n" -lt "$min"; do
-			atlocal_trace_invocation_returns 2 $name $args || exit 1
-			n=`expr $n + 1`; args="$args $n"
-		    done
-		    ;;
-	    esac
-	done
-    }
-) || status=1; done; exit $status	## Indicate success or failure.
+atlocal_check_function_usage_errors undo
+					## Perform check for libundo.sh.
 ], 0, [dnl				## And the winner is...
 undo_meta([[3]]set,api,0)=0
 undo_meta([[0]])=2
@@ -423,6 +375,9 @@ AT_CLEANUP
 
 dnl
 dnl Check if 'undo_meta set 0tag' works as expected.
+dnl
+dnl NOTE:   (1)	The double brackets within the expected output provide "just
+dnl		the right amount" of m4(1) quoting.
 dnl
 AT_SETUP(['undo_meta set 0tag' works as expected?])
 AT_KEYWORDS([libundo.sh libundo undo_meta cleanups])
@@ -460,6 +415,9 @@ AT_CLEANUP
 
 dnl
 dnl Check if undo_init() works as expected.
+dnl
+dnl NOTE:   (1)	The double brackets within the expected output provide "just
+dnl		the right amount" of m4(1) quoting.
 dnl
 AT_SETUP([undo_init() works as expected?])
 AT_KEYWORDS([libundo.sh libundo undo_init cleanups])
