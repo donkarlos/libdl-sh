@@ -368,13 +368,13 @@ atlocal_function_withdrawn() {
 	    esac
 	}
 	atlocal_trace_invocation $meta set api "$2" && {
-					## Select library's API version.
+					## Library's API version selected?
 	    $meta get apis list | grep -e "^$2;$3;" >/dev/null 2>&1 && exit 1
-					## Fail if function is still listed
-					## for library's API version.
+					## Yes, fail test if function is still
+					## listed for library's API version.
 	    shift 2 && atlocal_trace_invocation_returns 127 "$@" || exit 1
-	}				## Fail unless function returns with
-    )					## withdrawn status.
+	}				## Also fail test if function doesn't
+    )					## returns withdrawn status.
 }
 
 ##----------------------------------------------------------------------------
