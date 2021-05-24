@@ -20,7 +20,11 @@ dnl
 dnl AUTHOR(S):	ks	Karl Schmitz <ks@computerlabor.org>
 dnl
 dnl WRITTEN BY:	ks	2021-05-14
-dnl CHANGED BY:
+dnl CHANGED BY:	ks	2021-05-24	Use atlocal_check_meta_inquiries(),
+dnl					atlocal_trace_invocation_set_output(),
+dnl					atlocal_trace_invocation_raw_output(),
+dnl					atlocal_check_constants(), and
+dnl					atlocal_check_function_usage_errors().
 dnl
 dnl Test group 'Session management library libsession.sh'
 dnl
@@ -53,8 +57,8 @@ case :$PATH: in				## Triggered by 'check-local:'?
 esac
 eval "`libdl-sh load`"			## Load libdl.sh or die.
 dl_atload test_atload && dl_atexit test_atexit
-dl_load session				## Register hooks and load
-					## libsession.sh.
+dl_load session				## Register hooks and load libses-
+					## sion.sh.
 ], 0, [dnl				## And the winner is...
 test_atexit(0)
 :session:dl:
@@ -74,14 +78,8 @@ dnl   -	get apis list
 dnl   -	get apis r/o
 dnl produce expected results.
 dnl
-dnl NOTE:   (1)	The first two of them can't be checked by the 'for' loop
-dnl		because GNU Autotest implements any form of expected output
-dnl		by means of sessiond here scripts, thus making parameter
-dnl		substitutions impossible! |-(
-dnl	    (2)	As a side effect, this check also ensures that libsession.sh
-dnl		supports only one API version which at the same time is
-dnl		the default API version.
-dnl	    (3)	The double brackets within the expected output provide "just
+dnl NOTE:   (1)	This is just a wrapper around atlocal_check_meta_inquiries()!
+dnl	    (2)	The double brackets within the expected output provide "just
 dnl		the right amount" of m4(1) quoting.
 dnl
 AT_SETUP(['session_meta get' inquiries give expected results?])
@@ -96,30 +94,25 @@ case :$PATH: in				## Triggered by 'check-local:'?
 	export LIBDL_SH_LIBRARY_PATH LIBDL_SH_LIBEXECDIR
 	;;
 esac
-eval "`libdl-sh load`"; dl_load session	## Load libdl.sh and libsession.sh or die.
-case `session_meta get package`_`session_meta get version` in
-    ${PACKAGE_TARNAME}_${PACKAGE_VERSION})
-	:	;;			## See note (1).
-    *)	test	;;
-esac && for meta in							\
-    'get api' 'get apis'						\
-    'get apis api' 'get apis full' 'get apis list' 'get apis r/o'
-do
-    echo 'session_meta '"$meta" && session_meta $meta
-					## Emit tag and inquiry result.
-done
+eval "`libdl-sh load`"; dl_load session	## Load libdl.sh and libsession.sh or
+					## die.
+atlocal_check_meta_inquiries session	## Perform check for libsession.sh.
 ], 0, [dnl				## And the winner is...
-session_meta get api
+session_meta([[2]]get,package)=0
+libdl-sh
+session_meta([[2]]get,version)=0
+0.4~7
+session_meta([[2]]get,api)=0
 0
-session_meta get apis
+session_meta([[2]]get,apis)=0
 0
-session_meta get apis api
+session_meta([[3]]get,apis,api)=0
 0
-session_meta get apis full
+session_meta([[3]]get,apis,full)=0
 0;session_meta(META [[ARG ...]]);2-4
-session_meta get apis list
+session_meta([[3]]get,apis,list)=0
 0;session_meta;2-4
-session_meta get apis r/o
+session_meta([[3]]get,apis,r/o)=0
 ], [dnl
 ])
 AT_CLEANUP
@@ -130,6 +123,11 @@ dnl   -	get apis full
 dnl   -	get apis list
 dnl   -	get apis r/o
 dnl hounour (i.e., apply) the extra sed(1) expression passed as 4th argument.
+dnl
+dnl NOTE:   (1)	The double brackets within the expected output provide "just
+dnl		the right amount" of m4(1) quoting.
+dnl	    (2)	The expected output contains one quadrigraph to account for
+dnl		the unmatched '(' in "full" format's sed(1) expression!
 dnl
 AT_SETUP(['session_meta get apis' honours 4th argument?])
 AT_KEYWORDS([libsession.sh libsession session_meta])
@@ -143,33 +141,42 @@ case :$PATH: in				## Triggered by 'check-local:'?
 	export LIBDL_SH_LIBRARY_PATH LIBDL_SH_LIBEXECDIR
 	;;
 esac
-eval "`libdl-sh load`"; dl_load session	## Load libdl.sh and libsession.sh or die.
-api=`session_meta get api`		## Inquire default API version.
-for meta in 'get apis full' 'get apis list' 'get apis r/o'; do
-    case $meta in
-	*full)	sx='/;session_meta(/!d;s/;.*$//'	;;
-	*list)	sx='/;session_meta;/!d;s/;.*$//'	;;
-	*r/o)	sx='/^'"$api"';/!d;s///'	;;
-    esac
-    echo 'session_meta '"$meta" && session_meta $meta "$sx"
-					## Emit tag and inquiry result.
-done
+eval "`libdl-sh load`"; dl_load session	## Load libdl.sh and libsession.sh or
+					## die.
+lib=session; get="${lib}_meta get" status=0
+					## Assume success.
+atlocal_trace_invocation_set_output api $get api && {
+					## Inquired default API version?
+    for format in full list r/o; do	## Yes, foreach format do...
+	case $format in
+	    full)	sx='/;'"$lib"'_meta(/!d;s/;.*$//'	;;
+	    list)	sx='/;'"$lib"'_meta;/!d;s/;.*$//'	;;
+	    r/o)	sx='/^'"$api"';/!d;s///;/^'"$lib"'_/!d'	;;
+	esac
+	atlocal_trace_invocation_raw_output $get apis $format "$sx" || status=1
+    done				## Trace invocation and result.
+} || status=1; exit $status		## Indicate success or failure.
 ], 0, [dnl				## And the winner is...
-session_meta get apis full
+session_meta([[2]]get,api)=0=>0
+session_meta([[4]]get,apis,full,/;session_meta@{:@/!d;s/;.*$//)=0
 0
-session_meta get apis list
+session_meta([[4]]get,apis,list,/;session_meta;/!d;s/;.*$//)=0
 0
-session_meta get apis r/o
+session_meta([[4]]get,apis,r/o,/^0;/!d;s///;/^session_/!d)=0
 ], [dnl
 ])
 AT_CLEANUP
 
 dnl
-dnl Check if the constants reported by session_meta() inquiry get apis r/o (for
-dnl the default API version) are actually defined after loading libsession.sh.
+dnl Check if the constants reported by 'session_meta get apis r/o (for the
+dnl default API version) are defined and readonly after loading libsession.sh.
 dnl
-AT_SETUP(['session_meta get apis r/o' constants defined?])
-AT_KEYWORDS([libsession.sh libsession session_meta])
+dnl NOTE:   (1)	This is just a wrapper around atlocal_check_constants()!
+dnl	    (2)	The double brackets within the expected output provide "just
+dnl		the right amount" of m4(1) quoting.
+dnl
+AT_SETUP(['session_meta get apis r/o' var.s set and readonly?])
+AT_KEYWORDS([libsession.sh libsession session_meta constants readonly])
 AT_CHECK([dnl
 set -eu					## Employ strict execution environment
 					## to ensure 'set -u' resilience.
@@ -180,48 +187,11 @@ case :$PATH: in				## Triggered by 'check-local:'?
 	export LIBDL_SH_LIBRARY_PATH LIBDL_SH_LIBEXECDIR
 	;;
 esac
-eval "`libdl-sh load`"; dl_load session	## Load libdl.sh and libsession.sh or die.
-status=0				## Assume success and inquire
-api=`session_meta get api`		## default API version.
-for name in `session_meta get apis r/o '/^'"$api"';/!d;s///'`; do
-					## Foreach constant do...
-    eval 'case ${'"$name"'+=} in
-	=)  echo "$name";;
-	*)  status=1	;;
-    esac'				## Assume failure if it's unset. :-(
-done; exit $status			## Indicate success or failure.
+eval "`libdl-sh load`"; dl_load session	## Load libdl.sh and libsession.sh or
+					## die.
+atlocal_check_constants session		## Perform check for libsession.sh.
 ], 0, [dnl				## And the winner is...
-], [dnl
-])
-AT_CLEANUP
-
-dnl
-dnl Check if the constants reported by session_meta() inquiry get apis r/o (for
-dnl the default API version) are actually readonly after loading libsession.sh
-dnl by trying to set them in a subshell environment.
-dnl
-AT_SETUP(['session_meta get apis r/o' constants readonly?])
-AT_KEYWORDS([libsession.sh libsession session_meta])
-AT_CHECK([dnl
-set -eu					## Employ strict execution environment
-					## to ensure 'set -u' resilience.
-case :$PATH: in				## Triggered by 'check-local:'?
-    *:$abs_top_builddir/bin:*)		## Yes, export suitable LSP.
-	LIBDL_SH_LIBRARY_PATH=$abs_top_builddir/lib
-	LIBDL_SH_LIBEXECDIR=$abs_top_builddir/libexec
-	export LIBDL_SH_LIBRARY_PATH LIBDL_SH_LIBEXECDIR
-	;;
-esac
-eval "`libdl-sh load`"; dl_load session	## Load libdl.sh and libsession.sh or die.
-status=0				## Assume success and inquire
-api=`session_meta get api`			## default API version.
-for name in `session_meta get apis r/o '/^'"$api"';/!d;s///'`; do
-					## Foreach constant do...
-    (eval "$name=" 2>/dev/null) && status=1 || echo "$name"
-					## Assume failure if we set it in a
-					## subshell environment. 8-O
-done; exit $status
-], 0, [dnl				## And the winner is...
+session_meta([[2]]get,api)=0=>0
 ], [dnl
 ])
 AT_CLEANUP
@@ -231,7 +201,10 @@ dnl Check if the functions reported by 'session_meta get apis list' (for all
 dnl API versions) indicate usage errors (i.e., return 2) when invoked with
 dnl insufficient arguments.
 dnl
-dnl NOTE:   (1)	The test is driven by the 3rd field of the inquiry's output!
+dnl NOTE:   (1)	This is just a wrapper around atlocal_check_function_usage_-
+dnl		errors()!
+dnl	    (2)	The double brackets within the expected output provide "just
+dnl		the right amount" of m4(1) quoting.
 dnl
 AT_SETUP([libsession.sh functions indicate usage errors?])
 AT_KEYWORDS([libsession.sh libsession usage])
@@ -245,43 +218,14 @@ case :$PATH: in				## Triggered by 'check-local:'?
 	export LIBDL_SH_LIBRARY_PATH LIBDL_SH_LIBEXECDIR
 	;;
 esac
-eval "`libdl-sh load`"; dl_load session	## Load libdl.sh and libsession.sh or die.
-mp=session_; status=0			## Assume success.
-for api in `${mp}meta get apis`; do (	## Foreach API version do...
-    trap '' 0				## Ignore EXIT traps within subshell.
-    echo "${mp}meta set api $api"
-    if ${mp}meta set api $api; then
-	ifs=$IFS; IFS=$NL; set shiftee `${mp}meta get apis list 's/^'"$api"';//;t0
-		d;:0
-		s/^\('"$dl_re_id"'\);\('"$dl_re_0n"'\)-\('"$dl_re_1n"'\)$/name=\1 min=\2 max=\3/;tp
-		s/^\('"$dl_re_id"'\);\('"$dl_re_0n"'\)-$/name=\1 min=\2 max=/;tp
-		s/^\('"$dl_re_id"'\);\('"$dl_re_0n"'\)$/name=\1 min=\2 max=\2/;tp
-		s/^.*$/test/;:p
-	'`; shift; IFS=$ifs
-	for signature in ${1+"$@"}; do	## Foreach parsed signature (see note
-					## (1)) do...
-	    eval "$signature" && case $name in
-					## Function exempted?
-		_)			## Yes.
-		    ;;
-		*)			## No, make passes at function.
-		    args= n=0; while test "$n" -lt "$min"; do
-			echo "$name$args"
-			$name $args && exit 1 || case $? in
-			    2)		;;
-			    *)  exit 1	;;
-			esac
-			n=`expr $n + 1`; args="$args $n"
-		    done
-		    ;;
-	    esac
-	done
-    fi
-) || status=1; done; exit $status
+eval "`libdl-sh load`"; dl_load session	## Load libdl.sh and libsession.sh or
+					## die.
+atlocal_check_function_usage_errors session
+					## Perform check for libsession.sh.
 ], 0, [dnl				## And the winner is...
-session_meta set api 0
-session_meta
-session_meta 1
+session_meta([[3]]set,api,0)=0
+session_meta([[0]])=2
+session_meta([[1]]1)=2
 ], [dnl
 ])
 AT_CLEANUP
