@@ -39,8 +39,9 @@
 ##					Add atlocal_trace_invocation_raw_out-
 ##					put(), atlocal_trace_invocation_set_-
 ##					output(), atlocal_check_meta_in-
-##					quiries(), and atlocal_check_con-
-##					stants().
+##					quiries(), atlocal_check_constants(),
+##					and atlocal_check_function_usage_-
+##					errors().
 ##----------------------------------------------------------------------------
 ##  Global variables:
 #-----------------------------------------------------------------------------
@@ -430,4 +431,55 @@ atlocal_check_constants() {
 	done
     } || status=1
     return $status			## Indicate success or failure.
+}
+
+##----------------------------------------------------------------------------
+##  atlocal_check_function_usage_errors(LIB)
+##				Check if the functions reported by LIBrary's
+##				'get apis list' meta inquiry (for all API ver-
+##				sions) indicate usage errors (i.e., return 2)
+##				when invoked with insufficient arguments
+##
+##  Non-local variables:
+##	- NL		(R) A newline.		(ASCII <LF>)
+##	- dl_re_id	(R) Unanchored BREs received sh(1) identifiers,
+##	- dl_re_0n	(R) non-negative unmbers, and
+##	- dl_re_1n	(R) positive numbers.
+##----------------------------------------------------------------------------
+atlocal_check_function_usage_errors() {
+    case ${1+=`dl_meta get loaded`} in
+					## Usage OK?/LIB is demand-loaded?
+	=*:${1-}:*)			## Y/Y: Declare local variables.
+	    local status=0 meta="$1"_meta sx api func min args n
+	    ;;
+	*)  return 2			## N/?: Indicate abuse!
+	    ;;
+    esac; sx='
+	s/^\('"$dl_re_id"'\);\('"$dl_re_0n"'\)-'"$dl_re_1n"'$/func=\1 min=\2/;tp
+	s/^\('"$dl_re_id"'\);\('"$dl_re_0n"'\)-$/func=\1 min=\2/;tp
+	s/^\('"$dl_re_id"'\);\('"$dl_re_0n"'\)$/func=\1 min=\2/;tp
+	s/^.*$/test/;:p
+    '
+    for api in `$meta get apis`; do (	## Foreach API version do...
+	trap '' 0			## Ignore EXIT traps within subshell.
+	atlocal_trace_invocation $meta set api $api && {
+					## Library's API version selected?
+	    ifs=$IFS; IFS=$NL; set shiftee `
+		$meta get apis list "s/^$api;//;t0${NL}d;:0$sx"
+	    `; shift; IFS=$ifs; for signature in ${1+"$@"}; do
+					## Foreach parsed signature do...
+		eval "$signature" && case $func in
+		    dl_exit)
+			;;
+		    *)			## No, make passes at function.
+			args= n=0; while test "$n" -lt "$min"; do
+			    atlocal_trace_invocation_returns 2 $func $args || {
+				status=1; break
+			    }; n=`expr $n + 1`; args="$args $n"
+			done
+			;;
+		esac
+	    done
+	}; exit $status
+    ) || status=1; done; exit $status	## Indicate success or failure.
 }
