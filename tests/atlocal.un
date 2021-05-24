@@ -339,11 +339,11 @@ atlocal_function_deprecated() {
 	atlocal_trace_invocation $meta set api "$2" && {
 					## Library's API version selected?
 	    $meta get apis list | grep -e "^$2;$3;" >/dev/null 2>&1 || exit 1
-					## Fail unless function is listed
-					## for library's API version.
+					## Yes, fail test unless function is
+					## listed for library's API version.
 	    shift 2 && atlocal_trace_invocation_returns 126 "$@" || exit 1
-	}				## Fail unless function returns with
-    )					## deprecated status.
+	}				## Also fail test if function doesn't
+    )					## return deprecated status.
 }
 
 ##----------------------------------------------------------------------------
