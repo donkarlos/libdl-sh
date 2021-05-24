@@ -51,6 +51,11 @@ dnl					another library?] to libquote.sh.at.
 dnl		ks	2021-05-14	Prepare for multiple API versions.
 dnl		ks	2021-05-16	Add dl_readonly() and dl_apis().
 dnl		ks	2021-05-18	Add special characters '[' and ']'.
+dnl		ks	2021-05-23	Use atlocal_check_meta_inquiries(),
+dnl					atlocal_trace_invocation_set_output(),
+dnl					atlocal_trace_invocation_raw_output(),
+dnl					atlocal_check_constants(), and
+dnl					atlocal_check_function_usage_errors().
 dnl
 dnl Test group 'Demand-loading library libdl.sh'
 dnl
@@ -88,21 +93,15 @@ dnl   -	get package
 dnl   -	get version
 dnl   -	get api
 dnl   -	get apis
-dnl   -	get loaded
 dnl   -	get apis api
 dnl   -	get apis full
 dnl   -	get apis list
 dnl   -	get apis r/o
+dnl   -	get loaded
 dnl produce expected results.
 dnl
-dnl NOTE:   (1)	The first two of them can't be checked by the 'for' loop
-dnl		because GNU Autotest implements any form of expected output
-dnl		by means of quoted here scripts, thus making parameter
-dnl		substitutions impossible! |-(
-dnl	    (2)	As a side effect, this check also ensures that libdl.sh
-dnl		supports only one API version which at the same time is
-dnl		the default API version.
-dnl	    (3)	The double brackets within the expected output provide "just
+dnl NOTE:   (1)	This is just a wrapper around atlocal_check_meta_inquiries()!
+dnl	    (2)	The double brackets within the expected output provide "just
 dnl		the right amount" of m4(1) quoting.
 dnl
 AT_SETUP(['dl_meta get' inquiries give expected results?])
@@ -118,27 +117,19 @@ case :$PATH: in				## Triggered by 'check-local:'?
 	;;
 esac
 eval "`libdl-sh load`"			## Load libdl.sh or die.
-case `dl_meta get package`_`dl_meta get version` in
-    ${PACKAGE_TARNAME}_${PACKAGE_VERSION})
-	:	;;			## See note (1).
-    *)	test	;;
-esac && for meta in							\
-    'get api' 'get apis' 'get loaded'					\
-    'get apis api' 'get apis full' 'get apis list' 'get apis r/o'
-do
-    echo 'dl_meta '"$meta" && dl_meta $meta
-					## Emit tag and inquiry result.
-done
+atlocal_check_meta_inquiries dl loaded	## Perform check for libdl.sh.
 ], 0, [dnl				## And the winner is...
-dl_meta get api
+dl_meta([[2]]get,package)=0
+libdl-sh
+dl_meta([[2]]get,version)=0
+0.4~7
+dl_meta([[2]]get,api)=0
 1
-dl_meta get apis
+dl_meta([[2]]get,apis)=0
 1
-dl_meta get loaded
-:dl:
-dl_meta get apis api
+dl_meta([[3]]get,apis,api)=0
 1
-dl_meta get apis full
+dl_meta([[3]]get,apis,full)=0
 1;dl_meta(META [[ARG ...]]);2-
 1;dl_warn(WHAT INVO [[ARG ...]]);2-5
 1;dl_apis([[FORMAT=api [SEDEX]]]);0-2
@@ -150,7 +141,7 @@ dl_meta get apis full
 1;dl_load(LIB ...);1-
 1;dl_atexit(HOOK);1
 1;dl_exit([[STATUS=$?]]);0-1
-dl_meta get apis list
+dl_meta([[3]]get,apis,list)=0
 1;dl_meta;2-
 1;dl_warn;2-5
 1;dl_apis;0-2
@@ -162,7 +153,7 @@ dl_meta get apis list
 1;dl_load;1-
 1;dl_atexit;1
 1;dl_exit;0-1
-dl_meta get apis r/o
+dl_meta([[3]]get,apis,r/o)=0
 1;BQ
 1;DQ
 1;SQ
@@ -185,6 +176,8 @@ dl_meta get apis r/o
 1;dl_re_id
 1;dl_re_1n
 1;dl_re_0n
+dl_meta([[2]]get,loaded)=0
+:dl:
 ], [dnl
 ])
 AT_CLEANUP
@@ -195,6 +188,11 @@ dnl   -	get apis full
 dnl   -	get apis list
 dnl   -	get apis r/o
 dnl hounour (i.e., apply) the extra sed(1) expression passed as 4th argument.
+dnl
+dnl NOTE:   (1)	The double brackets within the expected output provide "just
+dnl		the right amount" of m4(1) quoting.
+dnl	    (2)	The expected output contains one quadrigraph to account for
+dnl		the unmatched '(' in "full" format's sed(1) expression!
 dnl
 AT_SETUP(['dl_meta get apis' honours 4th argument?])
 AT_KEYWORDS([libdl.sh libdl dl_meta])
@@ -209,35 +207,25 @@ case :$PATH: in				## Triggered by 'check-local:'?
 	;;
 esac
 eval "`libdl-sh load`"			## Load libdl.sh or die.
-api=`dl_meta get api`			## Inquire default API version.
-for meta in 'get apis full' 'get apis list' 'get apis r/o'; do
-    case $meta in
-	*full)	sx='/;dl_atload(/!d;s/;.*$//'	;;
-	*list)	sx='/;dl_atload;/!d;s/;.*$//'	;;
-	*r/o)	sx='/^'"$api"';/!d;s///'	;;
-    esac
-    echo 'dl_meta '"$meta" && dl_meta $meta "$sx"
-					## Emit tag and inquiry result.
-done
+lib=dl; get="${lib}_meta get" status=0	## Assume success.
+atlocal_trace_invocation_set_output api $get api && {
+					## Inquired default API version?
+    for format in full list r/o; do	## Yes, foreach format do...
+	case $format in
+	    full)   sx='/;'"$lib"'_atload(/!d;s/;.*$//'		;;
+	    list)   sx='/;'"$lib"'_atload;/!d;s/;.*$//'		;;
+	    r/o)    sx='/^'"$api"';/!d;s///;/^'"$lib"'_/!d'	;;
+	esac
+	atlocal_trace_invocation_raw_output $get apis $format "$sx" || status=1
+    done				## Trace invocation and result.
+} || status=1; exit $status		## Indicate success or failure.
 ], 0, [dnl				## And the winner is...
-dl_meta get apis full
+dl_meta([[2]]get,api)=0=>1
+dl_meta([[4]]get,apis,full,/;dl_atload@{:@/!d;s/;.*$//)=0
 1
-dl_meta get apis list
+dl_meta([[4]]get,apis,list,/;dl_atload;/!d;s/;.*$//)=0
 1
-dl_meta get apis r/o
-BQ
-DQ
-SQ
-BS
-CS
-DS
-HS
-QB
-QE
-CR
-NL
-LB
-RB
+dl_meta([[4]]get,apis,r/o,/^1;/!d;s///;/^dl_/!d)=0
 dl_cs_ul
 dl_cs_ll
 dl_cs_1d
@@ -252,11 +240,15 @@ dl_re_0n
 AT_CLEANUP
 
 dnl
-dnl Check if the constants reported by dl_meta() inquiry get apis r/o (for the
-dnl default API version) are actually defined after loading libdl.sh.
+dnl Check if the constants reported by 'dl_meta get apis r/o' (for the
+dnl default API version) are defined and readonly after loading libdl.sh.
 dnl
-AT_SETUP(['dl_meta get apis r/o' constants defined?])
-AT_KEYWORDS([libdl.sh libdl dl_meta])
+dnl NOTE:   (1)	This is just a wrapper around atlocal_check_constants()!
+dnl	    (2)	The double brackets within the expected output provide "just
+dnl		the right amount" of m4(1) quoting.
+dnl
+AT_SETUP(['dl_meta get apis r/o' var.s set and readonly?])
+AT_KEYWORDS([libdl.sh libdl dl_meta constants readonly])
 AT_CHECK([dnl
 set -eu					## Employ strict execution environment
 					## to ensure 'set -u' resilience.
@@ -268,69 +260,9 @@ case :$PATH: in				## Triggered by 'check-local:'?
 	;;
 esac
 eval "`libdl-sh load`"			## Load libdl.sh or die.
-status=0				## Assume success and inquire
-api=`dl_meta get api`			## default API version.
-for name in `dl_meta get apis r/o '/^'"$api"';/!d;s///'`; do
-					## Foreach constant do...
-    eval 'case ${'"$name"'+=} in
-	=)  echo "$name";;
-	*)  status=1	;;
-    esac'				## Assume failure if it's unset. :-(
-done; exit $status			## Indicate success or failure.
+atlocal_check_constants dl		## Perform check for libdl.sh.
 ], 0, [dnl				## And the winner is...
-BQ
-DQ
-SQ
-BS
-CS
-DS
-HS
-QB
-QE
-CR
-NL
-LB
-RB
-dl_cs_ul
-dl_cs_ll
-dl_cs_1d
-dl_cs_0d
-dl_cs_al
-dl_cs_an
-dl_re_id
-dl_re_1n
-dl_re_0n
-], [dnl
-])
-AT_CLEANUP
-
-dnl
-dnl Check if the constants reported by dl_meta() inquiry get apis r/o (for the
-dnl default API version) are actually readonly after loading libdl.sh by
-dnl trying to set them in a subshell environment.
-dnl
-AT_SETUP(['dl_meta get apis r/o' constants readonly?])
-AT_KEYWORDS([libdl.sh libdl dl_meta])
-AT_CHECK([dnl
-set -eu					## Employ strict execution environment
-					## to ensure 'set -u' resilience.
-case :$PATH: in				## Triggered by 'check-local:'?
-    *:$abs_top_builddir/bin:*)		## Yes, export suitable LSP.
-	LIBDL_SH_LIBRARY_PATH=$abs_top_builddir/lib
-	LIBDL_SH_LIBEXECDIR=$abs_top_builddir/libexec
-	export LIBDL_SH_LIBRARY_PATH LIBDL_SH_LIBEXECDIR
-	;;
-esac
-eval "`libdl-sh load`"			## Load libdl.sh or die.
-status=0				## Assume success and inquire
-api=`dl_meta get api`			## default API version.
-for name in `dl_meta get apis r/o '/^'"$api"';/!d;s///'`; do
-					## Foreach constant do...
-    (eval "$name=" 2>/dev/null) && status=1 || echo "$name"
-					## Assume failure if we set it in a
-					## subshell environment. 8-O
-done; exit $status
-], 0, [dnl				## And the winner is...
+dl_meta([[2]]get,api)=0=>1
 BQ
 DQ
 SQ
@@ -367,7 +299,7 @@ dnl		definition became pretty invisible now. That's why we check
 dnl		against 'od -bc' reference output!
 dnl
 AT_SETUP([libdl.sh's special characters pristine?])
-AT_KEYWORDS([libdl.sh libdl pristine])
+AT_KEYWORDS([libdl.sh libdl dl_meta specials pristine])
 AT_CHECK([dnl
 set -eu					## Employ strict execution environment
 					## to ensure 'set -u' resilience.
@@ -381,7 +313,7 @@ esac
 eval "`libdl-sh load`"			## Load libdl.sh or die.
 api=`dl_meta get api`			## Inquire default API version.
 specials=
-for name in `dl_meta get apis r/o '/^'"$api"';\(..\)$/!d;s//\1/'`; do
+for name in `dl_meta get apis r/o '/^'"$api"';/!d;s///;/^dl_/d'`; do
 					## Foreach special character do...
     eval 'specials=$specials${'"$name"'-.}'
 done; od -bc <<EOF
@@ -400,10 +332,10 @@ dnl Check if the functions reported by 'dl_meta get apis list' (for all API
 dnl versions) indicate usage errors (i.e., return 2) when invoked with
 dnl insufficient arguments.
 dnl
-dnl NOTE:   (1)	The test is driven by the 3rd field of the inquiry's output!
-dnl	    (2)	Since up to this point load- and exit-time hooks hadn't been
-dnl		tested, testing dl_exit() here would be pointless, wherefore
-dnl		it'll stay exempted!
+dnl NOTE:   (1)	This is just a wrapper around atlocal_check_function_usage_-
+dnl		errors()!
+dnl	    (2)	The double brackets within the expected output provide "just
+dnl		the right amount" of m4(1) quoting.
 dnl
 AT_SETUP([libdl.sh functions indicate usage errors?])
 AT_KEYWORDS([libdl.sh libdl usage])
@@ -418,55 +350,24 @@ case :$PATH: in				## Triggered by 'check-local:'?
 	;;
 esac
 eval "`libdl-sh load`"			## Load libdl.sh or die.
-mp=dl_; status=0			## Assume success.
-for api in `${mp}meta get apis`; do (	## Foreach API version do...
-    trap '' 0				## Ignore EXIT traps within subshell.
-    echo "${mp}meta set api $api"
-    if ${mp}meta set api $api; then	## Could we select that API version?
-	ifs=$IFS; IFS=$NL; set shiftee `${mp}meta get apis list 's/^'"$api"';//;t0
-		d;:0
-		s/^\('"$dl_re_id"'\);\('"$dl_re_0n"'\)-\('"$dl_re_1n"'\)$/name=\1 min=\2 max=\3/;tp
-		s/^\('"$dl_re_id"'\);\('"$dl_re_0n"'\)-$/name=\1 min=\2 max=/;tp
-		s/^\('"$dl_re_id"'\);\('"$dl_re_0n"'\)$/name=\1 min=\2 max=\2/;tp
-		s/^.*$/test/;:p
-	'`; shift; IFS=$ifs
-	for signature in ${1+"$@"}; do	## Yes, foreach parsed signature (see
-					## note (1)) do...
-	    eval "$signature" && case $name in
-					## Function exempted?
-		dl_exit)		## Yes.
-		    ;;
-		*)			## No, make passes at function.
-		    args= n=0; while test "$n" -lt "$min"; do
-			echo "$name$args"
-			$name $args && exit 1 || case $? in
-			    2)		;;
-			    *)  exit 1	;;
-			esac
-			n=`expr $n + 1`; args="$args $n"
-		    done
-		    ;;
-	    esac
-	done
-    fi
-) || status=1; done; exit $status
+atlocal_check_function_usage_errors dl	## Perform check for libdl.sh.
 ], 0, [dnl				## And the winner is...
-dl_meta set api 1
-dl_meta
-dl_meta 1
-dl_warn
-dl_warn 1
-dl_dump
-dl_dump 1
-dl_readonly
-dl_readonly 1
-dl_split
-dl_split 1
-dl_split 1 2
-dl_which
-dl_atload
-dl_load
-dl_atexit
+dl_meta([[3]]set,api,1)=0
+dl_meta([[0]])=2
+dl_meta([[1]]1)=2
+dl_warn([[0]])=2
+dl_warn([[1]]1)=2
+dl_dump([[0]])=2
+dl_dump([[1]]1)=2
+dl_readonly([[0]])=2
+dl_readonly([[1]]1)=2
+dl_split([[0]])=2
+dl_split([[1]]1)=2
+dl_split([[2]]1,2)=2
+dl_which([[0]])=2
+dl_atload([[0]])=2
+dl_load([[0]])=2
+dl_atexit([[0]])=2
 ], [dnl
 ])
 AT_CLEANUP
@@ -568,9 +469,6 @@ dnl
 dnl Check if EXIT trap handler dl_exit() relaxes execution environment by
 dnl disabling sh(1) options errexit and nounset before triggering registered
 dnl exit-time hooks.
-dnl
-dnl NOTE:   (1)	The double brackets within the exit-time hook guard against
-dnl		m4(1)underquoting.
 dnl
 AT_SETUP([dl_exit() does 'set +eu' before hooks?])
 AT_KEYWORDS([libdl.sh libdl dl_exit])
