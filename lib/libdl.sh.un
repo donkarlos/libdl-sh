@@ -284,22 +284,28 @@ EOF
 ##
 ##  Non-local variables:
 ##	- mp		(R) Meta prefix
-##	- ms		(R) Meta separator
+##	- ms[=;]	(R) Meta separator
 ##----------------------------------------------------------------------------
 dl_apis() {
-    local									\
-	pa="s/^a$ms//;t_s${NL}d;:_s"						\
-	pf="s/^F$ms//;t_s${NL}s/^f$ms\\([^$ms]*$ms\\)/\\1$mp/;t_s${NL}d;:_s"	\
-	pr="s/^R$ms//;t_s${NL}s/^r$ms/$mp/;t_s${NL}d;:_s"			\
-	d2a="${NL}s/([^)$ms(]*)//;t_2$NL:_2"					\
-	f1="${NL}s/$ms.*$//;t_f${NL}:_f"					\
-	f123="${NL}s/^\\([^$ms]*$ms[^$ms]*$ms[^$ms]*\\)$ms.*$/\\1/;t_f${NL}:_f"
+    local all='
+	s/^F'"${ms-;}"'/f'"${ms-;}"'/;t_a
+	s/^R'"${ms-;}"'/r'"${ms-;}"'/;t_a
+	s/^f'"${ms-;}"'[^'"${ms-;}"']*'"${ms-;}"'/&'"$mp"'/;t_a
+	s/^r'"${ms-;}"'/&'"$mp"'/;t_a
+	/^a'"${ms-;}"'/!d;:_a
+    '
+    local pa="s/^a${ms-;}//;t_s${NL}d;:_s"				\
+	  pf="s/^f${ms-;}//;t_s${NL}d;:_s"				\
+	  pr="s/^r${ms-;}//;t_s${NL}d;:_s"				\
+	 d2a="${NL}s/([^)${ms-;}(]*)//;t_2$NL:_2"			\
+	  f1="${NL}s/${ms-;}.*$//;t_f${NL}:_f"				\
+	f123="${NL}s/^\\([^${ms-;}]*${ms-;}[^${ms-;}]*${ms-;}[^${ms-;}]*\\)${ms-;}.*$/\\1/;t_f${NL}:_f"
 
     case ${1-api} in			## Which format?
-	api)	sed "$pa"			;;
-	full)	sed "$pf$f123${2+$NL$2}"	;;
-	list)	sed "$pf$d2a$f123${2+$NL$2}"	;;
-	r/o)	sed "$pr$f1${2+$NL$2}"		;;
+	api)	sed "$all$pa$f1"		;;
+	full)	sed "$all$pf$f123${2+$NL$2}"	;;
+	list)	sed "$all$pf$d2a$f123${2+$NL$2}";;
+	r/o)	sed "$all$pr$f1${2+$NL$2}"	;;
 	*)	return 1			;;
     esac
 }
