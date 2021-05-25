@@ -373,7 +373,7 @@ atlocal_check_meta_get_apis_honours_4th() {
 ##				API version) are actually defined
 ##----------------------------------------------------------------------------
 atlocal_check_constants() {
-    case ${1+=`dl_meta get loaded`} in
+    case ${2+2}${1+=`dl_meta get loaded`} in
 					## Usage OK?/LIB is demand-loaded?
 	=*:${1-}:*)			## Y/Y: Declare local variables.
 	    local status=0 meta="$1"_meta api name
