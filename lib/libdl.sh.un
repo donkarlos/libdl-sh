@@ -302,6 +302,7 @@ dl_apis() {
 	f123="${NL}s/^$tf$tf$uf.*$DS/${BS}1${BS}2${BS}3/;t_f${NL}:_f"
 
     case ${1-api} in			## Which format?
+	all)	sed "$all${2-}"			;;
 	api)	sed "$all$pa$f1"		;;
 	full)	sed "$all$pf$f123${2+$NL$2}"	;;
 	list)	sed "$all$pf$d2a$f123${2+$NL$2}";;
