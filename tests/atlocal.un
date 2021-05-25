@@ -24,12 +24,10 @@
 ##  CHANGED BY:	ks	2021-05-03	Define PACKAGE_TARNAME, PACKAGE_-
 ##					VERSION, and installation directories.
 ##		ks	2021-05-18	Declare global variables readonly.
-##					Add atlocal_get_specials()
-##					and atlocal_set_specials().
+##					Add atlocal_get_special_cs()
+##					and atlocal_set_special_cs().
 ##		ks	2021-05-20	Add atlocal_function_withdrawn().
-##		ks	2021-05-21	Add atlocal_function_deprecated(),
-##					atlocal_trace(), atlocal_trace_with_-
-##					output(), and atlocal_returns().
+##		ks	2021-05-21	Add atlocal_function_deprecated().
 ##		ks	2021-05-23	Add atlocal_trace_variable(),
 ##					atlocal_trace_invocation(), and
 ##					atlocal_trace_invocation_returns().
@@ -54,76 +52,6 @@ libdir=@shlibdir@
 pkgdatadir=@pkgdatadir@
 sysconfdir=@sysconfdir@
 readonly PACKAGE_TARNAME PACKAGE_VERSION bindir libdir pkgdatadir sysconfdir
-
-##----------------------------------------------------------------------------
-##  atlocal_trace(FUNC [ARG ...])
-##				Trace FUNCtion's invocation to stdout, re-
-##				writing certain "dangerous" characters
-##
-##  Non-local variables:
-##	- NL		(R) A newline.		(ASCII <LF>)
-##	- CR		(R) A carriage return.	(ASCII <CR>)
-##	- BS		(R) A backslash.	(\\)
-##----------------------------------------------------------------------------
-atlocal_trace() {
-    case ${1+=} in			## Usage OK?
-	=)  local func="$1"; shift	## Yes, fetch FUNC.
-	    local ifs args; ifs=$IFS; IFS=,; args=$*; IFS=$ifs
-	    ;;
-	*)  return 2			## No, indicate abuse!
-	    ;;
-    esac; sed '
-	:N'"$NL"'$!{;N;bN'"$NL"'}
-	s/'"$BS$NL"'/<NL>/g;s/'"$CR"'/<CR>/g;s/	/<HT>/g;s/ /<SP>/g
-    ' <<EOF
-$func([$#]$args)
-EOF
-}
-
-##----------------------------------------------------------------------------
-##  atlocal_trace_with_output(STDOUT FUNC [ARG ...])
-##				Trace FUNCtion's invocation together with that
-##				invocation's output to stdout, rewriting cer-
-##				tain "dangerous" characters
-##
-##  Non-local variables:
-##	- NL		(R) A newline.		(ASCII <LF>)
-##	- CR		(R) A carriage return.	(ASCII <CR>)
-##	- BS		(R) A backslash.	(\\)
-##----------------------------------------------------------------------------
-atlocal_trace_with_output() {
-    case ${2+=} in			## Usage OK?
-	=)  local output="$1" func="$2"; shift 2
-	    local ifs args; ifs=$IFS; IFS=,; args=$*; IFS=$ifs
-	    ;;
-	*)  return 2			## No, indicate abuse!
-	    ;;
-    esac; sed '
-	:N'"$NL"'$!{;N;bN'"$NL"'}
-	s/'"$BS$NL"'/<NL>/g;s/'"$CR"'/<CR>/g;s/	/<HT>/g;s/ /<SP>/g
-    ' <<EOF
-$func([$#]$args)=>$output
-EOF
-}
-
-##----------------------------------------------------------------------------
-##  atlocal_returns(STATUS FUNC [ARG ...])
-##				Check if FUNC's invocation returns STATUS
-##----------------------------------------------------------------------------
-atlocal_returns() {
-    case ${2+=} in			## Usage OK?
-	=)  local expected="$1" returned; shift
-	    atlocal_trace "$@"		## Yes, fetch expected exit status
-	    ;;				## and trace function invocation.
-	*)  return 2			## No, indicate abuse!
-	    ;;
-    esac; (				## Invoke function within relaxed
-	trap '' 0; set +e; "$@"		## environment.
-    ); returned=$?; test $returned -eq "$expected" || {
-	echo "returned $returned; expected $expected"
-	return 1
-    }
-}
 
 ##----------------------------------------------------------------------------
 ##  atlocal_trace_variable(NAME)
