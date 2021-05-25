@@ -406,7 +406,7 @@ atlocal_check_constants() {
 ##	- dl_re_1n	(R) positive numbers.
 ##----------------------------------------------------------------------------
 atlocal_check_function_usage_errors() {
-    case ${1+=`dl_meta get loaded`} in
+    case ${2+2}${1+=`dl_meta get loaded`} in
 					## Usage OK?/LIB is demand-loaded?
 	=*:${1-}:*)			## Y/Y: Declare local variables.
 	    local status=0 meta="$1"_meta sx api func min args n
