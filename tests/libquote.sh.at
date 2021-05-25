@@ -49,6 +49,8 @@ dnl					atlocal_check_constants(), and
 dnl					atlocal_check_function_usage_errors().
 dnl		ks	2021-05-25	Make constant's API table entries API
 dnl					version-independent.
+dnl					Use atlocal_check_meta_get_apis_hon-
+dnl					ours_4th().
 dnl
 dnl Test group 'String quoting library libquote.sh'
 dnl
@@ -102,7 +104,7 @@ dnl   -	get apis list
 dnl   -	get apis r/o
 dnl produce expected results.
 dnl
-dnl NOTE:   (1)	This is just a wrapper around atlocal_check_meta_inquiries()!
+dnl NOTE:   (1)	This test wraps around atlocal_check_meta_inquiries()!
 dnl	    (2)	The double brackets within the expected output provide "just
 dnl		the right amount" of m4(1) quoting.
 dnl
@@ -169,9 +171,11 @@ dnl   -	get apis list
 dnl   -	get apis r/o
 dnl hounour (i.e., apply) the extra sed(1) expression passed as 4th argument.
 dnl
-dnl NOTE:   (1)	The double brackets within the expected output provide "just
+dnl NOTE:   (1)	This test wraps around atlocal_check_meta_get_apis_honours_-
+dnl		4th()!
+dnl	    (2)	The double brackets within the expected output provide "just
 dnl		the right amount" of m4(1) quoting.
-dnl	    (2)	The expected output contains one quadrigraph to account for
+dnl	    (3)	The expected output contains one quadrigraph to account for
 dnl		the unmatched '(' in "full" format's sed(1) expression!
 dnl
 AT_SETUP(['quote_meta get apis' honours 4th argument?])
@@ -187,17 +191,8 @@ case :$PATH: in				## Triggered by 'check-local:'?
 	;;
 esac
 eval "`libdl-sh load`"; dl_load quote	## Load libdl.sh and libquote.sh or die.
-lib=quote; get="${lib}_meta get" status=0
-					## Assume success.
-for format in full list r/o; do		## Foreach format do...
-    case $format in
-	full)	sx='/;'"$lib"'_sh(/!d;s/;.*$//'		;;
-	list)	sx='/;'"$lib"'_sh;/!d;s/;.*$//'		;;
-	r/o)	sx='/^'"$lib"'_/!d;s///'		;;
-    esac
-    atlocal_trace_invocation_raw_output $get apis $format "$sx" || status=1
-					## Trace invocation and result.
-done; exit $status			## Indicate success or failure.
+atlocal_check_meta_get_apis_honours_4th quote quote_sh
+					## Perform check for libquote.sh.
 ], 0, [dnl				## And the winner is...
 quote_meta([[4]]get,apis,full,/;quote_sh@{:@/!d;s/;.*$//)=0
 0
@@ -216,7 +211,7 @@ dnl
 dnl Check if the constants reported by 'quote_meta get apis r/o (for the
 dnl default API version) are defined and readonly after loading libquote.sh.
 dnl
-dnl NOTE:   (1)	This is just a wrapper around atlocal_check_constants()!
+dnl NOTE:   (1)	This test wraps around atlocal_check_constants()!
 dnl	    (2)	The double brackets within the expected output provide "just
 dnl		the right amount" of m4(1) quoting.
 dnl
@@ -248,8 +243,7 @@ dnl Check if the functions reported by 'quote_meta get apis list' (for all
 dnl API versions) indicate usage errors (i.e., return 2) when invoked with
 dnl insufficient arguments.
 dnl
-dnl NOTE:   (1)	This is just a wrapper around atlocal_check_function_usage_-
-dnl		errors()!
+dnl NOTE:   (1)	This test wraps around atlocal_check_function_usage_errors()!
 dnl	    (2)	The double brackets within the expected output provide "just
 dnl		the right amount" of m4(1) quoting.
 dnl

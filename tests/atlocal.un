@@ -42,6 +42,8 @@
 ##					errors().
 ##		ks	2021-05-25	Make constant's API table entries API
 ##					version-independent.
+##					Add atlocal_check_meta_get_apis_hon-
+##					ours_4th().
 ##----------------------------------------------------------------------------
 ##  Global variables:
 #-----------------------------------------------------------------------------
@@ -329,6 +331,38 @@ atlocal_check_meta_inquiries() {
 	    1/api)	;;		## Trace invocation with result and
 	    *)  status=1;;		## fail test unless inquiry succeeeded.
 	esac
+    done; return $status		## Indicate success or failure.
+}
+
+##----------------------------------------------------------------------------
+##  atlocal_check_meta_get_apis_honours_4th(LIB FUNC)
+##				Check if 'LIB_meta get apis' honours (i.e.,
+##				applies) the extra sed(1) expression passed as
+##				4th argument to formats "full", "list", and
+##				"r/o", where FUNC is used to construct the
+##				sed(1) expr. of formats "full" and "list"
+##
+##  Non-local variables:
+##	- DS		(R) A dollar sign.	(\$)
+##----------------------------------------------------------------------------
+atlocal_check_meta_get_apis_honours_4th() {
+    case ${2+=$2/`dl_meta get loaded`} in
+					## Usage OK?/LIB is prefix of FUNC?/
+					## LIB is demand-loaded?
+	=${1-}/*:${1-}:*|=${1-}_*/*:${1-}:*)
+	    local status=0 get="$1"'_meta get' format sx
+	    ;;				## Y/Y/Y: Declare local variables.
+	*)  return 2			## N/?/?: Indicate abuse!
+	    ;;
+    esac; for format in full list r/o; do
+					## Foreach format do...
+	case $format in			## Construct its sed(1) expression.
+	    full)	sx="/;$2(/!d;s/;.*$DS//"	;;
+	    list)	sx="/;$2;/!d;s/;.*$DS//"	;;
+	    r/o)	sx="/^$1_/!d;s///"		;;
+	esac
+	atlocal_trace_invocation_raw_output $get apis $format "$sx" || status=1
+					## Trace invocation and result.
     done; return $status		## Indicate success or failure.
 }
 
