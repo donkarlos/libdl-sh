@@ -346,7 +346,7 @@ atlocal_check_meta_inquiries() {
 ##	- DS		(R) A dollar sign.	(\$)
 ##----------------------------------------------------------------------------
 atlocal_check_meta_get_apis_honours_4th() {
-    case ${2+=$2/`dl_meta get loaded`} in
+    case ${3+3}${2+=$2/`dl_meta get loaded`} in
 					## Usage OK?/LIB is prefix of FUNC?/
 					## LIB is demand-loaded?
 	=${1-}/*:${1-}:*|=${1-}_*/*:${1-}:*)
