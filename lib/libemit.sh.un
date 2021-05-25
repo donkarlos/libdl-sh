@@ -38,6 +38,8 @@
 ##					emit_set_head(): Validate LEVEL.
 ##					Use dl_readonly() to freeze variables
 ##					and dl_apis() to emit API information.
+##		ks	2021-05-25	Make constant's API table entries API
+##					version-independent.
 ##----------------------------------------------------------------------------
 ##  Global variables:
 #-----------------------------------------------------------------------------
@@ -64,7 +66,7 @@ f${ms}0${ms}meta(META [ARG ...])${ms}2-4
 f${ms}0${ms}set_head(LEVEL HEAD)${ms}2
 f${ms}0${ms}get_head(LEVEL)${ms}1
 F${ms}0${ms}emit(LEVEL MESSAGE ...)${ms}2-
-r${ms}0${ms}re_level
+r${ms}re_level
 EOF
 	    ;;
 	=get-package|=get-version|=get-api)

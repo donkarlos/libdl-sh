@@ -47,6 +47,8 @@ dnl					atlocal_trace_invocation_set_output(),
 dnl					atlocal_trace_invocation_raw_output(),
 dnl					atlocal_check_constants(), and
 dnl					atlocal_check_function_usage_errors().
+dnl		ks	2021-05-25	Make constant's API table entries API
+dnl					version-independent.
 dnl
 dnl Test group 'String quoting library libquote.sh'
 dnl
@@ -152,10 +154,10 @@ quote_meta([[3]]get,apis,list)=0
 0;quote_egrep;1
 0;quote_sed;1-2
 quote_meta([[3]]get,apis,r/o)=0
-0;quote_cs_sh
-0;quote_cs_bre
-0;quote_cs_ere
-0;quote_cs_brs
+quote_cs_sh
+quote_cs_bre
+quote_cs_ere
+quote_cs_brs
 ], [dnl
 ])
 AT_CLEANUP
@@ -187,28 +189,25 @@ esac
 eval "`libdl-sh load`"; dl_load quote	## Load libdl.sh and libquote.sh or die.
 lib=quote; get="${lib}_meta get" status=0
 					## Assume success.
-atlocal_trace_invocation_set_output api $get api && {
-					## Inquired default API version?
-    for format in full list r/o; do	## Yes, foreach format do...
-	case $format in
-	    full)	sx='/;'"$lib"'_sh(/!d;s/;.*$//'	;;
-	    list)	sx='/;'"$lib"'_sh;/!d;s/;.*$//'	;;
-	    r/o)	sx='/^'"$api"';/!d;s///;/^'"$lib"'_/!d'	;;
-	esac
-	atlocal_trace_invocation_raw_output $get apis $format "$sx" || status=1
-    done				## Trace invocation and result.
-} || status=1; exit $status		## Indicate success or failure.
+for format in full list r/o; do		## Foreach format do...
+    case $format in
+	full)	sx='/;'"$lib"'_sh(/!d;s/;.*$//'		;;
+	list)	sx='/;'"$lib"'_sh;/!d;s/;.*$//'		;;
+	r/o)	sx='/^'"$lib"'_/!d;s///'		;;
+    esac
+    atlocal_trace_invocation_raw_output $get apis $format "$sx" || status=1
+					## Trace invocation and result.
+done; exit $status			## Indicate success or failure.
 ], 0, [dnl				## And the winner is...
-quote_meta([[2]]get,api)=0=>0
 quote_meta([[4]]get,apis,full,/;quote_sh@{:@/!d;s/;.*$//)=0
 0
 quote_meta([[4]]get,apis,list,/;quote_sh;/!d;s/;.*$//)=0
 0
-quote_meta([[4]]get,apis,r/o,/^0;/!d;s///;/^quote_/!d)=0
-quote_cs_sh
-quote_cs_bre
-quote_cs_ere
-quote_cs_brs
+quote_meta([[4]]get,apis,r/o,/^quote_/!d;s///)=0
+cs_sh
+cs_bre
+cs_ere
+cs_brs
 ], [dnl
 ])
 AT_CLEANUP
@@ -236,7 +235,6 @@ esac
 eval "`libdl-sh load`"; dl_load quote	## Load libdl.sh and libquote.sh or die.
 atlocal_check_constants quote		## Perform check for libquote.sh.
 ], 0, [dnl				## And the winner is...
-quote_meta([[2]]get,api)=0=>0
 quote_cs_sh
 quote_cs_bre
 quote_cs_ere
@@ -1071,6 +1069,9 @@ quote_rs@{:@@<:@1@:>@}@:}@=0=>}
 matched
 quote_re@{:@@<:@2@:>@~,/@:}@=0=>~
 quote_rs@{:@@<:@1@:>@~@:}@=0=>~
+matched
+quote_re@{:@@<:@2@:>@/,/@:}@=0=>\/
+quote_rs@{:@@<:@1@:>@/@:}@=0=>\/
 matched
 quote_re@{:@@<:@2@:>@em^bed$ded,/@:}@=0=>em^bed$ded
 quote_rs@{:@@<:@1@:>@em^bed$ded@:}@=0=>em^bed$ded

@@ -25,6 +25,8 @@ dnl					atlocal_trace_invocation_set_output(),
 dnl					atlocal_trace_invocation_raw_output(),
 dnl					atlocal_check_constants(), and
 dnl					atlocal_check_function_usage_errors().
+dnl		ks	2021-05-25	Make constant's API table entries API
+dnl					version-independent.
 dnl
 dnl Test group 'Message emission library libemit.sh'
 dnl
@@ -118,7 +120,7 @@ emit_meta([[3]]get,apis,list)=0
 0;emit_get_head;1
 0;emit;2-
 emit_meta([[3]]get,apis,r/o)=0
-0;emit_re_level
+emit_re_level
 ], [dnl
 ])
 AT_CLEANUP
@@ -150,25 +152,22 @@ esac
 eval "`libdl-sh load`"; dl_load emit	## Load libdl.sh and libemit.sh or die.
 lib=emit; get="${lib}_meta get" status=0
 					## Assume success.
-atlocal_trace_invocation_set_output api $get api && {
-					## Inquired default API version?
-    for format in full list r/o; do	## Yes, foreach format do...
-	case $format in
-	    full)	sx='/;'"$lib"'_set_head(/!d;s/;.*$//'	;;
-	    list)	sx='/;'"$lib"'_set_head;/!d;s/;.*$//'	;;
-	    r/o)	sx='/^'"$api"';/!d;s///;/^'"$lib"'_/!d'	;;
-	esac
-	atlocal_trace_invocation_raw_output $get apis $format "$sx" || status=1
-    done				## Trace invocation and result.
-} || status=1; exit $status		## Indicate success or failure.
+for format in full list r/o; do	## Yes, foreach format do...
+    case $format in
+	full)	sx='/;'"$lib"'_set_head(/!d;s/;.*$//'	;;
+	list)	sx='/;'"$lib"'_set_head;/!d;s/;.*$//'	;;
+	r/o)	sx='/^'"$lib"'_/!d;s///'		;;
+    esac
+    atlocal_trace_invocation_raw_output $get apis $format "$sx" || status=1
+					## Trace invocation and result.
+done; exit $status			## Indicate success or failure.
 ], 0, [dnl				## And the winner is...
-emit_meta([[2]]get,api)=0=>0
 emit_meta([[4]]get,apis,full,/;emit_set_head@{:@/!d;s/;.*$//)=0
 0
 emit_meta([[4]]get,apis,list,/;emit_set_head;/!d;s/;.*$//)=0
 0
-emit_meta([[4]]get,apis,r/o,/^0;/!d;s///;/^emit_/!d)=0
-emit_re_level
+emit_meta([[4]]get,apis,r/o,/^emit_/!d;s///)=0
+re_level
 ], [dnl
 ])
 AT_CLEANUP
@@ -196,7 +195,6 @@ esac
 eval "`libdl-sh load`"; dl_load emit	## Load libdl.sh and libemit.sh or die.
 atlocal_check_constants emit		## Perform check for libemit.sh.
 ], 0, [dnl				## And the winner is...
-emit_meta([[2]]get,api)=0=>0
 emit_re_level
 ], [dnl
 ])

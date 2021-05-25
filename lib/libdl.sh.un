@@ -59,6 +59,8 @@
 ##		ks	2021-05-18	Add special characters '[' and ']'.
 ##		ks	2021-05-20	dl_warn(): Suppress warnings for pre-
 ##					releases.
+##		ks	2021-05-25	Make constant's API table entries API
+##					version-independent.
 ##
 ##  NOTE:   (1)	To avoid cluttering code, this library is exempted from need-
 ##		ing namespace prefixes for its special character definitions.
@@ -123,28 +125,28 @@ f${ms}1${ms}atload(HOOK)${ms}1
 f${ms}1${ms}load(LIB ...)${ms}1-
 f${ms}1${ms}atexit(HOOK)${ms}1
 f${ms}1${ms}exit([STATUS=\$?])${ms}0-1
-R${ms}1${ms}BQ
-R${ms}1${ms}DQ
-R${ms}1${ms}SQ
-R${ms}1${ms}BS
-R${ms}1${ms}CS
-R${ms}1${ms}DS
-R${ms}1${ms}HS
-R${ms}1${ms}QB
-R${ms}1${ms}QE
-R${ms}1${ms}CR
-R${ms}1${ms}NL
-R${ms}1${ms}LB
-R${ms}1${ms}RB
-r${ms}1${ms}cs_ul
-r${ms}1${ms}cs_ll
-r${ms}1${ms}cs_1d
-r${ms}1${ms}cs_0d
-r${ms}1${ms}cs_al
-r${ms}1${ms}cs_an
-r${ms}1${ms}re_id
-r${ms}1${ms}re_1n
-r${ms}1${ms}re_0n
+R${ms}BQ
+R${ms}DQ
+R${ms}SQ
+R${ms}BS
+R${ms}CS
+R${ms}DS
+R${ms}HS
+R${ms}QB
+R${ms}QE
+R${ms}CR
+R${ms}NL
+R${ms}LB
+R${ms}RB
+r${ms}cs_ul
+r${ms}cs_ll
+r${ms}cs_1d
+r${ms}cs_0d
+r${ms}cs_al
+r${ms}cs_an
+r${ms}re_id
+r${ms}re_1n
+r${ms}re_0n
 EOF
 	    ;;
 	=get-package|=get-version|=get-api|=get-libpath|=get-loaded|	\
@@ -288,16 +290,16 @@ dl_apis() {
     local									\
 	pa="s/^a$ms//;t_s${NL}d;:_s"						\
 	pf="s/^F$ms//;t_s${NL}s/^f$ms\\([^$ms]*$ms\\)/\\1$mp/;t_s${NL}d;:_s"	\
-	pr="s/^R$ms//;t_s${NL}s/^r$ms\\([^$ms]*$ms\\)/\\1$mp/;t_s${NL}d;:_s"	\
+	pr="s/^R$ms//;t_s${NL}s/^r$ms/$mp/;t_s${NL}d;:_s"			\
 	d2a="${NL}s/([^)$ms(]*)//;t_2$NL:_2"					\
-	f12="${NL}s/^\\([^$ms]*$ms[^$ms]*\\)$ms.*$/\\1/;t_f${NL}:_f"		\
+	f1="${NL}s/$ms.*$//;t_f${NL}:_f"					\
 	f123="${NL}s/^\\([^$ms]*$ms[^$ms]*$ms[^$ms]*\\)$ms.*$/\\1/;t_f${NL}:_f"
 
     case ${1-api} in			## Which format?
 	api)	sed "$pa"			;;
 	full)	sed "$pf$f123${2+$NL$2}"	;;
 	list)	sed "$pf$d2a$f123${2+$NL$2}"	;;
-	r/o)	sed "$pr$f12${2+$NL$2}"		;;
+	r/o)	sed "$pr$f1${2+$NL$2}"		;;
 	*)	return 1			;;
     esac
 }

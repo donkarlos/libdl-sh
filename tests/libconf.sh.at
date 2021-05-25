@@ -34,6 +34,8 @@ dnl					atlocal_trace_invocation_set_output(),
 dnl					atlocal_trace_invocation_raw_output(),
 dnl					atlocal_check_constants(), and
 dnl					atlocal_check_function_usage_errors().
+dnl		ks	2021-05-25	Make constant's API table entries API
+dnl					version-independent.
 dnl
 dnl Test group 'GIT-style configuration file processing library libconf.sh'
 dnl
@@ -152,6 +154,7 @@ dnl
 dnl Check if conf_meta() inquiries
 dnl   -	get apis full
 dnl   -	get apis list
+dnl   -	get apis r/o
 dnl hounour (i.e., apply) the extra sed(1) expression passed as 4th argument.
 dnl
 dnl NOTE:   (1)	The double brackets within the expected output provide "just
@@ -174,20 +177,21 @@ esac
 eval "`libdl-sh load`"; dl_load conf	## Load libdl.sh and libconf.sh or die.
 lib=conf; get="${lib}_meta get" status=0
 					## Assume success.
-{
-    for format in full list; do		## Yes, foreach format do...
-	    case $format in
-	    full)	sx='/;'"$lib"'_getenv(/!d;s/;.*$//'	;;
-	    list)	sx='/;'"$lib"'_getenv;/!d;s/;.*$//'	;;
-	esac
-	atlocal_trace_invocation_raw_output $get apis $format "$sx" || status=1
-    done				## Trace invocation and result.
-} || status=1; exit $status		## Indicate success or failure.
+for format in full list r/o; do		## Foreach format do...
+    case $format in
+	full)	sx='/;'"$lib"'_getenv(/!d;s/;.*$//'	;;
+	list)	sx='/;'"$lib"'_getenv;/!d;s/;.*$//'	;;
+	r/o)    sx='/^'"$lib"'_/!d;s///'		;;
+    esac
+    atlocal_trace_invocation_raw_output $get apis $format "$sx" || status=1
+					## Trace invocation and result.
+done; exit $status			## Indicate success or failure.
 ], 0, [dnl				## And the winner is...
 conf_meta([[4]]get,apis,full,/;conf_getenv@{:@/!d;s/;.*$//)=0
 1
 conf_meta([[4]]get,apis,list,/;conf_getenv;/!d;s/;.*$//)=0
 1
+conf_meta([[4]]get,apis,r/o,/^conf_/!d;s///)=0
 ], [dnl
 ])
 AT_CLEANUP
@@ -214,8 +218,7 @@ case :$PATH: in				## Triggered by 'check-local:'?
 esac
 eval "`libdl-sh load`"; dl_load conf	## Load libdl.sh and libconf.sh or die.
 atlocal_check_constants conf		## Perform check for libconf.sh.
-], 1, [dnl				## And the winner is...
-conf_meta([[2]]get,api)=1=>
+], 0, [dnl				## And the winner is...
 ], [dnl
 ])
 AT_CLEANUP

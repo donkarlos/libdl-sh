@@ -49,6 +49,8 @@
 ##		ks	2021-05-14	Prepare for multiple API versions.
 ##		ks	2021-05-16	Use dl_readonly() to freeze variables
 ##					and dl_apis() to emit API information.
+##		ks	2021-05-25	Make constant's API table entries API
+##					version-independent.
 ##----------------------------------------------------------------------------
 ##  Global variables:
 #-----------------------------------------------------------------------------
@@ -88,10 +90,10 @@ f${ms}0${ms}rs(STRING [DELIMITER])${ms}1-2
 f${ms}0${ms}grep(STRING)${ms}1
 f${ms}0${ms}egrep(STRING)${ms}1
 f${ms}0${ms}sed(STRING [DELIMITER=/])${ms}1-2
-r${ms}0${ms}cs_sh
-r${ms}0${ms}cs_bre
-r${ms}0${ms}cs_ere
-r${ms}0${ms}cs_brs
+r${ms}cs_sh
+r${ms}cs_bre
+r${ms}cs_ere
+r${ms}cs_brs
 EOF
 	    ;;
 	=get-package|=get-version|=get-api)

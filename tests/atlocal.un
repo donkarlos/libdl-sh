@@ -42,6 +42,8 @@
 ##					quiries(), atlocal_check_constants(),
 ##					and atlocal_check_function_usage_-
 ##					errors().
+##		ks	2021-05-25	Make constant's API table entries API
+##					version-independent.
 ##----------------------------------------------------------------------------
 ##  Global variables:
 #-----------------------------------------------------------------------------
@@ -416,21 +418,16 @@ atlocal_check_constants() {
 	    ;;
 	*)  return 2			## N/?: Indicate abuse!
 	    ;;
-    esac; atlocal_trace_invocation_set_output api $meta get api && {
-					## Inquired default API version?
-	for name in `$meta get apis r/o '/^'"$api"';/!d;s///'`; do
-					## Yes, foreach constant do...
-	    eval 'case ${'"$name"'+=} in
-					## Does it have a value?
-		=)  (eval "$name=" 2>/dev/null) && status=1 || echo "$name"
+    esac; for name in `$meta get apis r/o`; do
+					## Foreach constant do...
+	eval 'case ${'"$name"'+=} in	## Does it have a value?
+	    =)  (eval "$name=" 2>/dev/null) && status=1 || echo "$name"
 					## Yes, but fail test if we could set
-		    ;;			## it in a subshell environment! 8-O
-		*)  status=1		## No, fail test as it is unset! :-(
-		    ;;
-	    esac'
-	done
-    } || status=1
-    return $status			## Indicate success or failure.
+		;;			## it in a subshell environment! 8-O
+	    *)  status=1		## No, fail test as it is unset! :-(
+		;;
+	esac'
+    done; return $status		## Indicate success or failure.
 }
 
 ##----------------------------------------------------------------------------

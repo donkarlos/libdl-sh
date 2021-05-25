@@ -56,6 +56,8 @@ dnl					atlocal_trace_invocation_set_output(),
 dnl					atlocal_trace_invocation_raw_output(),
 dnl					atlocal_check_constants(), and
 dnl					atlocal_check_function_usage_errors().
+dnl		ks	2021-05-25	Make constant's API table entries API
+dnl					version-independent.
 dnl
 dnl Test group 'Demand-loading library libdl.sh'
 dnl
@@ -154,28 +156,28 @@ dl_meta([[3]]get,apis,list)=0
 1;dl_atexit;1
 1;dl_exit;0-1
 dl_meta([[3]]get,apis,r/o)=0
-1;BQ
-1;DQ
-1;SQ
-1;BS
-1;CS
-1;DS
-1;HS
-1;QB
-1;QE
-1;CR
-1;NL
-1;LB
-1;RB
-1;dl_cs_ul
-1;dl_cs_ll
-1;dl_cs_1d
-1;dl_cs_0d
-1;dl_cs_al
-1;dl_cs_an
-1;dl_re_id
-1;dl_re_1n
-1;dl_re_0n
+BQ
+DQ
+SQ
+BS
+CS
+DS
+HS
+QB
+QE
+CR
+NL
+LB
+RB
+dl_cs_ul
+dl_cs_ll
+dl_cs_1d
+dl_cs_0d
+dl_cs_al
+dl_cs_an
+dl_re_id
+dl_re_1n
+dl_re_0n
 dl_meta([[2]]get,loaded)=0
 :dl:
 ], [dnl
@@ -208,33 +210,30 @@ case :$PATH: in				## Triggered by 'check-local:'?
 esac
 eval "`libdl-sh load`"			## Load libdl.sh or die.
 lib=dl; get="${lib}_meta get" status=0	## Assume success.
-atlocal_trace_invocation_set_output api $get api && {
-					## Inquired default API version?
-    for format in full list r/o; do	## Yes, foreach format do...
-	case $format in
-	    full)   sx='/;'"$lib"'_atload(/!d;s/;.*$//'		;;
-	    list)   sx='/;'"$lib"'_atload;/!d;s/;.*$//'		;;
-	    r/o)    sx='/^'"$api"';/!d;s///;/^'"$lib"'_/!d'	;;
-	esac
-	atlocal_trace_invocation_raw_output $get apis $format "$sx" || status=1
-    done				## Trace invocation and result.
-} || status=1; exit $status		## Indicate success or failure.
+for format in full list r/o; do		## Foreach format do...
+    case $format in
+	full)   sx='/;'"$lib"'_atload(/!d;s/;.*$//'	;;
+	list)   sx='/;'"$lib"'_atload;/!d;s/;.*$//'	;;
+	r/o)    sx='/^'"$lib"'_/!d;s///'		;;
+    esac
+    atlocal_trace_invocation_raw_output $get apis $format "$sx" || status=1
+					## Trace invocation and result.
+done; exit $status			## Indicate success or failure.
 ], 0, [dnl				## And the winner is...
-dl_meta([[2]]get,api)=0=>1
 dl_meta([[4]]get,apis,full,/;dl_atload@{:@/!d;s/;.*$//)=0
 1
 dl_meta([[4]]get,apis,list,/;dl_atload;/!d;s/;.*$//)=0
 1
-dl_meta([[4]]get,apis,r/o,/^1;/!d;s///;/^dl_/!d)=0
-dl_cs_ul
-dl_cs_ll
-dl_cs_1d
-dl_cs_0d
-dl_cs_al
-dl_cs_an
-dl_re_id
-dl_re_1n
-dl_re_0n
+dl_meta([[4]]get,apis,r/o,/^dl_/!d;s///)=0
+cs_ul
+cs_ll
+cs_1d
+cs_0d
+cs_al
+cs_an
+re_id
+re_1n
+re_0n
 ], [dnl
 ])
 AT_CLEANUP
@@ -262,7 +261,6 @@ esac
 eval "`libdl-sh load`"			## Load libdl.sh or die.
 atlocal_check_constants dl		## Perform check for libdl.sh.
 ], 0, [dnl				## And the winner is...
-dl_meta([[2]]get,api)=0=>1
 BQ
 DQ
 SQ
@@ -311,9 +309,8 @@ case :$PATH: in				## Triggered by 'check-local:'?
 	;;
 esac
 eval "`libdl-sh load`"			## Load libdl.sh or die.
-api=`dl_meta get api`			## Inquire default API version.
 specials=
-for name in `dl_meta get apis r/o '/^'"$api"';/!d;s///;/^dl_/d'`; do
+for name in `dl_meta get apis r/o '/^dl_/d'`; do
 					## Foreach special character do...
     eval 'specials=$specials${'"$name"'-.}'
 done; od -bc <<EOF
