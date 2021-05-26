@@ -425,13 +425,13 @@ case :$PATH: in				## Triggered by 'check-local:'?
 esac
 eval "`libdl-sh load`"; dl_load undo	## Load libdl.sh and libundo.sh or die.
 status=0				## Assume success.
-atlocal_trace_invocation undo_meta set api 0	|| status=1
+atlocal_trace_invocation_returns 0 undo_meta set api 0	|| status=1
 atlocal_trace_variable undo_0tag
-atlocal_trace_invocation undo_init :0		|| status=1
+atlocal_trace_invocation_returns 0 undo_init :0		|| status=1
 atlocal_trace_variable undo_0tag
-atlocal_trace_invocation undo_init :0		|| status=1
+atlocal_trace_invocation_returns 0 undo_init :0		|| status=1
 atlocal_trace_variable undo_0tag
-atlocal_trace_invocation undo_init :1		&& status=1
+atlocal_trace_invocation_returns 1 undo_init :1		|| status=1
 atlocal_trace_variable undo_0tag
 exit $status				## Indicate success or failure.
 ], 0, [dnl				## And the winner is...
