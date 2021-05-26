@@ -38,7 +38,8 @@ dnl		ks	2021-05-25	Make constant's API table entries API
 dnl					version-independent.
 dnl					Use atlocal_check_meta_get_apis_hon-
 dnl					ours_4th().
-dnl		ks	2021-05-26	Add test group ['safe_meta set 0tag'
+dnl		ks	2021-05-26	Add test groups ['safe_meta set 0tag'
+dnl					works as expected?] and [safe_init()
 dnl					works as expected?].
 dnl
 dnl Test group 'Safe directory/file operations library libsafe.sh'
@@ -406,6 +407,48 @@ safe_0tag=:0
 safe_meta([[3]]set,0tag,:0)=0
 safe_0tag=:0
 safe_meta([[3]]set,0tag,:1)=1
+safe_0tag=:0
+], [dnl
+])
+AT_CLEANUP
+
+dnl
+dnl Check if safe_init() works as expected.
+dnl
+dnl NOTE:   (1)	The double brackets within the expected output provide "just
+dnl		the right amount" of m4(1) quoting.
+dnl
+AT_SETUP([safe_init() works as expected?])
+AT_KEYWORDS([libsafe.sh libsafe safe_init cleanups])
+AT_CHECK([dnl
+set -eu					## Employ strict execution environment
+					## to ensure 'set -u' resilience.
+case :$PATH: in				## Triggered by 'check-local:'?
+    *:$abs_top_builddir/bin:*)		## Yes, export suitable LSP.
+	LIBDL_SH_LIBRARY_PATH=$abs_top_builddir/lib
+	LIBDL_SH_LIBEXECDIR=$abs_top_builddir/libexec
+	export LIBDL_SH_LIBRARY_PATH LIBDL_SH_LIBEXECDIR
+	;;
+esac
+eval "`libdl-sh load`"; dl_load safe	## Load libdl.sh and libsafe.sh or die.
+status=0				## Assume success.
+atlocal_trace_invocation_returns 0 safe_meta set api 0	|| status=1
+atlocal_trace_variable safe_0tag
+atlocal_trace_invocation_returns 0 safe_init :0		|| status=1
+atlocal_trace_variable safe_0tag
+atlocal_trace_invocation_returns 0 safe_init :0		|| status=1
+atlocal_trace_variable safe_0tag
+atlocal_trace_invocation_returns 1 safe_init :1		|| status=1
+atlocal_trace_variable safe_0tag
+exit $status				## Indicate success or failure.
+], 0, [dnl				## And the winner is...
+safe_meta([[3]]set,api,0)=0
+unset safe_0tag
+safe_init([[1]]:0)=0
+safe_0tag=:0
+safe_init([[1]]:0)=0
+safe_0tag=:0
+safe_init([[1]]:1)=1
 safe_0tag=:0
 ], [dnl
 ])
