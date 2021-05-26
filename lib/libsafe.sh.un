@@ -45,6 +45,7 @@
 ##					Prepare and activate API version 1.
 ##		ks	2021-05-16	Use dl_readonly() to freeze variables
 ##					and dl_apis() to emit API information.
+##		ks	2021-05-26	Replace dl_warn() with dl_inform().
 ##----------------------------------------------------------------------------
 ##  Global variables:
 #-----------------------------------------------------------------------------
@@ -125,8 +126,8 @@ EOF
 ##----------------------------------------------------------------------------
 safe_init() {
     case ${safe_api--} in
-	1)  dl_warn api-wdr-func "safe;_init([$#]$*)" 1 0		;;
-	*)  dl_warn rel-dpr-func "safe;_init([$#]$*)" 0.4 0.5 0.3.6	;;
+	1)  dl_inform api-wdr-func 1 0 safe_init ${1+"$@"}		;;
+	*)  dl_inform rel-dpr-func 0.4 0.5 0.3.6 safe_init ${1+"$@"}	;;
     esac && safe_meta set 0tag ${1+"$1"}
 }
 
