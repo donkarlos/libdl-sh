@@ -41,12 +41,12 @@ dnl					atlocal_trace_invocation_set_output(),
 dnl					atlocal_trace_invocation_raw_output(),
 dnl					atlocal_check_constants(), and
 dnl					atlocal_check_function_usage_errors().
-dnl
-dnl Test group 'Undo stack management library libundo.sh'
 dnl		ks	2021-05-25	Make constant's API table entries API
 dnl					version-independent.
 dnl					Use atlocal_check_meta_get_apis_hon-
 dnl					ours_4th().
+dnl
+dnl Test group 'Undo stack management library libundo.sh'
 dnl
 AT_BANNER([Undo stack management library libundo.sh])
 
@@ -386,11 +386,11 @@ esac
 eval "`libdl-sh load`"; dl_load undo	## Load libdl.sh and libundo.sh or die.
 status=0				## Assume success.
 atlocal_trace_variable undo_0tag
-atlocal_trace_invocation undo_meta set 0tag :0	|| status=1
+atlocal_trace_invocation_returns 0 undo_meta set 0tag :0	|| status=1
 atlocal_trace_variable undo_0tag
-atlocal_trace_invocation undo_meta set 0tag :0	|| status=1
+atlocal_trace_invocation_returns 0 undo_meta set 0tag :0	|| status=1
 atlocal_trace_variable undo_0tag
-atlocal_trace_invocation undo_meta set 0tag :1	&& status=1
+atlocal_trace_invocation_returns 1 undo_meta set 0tag :1	|| status=1
 atlocal_trace_variable undo_0tag
 exit $status				## Indicate success or failure.
 ], 0, [dnl				## And the winner is...
