@@ -60,6 +60,7 @@ dnl		ks	2021-05-25	Make constant's API table entries API
 dnl					version-independent.
 dnl					Use atlocal_check_meta_get_apis_hon-
 dnl					ours_4th().
+##		ks	2021-05-26	Add service function dl_inform().
 dnl
 dnl Test group 'Demand-loading library libdl.sh'
 dnl
@@ -135,6 +136,7 @@ dl_meta([[3]]get,apis,api)=0
 1
 dl_meta([[3]]get,apis,full)=0
 1;dl_meta(META [[ARG ...]]);2-
+1;dl_inform(ABOUT [[AARG ...] FUNC [FARG ...]]);4-
 1;dl_warn(WHAT INVO [[ARG ...]]);2-5
 1;dl_apis([[FORMAT=api [SEDEX]]]);0-2
 1;dl_dump(MP VS ...);2-
@@ -147,6 +149,7 @@ dl_meta([[3]]get,apis,full)=0
 1;dl_exit([[STATUS=$?]]);0-1
 dl_meta([[3]]get,apis,list)=0
 1;dl_meta;2-
+1;dl_inform;4-
 1;dl_warn;2-5
 1;dl_apis;0-2
 1;dl_dump;2-
@@ -347,6 +350,10 @@ atlocal_check_function_usage_errors dl	## Perform check for libdl.sh.
 dl_meta([[3]]set,api,1)=0
 dl_meta([[0]])=2
 dl_meta([[1]]1)=2
+dl_inform([[0]])=2
+dl_inform([[1]]1)=2
+dl_inform([[2]]1,2)=2
+dl_inform([[3]]1,2,3)=2
 dl_warn([[0]])=2
 dl_warn([[1]]1)=2
 dl_dump([[0]])=2

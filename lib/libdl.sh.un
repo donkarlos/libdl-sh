@@ -61,6 +61,7 @@
 ##					releases.
 ##		ks	2021-05-25	Make constant's API table entries API
 ##					version-independent.
+##		ks	2021-02-26	Add service function dl_inform().
 ##
 ##  NOTE:   (1)	To avoid cluttering code, this library is exempted from need-
 ##		ing namespace prefixes for its special character definitions.
@@ -115,6 +116,7 @@ dl_meta() {
 	    shift 2 && dl_apis ${1+"$@"} <<EOF
 a${ms}1
 f${ms}1${ms}meta(META [ARG ...])${ms}2-
+f${ms}1${ms}inform(ABOUT [AARG ...] FUNC [FARG ...])${ms}4-
 f${ms}1${ms}warn(WHAT INVO [ARG ...])${ms}2-5
 f${ms}1${ms}apis([FORMAT=api [SEDEX]])${ms}0-2
 f${ms}1${ms}dump(MP VS ...)${ms}2-
@@ -193,6 +195,89 @@ EOF
 	*)  return 2			## Anything else...
 	    ;;				## ...is abuse!
     esac
+}
+
+##----------------------------------------------------------------------------
+##  dl_inform(ABOUT [AARG ...] FUNC [FARG ...])
+##				Inform user about deprecated and/or withdrawn
+##				features and abort application if necessary
+##----------------------------------------------------------------------------
+dl_inform() {
+    local status=0 about drel wrel crel wapi capi func ifs args invo lib
+
+    case ${5+5}${4+4}${1+=$1} in	## Usage OK?
+	*4=rel-req-set-api|*4=rel-wdr-meta)
+	    about=$1 wrel=$2 crel=$3 func=$4;		shift 4	;;
+	*4=api-wdr-func)
+	    about=$1 wapi=$2 capi=$3 func=$4;		shift 4	;;
+	54=rel-dpr-func)
+	    about=$1 drel=$2 wrel=$3 crel=$4 func=$5;	shift 5	;;
+	*)  return 2	;;		## No, indicate abuse!
+    esac; ifs=$IFS; IFS=,; args=$*; IFS=$ifs; eval "`sed '
+	:N'"$NL"'$!{;N;bN'"$NL"'}
+	s/'"$BS$NL"'/<NL>/g;s/'"$CR"'/<CR>/g;s/	/<HT>/g;s/ /<SP>/g;s/'"$SQ"'/&'"$BS$BS"'&&/g
+	s/^//;t0'"$NL"':0
+	s/^\([^(;)][^(;)]*\);\([^(;)]*\)\((.*)\)$/invo='"$SQ"'\1\2\3'"$SQ"' lib='"$SQ"'\1'"$SQ"' func='"$SQ"'\1\2'"$SQ"'/;tp
+	s/^\([^(;_)][^(;_)]*\)_\([^(;)]*\)(.*)$/invo='"$SQ"'&'"$SQ"' lib='"$SQ"'\1'"$SQ"' func='"$SQ"'\1_\2'"$SQ"'/;tp
+	s/^\([^(;_)][^(;_)]*\)(.*)$/invo='"$SQ"'&'"$SQ"' lib='"$SQ"'\1'"$SQ"'; func=$lib/;tp
+	s/^/invo='"$SQ"'/;s/$/'"$SQ"'/;:p
+    ' <<EOF
+$func([$#]$args)
+EOF`"					## Rewrite invocation.
+    case $dl_loaded in			## Library loaded?
+	*:${lib-}:*)			## Yes, try to determine package...
+	    package=`${lib}_meta get package` || unset package
+	    version=`${lib}_meta get version` || unset version
+	    ;;				## ...name and version.
+    esac; case ${lib+=}$about in
+	=rel-req-set-api)		## Release requires set API version...
+	    cat >&2 <<EOF
+$invo; CAUTION!
+Function invoked without API version of lib$lib.sh being selected before,
+which is required since release $wrel. Chances are that your application
+still wants to use a withdrawn API version. To prevent serious damage, the
+application is aborted now!
+
+Downgrade package ${package-} to release $crel to make the application
+work again.
+EOF
+	    exit 127
+	    ;;
+	=rel-dpr-func)			## Release deprecated function...
+	    verscmp --target=fast -- "${version-}" lt-nl "$drel" 2>/dev/null || {
+		cat >&2 <<EOF
+$invo; WARNING:
+Function deprecated since release $drel, to be withdrawn by release $wrel.
+See lib$lib(3SH) for suggestions on how to migrate your application or
+downgrade package ${package-} to release $crel.
+EOF
+	    }
+	    ;;
+	=api-wdr-func)			## API version withdrew function...
+	    cat >&2 <<EOF
+$invo; WARNING:
+Function withdrawn from API version $wapi of lib$lib.sh.
+See lib$lib(3SH) for suggestions on how to migrate your application or
+stay with (probably deprecated) API version $capi for the time being.
+EOF
+	    status=127
+	    ;;
+	=rel-wdr-meta)			## Release withdrew meta operation...
+	    verscmp --target=fast -- "${version-}" lt-nl "$wrel" 2>/dev/null || {
+		cat >&2 <<EOF
+$invo; WARNING:
+Meta operation withdrawn since release $wrel.
+See lib$lib(3SH) for suggestions on how to migrate your application or
+downgrade package ${package-} to release $crel.
+EOF
+		status=2
+	    }
+	    ;;
+	*)				## Catch-all...
+	    echo "$*; OOPS!" >&2
+	    status=3
+	    ;;
+    esac; return $status
 }
 
 ##----------------------------------------------------------------------------
