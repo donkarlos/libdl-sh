@@ -24,7 +24,6 @@
 .\#					Lay session concept foundation.
 .\#		ks	2016-05-21	Withdraw 'dl_meta get apis' brief
 .\#					format and dl_init().
-.\#		ks      2016-05-23	Add service function dl_warn().
 .\#		ks	2016-05-24	Add 'meta get package/version'.
 .\#					Use 'meta get apis' separator ';'.
 .\#		ks	2017-02-11	Update copyright.
@@ -34,10 +33,11 @@
 .\#		ks	2017-07-08	Add service function dl_split().
 .\#		ks	2018-08-27	Document public variables.
 .\#		ks	2020-05-03	Document 'meta get apis r/o'.
+.\"		ks	2021-05-26	Replace dl_warn() with dl_inform().
 .\#
 .\# NOTE: (1)	Please adjust below date whenever revising the manual page.
 .\#		vvvvvv
-.TH LIBDL 3SH 2021-05-01 "@PACKAGE_TARNAME@ @PACKAGE_VERSION@" "Shell Programming"
+.TH LIBDL 3SH 2021-05-26 "@PACKAGE_TARNAME@ @PACKAGE_VERSION@" "Shell Programming"
 
 .SH NAME
 dl_atload, dl_load, dl_atexit, dl_exit, dl_which, dl_dump, dl_meta
@@ -219,50 +219,47 @@ Inquire registered session identifier and write it to standard output.
 The following functions are intended as a service to other demand-loadable
 libraries. They shouldn't be invoked directly from applications.
 .TP 4
-\fBdl_warn\fP \fIWHAT\fP [\fIARG\fP ...]
-Warn about deprecated and/or withdrawn features by writing an appropriate
+\fBdl_inform\fP \fIABOUT\fP [\fIAARG\fP ...] \fIFUNC\fP [\fIFARG\fP ...]
+Inform about deprecated and/or withdrawn features by writing an appropriate
 message to standard error output and returning status \fB1\fP (unless noted
-otherwise). Currently, \fIWHAT\fP may be one of the following (shown with
-parameters needed to construct the message):
+otherwise). Currently, \fIABOUT\fP may be one of the following (shown with
+\fIAARG\fPs required to construct the message):
 .RS 4
 .TP 4
-\fBrel-req-set-api\fP \fILIB\fP \fIINVO\fP \fIWREL\fP \fICREL\fP
-State that since release \fIWREL\fP (the withdrawing release), \fILIB\fPrary
-requires applications to select an API version
-(e.g., with \fILIB\fP\fB_meta set api\fP \fIVERSION\fP) and that the
-application will be terminated because it hadn't done so yet. Also state
-that package \fB@PACKAGE_TARNAME@\fP may be downgraded to release \fICREL\fP
-(the latest compatible release) to stay compatible with the application, then
-exit the application with status \fB127\fP.
+\fBrel-req-set-api\fP \fIWREL\fP \fICREL\fP
+Write a message stating that since release \fIWREL\fP (the withdrawing
+release), library \fBlib\fP\fILIB\fP\fB.sh\fP requires applications to set an
+API version (e.g., with \fILIB\fP\fB_meta set api\fP \fIVERSION\fP) and that
+the application will be terminated because it hadn't done so yet. Also state
+that the package owning \fBlib\fP\fILIB\fP\fB.sh\fP ought to be downgraded to
+release \fICREL\fP (the latest compatible release) to stay compatible with the
+application, then terminate the application with exit status \fB127\fP.
 
-The parameter \fIINVO\fP should have format
-
-.in +4
-\fIFUNC\fP\fB([\fP$#\fB]\fP$*\fB)\fP
-.in -4
-
-to indicate which \fIFUNC\fPtion (without \fILIB\fP\fB_\fP prefix) invocation
-raised the warning.
+In order to derive \fILIB\fP (which is not explicitly passed!) from \fIFUNC\fP
+(the invoking function that wants to inform about deprecated or withdrawn
+features), the latter ought to be passed with an embedded semicolon
+.RB ( ";" )
+marking the library prefix.
 
 .TP
-\fBrel-dpr-func\fP \fILIB\fP \fIINVO\fP \fIDREL\fP \fIWREL\fP \fICREL\fP
-State that release \fIDREL\fP (the deprecating release) deprecated the
-function represented by \fIINVO\fP (see \fBrel-req-set-api\fP above), that it
-will be withdrawn by \fIWREL\fP, and that package \fB@PACKAGE_TARNAME@\fP may
-be downgraded to release \fICREL\fP to stay compatible, then return status
-\fB0\fP.
+\fBrel-dpr-func\fP \fIDREL\fP \fIWREL\fP \fICREL\fP
+Write a message stating that release \fIDREL\fP (the deprecating release)
+deprecated \fIFUNC\fP, that it will be withdrawn by \fIWREL\fP, and that that
+the package owning \fBlib\fP\fILIB\fP\fB.sh\fP ought to be downgraded to
+release \fICREL\fP to stay compatible, then return status \fB0\fP (so that
+\fIFUNC\fP may continue its operation).
 
 .TP
-\fBapi-wdr-func\fP \fILIB\fP \fIINVO\fP \fIWAPI\fP \fICAPI\fP
-State that API version \fIWAPI\fP (the withdrawing API) withdrew the function
-represented by \fIINVO\fP (see \fBrel-req-set-api\fP above), but that you
-instead may stay with API version  \fICAPI\fP (the latest compatible API)
-for now.
+\fBapi-wdr-func\fP \fIWAPI\fP \fICAPI\fP
+Write a message stating that API version \fIWAPI\fP (the withdrawing API
+version) withdrew \fIFUNC\fP, but that you instead may stay with API version
+\fICAPI\fP (the latest compatible API version) for now, then return status
+\fB127\fP.
 
 .TP
-\fBrel-wdr-meta\fB \fILIB\fP \fIARGS\fP \fIWREL\fP \fICREL\fP
-State that release \fIWREL\fP withdrew the meta operation represented by
-\fIARGS\fP (format: \fB[\fP$#\fB]\fP$*) and give the usual downgrade hint.
+\fBrel-wdr-meta\fB \fIWREL\fP \fICREL\fP
+Write a message stating that release \fIWREL\fP withdrew the meta operation represented by
+\fIFARG\fPs, give the usual downgrade hint and return status \fB2\fP.
 .RE
 
 .TP

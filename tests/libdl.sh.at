@@ -40,7 +40,6 @@ dnl					Add test group [dl_atexit() registers
 dnl					exit-time hook?].
 dnl					Add test group [dl_exit() ignores EXIT
 dnl					before hooks?].
-dnl					'set -u'-harden dl_warn().
 dnl					Add test group [dl_load() loads
 dnl					another library?].
 dnl		ks	2021-05-07	Always expect no error output.
@@ -137,7 +136,6 @@ dl_meta([[3]]get,apis,api)=0
 dl_meta([[3]]get,apis,full)=0
 1;dl_meta(META [[ARG ...]]);2-
 1;dl_inform(ABOUT [[AARG ...] FUNC [FARG ...]]);4-
-1;dl_warn(WHAT INVO [[ARG ...]]);2-5
 1;dl_apis([[FORMAT=api [SEDEX]]]);0-2
 1;dl_dump(MP VS ...);2-
 1;dl_readonly(LIB VS [[VALUE]]);2-3
@@ -150,7 +148,6 @@ dl_meta([[3]]get,apis,full)=0
 dl_meta([[3]]get,apis,list)=0
 1;dl_meta;2-
 1;dl_inform;4-
-1;dl_warn;2-5
 1;dl_apis;0-2
 1;dl_dump;2-
 1;dl_readonly;2-3
@@ -354,8 +351,6 @@ dl_inform([[0]])=2
 dl_inform([[1]]1)=2
 dl_inform([[2]]1,2)=2
 dl_inform([[3]]1,2,3)=2
-dl_warn([[0]])=2
-dl_warn([[1]]1)=2
 dl_dump([[0]])=2
 dl_dump([[1]]1)=2
 dl_readonly([[0]])=2
