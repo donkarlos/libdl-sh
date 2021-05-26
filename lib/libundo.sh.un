@@ -45,6 +45,7 @@
 ##					Deprecate/Withdraw undo_mark().
 ##		ks	2021-05-16	Use dl_readonly() to freeze variables
 ##					and dl_apis() to emit API information.
+##		ks	2021-05-26	Replace dl_warn() with dl_inform().
 ##----------------------------------------------------------------------------
 ##  Global variables:
 #-----------------------------------------------------------------------------
@@ -118,8 +119,8 @@ EOF
 ##----------------------------------------------------------------------------
 undo_init() {
     case ${undo_api--} in
-	[12])	dl_warn api-wdr-func "undo;_init([$#]$*)" 1 0		;;
-	*)	dl_warn rel-dpr-func "undo;_init([$#]$*)" 0.4 0.5 0.3.6	;;
+	1|2)dl_inform api-wdr-func 1 0 undo_init ${1+"$@"}		;;
+	*)  dl_inform rel-dpr-func 0.4 0.5 0.3.6 undo_init ${1+"$@"}	;;
     esac && undo_meta set 0tag ${1+"$1"}
 }
 
@@ -180,8 +181,8 @@ EOF
 ##----------------------------------------------------------------------------
 undo_mark() {
     case ${undo_api--} in
-	2)  dl_warn api-wdr-func "undo;_mark([$#]$*)" 2 1		;;
-	*)  dl_warn rel-dpr-func "undo;_mark([$#]$*)" 0.4 0.5 0.3.6	;;
+	2)  dl_inform api-wdr-func 2 1 undo_mark ${1+"$@"}		;;
+	*)  dl_inform rel-dpr-func 0.4 0.5 0.3.6 undo_mark ${1+"$@"}	;;
     esac && case ${2+2}${1+1$1} in	## Usage OK/mark is valid?
 	1::?*)	undo_stack=$CS{$1::}$CS$NL$undo_stack
 		;;			## Y/Y: Push mark onto undo stack.
@@ -254,8 +255,8 @@ undo_drop() {
 ##----------------------------------------------------------------------------
 undo_keep() {
     case ${undo_api--} in
-	[12])	dl_warn api-wdr-func "undo;_keep([$#]$*)" 1 0		;;
-	*)	dl_warn rel-dpr-func "undo;_keep([$#]$*)" 0.4 0.5 0.3.6	;;
+	1|2)dl_inform api-wdr-func 1 0 undo_keep ${1+"$@"}		;;
+	*)  dl_inform rel-dpr-func 0.4 0.5 0.3.6 undo_keep ${1+"$@"}	;;
     esac && undo_stack=`undo_emit keep ${1+"$@"}`
 }					## Keep selected undos on stack.
 
