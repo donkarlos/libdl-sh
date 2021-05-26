@@ -339,22 +339,22 @@ dl_readonly() {
     case ${4+4}${3+3}${2+2$dl_loaded$dl_needed} in
 					## Usage OK?/LIBrary loaded or needed?
 	3*:${1+$1:}*)			## Y/Y: Variable still settable?
-	    eval 'case ${'"$1_$2"'+=$'"$1_$2"'}${'"$1_"'ro-,} in
-		=$3,*)			## Maybe, but ignore idempotence.
+	    eval 'case ${'"$1_$2"'+=$'"$1_$2"'}${'"$1_"'ro-:} in
+		=$3:*)			## Maybe, but ignore idempotence.
 		    ;;
-		=*,$2,*)		## No, indicate failure!
+		=*:$2:*)		## No, indicate failure!
 		    return 1
 		    ;;
-		*)  '"$1_$2"'=$3 '"$1_"'ro=${'"$1_"'ro-,}$2,; readonly '"$1_$2"'
+		*)  '"$1_$2"'=$3 '"$1_"'ro=${'"$1_"'ro-:}$2:; readonly '"$1_$2"'
 		    ;;			## Yes, set and freeze it.
 	    esac'
 	    ;;
 	2*:${1+$1:}*)			## Y/Y: Variable still freezable?
-	    eval 'case ${'"$1_"'ro-,} in
-		*,$2,*)			## No, indicate failure!
+	    eval 'case ${'"$1_"'ro-:} in
+		*:$2:*)			## No, indicate failure!
 		    return 1
 		    ;;
-		*)  '"$1_"'ro=${'"$1_"'ro-,}$2,; readonly '"$1_$2"'
+		*)  '"$1_"'ro=${'"$1_"'ro-:}$2:; readonly '"$1_$2"'
 			;;		## Yes, freeze it.
 	    esac'
 	    ;;
