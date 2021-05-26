@@ -46,6 +46,7 @@
 ##					conf_getenv().
 ##		ks	2021-05-16	Use dl_readonly() to freeze variables
 ##					and dl_apis() to emit API information.
+##		ks	2021-05-26	Replace dl_warn() with dl_inform().
 ##
 ##  NOTE:   (1)	The library just wraps around its 'workhorse' awk(1) script!
 ##	    (2)	The library intentionally has no default API version!
@@ -110,13 +111,12 @@ EOF
 ##				executing commands from standard input
 ##----------------------------------------------------------------------------
 conf_exec() {
-    case ${conf_api--}/${1+=} in	## API selected?/Usage OK?
-	-/*)dl_warn rel-req-set-api "conf;_exec([$#]$*)" 0.4 0.3.6
-	    ;;				## N/?: Complain about unknown API!
-	*/=)"$conf_awk" "$@" -		## Y/Y: Execute standard input.
-	    ;;
-	*)  return 2			## ?/N: Indicate abuse!
-	    ;;
+    case ${conf_api--} in		## API set?
+	-)  dl_inform rel-req-set-api 0.4 0.3.6 conf_exec ${1+"$@"}	;;
+					## No, inform about unset API!
+    esac && case ${1+=} in		## Usage OK?
+	=)  "$conf_awk" "$@" -	;;	## Yes, execute standard input.
+	*)  return 2		;;	## No, indicate abuse!
     esac
 }
 
@@ -125,15 +125,15 @@ conf_exec() {
 ##				(Some) Configuration file CFPN has ITEM?
 ##----------------------------------------------------------------------------
 conf_has() {
-    case ${conf_api--}/${2+=} in	## API selected?/Usage OK?
-	-/*)dl_warn rel-req-set-api "conf;_has([$#]$*)" 0.4 0.3.6
-	    ;;				## N/?: Complain about unknown API!
-	*/=)local item="$1"; shift; conf_exec "$@" <<EOF
+    case ${conf_api--} in		## API set?
+	-)  dl_inform rel-req-set-api 0.4 0.3.6 conf_has ${1+"$@"}	;;
+					## No, inform about unset API!
+    esac && case ${2+=} in		## Usage OK?
+	=)  local item="$1"; shift; conf_exec "$@" <<EOF
 has $item
 EOF
-	    ;;				## Y/Y: Has ITEM?
-	*)  return 2			## ?/N: Indicate abuse!
-	    ;;
+			;;		## Yes, check if config. has ITEM.
+	*)  return 2	;;		## No, indicate abuse!
     esac
 }
 
@@ -142,15 +142,15 @@ EOF
 ##				Get ITEM from (some) CFPN (or VALUE)
 ##----------------------------------------------------------------------------
 conf_get() {
-    case ${conf_api--}/${2+=} in	## API selected?/Usage OK?
-	-/*)dl_warn rel-req-set-api "conf;_get([$#]$*)" 0.4 0.3.6
-	    ;;				## N/?: Complain about unknown API!
-	*/=)local item="$1"; shift; conf_exec "$@" <<EOF
+    case ${conf_api--} in		## API set?
+	-)  dl_inform rel-req-set-api 0.4 0.3.6 conf_get ${1+"$@"}	;;
+					## No, inform about unset API!
+    esac && case ${2+=} in		## Usage OK?
+	=)  local item="$1"; shift; conf_exec "$@" <<EOF
 get $item
 EOF
-	    ;;				## Y/Y: Get ITEM.
-	*)  return 2			## ?/N: Indicate abuse!
-	    ;;
+			;;		## Yes, get ITEM from config.
+	*)  return 2	;;		## No, indicate abuse!
     esac
 }
 
@@ -159,15 +159,15 @@ EOF
 ##				Unset ITEM/Set ITEM to VALUE in last CFPN
 ##----------------------------------------------------------------------------
 conf_put() {
-    case ${conf_api--}/${2+=} in	## API selected?/Usage OK?
-	-/*)dl_warn rel-req-set-api "conf;_put([$#]$*)" 0.4 0.3.6
-	    ;;				## N/?: Complain about unknown API!
-	*/=)local item="$1"; shift; conf_exec "$@" <<EOF
+    case ${conf_api--} in		## API set?
+	-)  dl_inform rel-req-set-api 0.4 0.3.6 conf_put ${1+"$@"}	;;
+					## No, inform about unset API!
+    esac && case ${2+=} in		## Usage OK?
+	=)  local item="$1"; shift; conf_exec "$@" <<EOF
 put $item
 EOF
-	    ;;				## Y/Y: Put ITEM.
-	*)  return 2			## ?/N: Indicate abuse!
-	    ;;
+			;;		## Yes, put ITEM into config.
+	*)  return 2	;;		## No, indicate abuse!
     esac
 }
 
@@ -176,18 +176,19 @@ EOF
 ##				Get ITEM from VARIABLE or CFPN (or VALUE)
 ##----------------------------------------------------------------------------
 conf_getenv() {
-    case ${conf_api--} in
-	-)  dl_warn rel-req-set-api "conf;_getenv([$#]$*)" 0.4 0.3.6	;;
-	2)  dl_warn api-wdr-func "conf;_getenv([$#]$*)" 2 1		;;
-	*)  dl_warn rel-dpr-func "conf;_getenv([$#]$*)" 0.4 0.5 0.3.6	;;
+    case ${conf_api--} in		## API set?
+	-)  dl_inform rel-req-set-api 0.4 0.3.6 conf_getenv ${1+"$@"}	;;
+					## No, inform about unset API!
+	2)  dl_inform api-wdr-func 2 1 conf_getenv ${1+"$@"}		;;
+					## Yes, inform about withdrawal...
+	*)  dl_inform rel-dpr-func 0.4 0.5 0.3.6 conf_getenv ${1+"$@"}	;;
+					## ...or deprecation.
     esac && case ${3+=} in		## Usage OK?
-	=)  eval 'case ${'"$1"'+=} in
+	=)  eval 'case ${'"$1"'+=} in	## Yes, do as intended.
 		=)  echo "$'"$1"'"	;;
 		*)  shift; conf_get "$@";;
-	    esac'
-	    ;;
-	*)  return 2			## No, indicate abuse!
-	    ;;
+	    esac'	;;
+	*)  return 2	;;		## No, indicate abuse!
     esac
 }
 
