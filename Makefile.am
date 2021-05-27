@@ -37,6 +37,7 @@
 ##			2021-05-17	Add libsession.sh tests.
 ##					Simplify building of test suite.
 ##					Add documentation and sample library.
+##		ks	2021-05-26	Add API analysis script.
 ##
 ##  NOTE:   (1)	Update the build system with autoreconf(1).
 ##----------------------------------------------------------------------------
@@ -156,6 +157,9 @@ TESTSUITE_INCLUDEES	= $(srcdir)/tests/package.m4			\
 			  tests/libsafe.sh.at				\
 			  tests/libsession.sh.at			\
 			  tests/libundo.sh.at
+TESTSUITE_REQUISITES	= tests/atconfig				\
+			  tests/atlocal 				\
+			  tests/api-analysis.awk
 
 EXTRA_DIST		= $(TESTSUITE_AT) $(TESTSUITE_INCLUDEES) $(TESTSUITE)
 
@@ -172,15 +176,14 @@ $(srcdir)/tests/package.m4: $(top_srcdir)/configure.ac
 $(TESTSUITE):		$(TESTSUITE_AT) $(TESTSUITE_INCLUDEES)
 	$(AUTOTEST) $(AUTOTESTFLAGS) -o $@.tmp $@.at && mv $@.tmp $@ || rm -f $@.tmp
 
-check-local:		tests/atconfig tests/atlocal $(TESTSUITE)
+check-local:		$(TESTSUITE_REQUISITES) $(TESTSUITE)
 	$(SHELL) $(TESTSUITE) $(TESTSUITEFLAGS) -C tests
 
-installcheck-local:	tests/atconfig tests/atlocal $(TESTSUITE)
-	$(SHELL) $(TESTSUITE) AUTOTEST_PATH=$(bindir) $(TESTSUITEFLAGS) -C tests
+installcheck-local:	$(TESTSUITE_REQUISITES) $(TESTSUITE)
+	$(SHELL) $(TESTSUITE) AUTOTEST_PATH=$(bindir):tests $(TESTSUITEFLAGS) -C tests
 
 clean-local:
 	test -f $(TESTSUITE) && $(SHELL) $(TESTSUITE) -C tests --clean || :
 
 distclean-local:
 	rm -f tests/atconfig
-
