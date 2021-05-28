@@ -24,6 +24,7 @@
 ##  CHANGED BY:	ks	2021-05-28	Allow to disable analysis passes.
 ##					Distinguish between unanchored and
 ##					anchored REs.
+##					Account for library name.
 ##
 ##  Global constants and variables:
 ##	- DEBUG			Debugging level	(set with '-vDEBUG=<LEVEL>')
@@ -73,13 +74,14 @@ BEGIN {
     cs_0d = "0" cs_1d			## sets for upper-/lower-case letters,
     cs_al = cs_ul cs_ll			## decimal digits, letters and alpha-
     cs_an = cs_al cs_0d			## numerics as well as unanchored REs
-    re_id = "[_" cs_al "][_" cs_an "]*"	## recognizing identifiers and non-
-    re_1n = "[" cs_1d "][" cs_0d "]*"	## negative/cardinal numbers.
-    re_0n = "[" cs_0d "]+"
+    re_id = "[_" cs_al "][_" cs_an "]*"	## recognizing identifiers, non-nega-
+    re_1n = "[" cs_1d "][" cs_0d "]*"	## tive/cardinal numbers and function
+    re_0n = "[" cs_0d "]+"		## names.
+    re_fn = lib ? lib "(_[_" cs_an "]*)?" : re_id
 
     are_id = "^" re_id "$"		## Derive anchored REs recognizing
-    are_0n = "^" re_0n "$"		## identifiers and non-negative num-
-					## bers.
+    are_0n = "^" re_0n "$"		## identifiers, non-negative numbers
+    are_fn = "^" re_fn "$"		## and function names.
 
     ec = fc = ac = tc = 0		## Clear counters.
 }
@@ -278,7 +280,7 @@ BEGIN {
     }
 }
 
-/^f/ && (NF == 5) && ($2 ~ are_0n) && ($3 ~ are_id) {
+/^f/ && (NF == 5) && ($2 ~ are_0n) && ($3 ~ are_fn) {
 					## Valid function declaration?
     map_fi($2,$3,$4,$5)			## Yes, map it.
 }
