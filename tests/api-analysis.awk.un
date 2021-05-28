@@ -21,7 +21,7 @@
 ##  AUTHOR(S):	ks	Karl Schmitz <ks@computerlabor.org>
 ##
 ##  WRITTEN BY:	ks	2021-05-26
-##  CHANGED BY:
+##  CHANGED BY:	ks	2021-05-28	Allow to disable analysis passes.
 ##
 ##  Global constants and variables:
 ##	- DEBUG			Debugging level	(set with '-vDEBUG=<LEVEL>')
@@ -56,7 +56,8 @@
 ##	- fidi2pt[FI,DI]	Per-function declaration prototype
 ##	- fidi2rg[FI,DI]	Per-function declaration argument count range
 ##	- fidi2ai[FI,DI]	Per-function declaration API index
-##	- ec			Total error count
+##	- pi2do[PI]		PI-th analysis pass enabled?
+##	- ec			Total error count (auto-updated by error())
 ##----------------------------------------------------------------------------
 ##  Initialization:
 #-----------------------------------------------------------------------------
@@ -277,74 +278,79 @@ BEGIN {
 }
 
 END {					## After declarations are gathered:
-    pass = 0
+    pi = 0
+    pi2do[1] = pi2do[2] = pi2do[3] = TRUE
+					## Enable all analysis passes.
 
     ##------------------------------------------------------------------------
     ##	Pass 1: Establish and count [FI,DI]->[AI] references
     ##------------------------------------------------------------------------
-    ++pass				## Increment pass.
-    fi = 0; while (++fi <= fc) {	## Foreach function index do...
-	dc = fi2mc[fi]; di = 0; while (++di <= dc) {
+    if (pi2do[++pi]) {			## Enter pass?
+	fi = 0; while (++fi <= fc) {	## Yes, foreach function index do...
+	    dc = fi2dc[fi]; di = 0; while (++di <= dc) {
 					## Foreach attached declaration do...
-	    if (set_ai(fidi2av[fi,di])) {
+		if (set_ai(fidi2av[fi,di])) {
 					## Refers to declared API version?
-		++ai2fc[fidi2ai[fi,di] = ai]; ++fi2ac[fi]
-		if (DEBUG>0) trace(sprintf("++ai2fc[fidi2ai[fi=%u,di="	\
-		    "%u]=ai=%u]=%u,++fi2ac[fi]=%u",fi,di,ai,ai2fc[ai],	\
-		    fi2ac[fi]))
-	    }				## Yes, count [FI,DI]->[AI] reference.
+		    ++ai2fc[fidi2ai[fi,di] = ai]; ++fi2ac[fi]
+		    if (DEBUG>0) trace(sprintf("++ai2fc[fidi2ai[fi=%u,di=%u]=ai"\
+			"=%u]=%u,++fi2ac[fi]=%u",fi,di,ai,ai2fc[ai],fi2ac[fi]))
+		}			## Yes, count [FI,DI]->[AI] reference.
+	    }
 	}
     }
 
     ##------------------------------------------------------------------------
     ##	Pass 2: Declared API versions form a contiguous range?
     ##------------------------------------------------------------------------
-    ++pass				## Increment pass.
-    if (ac < 1) {			## How many declared API versions?
-	error("No API versions declared!")
-	print "Declared API versions: {}"
+    if (pi2do[++pi]) {			## Enter pass?
+	if (end_ac < 1) {		## How many declared API versions?
+	    error("No API versions declared!")
+	    print "Declared API versions: {}"
 					## None: Complain and show them as
 					## empty set.
-    } else if (ac > 1) {		## More than one:
-	printf "Declared API versions: [%d;%d]",minav,maxav
+	} else if (end_ac > 1) {	## More than one:
+	    printf "Declared API versions: [%d;%d]",minav,maxav
 					## Show them as interval.
-	for (av = minav; av <= maxav; ++av) {
-	    if (!set_ai(av)) {
-		error(sprintf("Undeclared API version %d!",av))
-		printf " \\ %d",av
+	    for (av = minav; av <= maxav; ++av) {
+		if (!set_ai(av)) {
+		    error(sprintf("Undeclared API version %d!",av))
+		    printf " \\ %d",av
+		}
 	    }
-	}
-	printf "\n"
-    } else {				## Exactly one:
-	printf "Declared API versions: {%d}\n",minav
-    }					## Show them as singleton.
+	    printf "\n"
+	} else {			## Exactly one:
+	    printf "Declared API versions: {%d}\n",minav
+	}				## Show them as singleton.
+    }
 
     ##------------------------------------------------------------------------
     ##	Pass 3: Check if API versions before MINAV are properly withdrawn
     ##------------------------------------------------------------------------
-    ++pass				## Increment pass.
-    for (av = 0; av < minav; ++av) {	## Foreach potentially withdrawn
+    if (pi2do[++pi]) {			## Enter pass?
+	for (av = 0; av < minav; ++av) {
+					## Foreach potentially withdrawn
 					## API version do...
-	ec1 = 0; if (set_ai(av)) {	## API version mapped?
-	    error("Internal error!")
-	} else for (fi = 0; ++fi <= fc;) {
+	    ec1 = 0; if (set_ai(av)) {	## API version mapped?
+		error("Internal error!")
+	    } else for (fi = 0; ++fi <= fc;) {
 					## No, foreach function index do...
-	    ec2 = 0; dc = fi2mc[fi]; for (di = 0; ++di <= dc;) {
+		ec2 = 0; dc = fi2mc[fi]; for (di = 0; ++di <= dc;) {
 					## Foreach attached declaration do...
-		if (fidi2av[fi,di] == av) {
+		    if (fidi2av[fi,di] == av) {
 					## Declaration made for API version?
-		    if (ec2++) printf "Withdrawn API version %d still "	\
-			"declares:\n",av
-		    printf "Line %u, 'f;%d;%s(%s);%s'\n",fidi2nr[fi,di],\
-			av,fi2fn[fi],fidi2pt[fi,di],fidi2rg[fi,di]
+			if (ec2++) printf "Withdrawn API version %d still " \
+			    "declares:\n",av
+			printf "Line %u, 'f;%d;%s(%s);%s'\n",fidi2nr[fi,di],\
+			    av,fi2fn[fi],fidi2pt[fi,di],fidi2rg[fi,di]
+		    }
 		}
+		ec1 += ec2
 	    }
-	    ec1 += ec2
-	}
-	if (ec1) {
-	    ec += ec1
-	} else {
-	    printf "API version %d completely withdrawn.\n",av
+	    if (ec1) {
+		ec += ec1
+	    } else {
+		printf "API version %d completely withdrawn.\n",av
+	    }
 	}
     }
 
