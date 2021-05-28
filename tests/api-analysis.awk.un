@@ -25,6 +25,7 @@
 ##					Distinguish between unanchored and
 ##					anchored REs.
 ##					Account for library name.
+##					Validate declarations more strictly.
 ##
 ##  Global constants and variables:
 ##	- DEBUG			Debugging level	(set with '-vDEBUG=<LEVEL>')
@@ -75,13 +76,17 @@ BEGIN {
     cs_al = cs_ul cs_ll			## decimal digits, letters and alpha-
     cs_an = cs_al cs_0d			## numerics as well as unanchored REs
     re_id = "[_" cs_al "][_" cs_an "]*"	## recognizing identifiers, non-nega-
-    re_1n = "[" cs_1d "][" cs_0d "]*"	## tive/cardinal numbers and function
-    re_0n = "[" cs_0d "]+"		## names.
+    re_1n = "[" cs_1d "][" cs_0d "]*"	## tive/cardinal numbers, function
+    re_0n = "[" cs_0d "]+"		## names, prototypes, and...
     re_fn = lib ? lib "(_[_" cs_an "]*)?" : re_id
+    re_pt = "[^);(]*"
+    re_rg = re_0n "(-(" re_1n ")?)?"	## ...argument count ranges.
 
     are_id = "^" re_id "$"		## Derive anchored REs recognizing
-    are_0n = "^" re_0n "$"		## identifiers, non-negative numbers
-    are_fn = "^" re_fn "$"		## and function names.
+    are_0n = "^" re_0n "$"		## identifiers, non-negative numbers,
+    are_fn = "^" re_fn "$"		## function names, prototypes, and
+    are_pt = "^" re_pt "$"		## argument count ranges.
+    are_rg = "^" re_rg "$"
 
     ec = fc = ac = tc = 0		## Clear counters.
 }
@@ -273,16 +278,25 @@ BEGIN {
     FS = ";"				## Fields are ';'-separated.
 }
 
-/^a/ && (NF == 2) && ($2 ~ are_0n) {	## Valid API version declaration?
-    if (map_ai($2)) {			## Duplicate declaration?
-	error(sprintf("Line %u, 'a;%d': Duplicate API version declara"	\
-	    "tion! (see line %u)",$2,ai2nr[ai]))
-    }
+(NF == 2) && ($1 == "a") {		## Process API version declaration?
+    if ($2 !~ are_0n) {			## Yes, is it valid?
+	error(sprintf("Line %u, '%s': Invalid API version declaration!",NR,$0))
+					## No, complain about it!
+    } else if (map_ai($2)) {		## Yes, but is it unique?
+	error(sprintf("Line %u, '%s': Duplicate API version declara"	\
+	    "tion! (see line %u)",NR,$0,ai2nr[ai]))
+    }					## No, complain about duplicate!
 }
 
-/^f/ && (NF == 5) && ($2 ~ are_0n) && ($3 ~ are_fn) {
-					## Valid function declaration?
-    map_fi($2,$3,$4,$5)			## Yes, map it.
+(NF == 5) && ($1 == "f") {		## Process function declaration?
+    if (   ($2 !~ are_0n)						\
+	|| ($3 !~ are_fn)						\
+	|| ($4 !~ are_pt)						\
+	|| ($5 !~ are_rg)) {		## Yes, is it valid?
+	error(sprintf("Line %u, '%s': Invalid function declaration!",NR,$0))
+    } else {				## No, complain about it!
+	map_fi($2,$3,$4,$5)		## Yes, map it.
+    }
 }
 
 END {					## After declarations are gathered:
