@@ -26,6 +26,9 @@
 ##					anchored REs.
 ##					Account for library name.
 ##					Validate declarations more strictly.
+##					Part function name and prototype in-
+##					dependently (i.e., process raw
+##					'get apis all' output).
 ##
 ##  Global constants and variables:
 ##	- DEBUG			Debugging level	(set with '-vDEBUG=<LEVEL>')
@@ -79,13 +82,13 @@ BEGIN {
     re_1n = "[" cs_1d "][" cs_0d "]*"	## tive/cardinal numbers, function
     re_0n = "[" cs_0d "]+"		## names, prototypes, and...
     re_fn = lib ? lib "(_[_" cs_an "]*)?" : re_id
-    re_pt = "[^);(]*"
+    re_pt = "\\([^);(]*\\)"
     re_rg = re_0n "(-(" re_1n ")?)?"	## ...argument count ranges.
 
     are_id = "^" re_id "$"		## Derive anchored REs recognizing
     are_0n = "^" re_0n "$"		## identifiers, non-negative numbers,
     are_fn = "^" re_fn "$"		## function names, prototypes, and
-    are_pt = "^" re_pt "$"		## argument count ranges.
+    are_pt = re_pt "$"			## argument count ranges.
     are_rg = "^" re_rg "$"
 
     ec = fc = ac = tc = 0		## Clear counters.
@@ -288,15 +291,14 @@ BEGIN {
     }					## No, complain about duplicate!
 }
 
-(NF == 5) && ($1 == "f") {		## Process function declaration?
-    if (   ($2 !~ are_0n)						\
-	|| ($3 !~ are_fn)						\
-	|| ($4 !~ are_pt)						\
-	|| ($5 !~ are_rg)) {		## Yes, is it valid?
+(NF == 4) && ($1 == "f") {		## Process function declaration?
+    if (($2 !~ are_0n) || (match($3,are_pt) < 2) ||			\
+	((fn = substr($3,1,RSTART-1)) !~ are_fn) || ($4 !~ are_rg)) {
+					## Yes, is it valid?
 	error(sprintf("Line %u, '%s': Invalid function declaration!",NR,$0))
     } else {				## No, complain about it!
-	map_fi($2,$3,$4,$5)		## Yes, map it.
-    }
+	map_fi($2,fn,substr($3,RSTART+1,RLENGTH-2),$4)
+    }					## Yes, map it.
 }
 
 END {					## After declarations are gathered:
