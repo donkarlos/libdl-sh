@@ -35,10 +35,13 @@
 ##					tion to analysis pass.
 ##					Determine per-function min-/maximal
 ##					API versions.
+##					Conditionally skip function declara-
+##					tions with API version '-'.
 ##
 ##  Global constants and variables:
 ##	- T			Trace	  level	(set with '-vT=TLEVEL')
 ##	- V			Verbosity level	(set with '-vV=VLEVEL')
+##	- U			Skip function decl.s with API version '-'?
 ##	- lib			Library name	(set with '-vlib=LIB')
 ##	- FALSE/TRUE		Boolean constants
 ##	- bv2sy[BV]		Map boolean value -> symbol
@@ -289,6 +292,10 @@ BEGIN {
 	    "! (see line %u)",NR,$0,ai2nr[ai]))
     }					## No, complain about duplicate!
 }
+
+U && (NF == 4) && ($1 == "f") && ($2 == "-") {
+    next				## Conditionally skip function decla-
+}					## ration with special API version '-'.
 
 (NF == 4) && ($1 == "f") {		## Process function declaration?
     if (($2 !~ are_0n) || (match($3,are_pt) < 2) ||			\
