@@ -302,7 +302,10 @@ BEGIN {
 }
 
 END {					## After declarations are gathered:
-    pi = 0; end_ac = ac		## Save #(declared API versions).
+    pi = 0; end_ac = ac; end_minav = minav; end_maxav = maxav
+					## Save #(declared API versions) as
+					## well as minimal and maximal API
+					## version.
     pi2do[1] = pi2do[2] = pi2do[3] = TRUE
 					## Enable all analysis passes.
 
@@ -321,11 +324,13 @@ END {					## After declarations are gathered:
 			"di=%u]=ai=%u]=%u,++fi2ac[fi]=%u",fi,di,ai,	\
 			ai2fc[ai],fi2ac[fi]))
 		} else {		## Yes, count [FI,DI]->[AI] reference.
+		    minav = end_minav; maxav = end_maxav
+					## No, restore minav/maxav and...
 		    error(sprintf("Line %u, 'f;%d;%s(%s);%s' refers to "\
 			"%s API version!",fidi2nr[fi,di],av,fi2fn[fi],	\
 			fidi2pt[fi,di],fidi2rg[fi,di],(av < minav) ?	\
 			"withdrawn" : (av <= maxav) ? "missing" :	\
-			"undeclared"))	## No, complain about it!
+			"undeclared"))	## ...complain about it!
 		}
 	    }
 	}
