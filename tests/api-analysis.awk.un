@@ -314,6 +314,7 @@ END {					## After declarations are gathered:
     ##		mapping undeclared API versions
     ##------------------------------------------------------------------------
     if (pi2do[++pi]) {			## Enter pass?
+	if (DEBUG>0) trace(sprintf("pi2do[pi=%u]=%s",pi,bv2sy[pi2do[pi]]))
 	fi = 0; while (++fi <= fc) {	## Yes, foreach function index do...
 	    dc = fi2dc[fi]; di = 0; while (++di <= dc) {
 					## Foreach attached declaration do...
@@ -340,6 +341,7 @@ END {					## After declarations are gathered:
     ##	Pass 2: API version and function declarations consistent?
     ##------------------------------------------------------------------------
     if (pi2do[++pi]) {			## Enter pass?
+	if (DEBUG>0) trace(sprintf("pi2do[pi=%u]=%s",pi,bv2sy[pi2do[pi]]))
 	if (!end_ac) {			## Yes, API versions are declared?
 	    error("No API versions declared!")
 	} else if ((maxav - minav + 1) == end_ac) {
@@ -379,6 +381,7 @@ END {					## After declarations are gathered:
     ##	Pass 3: Check if API versions before MINAV are properly withdrawn
     ##------------------------------------------------------------------------
     if (pi2do[++pi] && !ec && lib) {	## Enter pass?
+	if (DEBUG>0) trace(sprintf("pi2do[pi=%u]=%s",pi,bv2sy[pi2do[pi]]))
 	for (av = 0; av < minav; ++av) {
 					## Foreach potentially withdrawn
 					## API version do...
