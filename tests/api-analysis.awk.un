@@ -37,11 +37,14 @@
 ##					API versions.
 ##					Conditionally skip function declara-
 ##					tions with API version '-'.
+##					Generate "deprecated" and "withdrawn"
+##					check lists.
 ##
 ##  Global constants and variables:
 ##	- T			Trace	  level	(set with '-vT=TLEVEL')
 ##	- V			Verbosity level	(set with '-vV=VLEVEL')
 ##	- U			Skip function decl.s with API version '-'?
+##	- mode			Output mode	(set with '-vmode=MODE')
 ##	- lib			Library name	(set with '-vlib=LIB')
 ##	- FALSE/TRUE		Boolean constants
 ##	- bv2sy[BV]		Map boolean value -> symbol
@@ -308,8 +311,12 @@ U && (NF == 4) && ($1 == "f") && ($2 == "-") {
 }
 
 END {					## After declarations are gathered:
-    pi2do[1] = pi2do[2] = pi2do[3] = pi2do[4] = TRUE
-					## Enable all analysis passes.
+    pi2do[1] = pi2do[2] = pi2do[3] = TRUE
+					## Enable all consistency checks.
+    if (mode ~ /^(deprecated|withdrawn)$/) {
+					## Mode is "deprecated or "withdrawn"?
+	V = 0; pi2do[4] = TRUE		## Yes, silence consistency checks and
+    }					## enable final pass.
 
     ##------------------------------------------------------------------------
     ##	Pass 1: Determine minimal and maximal API version
@@ -398,7 +405,8 @@ END {					## After declarations are gathered:
     }
 
     ##------------------------------------------------------------------------
-    ##	Pass 4:	Determine per-function API version range where necessary
+    ##	Pass 4:	Determine per-function API version range where necessary and
+    ##		generate deprecated/withdrawn check lists
     ##------------------------------------------------------------------------
     if (pi2do[++pi] && !ec && lib) {	## Enter pass?
 	if (T>0) trace(sprintf("pi2do[pi=%u]=%s",pi,bv2sy[pi2do[pi]]))
@@ -425,6 +433,19 @@ END {					## After declarations are gathered:
 			    fi2maxav[fi] = av; if (T>0) trace(sprintf(	\
 				"fi2maxav[fi=%u]=%d",fi,av))
 			}		## ...version if necessary.
+		    }
+		}
+		for (av = fi2minav[fi]; av <= maxav; ++av) {
+					## Foreach API version within per-
+					## function minimal and overall maxi-
+					## mal API version interval do...
+		    if (av <= fi2maxav[fi]) {
+					## Validate deprecation?
+			if (mode == "deprecated")
+			    printf "%s %s %d %s\n",mode,lib,av,fi2fn[fi]
+		    } else {		## Validate withdrawal!
+			if (mode == "withdrawn")
+			    printf "%s %s %d %s\n",mode,lib,av,fi2fn[fi]
 		    }
 		}
 	    }
