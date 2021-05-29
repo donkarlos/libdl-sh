@@ -302,23 +302,31 @@ BEGIN {
 }
 
 END {					## After declarations are gathered:
-    pi = 0
+    pi = 0; end_ac = ac		## Save #(declared API versions).
     pi2do[1] = pi2do[2] = pi2do[3] = TRUE
 					## Enable all analysis passes.
 
     ##------------------------------------------------------------------------
-    ##	Pass 1: Establish and count [FI,DI]->[AI] references
+    ##	Pass 1:	Establish and count [FI,DI]->[AI] references, retroactively
+    ##		mapping undeclared API versions
     ##------------------------------------------------------------------------
     if (pi2do[++pi]) {			## Enter pass?
 	fi = 0; while (++fi <= fc) {	## Yes, foreach function index do...
 	    dc = fi2dc[fi]; di = 0; while (++di <= dc) {
 					## Foreach attached declaration do...
-		if (set_ai(fidi2av[fi,di])) {
-					## Refers to declared API version?
+		if (map_ai(av = fidi2av[fi,di]) && (ai <= end_ac)) {
+					## Does it refer to decl. API version?
 		    ++ai2fc[fidi2ai[fi,di] = ai]; ++fi2ac[fi]
-		    if (DEBUG>0) trace(sprintf("++ai2fc[fidi2ai[fi=%u,di=%u]=ai"\
-			"=%u]=%u,++fi2ac[fi]=%u",fi,di,ai,ai2fc[ai],fi2ac[fi]))
-		}			## Yes, count [FI,DI]->[AI] reference.
+		    if (DEBUG>0) trace(sprintf("++ai2fc[fidi2ai[fi=%u,"	\
+			"di=%u]=ai=%u]=%u,++fi2ac[fi]=%u",fi,di,ai,	\
+			ai2fc[ai],fi2ac[fi]))
+		} else {		## Yes, count [FI,DI]->[AI] reference.
+		    error(sprintf("Line %u, 'f;%d;%s(%s);%s' refers to "\
+			"%s API version!",fidi2nr[fi,di],av,fi2fn[fi],	\
+			fidi2pt[fi,di],fidi2rg[fi,di],(av < minav) ?	\
+			"withdrawn" : (av <= maxav) ? "missing" :	\
+			"undeclared"))	## No, complain about it!
+		}
 	    }
 	}
     }
