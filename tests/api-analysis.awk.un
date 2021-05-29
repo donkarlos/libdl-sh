@@ -30,9 +30,11 @@
 ##					dependently (i.e., process raw
 ##					'get apis all' output).
 ##		ks	2021-05-29	Rename DEBUG to T.
+##					Introduce concept of verbosity.
 ##
 ##  Global constants and variables:
-##	- T			Trace level	(set with '-vT=TLEVEL')
+##	- T			Trace	  level	(set with '-vT=TLEVEL')
+##	- V			Verbosity level	(set with '-vV=VLEVEL')
 ##	- lib			Library name	(set with '-vlib=LIB')
 ##	- FALSE/TRUE		Boolean constants
 ##	- bv2sy[BV]		Map boolean value -> symbol
@@ -346,13 +348,13 @@ END {					## After declarations are gathered:
 	if (!end_ac) {			## Yes, API versions are declared?
 	    error("No API versions declared!")
 	} else if ((maxav - minav + 1) == end_ac) {
-	    printf "Declared API versions: [%d;%d]\n",minav,maxav
+	    if (V>0) printf "Declared API versions: [%d;%d]\n",minav,maxav
 	}
 	for (av = 0; av <= maxav; ++av) {
 					## Foreach API version do...
 	    if (!set_ai(av)) {		## Is it mapped?
 		if (av < minav) {	## No, is it withdrawn?
-		    printf "API version %d completely withdrawn.\n",av
+		    if (V>0) printf "API version %d completely withdrawn.\n",av
 		} else {		## Yes, state that fact.
 		    error(sprintf("API version %d completely missing!",av))
 					## No, complain about missing API
