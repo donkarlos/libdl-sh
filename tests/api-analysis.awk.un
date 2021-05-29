@@ -332,27 +332,42 @@ END {					## After declarations are gathered:
     }
 
     ##------------------------------------------------------------------------
-    ##	Pass 2: Declared API versions form a contiguous range?
+    ##	Pass 2: API version and function declarations consistent?
     ##------------------------------------------------------------------------
     if (pi2do[++pi]) {			## Enter pass?
-	if (end_ac < 1) {		## How many declared API versions?
+	if (!end_ac) {			## Yes, API versions are declared?
 	    error("No API versions declared!")
-	    print "Declared API versions: {}"
-					## None: Complain and show them as
-					## empty set.
-	} else if (end_ac > 1) {	## More than one:
-	    printf "Declared API versions: [%d;%d]",minav,maxav
-					## Show them as interval.
-	    for (av = minav; av <= maxav; ++av) {
-		if (!set_ai(av)) {
-		    error(sprintf("Undeclared API version %d!",av))
-		    printf " \\ %d",av
-		}
-	    }
-	    printf "\n"
-	} else {			## Exactly one:
-	    printf "Declared API versions: {%d}\n",minav
-	}				## Show them as singleton.
+	} else if ((maxav - minav + 1) == end_ac) {
+	    printf "Declared API versions: [%d;%d]\n",minav,maxav
+	}
+	for (av = 0; av <= maxav; ++av) {
+					## Foreach API version do...
+	    if (!set_ai(av)) {		## Is it mapped?
+		if (av < minav) {	## No, is it withdrawn?
+		    printf "API version %d completely withdrawn.\n",av
+		} else {		## Yes, state that fact.
+		    error(sprintf("API version %d completely missing!",av))
+					## No, complain about missing API
+		}			## version!
+	    } else if (ai > end_ac) {	## API version mapped:
+		error(sprintf("API version %d %s, but %u function decla"\
+		    "rations refer to it!",av,(av < minav) ? "withdrawn"\
+		    : "missing",ai2mc[ai]))
+	    }				## Complain about inconsistency!
+	}
+	ai = 0; while (++ai <= ac) {	## Foreach API index do...
+	    av = ai2av[ai]		## Fetch API version.
+	    if (ai <= end_ac) {		## API version declared?
+		if (!ai2fc[ai]) {	## Yes, and function declarations re-
+					## fer to it?
+		    error(sprintf("API version %d declared, but no func"\
+			"tion declarations refer to it!",av))
+		}			## No, complain!
+	    } else if (av > maxav) {	## API version undeclared:
+		error(sprintf("API version %d %s, but %u function decla"\
+		    "rations refer to it!",av,"undeclared",ai2mc[ai]))
+	    }				## Complain about inconsistency!
+	}
     }
 
     ##------------------------------------------------------------------------
