@@ -33,6 +33,8 @@
 ##					Introduce concept of verbosity.
 ##					Move min-/maximal API version designa-
 ##					tion to analysis pass.
+##					Determine per-function min-/maximal
+##					API versions.
 ##
 ##  Global constants and variables:
 ##	- T			Trace	  level	(set with '-vT=TLEVEL')
@@ -61,6 +63,8 @@
 ##	- fi			Function index (set by set/map_fi())
 ##	- fi2dc[FI]		Map function index -> #(function declarations)
 ##	- fi2ac[FI]		Map function index -> #(API index references)
+##	- fi2minav[FI]		Map function index -> minimal API version
+##	- fi2maxav[FI]		Map function index -> maximal API version
 ##	- di			Function declaration index
 ##	- fidi2nr[FI,NR]	Per-function declaration NR
 ##	- fidi2ti[FI,DI]	Per-function declaration (AV,FN) token index
@@ -387,33 +391,35 @@ END {					## After declarations are gathered:
     }
 
     ##------------------------------------------------------------------------
-    ##	Pass 4: Check if API versions before MINAV are properly withdrawn
+    ##	Pass 4:	Determine per-function API version range where necessary
     ##------------------------------------------------------------------------
     if (pi2do[++pi] && !ec && lib) {	## Enter pass?
 	if (T>0) trace(sprintf("pi2do[pi=%u]=%s",pi,bv2sy[pi2do[pi]]))
-	for (av = 0; av < minav; ++av) {
-					## Foreach potentially withdrawn
-					## API version do...
-	    ec1 = 0; if (set_ai(av)) {	## API version mapped?
-		error("Internal error!")
-	    } else for (fi = 0; ++fi <= fc;) {
-					## No, foreach function index do...
-		ec2 = 0; dc = fi2mc[fi]; for (di = 0; ++di <= dc;) {
+	fi = 0; while (++fi <= fc) {	## Yes, foreach function index do...
+	    if (fi2ac[fi] < end_ac) {	## Function withdrawn from some API?
+		fi2minav[fi] = maxav; fi2maxav[fi] = minav
+					## Initialize with transposed mini-/
+					## maximal API versions.
+		if (T>0) trace(sprintf("fi2minav[fi=%u]=%d,fi2maxav[fi]"\
+		    "=%d",fi,maxav,minav))
+		dc = fi2dc[fi]; di = 0; while (++di <= dc) {
 					## Foreach attached declaration do...
-		    if (fidi2av[fi,di] == av) {
-					## Declaration made for API version?
-			if (ec2++) printf "Withdrawn API version %d still " \
-			    "declares:\n",av
-			printf "Line %u, 'f;%d;%s(%s);%s'\n",fidi2nr[fi,di],\
-			    av,fi2fn[fi],fidi2pt[fi,di],fidi2rg[fi,di]
+		    if (fidi2ai[fi,di]) {
+					## Does it refer to decl. API version?
+			av = fidi2av[fi,di]
+					## Yes, fetch attached API version.
+			if (fi2minav[fi] > av) {
+					## Update per-function minimal API...
+			    fi2minav[fi] = av; if (T>0) trace(sprintf(	\
+				"fi2minav[fi=%u]=%d",fi,av))
+			}		## ...version if necessary.
+			if (fi2maxav[fi] < av) {
+					## Update per-function maximal API...
+			    fi2maxav[fi] = av; if (T>0) trace(sprintf(	\
+				"fi2maxav[fi=%u]=%d",fi,av))
+			}		## ...version if necessary.
 		    }
 		}
-		ec1 += ec2
-	    }
-	    if (ec1) {
-		ec += ec1
-	    } else {
-		printf "API version %d completely withdrawn.\n",av
 	    }
 	}
     }
