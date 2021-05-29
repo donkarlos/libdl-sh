@@ -31,6 +31,8 @@
 ##					'get apis all' output).
 ##		ks	2021-05-29	Rename DEBUG to T.
 ##					Introduce concept of verbosity.
+##					Move min-/maximal API version designa-
+##					tion to analysis pass.
 ##
 ##  Global constants and variables:
 ##	- T			Trace	  level	(set with '-vT=TLEVEL')
@@ -204,21 +206,11 @@ function set_ai(av ,set) {
 ##----------------------------------------------------------------------------
 function map_ai(av ,set) {
     if (T>1) enter("map_ai",sprintf("av=%d",av))
-    if (!ac) {				## AI<->AV map empty?
-	minav = maxav = av; if (T>0) trace(sprintf("minav=maxav=%d",av))
-    }					## Yes, initialize minav and maxav.
     if (!(ai = av2ai[av])) {		## AV mapped?
 	ai2av[ai = av2ai[av] = ++ac] = av
 	if (T>0) trace(sprintf("ai2av[ai=av2ai[av]=++ac=%u]=av=%d",ai,av))
 	ai2nr[ai] = NR; if (T>0) trace(sprintf("ai2nr[ai=%u]=%u",ai,NR))
-					## No, create AI<->AV mapping.
-	if (minav > av) {		## Must update minav?
-	    minav = av; if (T>0) trace(sprintf("minav=%d",av))
-	}				## Yes, do so.
-	if (maxav < av) {		## Must update maxav?
-	    maxav = av; if (T>0) trace(sprintf("maxav=%d",av))
-	}				## Yes, do so.
-    }
+    }					## No, create AI<->AV mapping.
     set = (ai in ai2mc); ++ai2mc[ai]	## Count API declaration.
     if (T>0) trace(sprintf("++ai2mc[ai=%u]=%u",ai,ai2mc[ai]))
     if (T>1) leave(bv2sy[set]); return set
@@ -305,15 +297,31 @@ BEGIN {
 }
 
 END {					## After declarations are gathered:
-    pi = 0; end_ac = ac; end_minav = minav; end_maxav = maxav
-					## Save #(declared API versions) as
-					## well as minimal and maximal API
-					## version.
-    pi2do[1] = pi2do[2] = pi2do[3] = TRUE
+    pi2do[1] = pi2do[2] = pi2do[3] = pi2do[4] = TRUE
 					## Enable all analysis passes.
 
     ##------------------------------------------------------------------------
-    ##	Pass 1:	Establish and count [FI,DI]->[AI] references, retroactively
+    ##	Pass 1: Determine minimal and maximal API version
+    ##------------------------------------------------------------------------
+    if (pi2do[++pi]) {			## Enter pass?
+	if (T>0) trace(sprintf("pi2do[pi=%u]=%s",pi,bv2sy[pi2do[pi]]))
+	ai = 0; while (++ai <= ac) {	## Yes, foreach API index do...
+	    av = ai2av[ai]		## Fetch API version.
+	    if (ai > 1) {		## Update min-/maximal API version?
+		if (minav > av) {	## Update minimal API version...
+		    minav = av; if (T>0) trace(sprintf("minav=%d",av))
+		}			## ...if necessary.
+		if (maxav < av) {	## Update maximal API version...
+		    maxav = av; if (T>0) trace(sprintf("maxav=%d",av))
+		}			## ...if necessary.
+	    } else {
+		minav = maxav = av; if (T>0) trace(sprintf("minav=maxav=%d",av))
+	    }				## No, initialize both.
+	}
+    }; end_ac = ac			## Save #(declared API versions).
+
+    ##------------------------------------------------------------------------
+    ##	Pass 2:	Establish and count [FI,DI]->[AI] references, retroactively
     ##		mapping undeclared API versions
     ##------------------------------------------------------------------------
     if (pi2do[++pi]) {			## Enter pass?
@@ -328,20 +336,18 @@ END {					## After declarations are gathered:
 			"di=%u]=ai=%u]=%u,++fi2ac[fi]=%u",fi,di,ai,	\
 			ai2fc[ai],fi2ac[fi]))
 		} else {		## Yes, count [FI,DI]->[AI] reference.
-		    minav = end_minav; maxav = end_maxav
-					## No, restore minav/maxav and...
 		    error(sprintf("Line %u, 'f;%d;%s(%s);%s' refers to "\
 			"%s API version!",fidi2nr[fi,di],av,fi2fn[fi],	\
 			fidi2pt[fi,di],fidi2rg[fi,di],(av < minav) ?	\
 			"withdrawn" : (av <= maxav) ? "missing" :	\
-			"undeclared"))	## ...complain about it!
+			"undeclared"))	## No, complain about it!
 		}
 	    }
 	}
     }
 
     ##------------------------------------------------------------------------
-    ##	Pass 2: API version and function declarations consistent?
+    ##	Pass 3: API version and function declarations consistent?
     ##------------------------------------------------------------------------
     if (pi2do[++pi]) {			## Enter pass?
 	if (T>0) trace(sprintf("pi2do[pi=%u]=%s",pi,bv2sy[pi2do[pi]]))
@@ -381,7 +387,7 @@ END {					## After declarations are gathered:
     }
 
     ##------------------------------------------------------------------------
-    ##	Pass 3: Check if API versions before MINAV are properly withdrawn
+    ##	Pass 4: Check if API versions before MINAV are properly withdrawn
     ##------------------------------------------------------------------------
     if (pi2do[++pi] && !ec && lib) {	## Enter pass?
 	if (T>0) trace(sprintf("pi2do[pi=%u]=%s",pi,bv2sy[pi2do[pi]]))
