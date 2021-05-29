@@ -29,10 +29,11 @@
 ##					Part function name and prototype in-
 ##					dependently (i.e., process raw
 ##					'get apis all' output).
+##		ks	2021-05-29	Rename DEBUG to T.
 ##
 ##  Global constants and variables:
-##	- DEBUG			Debugging level	(set with '-vDEBUG=<LEVEL>')
-##	- lib			Library name	(set with '-vlib=<LIB>')
+##	- T			Trace level	(set with '-vT=TLEVEL')
+##	- lib			Library name	(set with '-vlib=LIB')
 ##	- FALSE/TRUE		Boolean constants
 ##	- bv2sy[BV]		Map boolean value -> symbol
 ##	- nesting		Nesting depth (for tracing)
@@ -163,10 +164,10 @@ function error(msg) {
 ##				`ti' as a side-effect.
 ##----------------------------------------------------------------------------
 function set_ti(tn ,set) {
-    if (DEBUG>1) enter("set_ti",sprintf("tn=\"%s\"",tn))
+    if (T>1) enter("set_ti",sprintf("tn=\"%s\"",tn))
     set = ((ti = tn2ti[tn]) in ti2mc)
-    if (DEBUG>0) trace(sprintf("ti=tn2ti[tn=\"%s\"]=%u",tn,ti))
-    if (DEBUG>1) leave(bv2sy[set]); return set
+    if (T>0) trace(sprintf("ti=tn2ti[tn=\"%s\"]=%u",tn,ti))
+    if (T>1) leave(bv2sy[set]); return set
 }
 
 ##----------------------------------------------------------------------------
@@ -174,14 +175,14 @@ function set_ti(tn ,set) {
 ##				`ti' as a side-effect.
 ##----------------------------------------------------------------------------
 function map_ti(tn ,set) {
-    if (DEBUG>1) enter("map_ti",sprintf("tn=\"%s\"",tn))
+    if (T>1) enter("map_ti",sprintf("tn=\"%s\"",tn))
     if (!(ti = tn2ti[tn])) {		## TN mapped?
 	ti2tn[ti = tn2ti[tn] = ++tc] = tn
-	if (DEBUG>0) trace(sprintf("ti2tn[ti=tn2ti[tn]=++tc=%u]=tn=\"%s\"",ti,tn))
+	if (T>0) trace(sprintf("ti2tn[ti=tn2ti[tn]=++tc=%u]=tn=\"%s\"",ti,tn))
     }					## No, create TI<->TN mapping.
     set = (ti in ti2mc); ++ti2mc[ti]	## Count TI<->TN mapping.
-    if (DEBUG>0) trace(sprintf("++ti2mc[ti=%u]=%u",ti,ti2mc[ti]))
-    if (DEBUG>1) leave(bv2sy[set]); return set
+    if (T>0) trace(sprintf("++ti2mc[ti=%u]=%u",ti,ti2mc[ti]))
+    if (T>1) leave(bv2sy[set]); return set
 }
 
 ##----------------------------------------------------------------------------
@@ -189,10 +190,10 @@ function map_ti(tn ,set) {
 ##				`ai' as a side-effect.
 ##----------------------------------------------------------------------------
 function set_ai(av ,set) {
-    if (DEBUG>1) enter("set_ai",sprintf("av=%d",av))
+    if (T>1) enter("set_ai",sprintf("av=%d",av))
     set = ((ai = av2ai[av]) in ai2mc)
-    if (DEBUG>0) trace(sprintf("ai=av2ai[av=%d]=%u",av,ai))
-    if (DEBUG>1) leave(bv2sy[set]); return set
+    if (T>0) trace(sprintf("ai=av2ai[av=%d]=%u",av,ai))
+    if (T>1) leave(bv2sy[set]); return set
 }
 
 ##----------------------------------------------------------------------------
@@ -200,34 +201,34 @@ function set_ai(av ,set) {
 ##				`ai' as a side-effect.
 ##----------------------------------------------------------------------------
 function map_ai(av ,set) {
-    if (DEBUG>1) enter("map_ai",sprintf("av=%d",av))
+    if (T>1) enter("map_ai",sprintf("av=%d",av))
     if (!ac) {				## AI<->AV map empty?
-	minav = maxav = av; if (DEBUG>0) trace(sprintf("minav=maxav=%d",av))
+	minav = maxav = av; if (T>0) trace(sprintf("minav=maxav=%d",av))
     }					## Yes, initialize minav and maxav.
     if (!(ai = av2ai[av])) {		## AV mapped?
 	ai2av[ai = av2ai[av] = ++ac] = av
-	if (DEBUG>0) trace(sprintf("ai2av[ai=av2ai[av]=++ac=%u]=av=%d",ai,av))
-	ai2nr[ai] = NR; if (DEBUG>0) trace(sprintf("ai2nr[ai=%u]=%u",ai,NR))
+	if (T>0) trace(sprintf("ai2av[ai=av2ai[av]=++ac=%u]=av=%d",ai,av))
+	ai2nr[ai] = NR; if (T>0) trace(sprintf("ai2nr[ai=%u]=%u",ai,NR))
 					## No, create AI<->AV mapping.
 	if (minav > av) {		## Must update minav?
-	    minav = av; if (DEBUG>0) trace(sprintf("minav=%d",av))
+	    minav = av; if (T>0) trace(sprintf("minav=%d",av))
 	}				## Yes, do so.
 	if (maxav < av) {		## Must update maxav?
-	    maxav = av; if (DEBUG>0) trace(sprintf("maxav=%d",av))
+	    maxav = av; if (T>0) trace(sprintf("maxav=%d",av))
 	}				## Yes, do so.
     }
     set = (ai in ai2mc); ++ai2mc[ai]	## Count API declaration.
-    if (DEBUG>0) trace(sprintf("++ai2mc[ai=%u]=%u",ai,ai2mc[ai]))
-    if (DEBUG>1) leave(bv2sy[set]); return set
+    if (T>0) trace(sprintf("++ai2mc[ai=%u]=%u",ai,ai2mc[ai]))
+    if (T>1) leave(bv2sy[set]); return set
 }
 
 ##----------------------------------------------------------------------------
 ##  avfn2tn(AV,FN)		Determine (AV,FN) token name
 ##----------------------------------------------------------------------------
 function avfn2tn(av,fn ,tn) {
-    if (DEBUG>2) enter("avfn2tn",sprintf("av=%d,fn=\"%s\"",av,fn))
+    if (T>2) enter("avfn2tn",sprintf("av=%d,fn=\"%s\"",av,fn))
     tn = sprintf("%d;%s",av,fn)
-    if (DEBUG>2) leave(sprintf("\"%s\"",tn)); return tn
+    if (T>2) leave(sprintf("\"%s\"",tn)); return tn
 }
 
 ##----------------------------------------------------------------------------
@@ -235,10 +236,10 @@ function avfn2tn(av,fn ,tn) {
 ##				`fi' as a side-effect.
 ##----------------------------------------------------------------------------
 function set_fi(fn ,set) {
-    if (DEBUG>1) enter("set_fi",sprintf("fn=\"%s\"",fn))
+    if (T>1) enter("set_fi",sprintf("fn=\"%s\"",fn))
     set = ((fi = fn2fi[fn]) in fi2mc)
-    if (DEBUG>0) trace(sprintf("fi=fn2fi[fn=\"%s\"]=%u",fn,fi))
-    if (DEBUG>1) leave(bv2sy[set]); return set
+    if (T>0) trace(sprintf("fi=fn2fi[fn=\"%s\"]=%u",fn,fi))
+    if (T>1) leave(bv2sy[set]); return set
 }
 
 ##----------------------------------------------------------------------------
@@ -246,32 +247,32 @@ function set_fi(fn ,set) {
 ##				setting `fi' as a side-effect.
 ##----------------------------------------------------------------------------
 function map_fi(av,fn,pt,rg ,set,tn,di) {
-    if (DEBUG>1) enter("map_fi",sprintf("av=%d,fn=\"%s\",pt=\"%s\",rg="	\
-	"\"%s\"",av,fn,pt,rg))
+    if (T>1) enter("map_fi",sprintf("av=%d,fn=\"%s\",pt=\"%s\",rg=\"%s"	\
+	"\"",av,fn,pt,rg))
     if (!(fi = fn2fi[fn])) {		## FN mapped?
 	fi2fn[fi = fn2fi[fn] = ++fc] = fn
-	if (DEBUG>0) trace(sprintf("fi2fn[fi=fn2fi[fn]=++fc=%u]=fn=\"%s"\
-	    "\"",fi,fn))
+	if (T>0) trace(sprintf("fi2fn[fi=fn2fi[fn]=++fc=%u]=fn=\"%s\"",	\
+	    fi,fn))
     }					## No, create FI<->FN mapping.
     set = (fi in fi2mc); ++fi2mc[fi]	## Count FI<->FN mapping.
-    if (DEBUG>0) trace(sprintf("++fi2mc[fi=%u]=%u",fi,fi2mc[fi]))
+    if (T>0) trace(sprintf("++fi2mc[fi=%u]=%u",fi,fi2mc[fi]))
     if (map_ti(tn = avfn2tn(av,fn))) {	## (AV,FN) token already mapped?
 	error(sprintf("Line %u, 'f;%d;%s(%s);%s': Duplicate function "	\
 	    "declaration! (see line %u)",NR,av,fn,pt,rg,fidi2nr[fi,di]))
 					## Yes, show error message.
     } else {
-	di = ++fi2dc[fi]; if (DEBUG>0) trace(sprintf("di=++fi2dc[fi=%u]"\
-	    "=%u",fi,di))
+	di = ++fi2dc[fi]; if (T>0) trace(sprintf("di=++fi2dc[fi=%u]=%u",\
+	    fi,di))
 	fidi2nr[fi,di] = NR		## No, count function declaration and
 	fidi2ti[fi,di] = ti		## attach line number, (AV,FN) token
 	fidi2av[fi,di] = av		## index, API version, prototype, as
 	fidi2pt[fi,di] = pt		## well as argument count range to
 	fidi2rg[fi,di] = rg		## function declaration.
-	if (DEBUG>0) trace(sprintf("fidi2nr[fi=%u,di=%u]=%u,fidi2ti[fi,"\
-	    "di]=%u,fidi2av[fi,di]=%d,fidi2pt[fi,di]=\"%s\",fidi2rg[fi,"\
-	    "di]=\"%s\"",fi,di,NR,ti,av,pt,rg))
+	if (T>0) trace(sprintf("fidi2nr[fi=%u,di=%u]=%u,fidi2ti[fi,di]="\
+	    "%u,fidi2av[fi,di]=%d,fidi2pt[fi,di]=\"%s\",fidi2rg[fi,di]="\
+	    "\"%s\"",fi,di,NR,ti,av,pt,rg))
     }
-    if (DEBUG>1) leave(bv2sy[set]); return set
+    if (T>1) leave(bv2sy[set]); return set
 }
 
 ##----------------------------------------------------------------------------
@@ -286,8 +287,8 @@ BEGIN {
 	error(sprintf("Line %u, '%s': Invalid API version declaration!",NR,$0))
 					## No, complain about it!
     } else if (map_ai($2)) {		## Yes, but is it unique?
-	error(sprintf("Line %u, '%s': Duplicate API version declara"	\
-	    "tion! (see line %u)",NR,$0,ai2nr[ai]))
+	error(sprintf("Line %u, '%s': Duplicate API version declaration"\
+	    "! (see line %u)",NR,$0,ai2nr[ai]))
     }					## No, complain about duplicate!
 }
 
@@ -314,14 +315,14 @@ END {					## After declarations are gathered:
     ##		mapping undeclared API versions
     ##------------------------------------------------------------------------
     if (pi2do[++pi]) {			## Enter pass?
-	if (DEBUG>0) trace(sprintf("pi2do[pi=%u]=%s",pi,bv2sy[pi2do[pi]]))
+	if (T>0) trace(sprintf("pi2do[pi=%u]=%s",pi,bv2sy[pi2do[pi]]))
 	fi = 0; while (++fi <= fc) {	## Yes, foreach function index do...
 	    dc = fi2dc[fi]; di = 0; while (++di <= dc) {
 					## Foreach attached declaration do...
 		if (map_ai(av = fidi2av[fi,di]) && (ai <= end_ac)) {
 					## Does it refer to decl. API version?
 		    ++ai2fc[fidi2ai[fi,di] = ai]; ++fi2ac[fi]
-		    if (DEBUG>0) trace(sprintf("++ai2fc[fidi2ai[fi=%u,"	\
+		    if (T>0) trace(sprintf("++ai2fc[fidi2ai[fi=%u,"	\
 			"di=%u]=ai=%u]=%u,++fi2ac[fi]=%u",fi,di,ai,	\
 			ai2fc[ai],fi2ac[fi]))
 		} else {		## Yes, count [FI,DI]->[AI] reference.
@@ -341,7 +342,7 @@ END {					## After declarations are gathered:
     ##	Pass 2: API version and function declarations consistent?
     ##------------------------------------------------------------------------
     if (pi2do[++pi]) {			## Enter pass?
-	if (DEBUG>0) trace(sprintf("pi2do[pi=%u]=%s",pi,bv2sy[pi2do[pi]]))
+	if (T>0) trace(sprintf("pi2do[pi=%u]=%s",pi,bv2sy[pi2do[pi]]))
 	if (!end_ac) {			## Yes, API versions are declared?
 	    error("No API versions declared!")
 	} else if ((maxav - minav + 1) == end_ac) {
@@ -381,7 +382,7 @@ END {					## After declarations are gathered:
     ##	Pass 3: Check if API versions before MINAV are properly withdrawn
     ##------------------------------------------------------------------------
     if (pi2do[++pi] && !ec && lib) {	## Enter pass?
-	if (DEBUG>0) trace(sprintf("pi2do[pi=%u]=%s",pi,bv2sy[pi2do[pi]]))
+	if (T>0) trace(sprintf("pi2do[pi=%u]=%s",pi,bv2sy[pi2do[pi]]))
 	for (av = 0; av < minav; ++av) {
 					## Foreach potentially withdrawn
 					## API version do...
