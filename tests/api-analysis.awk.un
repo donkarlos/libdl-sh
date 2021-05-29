@@ -441,11 +441,9 @@ END {					## After declarations are gathered:
 					## mal API version interval do...
 		    if (av <= fi2maxav[fi]) {
 					## Validate deprecation?
-			if (mode == "deprecated")
-			    printf "%s %s %d %s\n",mode,lib,av,fi2fn[fi]
+			if (mode == "deprecated") printf "%d %s\n",av,fi2fn[fi]
 		    } else {		## Validate withdrawal!
-			if (mode == "withdrawn")
-			    printf "%s %s %d %s\n",mode,lib,av,fi2fn[fi]
+			if (mode == "withdrawn") printf "%d %s\n",av,fi2fn[fi]
 		    }
 		}
 	    }
