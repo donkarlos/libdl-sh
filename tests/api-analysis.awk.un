@@ -55,8 +55,8 @@
 ##	- fc			#(Function index <-> name mappings)
 ##	- fi			Function index (set by set/map_fi())
 ##	- fi2dc[FI]		Map function index -> #(function declarations)
-##	- di			Function declaration index
 ##	- fi2ac[FI]		Map function index -> #(API index references)
+##	- di			Function declaration index
 ##	- fidi2nr[FI,NR]	Per-function declaration NR
 ##	- fidi2ti[FI,DI]	Per-function declaration (AV,FN) token index
 ##	- fidi2av[FI,DI]	Per-function declaration API version
@@ -378,7 +378,7 @@ END {					## After declarations are gathered:
     ##------------------------------------------------------------------------
     ##	Pass 3: Check if API versions before MINAV are properly withdrawn
     ##------------------------------------------------------------------------
-    if (pi2do[++pi]) {			## Enter pass?
+    if (pi2do[++pi] && !ec && lib) {	## Enter pass?
 	for (av = 0; av < minav; ++av) {
 					## Foreach potentially withdrawn
 					## API version do...
