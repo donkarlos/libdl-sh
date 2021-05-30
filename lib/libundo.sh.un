@@ -46,6 +46,8 @@
 ##		ks	2021-05-16	Use dl_readonly() to freeze variables
 ##					and dl_apis() to emit API information.
 ##		ks	2021-05-26	Replace dl_warn() with dl_inform().
+##		ks	2021-05-30	Improve undo_push()'s invocation vari-
+##					ant recognition.
 ##----------------------------------------------------------------------------
 ##  Global variables:
 #-----------------------------------------------------------------------------
@@ -211,21 +213,24 @@ undo_mark() {
 undo_push() {
     local tag cmd; case ${1+1$1_}${2+2$2_} in
 					## Which invocation variant?
-	1::*_2*_)			## invTAG|(inv)MARK (emt)CMD:
-	    return 2			## Indicate abuse!
-	    ;;
-	1:?*_2*_)			## TAG (emt)CMD:
+	1::*_2*_|1:?*_2:*_)		## invTAG|(inv)MARK (emt)CMD or
+	    return 2			## TAG invCMD|(inv)TAG:
+	    ;;				## Indicate abuse!
+	1:?*_2?*_)			## TAG CMD:
 	    tag=$1; shift		## Fetch tag and quote command.
 	    cmd=`quote_command "$@"`
+	    ;;
+	1:?*_2_|1_*|1:::*_)		## [TAG] emtCMD or invMARK:
+	    return 1			## Indicate failure.
 	    ;;
 	1::?*_)				## MARK:
 	    cmd=$CS{$1::}$CS		## Construct stack mark.
 	    ;;
+	1:*_)				## invCMD|(inv)TAG:
+	    return 2			## Indicate abuse!
+	    ;;
 	1?*_*)				## CMD:
 	    cmd=`quote_command "$@"`	## Quote command.
-	    ;;
-	1_*)				## emtCMD:
-	    return 1			## Indicate failure!
 	    ;;
 	*)  return 2			## Anything else is abuse!
 	    ;;
