@@ -201,22 +201,21 @@ undo_mark() {
 undo_push() {
     local tag cmd
 
-    case ${undo_api--}/${2+2}${1+1$1} in
-					## Which API/Argument(s) combination?
-	*/21::*)			## ?/MARK COMMAND: Indicate abuse!
+    case ${2+2}${1+1$1} in		## Which Argument(s) combination?
+	21::*)				## MARK COMMAND: Indicate abuse!
 	    return 2
 	    ;;
-	*/21:?*)			## ?/TAG COMMAND: Fetch tag and quote
+	21:?*)				## TAG COMMAND: Fetch tag and quote
 	    tag=$1; shift		## command.
 	    cmd=`quote_command "$@"`
 	    ;;
-	2/1::?*)			## 2/MARK: Construct mark.
+	1::?*)				## MARK: Construct mark.
 	    cmd=$CS{$1::}$CS
 	    ;;
-	*/21?*|*/1?*)			## ?/COMMAND: Quote command.
+	21?*|1?*)			## COMMAND: Quote command.
 	    cmd=`quote_command "$@"`
 	    ;;
-	*/21|*/1)			## ?/Empty command: Indicate failure!
+	21|1)				## Empty command: Indicate failure!
 	    return 1
 	    ;;
 	*)  return 2			## Anything else is abuse!
