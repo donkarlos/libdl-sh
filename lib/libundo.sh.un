@@ -197,31 +197,41 @@ undo_mark() {
 ##  undo_push([TAG] COMMAND [ARGUMENT|REDIRECTION ...])
 ##  undo_push(MARK)		Push (TAGged) COMMAND (with quoted ARGUMENTs
 ##				and/or REDIRECTIONs) or MARK onto undo stack
+##  Legend:
+##    -	MARK	Valid	mark	(e.g., "::MARK")
+##    -	invMARK	Invalid	mark	(e.g., ":::")
+##    -	TAG	Valid	tag	(e.g., ":TAG")
+##    -	invTAG	Invalid	tag	(e.g., "::")
+##    -	CMD	Valid	command	(e.g., "rm")
+##    -	invCMD	Invalid	command	(e.g., ":")
+##    -	emtCMD	Empty	command	(i.e., "")
+##
+##  An 'inv' or 'emt' prefix in parentheses means maybe invalid/empty, resp.
 ##----------------------------------------------------------------------------
 undo_push() {
     local tag cmd; case ${1+1$1_}${2+2$2_} in
 					## Which invocation variant?
-	1::*_2*_)			## MARK COMMAND: Indicate abuse!
-	    return 2
+	1::*_2*_)			## invTAG|(inv)MARK (emt)CMD:
+	    return 2			## Indicate abuse!
 	    ;;
-	1:?*_2*_)			## TAG COMMAND: Fetch tag and quote
-	    tag=$1; shift		## command.
+	1:?*_2*_)			## TAG (emt)CMD:
+	    tag=$1; shift		## Fetch tag and quote command.
 	    cmd=`quote_command "$@"`
 	    ;;
-	1::?*_)				## MARK: Construct mark.
-	    cmd=$CS{$1::}$CS
+	1::?*_)				## MARK:
+	    cmd=$CS{$1::}$CS		## Construct stack mark.
 	    ;;
-	1?*_2*_|1?*_)			## COMMAND: Quote command.
-	    cmd=`quote_command "$@"`
+	1?*_*)				## CMD:
+	    cmd=`quote_command "$@"`	## Quote command.
 	    ;;
-	1_2*_|1_)			## Empty command: Indicate failure!
-	    return 1
+	1_*)				## emtCMD:
+	    return 1			## Indicate failure!
 	    ;;
 	*)  return 2			## Anything else is abuse!
 	    ;;
     esac && undo_stack=$cmd${tag+ $CS$tag}$NL$undo_stack
-					## Push (tagged) command or mark onto
-}					## undo stack.
+					## Push quoted (and tagged) command/
+}					## stack mark onto undo stack.
 
 ##----------------------------------------------------------------------------
 ##  undo_pull(MARK)		Pull undos within MARKed range and MARK,
