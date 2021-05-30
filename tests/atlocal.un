@@ -247,19 +247,22 @@ EOF
 }
 
 ##----------------------------------------------------------------------------
-##  atlocal_api_analysis(LIB)	Gather and analyze LIBrary's API information
+##  atlocal_api_analysis(MODE LIB)
+##				Gather and analyze LIBrary's API information
 ##----------------------------------------------------------------------------
 atlocal_api_analysis() {
-    case ${2+2}${1+=`dl_meta get loaded`} in
+    case ${3+3}${2+=`dl_meta get loaded`} in
 					## Usage OK?/LIB is demand-loaded?
-	=*:${1-}:*)			## Y/Y: Declare local variables.
-	    local status=0 get="$1"'_meta get'
+	=*:${2-}:*)			## Y/Y: Declare local variables.
+	    local status=0 U
 	    ;;
 	*)  return 2			## N/?: Indicate abuse!
 	    ;;
-    esac
-    $get apis all | api-analysis.awk -vlib="$1"
-}
+    esac; $2_meta get api >/dev/null && U=0 || U=1
+					## Check if we must skip function dec-
+					## larations with API version '-'.
+    $2_meta get apis all | api-analysis.awk -vV=1 -vU=$U -vmode="$1" -vlib="$2"
+}					## Run API analysis in MODE for LIB.
 
 ##----------------------------------------------------------------------------
 ##  atlocal_function_deprecated(LIB API FUNC [ARG ...])
