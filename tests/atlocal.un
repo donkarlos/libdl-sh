@@ -278,8 +278,6 @@ atlocal_function_deprecated() {
 	    ;;
     esac; (				## Within subshell environment do...
 	dl_inform() {
-	    local status=0 about drel wrel crel wapi capi func ifs args invo lib
-
 	    case ${5+5}${4+4}${1+=$1} in
 		54=rel-dpr-func)
 		    return 126  ;;	## Suppress FUNC's execution!
@@ -311,8 +309,6 @@ atlocal_function_withdrawn() {
 	    ;;
     esac; (				## Within subshell environment do...
 	dl_inform() {
-	    local status=0 about drel wrel crel wapi capi func ifs args invo lib
-
 	    case ${5+5}${4+4}${1+=$1} in
 		*4=api-wdr-func)
 		    return 127  ;;	## Suppress FUNC's execution!
