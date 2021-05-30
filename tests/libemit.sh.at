@@ -31,6 +31,7 @@ dnl					Use atlocal_check_meta_get_apis_hon-
 dnl					ours_4th().
 dnl		ks	2021-05-30	Add test group ['emit_meta get apis
 dnl					all' declarations sane?].
+dnl					Use atlocal_check_api_consistency().
 dnl
 dnl Test group 'Message emission library libemit.sh'
 dnl
@@ -142,6 +143,16 @@ AT_KEYWORDS([libemit.sh libemit emit_meta consistent deprecated withdrawn])
 AT_CHECK([dnl
 set -eu					## Employ strict execution environment
 					## to ensure 'set -u' resilience.
+test_hook() {				## (TESTER LIB API TESTEE)
+    case ${5+5}${4+=$4} in		## Usage OK?/Function?
+	=${2-}|=${2-}_*)		## Y/Any recently deprecated/withdrawn:
+	    echo "$4() deprecated or withdrawn!" >&2
+	    ;;				## Emit unexpected error message!
+	*)  return 2			## N/?: Indicate abuse!
+	    ;;
+    esac
+}
+
 case :$PATH: in				## Triggered by 'check-local:'?
     *:$abs_top_builddir/bin:*)		## Yes, export suitable LSP.
 	LIBDL_SH_LIBRARY_PATH=$abs_top_builddir/lib
@@ -150,32 +161,8 @@ case :$PATH: in				## Triggered by 'check-local:'?
 	;;
 esac
 eval "`libdl-sh load`"; dl_load emit	## Load libdl.sh and libemit.sh or die.
-lib=emit status=0			## Assume success.
-for mode in consistent deprecated withdrawn; do
-					## Foreach analysis mode do...
-    case $mode in			## Which analysis mode?
-	consistent)			## Check consistency...
-	    atlocal_api_analysis $mode $lib
-	    ;;
-	*)				## Generate deprecated/withdrawn check
-					## list...
-	    ifs=$IFS; IFS=$NL; set shiftee `
-		atlocal_api_analysis $mode $lib
-	    `; shift; IFS=$ifs		## Split check list into positional
-					## parameters.
-	    for item in ${1+"$@"}; do	## Foreach check list item do...
-		set shiftee $item; shift; case ${3+3}${2+=$2} in
-					## Split into two fields?/Function?
-		    =$lib*)		## Y/?: Emit error message.
-			echo "$2() was recently $mode!" >&2
-			;;
-		    *)	status=1	## N/?: Fail test.
-			;;
-		esac
-	    done
-	    ;;
-    esac || status=1
-done; exit $status			## Indicate success or failure.
+atlocal_check_api_consistency emit test_hook
+					## Perform check for libemit.sh.
 ], 0, [dnl				## And the winner is...
 Declared API versions: [[0;0]]
 ], [dnl

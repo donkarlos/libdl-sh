@@ -33,6 +33,7 @@ dnl					Use atlocal_check_meta_get_apis_hon-
 dnl					ours_4th().
 dnl		ks	2021-05-30	Add test group ['conf_meta get apis
 dnl					all' declarations sane?].
+dnl					Use atlocal_check_api_consistency().
 dnl
 dnl Test group 'GIT-style configuration file processing library libconf.sh'
 dnl
@@ -160,6 +161,19 @@ AT_KEYWORDS([libconf.sh libconf conf_meta consistent deprecated withdrawn])
 AT_CHECK([dnl
 set -eu					## Employ strict execution environment
 					## to ensure 'set -u' resilience.
+test_hook() {				## (TESTER LIB API TESTEE)
+    case ${5+5}${4+=$4} in		## Usage OK?/Function?
+	=conf_getenv)			## Y/conf_getenv():
+	    "$@" lib core.lib /dev/null	## Test it with reasonable arguments.
+	    ;;
+	=${2-}|=${2-}_*)		## Y/Any recently deprecated/withdrawn:
+	    echo "$4() deprecated or withdrawn!" >&2
+	    ;;				## Emit unexpected error message!
+	*)  return 2			## N/?: Indicate abuse!
+	    ;;
+    esac
+}
+
 case :$PATH: in				## Triggered by 'check-local:'?
     *:$abs_top_builddir/bin:*)		## Yes, export suitable LSP.
 	LIBDL_SH_LIBRARY_PATH=$abs_top_builddir/lib
@@ -168,36 +182,8 @@ case :$PATH: in				## Triggered by 'check-local:'?
 	;;
 esac
 eval "`libdl-sh load`"; dl_load conf	## Load libdl.sh and libconf.sh or die.
-lib=conf status=0			## Assume success.
-for mode in consistent deprecated withdrawn; do
-					## Foreach analysis mode do...
-    case $mode in			## Which analysis mode?
-	consistent)			## Check consistency...
-	    atlocal_api_analysis $mode $lib
-	    ;;
-	*)				## Generate deprecated/withdrawn check
-					## list...
-	    ifs=$IFS; IFS=$NL; set shiftee `
-		atlocal_api_analysis $mode $lib
-	    `; shift; IFS=$ifs		## Split check list into positional
-					## parameters.
-	    for item in ${1+"$@"}; do	## Foreach check list item do...
-		set shiftee $item; shift; case ${3+3}${2+=$2} in
-					## Split into two fields?/Function?
-		    =conf_getenv)	## Y/conf_getenv():
-			atlocal_function_$mode $lib "$@" lib core.lib /dev/null
-					## Do deprecated/withdrawn test with
-			;;		## reasonable arguments.
-		    =$lib*)		## Y/?: Emit error message.
-			echo "$2() was recently $mode!" >&2
-			;;
-		    *)	status=1	## N/?: Fail test.
-			;;
-		esac
-	    done
-	    ;;
-    esac || status=1
-done; exit $status			## Indicate success or failure.
+atlocal_check_api_consistency conf test_hook
+					## Perform check for libconf.sh.
 ], 0, [dnl				## And the winner is...
 Declared API versions: [[1;2]]
 API version 0 completely withdrawn.
