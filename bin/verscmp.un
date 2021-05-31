@@ -41,6 +41,38 @@ command=`basename "$0"`; readonly command
 					## Determine command name.
 unset GETOPT_COMPATIBLE POSIXLY_CORRECT	## Make modern getopt(1) behave.
 
+eval "`libdl-sh load`"			## Instantiate demand-loading, defin-
+					## ing libdl.sh's CS/RE constants.
+cr_ED='[-:+.~'"$dl_cs_an]"		## Construct with-EP/with-DR, with-EP/
+cr_E_='[:+.~'"$dl_cs_an]"		## sans-DR, sans-EP/with-DR, and
+cr__D='[-+.~'"$dl_cs_an]"		## sans-EP/sans-DR upstream version
+cr___='[+.~'"$dl_cs_an]"		## (UV) character ranges as well as
+cr_0d="[$dl_cs_0d]"			## decimal digit character range
+readonly cr_ED cr_E_ cr__D cr___ cr_0d	## constants.
+
+re_D="-$cr___*"				## Construct unanchored Debian revi-
+re_ED="$dl_re_0n:$cr_0d$cr_ED*$re_D"	## sion (DR) as well as with-EP/with-
+re_E_="$dl_re_0n:$cr_0d$cr_E_*"		## DR, with-EP/sans-DR, sans-EP/with-
+re__D="$cr_0d$cr__D*$re_D"		## DR, and sans-EP/sans-DR Debian ver-
+re___="$cr_0d$cr___*"			## sion RE constants.
+readonly re_D re_ED re_E_ re__D re___
+
+shbc="$BS&$BS&"	  shbd='||'	 shlb='{'	shrb='}'
+exbc="$BS$BS$BS&" exbd="$BS$BS|" exlb="$BS$BS("	exrb="$BS$BS)"
+readonly shbc shbd shlb shrb exbc exbd exlb exrb
+					## Preset string, numeric, and boolean
+					## operators as well as left and right
+					## braces (as if they'd been quoted
+					## with 'quote_rs').
+slt="$BS$BS"'<'	sle="$BS$BS"'<=' seq='='
+sgt="$BS$BS"'>'	sge="$BS$BS"'>=' sne="$BS$BS"'!='
+nlt=-lt		nle=-le		 neq=-eq
+ngt=-gt		nge=-ge		 nne=-ne
+readonly slt sle seq sgt sge sne nlt nle neq ngt nge nne
+					## Preset string and numeric compari-
+					## son operators (as if they'd been
+					## quoted with 'quote sh rs /').
+
 ##----------------------------------------------------------------------------
 ##  verscmp_syntax(WHAT [ARG ...)	~~~~
 ##
@@ -319,35 +351,6 @@ done; case ${action-} in
     version)	verscmp_version; exit 0	;;
 esac
 
-eval "`libdl-sh load`"			## Instantiate demand-loading, defin-
-					## ing libdl.sh's CS/RE constants.
-cr_ED='[-:+.~'"$dl_cs_an]"		## Construct with-EP/with-DR, with-EP/
-cr_E_='[:+.~'"$dl_cs_an]"		## sans-DR, sans-EP/with-DR, and
-cr__D='[-+.~'"$dl_cs_an]"		## sans-EP/sans-DR upstream version
-cr___='[+.~'"$dl_cs_an]"		## (UV) character ranges as well as
-cr_0d="[$dl_cs_0d]"			## decimal digit character range
-readonly cr_ED cr_E_ cr__D cr___ cr_0d	## constants.
-
-re_D="-$cr___*"				## Construct unanchored Debian revi-
-re_ED="$dl_re_0n:$cr_0d$cr_ED*$re_D"	## sion (DR) as well as with-EP/with-
-re_E_="$dl_re_0n:$cr_0d$cr_E_*"		## DR, with-EP/sans-DR, sans-EP/with-
-re__D="$cr_0d$cr__D*$re_D"		## DR, and sans-EP/sans-DR Debian ver-
-re___="$cr_0d$cr___*"			## sion RE constants.
-readonly re_D re_ED re_E_ re__D re___
-
-shbc="$BS&$BS&"	  shbd='||'	 shlb='{'	shrb='}'
-exbc="$BS$BS$BS&" exbd="$BS$BS|" exlb="$BS$BS("	exrb="$BS$BS)"
-readonly shbc shbd shlb shrb exbc exbd exlb exrb
-					## Preset string, numeric, and boolean
-					## operators as well as left and right
-					## braces.
-slt="$BS$BS"'<'	sle="$BS$BS"'<=' seq='='
-sgt="$BS$BS"'>'	sge="$BS$BS"'>=' sne="$BS$BS"'!='
-nlt=-lt		nle=-le		 neq=-eq
-ngt=-gt		nge=-ge		 nne=-ne
-readonly slt sle seq sgt sge sne nlt nle neq ngt nge nne
-					## Preset string and numeric compari-
-					## son operators.
 ${TRACE-}				## Start tracing if requested.
 case $- in *x*) p=p;; *) p=;; esac	## Prepare sed(1) tracing.
 
