@@ -74,30 +74,29 @@ readonly slt sle seq sgt sge sne nlt nle neq ngt nge nne
 					## quoted with 'quote sh rs /').
 
 ##----------------------------------------------------------------------------
-##  verscmp_syntax(WHAT [ARG ...)	~~~~
+##  verscmp_syntax(WHAT [ARG ...])	Do syntax table lookup
 ##
 ##  Non-local variables:
 ##	- command	(R) command name
 ##	- &WHAT		(W) canonical WHAT
 ##----------------------------------------------------------------------------
 verscmp_syntax() {
-    case ${1+=} in
-	=)  local what="$1" fs='%' vs=, sx obsolete; shift	;;
-	*)  return 2						;;
-    esac; case $#:$what in
-	1:frontend)			## frontend FRONTEND...
-	    sx='/^#f'"$fs"'[^'"$fs"']*'"$vs$1$vs"'/{'"${p:+;$p}"'
+    local fs='%' vs=, sx obsolete	## Preset field/variant separators.
+
+    case $#${1+=$1} in			## Usage OK?/WHAT [ARG ...]?
+	2=frontend)			## Y/frontend FRONTEND:
+	    sx='/^#f'"$fs"'[^'"$fs"']*'"$vs$2$vs"'/{'"${p:+;$p}"'
 		s/'"$SQ"'/&'"$BS$BS"'&&/g'"$p"'
-		s/^#.'"$fs$vs/#$what=$SQ"'/'"$p"'
+		s/^#.'"$fs$vs/#$1=$SQ"'/'"$p"'
 		s/'"$vs"'[^'"$fs"']*'"$fs"'/'"$SQ"' ftag='"$SQ"'/'"$p"'
 		s/'"$fs"'.*$//'"$p"';s/$/'"$SQ"'; readonly ftag/'"$p"'
 		s/^#//;q
 	    };$!d;s/^.*$/test/'
 	    ;;
-	1:backend)			## backend BACKEND...
-	    sx='/^#b'"$fs"'[^'"$fs"']*'"$vs$1$vs"'/{'"${p:+;$p}"'
+	2=backend)			## Y/backend BACKEND:
+	    sx='/^#b'"$fs"'[^'"$fs"']*'"$vs$2$vs"'/{'"${p:+;$p}"'
 		s/'"$SQ"'/&'"$BS$BS"'&&/g'"$p"'
-		s/^#.'"$fs$vs/#$what=$SQ"'/'"$p"'
+		s/^#.'"$fs$vs/#$1=$SQ"'/'"$p"'
 		s/'"$vs"'[^'"$fs"']*'"$fs"'/'"$SQ"' tnl='"$SQ"'/'"$p"'
 		s/'"$fs"'/'"$SQ"' lh0='"$SQ"'/'"$p"'
 		s/'"$fs"'/'"$SQ"' lh1='"$SQ"'/'"$p"'
@@ -108,10 +107,10 @@ verscmp_syntax() {
 		s/^#//;q
 	    };$!d;s/^.*$/test/'
 	    ;;
-	3:operator)			## operator FRONTEND BACKEND OPERATOR...
-	    sx='/^#o'"$fs"'[^'"$fs"']*'"$vs$1$vs"'[^'"$fs"']*'"$fs"'[^'"$fs"']*'"$vs$2$vs"'[^'"$fs"']*'"$fs"'[^'"$fs"']*'"$vs$3$vs"'/{'"${p:+;$p}"'
+	4=operator)			## Y/operator FRONTEND BACKEND OP:
+	    sx='/^#o'"$fs"'[^'"$fs"']*'"$vs$2$vs"'[^'"$fs"']*'"$fs"'[^'"$fs"']*'"$vs$3$vs"'[^'"$fs"']*'"$fs"'[^'"$fs"']*'"$vs$4$vs"'/{'"${p:+;$p}"'
 		s/'"$SQ"'/&'"$BS$BS"'&&/g'"$p"'
-		s/^#.'"$fs"'[^'"$fs"']*'"$fs"'[^'"$fs"']*'"$fs$vs/#$what=$SQ"'/'"$p"'
+		s/^#.'"$fs"'[^'"$fs"']*'"$fs"'[^'"$fs"']*'"$fs$vs/#$1=$SQ"'/'"$p"'
 		s/'"$vs"'[^'"$fs"']*'"$fs"'/'"$SQ"' form='"$SQ"'/'"$p"'
 		s/'"$fs"'/'"$SQ"' sop='"$SQ"'/'"$p"'
 		s/'"$fs"'/'"$SQ"' nop='"$SQ"'/'"$p"'
@@ -121,8 +120,7 @@ verscmp_syntax() {
 		s/^#//;q
 	    };$!d;s/^.*$/test/'
 	    ;;
-	*)				## Anything else...
-	    return 2			## is abuse!
+	*)  return 2			## N/?: Indicate abuse!
 	    ;;
     esac; eval "`sed "$sx" <<EOF
 #f${fs}${vs}dpkg${vs}deb${vs}	${fs}d
