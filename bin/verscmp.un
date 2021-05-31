@@ -72,6 +72,9 @@ readonly slt sle seq sgt sge sne nlt nle neq ngt nge nne
 					## Preset string and numeric compari-
 					## son operators (as if they'd been
 					## quoted with 'quote sh rs /').
+default_frontend=dpkg default_backend=test
+readonly default_frontend default_backend
+					## Define default front- and backend.
 
 ##----------------------------------------------------------------------------
 ##  verscmp_syntax(WHAT [ARG ...])	Do syntax table lookup
@@ -344,10 +347,9 @@ args=`getopt -n"$command" -o"$optstring" -l"$longopts" -- ${1+"$@"}` || {
     verscmp_help >&2; exit 2		## No, show help and abort!
 }
 eval set shiftee "$args"; unset optstring longopts args
-default_frontend=dpkg default_backend=test
-readonly default_frontend default_backend
 frontend=$default_frontend backend=$default_backend
-unset TRACE status action verbose	## Preset defaults.
+					## Preset front- and backend from
+unset TRACE status action verbose	## defaults.
 while shift; do				## Process parsed options...
     case $1 in
 	--trace)	TRACE='set -x'		;;
