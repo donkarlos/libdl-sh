@@ -38,6 +38,8 @@
 ##					Simplify building of test suite.
 ##					Add documentation and sample library.
 ##		ks	2021-05-26	Add API analysis script.
+##		ks	2021-05-31	Don't run `testsuite' if it can't be
+##					made.
 ##
 ##  NOTE:   (1)	Update the build system with autoreconf(1).
 ##----------------------------------------------------------------------------
@@ -174,7 +176,8 @@ $(srcdir)/tests/package.m4: $(top_srcdir)/configure.ac
 	} >$@
 
 $(TESTSUITE):		$(TESTSUITE_AT) $(TESTSUITE_INCLUDEES)
-	$(AUTOTEST) $(AUTOTESTFLAGS) -o $@.tmp $@.at && mv $@.tmp $@ || rm -f $@.tmp
+	if $(AUTOTEST) $(AUTOTESTFLAGS) -o $@.tmp $@.at; then		\
+	mv $@.tmp $@; else rm -f $@.tmp && test; fi
 
 check-local:		$(TESTSUITE_REQUISITES) $(TESTSUITE)
 	$(SHELL) $(TESTSUITE) $(TESTSUITEFLAGS) -C tests
