@@ -288,9 +288,9 @@ Valid options are:
  -V, --version		Show version information
  -v, --verbose		Be verbose
  -m, --mode, --frontend=FRONTEND
-			Collate VERSIONs with FRONTEND
+			Collate VERSIONs with FRONTEND[=$default_frontend]
      --target, --backend=BACKEND
-			Compile with BACKEND
+			Compile with BACKEND[=$default_backend]
 EOF
 }
 
@@ -333,7 +333,10 @@ args=`getopt -n"$command" -o"$optstring" -l"$longopts" -- ${1+"$@"}` || {
     verscmp_help >&2; exit 2		## No, show help and abort!
 }
 eval set shiftee "$args"; unset optstring longopts args
-unset TRACE status action verbose frontend backend
+default_frontend=dpkg default_backend=test
+readonly default_frontend default_backend
+frontend=$default_frontend backend=$default_backend
+unset TRACE status action verbose	## Preset defaults.
 while shift; do				## Process parsed options...
     case $1 in
 	--trace)	TRACE='set -x'		;;
@@ -355,8 +358,8 @@ ${TRACE-}				## Start tracing if requested.
 case $- in *x*) p=p;; *) p=;; esac	## Prepare sed(1) tracing.
 
 unset ftag lh0 lh1 bh1 rh1 rh0 operator form sop nop BorF
-verscmp_syntax frontend "${frontend-dpkg}"				&&
-verscmp_syntax backend "${backend-test}" || exit 2
+verscmp_syntax frontend "$frontend"					&&
+verscmp_syntax backend  "$backend" || exit 2
 					## Validate (and canonify) front- and
 					## backend or die.
 case ${4+4}${3+=}${2+=} in		## Usage OK?
