@@ -84,6 +84,11 @@ verscmp_syntax() {
     local fs='%' vs=, obsolete		## Preset field/variant separators.
 
     case $#${1+=$1} in			## Usage OK?/WHAT [ARG ...]?
+	1=list-frontends)		## Y/list-frontends:
+	    sed '/^#f'"$fs"'[^'"$fs$vs"']*'"$vs"'\([^'"$fs"']*\)'"$fs"'.*$/{
+		s//\1/;s/'"$vs"'[ 	]*$//;H
+	    };$!d;g;s/^'"$BS$NL"'//;s/'"$BS$NL"'/'"$vs"'/g;s/'"$vs"'/& /g;q'
+	    ;;
 	2=frontend)			## Y/frontend FRONTEND:
 	    eval "`sed '/^#f'"$fs"'[^'"$fs"']*'"$vs$2$vs"'/{'"${p:+;$p}"'
 		s/'"$SQ"'/&'"$BS$BS"'&&/g'"$p"'
@@ -289,6 +294,8 @@ Valid options are:
 			Collate VERSIONs with FRONTEND[=$default_frontend]
      --target, --backend=BACKEND
 			Compile with BACKEND[=$default_backend]
+
+Valid frontends are: `verscmp_syntax list-frontends`
 EOF
 }
 
