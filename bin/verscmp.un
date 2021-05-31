@@ -220,7 +220,7 @@ verscmp_collate_version() {
 	=/[BF]/=[ds])	;;		## Yes.
 	*)  return 2	;;		## No, indicate abuse!
     esac; eval "`sed '
-	s/^#d#$/#'"$BorF"'#/'"$p"';t1
+	s/^#[ds]#$/#'"$BorF"'#/'"$p"';t1
 	s/^#d#\('"$re_ED"'\)$/#B#\1/'"$p"';t1
 	s/^#d#\('"$re_E_"'\)$/#B#\1/'"$p"';t1
 	s/^#d#\('"$re__D"'\)$/#B#0:\1/'"$p"';t1
