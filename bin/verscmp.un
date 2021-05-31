@@ -145,11 +145,12 @@ esac
 }
 
 ##----------------------------------------------------------------------------
-##  verscmp_collate_dpkg(VERSION)
-##				Collate valid dpkg(1) VERSION
+##  verscmp_collate_version(VERSION)
+##				Validate and collate version for frontends
+##				"dpkg" and "stow"
 ##
-##  NOTE:   (1)	Invoker must set "BorF=F" for "*-nl" operators (see dpkg(1))
-##		to correctly collate an empty VERSION!
+##  NOTE:   (1)	The invoker must set "BorF=F" for "*-nl" operators (see
+##		verscmp_syntax() above) to correctly collate empty versions!
 ##	    (2)	Though technically the leading '#' sentinel isn't necessary,
 ##		it enables tracing intermediate substitutions done by sed(1),
 ##		as the surrounding "eval `...`" perceives them as comments.
@@ -159,13 +160,12 @@ esac
 ##
 ##  Non-local variables:
 ##	- p		(R) 's///' print modifier for sed(1) tracing
-##	- ftag		(R) ~~~~
-##	- BorF		(R) see describtion below
+##	- BorF		(R) see note (1)
 ##	- re_ED		(R) unanchored with-EP/with-DR version RE
 ##	- re_E_		(R) unanchored with-EP/sans-DR version RE
 ##	- re__D		(R) unanchored sans-EP/with-DR version RE
 ##	- re___		(R) unanchored sans-EP/sans-DR version RE
-##	- dl_re_1n	(R) unanchored non-zero cardinal  RE
+##	- dl_re_1n	(R) unanchored cardinal number RE
 ##	- dl_cs_0d	(R) (unbracketed) decimal digits character set
 ##	- dl_cs_al	(R) (unbracketed) ASCII letters  character set
 ##
@@ -211,7 +211,7 @@ esac
 ##    •	    numeric parts numerically.
 ##  Et voilà!
 ##----------------------------------------------------------------------------
-verscmp_collate_dpkg() {
+verscmp_collate_version() {
     case ${1+=}:${BorF:=B} in		## Usage OK?
 	=:[BF])		;;		## Yes.
 	*)  return 2	;;		## No, indicate abuse!
@@ -357,10 +357,10 @@ case $# in				## Usage OK?
 	verscmp_syntax operator "$frontend" "$backend" "$2" || exit 2
 					## Validate (and canonify) operator
 					## or die.
-	tv1=`verscmp_collate_dpkg "$1"` || {
+	tv1=`verscmp_collate_version "$1"` || {
 	    echo "$command: Invalid version $QB$1$QE!" >&2; exit 2
 	}				## Collate VERSION1 or die.
-	tv2=`verscmp_collate_dpkg "${3-}"` || {
+	tv2=`verscmp_collate_version "${3-}"` || {
 	    echo "$command: Invalid version $QB${3-}$QE!" >&2; exit 2
 	}				## Collate VERSION2 or die.
 	;;
