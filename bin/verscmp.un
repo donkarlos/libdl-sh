@@ -72,7 +72,7 @@ readonly slt sle seq sgt sge sne nlt nle neq ngt nge nne
 					## Preset string and numeric compari-
 					## son operators (as if they'd been
 					## quoted with 'quote sh rs /').
-default_frontend=simple default_backend=test
+default_frontend=simple default_backend=fast
 readonly default_frontend default_backend
 					## Define default front- and backend.
 

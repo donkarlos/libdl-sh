@@ -234,7 +234,7 @@ EOF
 	    exit 127
 	    ;;
 	=rel-dpr-func)			## Release deprecated function...
-	    verscmp --target=fast -- "${version-}" lt-nl "$drel" 2>/dev/null || {
+	    verscmp -- "${version-}" lt-nl "$drel" 2>/dev/null || {
 		cat >&2 <<EOF
 $invo; WARNING:
 Function deprecated since release $drel, to be withdrawn by release $wrel.
@@ -253,7 +253,7 @@ EOF
 	    status=127
 	    ;;
 	=rel-wdr-meta)			## Release withdrew meta operation...
-	    verscmp --target=fast -- "${version-}" lt-nl "$wrel" 2>/dev/null || {
+	    verscmp -- "${version-}" lt-nl "$wrel" 2>/dev/null || {
 		cat >&2 <<EOF
 $invo; WARNING:
 Meta operation withdrawn since release $wrel.
