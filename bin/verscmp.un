@@ -356,8 +356,8 @@ verscmp_syntax frontend "${frontend-dpkg}"				&&
 verscmp_syntax backend "${backend-test}" || exit 2
 					## Validate (and canonify) front- and
 					## backend or die.
-case $# in				## Usage OK?
-    [23])				## Yes,...
+case ${4+4}${3+=}${2+=} in		## Usage OK?
+    =*)					## Yes,...
 	verscmp_syntax operator "$frontend" "$backend" "$2" || exit 2
 					## Validate (and canonify) operator
 					## or die.
