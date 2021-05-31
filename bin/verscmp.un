@@ -87,10 +87,10 @@ verscmp_syntax() {
     local fs='%' vs=, obsolete		## Preset field/variant separators.
 
     case $#${1+=$1} in			## Usage OK?/WHAT [ARG ...]?
-	1=list-frontends)		## Y/list-frontends:
+	[12]=list-frontends)		## Y/list-frontends [DEFAULT]:
 	    sed '/^#f'"$fs"'[^'"$fs$vs"']*'"$vs"'\([^'"$fs"']*\)'"$fs"'.*$/{
-		s//\1/;s/'"$vs"'[ 	]*$//;H
-	    };$!d;g;s/^'"$BS$NL"'//;s/'"$BS$NL"'/'"$vs"'/g;s/'"$vs"'/& /g;q'
+		s//\1/;s/[ 	]*$//;H
+	    };$!d;g;s/'"$BS$NL"'//g;s/^/ /;s/'"$vs"'/& /g'${2+';s/ \('"$2"'\),/ \1 (default),/'}';s/^ //;s/, *$//'
 	    ;;
 	2=frontend)			## Y/frontend FRONTEND:
 	    eval "`sed '/^#f'"$fs"'[^'"$fs"']*'"$vs$2$vs"'/{'"${p:+;$p}"'
@@ -101,10 +101,10 @@ verscmp_syntax() {
 		s/^#//;q
 	    };$!d;s/^.*$/test/'`"
 	    ;;
-	1=list-backends)		## Y/list-backends:
+	[12]=list-backends)		## Y/list-backends [DEFAULT]:
 	    sed '/^#b'"$fs"'[^'"$fs$vs"']*'"$vs"'\([^'"$fs"']*\)'"$fs"'.*$/{
-		s//\1/;s/'"$vs"'[ 	]*$//;H
-	    };$!d;g;s/^'"$BS$NL"'//;s/'"$BS$NL"'/'"$vs"'/g;s/'"$vs"'/& /g;q'
+		s//\1/;s/[ 	]*$//;H
+	    };$!d;g;s/'"$BS$NL"'//g;s/^/ /;s/'"$vs"'/& /g'${2+';s/ \('"$2"'\),/ \1 (default),/'}';s/^ //;s/, *$//'
 	    ;;
 	2=backend)			## Y/backend BACKEND:
 	    eval "`sed '/^#b'"$fs"'[^'"$fs"']*'"$vs$2$vs"'/{'"${p:+;$p}"'
@@ -299,12 +299,12 @@ Valid options are:
  -V, --version		Show version information
  -v, --verbose		Be verbose
  -m, --mode, --frontend=FRONTEND
-			Collate VERSIONs with FRONTEND[=$default_frontend]
+			Collate VERSIONs with FRONTEND
      --target, --backend=BACKEND
-			Compile with BACKEND[=$default_backend]
+			Compile with BACKEND
 
-Valid frontends are: `verscmp_syntax list-frontends`
-Valid backends  are: `verscmp_syntax list-backends`
+Valid frontends are: `verscmp_syntax list-frontends $default_frontend`
+Valid backends  are: `verscmp_syntax list-backends  $default_backend`
 EOF
 }
 
