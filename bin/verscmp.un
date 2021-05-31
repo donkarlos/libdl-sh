@@ -98,6 +98,11 @@ verscmp_syntax() {
 		s/^#//;q
 	    };$!d;s/^.*$/test/'`"
 	    ;;
+	1=list-backends)		## Y/list-backends:
+	    sed '/^#b'"$fs"'[^'"$fs$vs"']*'"$vs"'\([^'"$fs"']*\)'"$fs"'.*$/{
+		s//\1/;s/'"$vs"'[ 	]*$//;H
+	    };$!d;g;s/^'"$BS$NL"'//;s/'"$BS$NL"'/'"$vs"'/g;s/'"$vs"'/& /g;q'
+	    ;;
 	2=backend)			## Y/backend BACKEND:
 	    eval "`sed '/^#b'"$fs"'[^'"$fs"']*'"$vs$2$vs"'/{'"${p:+;$p}"'
 		s/'"$SQ"'/&'"$BS$BS"'&&/g'"$p"'
@@ -296,6 +301,7 @@ Valid options are:
 			Compile with BACKEND[=$default_backend]
 
 Valid frontends are: `verscmp_syntax list-frontends`
+Valid backends  are: `verscmp_syntax list-backends`
 EOF
 }
 
