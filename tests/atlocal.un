@@ -45,7 +45,7 @@
 ##					ours_4th().
 ##		ks	2021-05-26	Add service function dl_inform().
 ##		ks	2021-05-30	Add atlocal_check_api_consistency().
-
+##		ks	2021-05-31	Use API analysis script's frontend.
 ##----------------------------------------------------------------------------
 ##  Global variables:
 #-----------------------------------------------------------------------------
@@ -323,11 +323,11 @@ atlocal_check_api_consistency() {
     case ${3+3}${2+=`dl_meta get loaded`} in
 					## Usage OK?/LIB is demand-loaded?
 	=*:${1-}:*)			## Y/Y: Declare local variables.
-	    local status=0 lib=$1 hook U mode
-	    expr "_$2" : "_$dl_re_id$DS" >/dev/null && hook=$2 || return 2
+	    local status=0 lib="$1" hook="$2" n mode
+	    expr "_$hook" : "_$dl_re_id$DS" >/dev/null || return 2
 					## Indicate abuse unless HOOK is
 					## formally valid.
-	    ${lib}_meta get api >/dev/null && U=0 || U=1
+	    ${lib}_meta get api >/dev/null || n=n
 					## Determine if function declarations
 					## with API version '-' ought to be
 	    ;;				## skipped.
@@ -337,12 +337,12 @@ atlocal_check_api_consistency() {
 					## Foreach analysis mode do...
 	case $mode in			## Which analysis mode?
 	    consistent)			## Check consistency...
-		${lib}_meta get apis all | api-analysis.awk -vV=1 -vU=$U -vmode=$mode -vlib=$lib
+		${lib}_meta get apis all | api-analysis ${n+-n} "$lib"
 		;;
 	    *)				## Generate deprecated/withdrawn check
 					## list...
 		ifs=$IFS; IFS=$NL; set shiftee `
-		    ${lib}_meta get apis all | api-analysis.awk -vV=1 -vU=$U -vmode=$mode -vlib=$lib
+		    ${lib}_meta get apis all | api-analysis -${n-}m$mode "$lib"
 		`; shift; IFS=$ifs	## Split check list into positional
 					## parameters.
 		for item in ${1+"$@"}; do

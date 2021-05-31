@@ -37,9 +37,9 @@
 ##			2021-05-17	Add libsession.sh tests.
 ##					Simplify building of test suite.
 ##					Add documentation and sample library.
-##		ks	2021-05-26	Add API analysis script.
 ##		ks	2021-05-31	Don't run `testsuite' if it can't be
 ##					made.
+##					Add API analysis script with frontend.
 ##
 ##  NOTE:   (1)	Update the build system with autoreconf(1).
 ##----------------------------------------------------------------------------
@@ -161,6 +161,7 @@ TESTSUITE_INCLUDEES	= $(srcdir)/tests/package.m4			\
 			  tests/libundo.sh.at
 TESTSUITE_REQUISITES	= tests/atconfig				\
 			  tests/atlocal 				\
+			  tests/api-analysis 				\
 			  tests/api-analysis.awk
 
 EXTRA_DIST		= $(TESTSUITE_AT) $(TESTSUITE_INCLUDEES) $(TESTSUITE)

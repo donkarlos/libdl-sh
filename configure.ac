@@ -31,7 +31,7 @@ dnl		ks	2021-04-23	Rename `test-deb-version' to `vers-
 dnl					cmp'.
 dnl		ks	2021-04-28	Import GNU Autotest-based test suite.
 dnl		ks	2021-05-17	Add sample library.
-dnl		ks	2021-05-26	Add API analysis script.
+dnl		ks	2021-05-31	Add API analysis script with frontend.
 dnl
 dnl NOTE:   (1)	Update the build system with autoreconf(1).
 dnl	    (2)	AM_INIT_AUTOMAKE() already invokes AC_ARG_PROGRAM, AC_PROG_-
@@ -76,6 +76,7 @@ AF_FINISH_FILES([
     lib/libundo.sh
     libexec/args.awk
     libexec/conf.awk
+    tests/api-analysis
     tests/api-analysis.awk
     tests/atlocal
 ])

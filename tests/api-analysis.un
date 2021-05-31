@@ -1,0 +1,119 @@
+#! /bin/sh -eu
+#-----------------------------------------------------------------------------
+#   api-analysis		- API analysis script's frontend
+#
+#   Copyright © 2021 Das Computerlabor (DCl-M)
+#
+#   This library is free software; you can redistribute it and/or
+#   modify it under the terms of the GNU Lesser General Public License
+#   as published by the Free Software Foundation; either
+#   version 2.1 of the License, or (at your option) any later version.
+#
+#   This library is distributed in the hope that it will be useful,
+#   but WITHOUT ANY WARRANTY; without even the implied warranty of
+#   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+#   Lesser General Public License for more details.
+#
+#   You should have received a copy of the GNU Lesser General Public License
+#   along with this library; if not, write to the Free Software Founda-
+#   tion, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
+##
+##  AUTHOR(S):	ks	Karl Schmitz <ks@computerlabor.org>
+##
+##  WRITTEN BY:	ks	2021-05-31
+##  CHANGED BY:
+##----------------------------------------------------------------------------
+##  Initialization:
+#-----------------------------------------------------------------------------
+LC_ALL=C; export LC_ALL			## Avoid locale insanities.
+command=`basename "$0"`; readonly command
+					## Determine command name.
+unset GETOPT_COMPATIBLE POSIXLY_CORRECT	## Make modern getopt(1) behave.
+
+##----------------------------------------------------------------------------
+##  api_analysis_help()		Show help
+##
+##  Non-local variables:
+##	- command	(R) command name
+##----------------------------------------------------------------------------
+api_analysis_help() {
+    cat <<EOF
+Usage: $command [OPTION ...] LIB
+API analysis script's frontend
+
+Valid options are:
+ -h, --help		Show help
+ -V, --version		Show version information
+ -q, --quiet		Decrease verbosity
+ -v, --verbose		Increase verbosity
+ -m, --mode=MODE	Select output MODE
+ -n, --no-default-api-version
+			State that LIB has no default API version
+EOF
+}
+
+##----------------------------------------------------------------------------
+##  api_analysis_version()	Show version and license information
+##
+##  Non-local variables:
+##	- command	(R) command name
+##----------------------------------------------------------------------------
+api_analysis_version() {
+    cat <<EOF
+$command (@PACKAGE_NAME@) @PACKAGE_VERSION@
+Copyright © 2021 Das Computerlabor
+License GPLv2: GNU GPL version 2 or later
+This is free software: you are free to change and redistribute it.
+There is NO WARRANTY, to the extent permitted by law.
+
+Please send bug reports to <@PACKAGE_BUGREPORT@>.
+EOF
+}
+
+##----------------------------------------------------------------------------
+##  Main program:
+##----------------------------------------------------------------------------
+(getopt -T) >/dev/null 2>&1 && {	## What getopt(1) are dealing with?
+    echo "$command: Legacy getopt(1) found!" >&2; exit 2
+					## Legacy; complain and abort!
+} || case $? in
+    4)	optstring=hVm:nqv		## Modern: preset short and long
+	longopts=help,version		## option lists.
+	longopts=$longopts,mode:,no-default-api-version,quiet,verbose,trace::
+	;;
+    *)	echo "$command: Missing getopt(1)!" >&2
+	exit 2				## None at all: complain and abort!
+	;;
+esac
+args=`getopt -n"$command" -o"$optstring" -l"$longopts" -- ${1+"$@"}` || {
+					## Options parsed?
+    api_analysis_help >&2; exit 2	## No, show help and abort!
+}
+eval set shiftee "$args"; unset optstring longopts args
+T=0 V=1 U=0 mode=consistent		## Preset defaults.
+while shift; do				## Process parsed options...
+    case $1 in
+	-h|--help)	api_analysis_help;	exit 0		;;
+	-V|--version)	api_analysis_version;	exit 0		;;
+	-n|--no-default-api-version)
+			U=1					;;
+	-q|--quiet)	V=`expr \( $V \> 0 \) \* \( $V - 1 \)`	;;
+	-v|--verbose)	V=`expr $V + 1`				;;
+	-m|--mode)
+	    shift; case $1 in
+		deprecated|withdrawn)
+		    mode=$1					;;
+		*)  echo "$command: $1: Unknown mode!" >&2	;;
+	    esac						;;
+	--trace)
+	    shift; T=`expr 0 + $1` 2>/dev/null || {
+		T=0; echo "$command: $1: Invalid trace level!" >&2
+	    }							;;
+	--) shift; break					;;
+    esac
+done; case ${2+2}${1+=} in
+    =)	exec api-analysis.awk -vT=$T -vV=$V -vU=$U -vmode=$mode -vlib="$1"
+	;;
+    *)  api_analysis_help >&2; exit 2
+	;;
+esac
