@@ -93,8 +93,8 @@ verscmp_syntax() {
 	    return 2			## is abuse!
 	    ;;
     esac; eval "`sed "$sx" <<EOF
-#f${fs}${vs}dpkg${vs}deb${vs}	 ${fs}d
-#f${fs}${vs}stow${vs}stowpkg${vs}${fs}s
+#f${fs}${vs}dpkg${vs}deb${vs}	${fs}d
+#f${fs}${vs}stow${vs}simple${vs}${fs}s
 #b${fs}${vs}test${vs}${fs}${fs}test ${fs} $shbc $shlb test ${fs} $shbd test ${fs}; $shrb $shbd test ${fs}
 #b${fs}${vs}expr${vs}${fs}s${fs}expr ${fs} >$BS/dev$BS/null $shbc $shlb expr ${fs}${fs} >$BS/dev$BS/null; $shrb $shbd expr ${fs} >/dev/null
 #b${fs}${vs}fast${vs}${fs}s${fs}expr ${fs} $exbc $exlb ${fs}${fs} $exrb $exbd ${fs} >/dev/null
