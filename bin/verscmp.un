@@ -151,16 +151,19 @@ esac
 ##
 ##  NOTE:   (1)	The invoker must set "BorF=F" for "*-nl" operators (see
 ##		verscmp_syntax() above) to correctly collate empty versions!
-##	    (2)	Though technically the leading '#' sentinel isn't necessary,
+##	    (2)	The invoker must set "ftag=d" or "ftag=s" for frontends
+##		"dpkg" or "stow", respectively!
+##	    (3)	Though technically the leading '#' sentinel isn't necessary,
 ##		it enables tracing intermediate substitutions done by sed(1),
 ##		as the surrounding "eval `...`" perceives them as comments.
 ##		Substitution tracing is enabled when "set -x" is in effect.
-##	    (3)	Though technically not necessary, UVs are forced to start with
+##	    (4)	Though technically not necessary, UVs are forced to start with
 ##		a number (to stay compatible to dpkg(1)'s notion of UVs).
 ##
 ##  Non-local variables:
 ##	- p		(R) 's///' print modifier for sed(1) tracing
 ##	- BorF		(R) see note (1)
+##	- ftag		(R) see note (2)
 ##	- re_ED		(R) unanchored with-EP/with-DR version RE
 ##	- re_E_		(R) unanchored with-EP/sans-DR version RE
 ##	- re__D		(R) unanchored sans-EP/with-DR version RE
@@ -212,8 +215,9 @@ esac
 ##  Et voilà!
 ##----------------------------------------------------------------------------
 verscmp_collate_version() {
-    case ${1+=}:${BorF:=B} in		## Usage OK?
-	=:[BF])		;;		## Yes.
+    case ${2+2}${1+=}/${BorF:=B}/${ftag+=$ftag} in
+					## Usage OK?
+	=/[BF]/=[ds])	;;		## Yes.
 	*)  return 2	;;		## No, indicate abuse!
     esac; eval "`sed '
 	s/^#d#$/#'"$BorF"'#/'"$p"';t1
