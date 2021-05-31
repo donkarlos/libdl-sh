@@ -81,20 +81,20 @@ readonly slt sle seq sgt sge sne nlt nle neq ngt nge nne
 ##	- &WHAT		(W) canonical WHAT
 ##----------------------------------------------------------------------------
 verscmp_syntax() {
-    local fs='%' vs=, sx obsolete	## Preset field/variant separators.
+    local fs='%' vs=, obsolete		## Preset field/variant separators.
 
     case $#${1+=$1} in			## Usage OK?/WHAT [ARG ...]?
 	2=frontend)			## Y/frontend FRONTEND:
-	    sx='/^#f'"$fs"'[^'"$fs"']*'"$vs$2$vs"'/{'"${p:+;$p}"'
+	    eval "`sed '/^#f'"$fs"'[^'"$fs"']*'"$vs$2$vs"'/{'"${p:+;$p}"'
 		s/'"$SQ"'/&'"$BS$BS"'&&/g'"$p"'
 		s/^#.'"$fs$vs/#$1=$SQ"'/'"$p"'
 		s/'"$vs"'[^'"$fs"']*'"$fs"'/'"$SQ"' ftag='"$SQ"'/'"$p"'
 		s/'"$fs"'.*$//'"$p"';s/$/'"$SQ"'; readonly ftag/'"$p"'
 		s/^#//;q
-	    };$!d;s/^.*$/test/'
+	    };$!d;s/^.*$/test/'`"
 	    ;;
 	2=backend)			## Y/backend BACKEND:
-	    sx='/^#b'"$fs"'[^'"$fs"']*'"$vs$2$vs"'/{'"${p:+;$p}"'
+	    eval "`sed '/^#b'"$fs"'[^'"$fs"']*'"$vs$2$vs"'/{'"${p:+;$p}"'
 		s/'"$SQ"'/&'"$BS$BS"'&&/g'"$p"'
 		s/^#.'"$fs$vs/#$1=$SQ"'/'"$p"'
 		s/'"$vs"'[^'"$fs"']*'"$fs"'/'"$SQ"' tnl='"$SQ"'/'"$p"'
@@ -105,10 +105,10 @@ verscmp_syntax() {
 		s/'"$fs"'/'"$SQ"' rh0='"$SQ"'/'"$p"'
 		s/'"$fs"'.*$//'"$p"';s/$/'"$SQ"'; readonly tnl lh0 lh1 bh1 rh1 rh0/'"$p"'
 		s/^#//;q
-	    };$!d;s/^.*$/test/'
+	    };$!d;s/^.*$/test/'`"
 	    ;;
 	4=operator)			## Y/operator FRONTEND BACKEND OP:
-	    sx='/^#o'"$fs"'[^'"$fs"']*'"$vs$2$vs"'[^'"$fs"']*'"$fs"'[^'"$fs"']*'"$vs$3$vs"'[^'"$fs"']*'"$fs"'[^'"$fs"']*'"$vs$4$vs"'/{'"${p:+;$p}"'
+	    eval "`sed '/^#o'"$fs"'[^'"$fs"']*'"$vs$2$vs"'[^'"$fs"']*'"$fs"'[^'"$fs"']*'"$vs$3$vs"'[^'"$fs"']*'"$fs"'[^'"$fs"']*'"$vs$4$vs"'/{'"${p:+;$p}"'
 		s/'"$SQ"'/&'"$BS$BS"'&&/g'"$p"'
 		s/^#.'"$fs"'[^'"$fs"']*'"$fs"'[^'"$fs"']*'"$fs$vs/#$1=$SQ"'/'"$p"'
 		s/'"$vs"'[^'"$fs"']*'"$fs"'/'"$SQ"' form='"$SQ"'/'"$p"'
@@ -118,11 +118,11 @@ verscmp_syntax() {
 		s/'"$fs"'/'"$SQ"' obsolete='"$SQ"'/'"$p"'
 		s/'"$fs"'.*$//'"$p"';s/$/'"$SQ"'; readonly form sop nop/'"$p"'
 		s/^#//;q
-	    };$!d;s/^.*$/test/'
+	    };$!d;s/^.*$/test/'`"
 	    ;;
 	*)  return 2			## N/?: Indicate abuse!
 	    ;;
-    esac; eval "`sed "$sx" <<EOF
+    esac <<EOF
 #f${fs}${vs}dpkg${vs}deb${vs}	${fs}d
 #f${fs}${vs}stow${vs}simple${vs}${fs}s
 #b${fs}${vs}test${vs}${fs}${fs}test ${fs} $shbc $shlb test ${fs} $shbd test ${fs}; $shrb $shbd test ${fs}
@@ -160,18 +160,18 @@ verscmp_syntax() {
 #o${fs}${vs}dpkg${vs}	      ${fs}${vs}expr${vs}fast${vs}${fs}${vs}gt${vs}>>${vs}		   ${fs}eb-${fs}$sgt${fs}$sgt
 #o${fs}${vs}stow${vs}	      ${fs}${vs}expr${vs}fast${vs}${fs}${vs}gt${vs}>${vs}		   ${fs}eb-${fs}$sgt${fs}$sgt
 #o${fs}${vs}dpkg${vs}stow${vs}${fs}${vs}expr${vs}fast${vs}${fs}${vs}gt-nl${vs}			   ${fs}eb-${fs}$sgt${fs}$sgt${fs}F
-EOF`" || case $what in
-    frontend|backend)
-	echo "$command: $1: no such $what!" >&2; return 1
-	;;
-    operator)
-	echo "$command: $3: no such $what!" >&2; return 1
-	;;
-esac; case ${obsolete:-n}:$what in
-    y:operator)				## Obsolete operator?
-	echo "$command: $3: obsolete relation operator (use $QB$operator$QE instead)." >&2
-	;;				## Yes, issue warning.
-esac
+EOF
+    case $?:$1:${obsolete-} in		## What's the lookup's outcome?
+	1:frontend:|1:backend:)		## Unknown front-/backend:
+	    echo "$command: $2: no such $1!" >&2; return 1
+	    ;;				## Complain and indicate failure!
+	1:operator:*)			## Unknown operator:
+	    echo "$command: $4: no such $1!" >&2; return 1
+	    ;;				## Complain and indicate failure!
+	0:operator:y)			## Obsolete operator:
+	    echo "$command: $4: obsolete relational operator (use $QB$operator$QE instead)." >&2
+	    ;;				## Issue warning.
+    esac
 }
 
 ##----------------------------------------------------------------------------
