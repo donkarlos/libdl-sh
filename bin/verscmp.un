@@ -33,6 +33,7 @@
 ##		ks	2021-04-23	Catch internal errors.
 ##					Rename to `verscmp'.
 ##		ks	2021-04-25	Use table-driven implementation.
+##		ks	2021-06-01	Spread sed(1) tracing preparation.
 ##----------------------------------------------------------------------------
 ##  Initialization:
 #-----------------------------------------------------------------------------
@@ -84,7 +85,8 @@ readonly default_frontend default_backend
 ##	- &WHAT		(W) canonical WHAT
 ##----------------------------------------------------------------------------
 verscmp_syntax() {
-    local fs='%' vs=, obsolete		## Preset field/variant separators.
+    local p= fs='%' vs=, obsolete	## Preset field/variant separators.
+    case $- in *x*) p=p;; esac		## Prepare sed(1) tracing.
 
     case $#${1+=$1} in			## Usage OK?/WHAT [ARG ...]?
 	[12]=list-frontends)		## Y/list-frontends [DEFAULT]:
@@ -204,7 +206,6 @@ EOF
 ##		a number (to stay compatible to dpkg(1)'s notion of UVs).
 ##
 ##  Non-local variables:
-##	- p		(R) 's///' print modifier for sed(1) tracing
 ##	- BorF		(R) see note (1)
 ##	- ftag		(R) see note (2)
 ##	- re_ED		(R) unanchored with-EP/with-DR version RE
@@ -258,6 +259,8 @@ EOF
 ##  Et voilà!
 ##----------------------------------------------------------------------------
 verscmp_collate_version() {
+    local p=; case $- in *x*) p=p;; esac
+					## Prepare sed(1) tracing.
     case ${2+2}${1+=}/${BorF:=B}/${ftag+=$ftag} in
 					## Usage OK?
 	=/[BF]/=[ds])	;;		## Yes.
@@ -366,10 +369,7 @@ done; case ${action-} in
     help)	verscmp_help   ; exit 0	;;
     version)	verscmp_version; exit 0	;;
 esac
-
 ${TRACE-}				## Start tracing if requested.
-case $- in *x*) p=p;; *) p=;; esac	## Prepare sed(1) tracing.
-
 unset ftag lh0 lh1 bh1 rh1 rh0 operator form sop nop BorF
 verscmp_syntax frontend "$frontend"					&&
 verscmp_syntax backend  "$backend" || exit 2
@@ -391,8 +391,9 @@ case ${4+4}${3+=}${2+=} in		## Usage OK?
 	;;
 esac
 
-eval "`sed '
-    '"${p:+$p;}"':s
+p=; case $- in *x*) p=p;; esac		## Prepare sed(1) tracing.
+eval "`sed "$p"'
+    :s
     s/^\(#.--#[^#]*\)#\([^#]*\)#\([^#]*\)#/\1'"$SQ"'\2'"$SQ $sop $SQ"'\3'"$SQ"'/'"$p"';tp
 					## Compile equivalence relation.
     s/^\(#.b.#[^#]*\)#\([^ #]*\) \([^#]*\)#\([^ #]*\) \([^#]*\)#/\1\2 '"$seq"' \4'"$lh1"'#\3#\5#'"$rh1"'\2 '"$sop"' \4/'"$p"';t'"${tnl:-n}"'
