@@ -86,9 +86,10 @@ readonly default_frontend default_backend
 ##	- &WHAT		(W) canonical WHAT
 ##----------------------------------------------------------------------------
 verscmp_syntax() {
-    local p= fs='%' vs=, obsolete	## Preset field/variant separators.
-    case $- in *x*) p=p;; esac		## Prepare sed(1) tracing.
-
+    local status=0 p= fs='%' vs=, obsolete
+    case $- in *x*) p=p;; esac		## Assume success, preset field/vari-
+					## ant separators, and set up sed(1)
+					## tracing.
     case $#${1+=$1} in			## Usage OK?/WHAT [ARG ...]?
 	[12]=list-frontends)		## Y/list-frontends [DEFAULT]:
 	    sed '/^#f'"$fs"'[^'"$fs$vs"']*'"$vs"'\([^'"$fs"']*\)'"$fs"'.*$/{
@@ -102,7 +103,7 @@ verscmp_syntax() {
 		s/'"$vs"'[^'"$fs"']*'"$fs"'/'"$SQ"' ftag='"$SQ"'/'"$p"'
 		s/'"$fs"'.*$//'"$p"';s/$/'"$SQ"'; readonly ftag/'"$p"'
 		s/^#//;q
-	    };$!d;s/^.*$/test/'`"
+	    };$!d;s/^.*$/status=4; test/'`"
 	    ;;
 	[12]=list-backends)		## Y/list-backends [DEFAULT]:
 	    sed '/^#b'"$fs"'[^'"$fs$vs"']*'"$vs"'\([^'"$fs"']*\)'"$fs"'.*$/{
@@ -121,7 +122,7 @@ verscmp_syntax() {
 		s/'"$fs"'/'"$SQ"' rh0='"$SQ"'/'"$p"'
 		s/'"$fs"'.*$//'"$p"';s/$/'"$SQ"'; readonly tnl lh0 lh1 bh1 rh1 rh0/'"$p"'
 		s/^#//;q
-	    };$!d;s/^.*$/test/'`"
+	    };$!d;s/^.*$/status=5; test/'`"
 	    ;;
 	3=list-operators)		## Y/list-operators FRONTEND BACKEND:
 	    sed '/^#o'"$fs"'[^'"$fs"']*'"$vs$2$vs"'[^'"$fs"']*'"$fs"'[^'"$fs"']*'"$vs$3$vs"'[^'"$fs"']*'"$fs"'[^'"$fs$vs"']*'"$vs"'/{
@@ -185,15 +186,15 @@ verscmp_syntax() {
 EOF
     case $?:$1:${obsolete-} in		## What's the lookup's outcome?
 	1:frontend:|1:backend:)		## Unknown front-/backend:
-	    echo "$command: $2: no such $1!" >&2; return 1
-	    ;;				## Complain and indicate failure!
+	    echo "$command: $2: no such $1!" >&2
+	    ;;				## Issue error message!
 	1:operator:*)			## Unknown operator:
 	    echo "$command: $4: no such $1!" >&2; return 1
 	    ;;				## Complain and indicate failure!
 	0:operator:y)			## Obsolete operator:
 	    echo "$command: $4: obsolete relational operator (use $QB$operator$QE instead)." >&2
 	    ;;				## Issue warning.
-    esac
+    esac; return $status		## Indicate success or failure.
 }
 
 ##----------------------------------------------------------------------------
@@ -397,8 +398,8 @@ while shift; do				## Process parsed options...
 	--)		shift; break		;;
     esac
 done; unset ftag lh0 lh1 bh1 rh1 rh0 operator form sop nop BorF
-verscmp_syntax frontend "$frontend" && verscmp_syntax backend  "$backend" || {
-    exit 2				## Validate (and canonify) front- and
+verscmp_syntax frontend "$frontend" && verscmp_syntax backend "$backend" || {
+    exit $?				## Validate (and canonify) front- and
 }					## backend or die.
 case ${action-} in			## Perform which action?
     help)	    verscmp_help	    ; exit 0	;;
