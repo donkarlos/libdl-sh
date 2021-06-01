@@ -34,6 +34,7 @@
 ##					Rename to `verscmp'.
 ##		ks	2021-04-25	Use table-driven implementation.
 ##		ks	2021-06-01	Spread sed(1) tracing preparation.
+##					Implement option `--help-operators'.
 ##----------------------------------------------------------------------------
 ##  Initialization:
 #-----------------------------------------------------------------------------
@@ -122,6 +123,12 @@ verscmp_syntax() {
 		s/^#//;q
 	    };$!d;s/^.*$/test/'`"
 	    ;;
+	3=list-operators)		## Y/list-operators FRONTEND BACKEND:
+	    sed '/^#o'"$fs"'[^'"$fs"']*'"$vs$2$vs"'[^'"$fs"']*'"$fs"'[^'"$fs"']*'"$vs$3$vs"'[^'"$fs"']*'"$fs"'[^'"$fs$vs"']*'"$vs"'/{
+		s///;s/^\(\([^'"$fs$vs"']*'"$vs"'\)*\)[^'"$fs$vs"']*\('"$fs"'\)/\1\3/
+		/'"$fs"'[^'"$fs"']*'"$fs"'[^'"$fs"']*'"$fs"'[^'"$fs"']*'"$fs"'[^'"$fs"']*'"$fs"'y$/!{;s/'"$fs"'.*$//;H;}
+	    };$!d;g;s/'"$BS$NL"'//g;s/, *$//'
+	    ;;
 	4=operator)			## Y/operator FRONTEND BACKEND OP:
 	    eval "`sed '/^#o'"$fs"'[^'"$fs"']*'"$vs$2$vs"'[^'"$fs"']*'"$fs"'[^'"$fs"']*'"$vs$3$vs"'[^'"$fs"']*'"$fs"'[^'"$fs"']*'"$vs$4$vs"'/{'"${p:+;$p}"'
 		s/'"$SQ"'/&'"$BS$BS"'&&/g'"$p"'
@@ -149,10 +156,10 @@ verscmp_syntax() {
 #o${fs}${vs}dpkg${vs}stow${vs}${fs}${vs}test${vs}	  ${fs}${vs}le${vs}<=${vs}		   ${fs}tbd${fs}$slt${fs}$nlt
 #o${fs}${vs}dpkg${vs}stow${vs}${fs}${vs}test${vs}	  ${fs}${vs}le-nl${vs}			   ${fs}tbd${fs}$slt${fs}$nlt${fs}F
 #o${fs}${vs}dpkg${vs}	      ${fs}${vs}test${vs}	  ${fs}${vs}le${vs}<${vs}		   ${fs}tbd${fs}$slt${fs}$nlt${fs}${fs}y
-#o${fs}${vs}dpkg${vs}	      ${fs}${vs}test${vs}	  ${fs}${vs}eq${vs}eq-nl${vs}==${vs}=${vs} ${fs}t--${fs}$seq${fs}$neq
-#o${fs}${vs}stow${vs}	      ${fs}${vs}test${vs}	  ${fs}${vs}eq${vs}eq-nl${vs}==${vs}	   ${fs}t--${fs}$seq${fs}$neq
-#o${fs}${vs}dpkg${vs}	      ${fs}${vs}test${vs}	  ${fs}${vs}ne${vs}ne-nl${vs}!=${vs}<>${vs}${fs}t--${fs}$sne${fs}$nne
-#o${fs}${vs}stow${vs}	      ${fs}${vs}test${vs}	  ${fs}${vs}ne${vs}ne-nl${vs}!=${vs}	   ${fs}t--${fs}$sne${fs}$nne
+#o${fs}${vs}dpkg${vs}	      ${fs}${vs}test${vs}	  ${fs}${vs}eq${vs}==${vs}=${vs}eq-nl${vs} ${fs}t--${fs}$seq${fs}$neq
+#o${fs}${vs}stow${vs}	      ${fs}${vs}test${vs}	  ${fs}${vs}eq${vs}==${vs}eq-nl${vs}	   ${fs}t--${fs}$seq${fs}$neq
+#o${fs}${vs}dpkg${vs}	      ${fs}${vs}test${vs}	  ${fs}${vs}ne${vs}!=${vs}<>${vs}ne-nl${vs}${fs}t--${fs}$sne${fs}$nne
+#o${fs}${vs}stow${vs}	      ${fs}${vs}test${vs}	  ${fs}${vs}ne${vs}!=${vs}ne-nl${vs}	   ${fs}t--${fs}$sne${fs}$nne
 #o${fs}${vs}dpkg${vs}stow${vs}${fs}${vs}test${vs}	  ${fs}${vs}ge${vs}>=${vs}		   ${fs}tbd${fs}$sgt${fs}$ngt
 #o${fs}${vs}dpkg${vs}stow${vs}${fs}${vs}test${vs}	  ${fs}${vs}ge-nl${vs}			   ${fs}tbd${fs}$sgt${fs}$ngt${fs}F
 #o${fs}${vs}dpkg${vs}	      ${fs}${vs}test${vs}	  ${fs}${vs}ge${vs}>${vs}		   ${fs}tbd${fs}$sgt${fs}$ngt${fs}${fs}y
@@ -165,10 +172,10 @@ verscmp_syntax() {
 #o${fs}${vs}dpkg${vs}stow${vs}${fs}${vs}expr${vs}fast${vs}${fs}${vs}le${vs}<=${vs}		   ${fs}eb-${fs}$slt${fs}$sle
 #o${fs}${vs}dpkg${vs}stow${vs}${fs}${vs}expr${vs}fast${vs}${fs}${vs}le-nl${vs}			   ${fs}eb-${fs}$slt${fs}$sle${fs}F
 #o${fs}${vs}dpkg${vs}	      ${fs}${vs}expr${vs}fast${vs}${fs}${vs}le${vs}<${vs}		   ${fs}eb-${fs}$slt${fs}$sle${fs}${fs}y
-#o${fs}${vs}dpkg${vs}	      ${fs}${vs}expr${vs}fast${vs}${fs}${vs}eq${vs}eq-nl${vs}==${vs}=${vs} ${fs}e--${fs}$seq${fs}$seq
-#o${fs}${vs}stow${vs}	      ${fs}${vs}expr${vs}fast${vs}${fs}${vs}eq${vs}eq-nl${vs}==${vs}	   ${fs}e--${fs}$seq${fs}$seq
-#o${fs}${vs}dpkg${vs}	      ${fs}${vs}expr${vs}fast${vs}${fs}${vs}ne${vs}ne-nl${vs}!=${vs}<>${vs}${fs}e--${fs}$sne${fs}$sne
-#o${fs}${vs}stow${vs}	      ${fs}${vs}expr${vs}fast${vs}${fs}${vs}ne${vs}ne-nl${vs}!=${vs}	   ${fs}e--${fs}$sne${fs}$sne
+#o${fs}${vs}dpkg${vs}	      ${fs}${vs}expr${vs}fast${vs}${fs}${vs}eq${vs}==${vs}=${vs}eq-nl${vs} ${fs}e--${fs}$seq${fs}$seq
+#o${fs}${vs}stow${vs}	      ${fs}${vs}expr${vs}fast${vs}${fs}${vs}eq${vs}==${vs}eq-nl${vs}	   ${fs}e--${fs}$seq${fs}$seq
+#o${fs}${vs}dpkg${vs}	      ${fs}${vs}expr${vs}fast${vs}${fs}${vs}ne${vs}!=${vs}<>${vs}ne-nl${vs}${fs}e--${fs}$sne${fs}$sne
+#o${fs}${vs}stow${vs}	      ${fs}${vs}expr${vs}fast${vs}${fs}${vs}ne${vs}!=${vs}ne-nl${vs}	   ${fs}e--${fs}$sne${fs}$sne
 #o${fs}${vs}dpkg${vs}stow${vs}${fs}${vs}expr${vs}fast${vs}${fs}${vs}ge${vs}>=${vs}		   ${fs}eb-${fs}$sgt${fs}$sge
 #o${fs}${vs}dpkg${vs}stow${vs}${fs}${vs}expr${vs}fast${vs}${fs}${vs}ge-nl${vs}			   ${fs}eb-${fs}$sgt${fs}$sge${fs}F
 #o${fs}${vs}dpkg${vs}	      ${fs}${vs}expr${vs}fast${vs}${fs}${vs}ge${vs}>${vs}		   ${fs}eb-${fs}$sgt${fs}$sge${fs}${fs}y
@@ -290,15 +297,18 @@ EOF`"
 ##  verscmp_help()		Show help
 ##
 ##  Non-local variables:
-##	- command	(R) command name
+##	- command	    (R) command name
+##	- default_frontend  (R) default frontend
+##	- default_backend   (R) default backend
 ##----------------------------------------------------------------------------
 verscmp_help() {
     cat <<EOF
-Usage: $command [OPTION ...] VERSION1 OP VERSION2
-	Compare version strings.
+Usage: $command [OPTION ...] VERSION1 RELOP VERSION2
+Check if VERSION1 is RELOP VERSION2, where RELOP is a relational operator.
 
 Valid options are:
  -h, --help		Show help
+     --help-operators	Show help about relational operators
  -V, --version		Show version information
  -v, --verbose		Be verbose
  -m, --mode, --frontend=FRONTEND
@@ -308,6 +318,24 @@ Valid options are:
 
 Valid frontends are: `verscmp_syntax list-frontends $default_frontend`
 Valid backends  are: `verscmp_syntax list-backends  $default_backend`
+EOF
+}
+
+##----------------------------------------------------------------------------
+##  verscmp_help_operators()	Show help about relational operators
+##
+##  Non-local variables:
+##	- command	(R) command name
+##	- frontend	(R) selected frontend
+##	- backend	(R) selected backend
+##----------------------------------------------------------------------------
+verscmp_help_operators() {
+    cat <<EOF
+Usage: $command [OPTION ...] VERSION1 RELOP VERSION2
+Check if VERSION1 is RELOP VERSION2, where RELOP is a relational operator.
+
+Valid relational operators for front-/backend combination $QB$frontend/$backend$QE are:
+`verscmp_syntax list-operators $frontend $backend`
 EOF
 }
 
@@ -337,7 +365,7 @@ EOF
 					## Legacy; complain and abort!
 } || case $? in
     4)	optstring=hVvm:
-	longopts=trace,help,version,verbose,mode:,frontend:
+	longopts=trace,help,help-operators,version,verbose,mode:,frontend:
 	longopts=$longopts,target:,backend:
 					## Modern; preset short and long
 	;;				## option lists.
@@ -357,6 +385,8 @@ while shift; do				## Process parsed options...
     case $1 in
 	--trace)	TRACE='set -x'		;;
 	-h|--help)	action=help		;;
+	--help-operators)
+			action=help-operators	;;
 	-V|--version)	action=version		;;
 	-v|--verbose)	verbose=y		;;
 	-m|--mode|--frontend)
@@ -370,8 +400,9 @@ verscmp_syntax frontend "$frontend" && verscmp_syntax backend  "$backend" || {
     exit 2				## Validate (and canonify) front- and
 }					## backend or die.
 case ${action-} in			## Perform which action?
-    help)	    verscmp_help   ; exit 0	;;
-    version)	    verscmp_version; exit 0	;;
+    help)	    verscmp_help	    ; exit 0	;;
+    help-operators) verscmp_help_operators  ; exit 0	;;
+    version)	    verscmp_version	    ; exit 0	;;
 esac
 ${TRACE-}				## Start tracing if requested.
 case ${4+4}${3+=}${2+=} in		## Usage OK?
