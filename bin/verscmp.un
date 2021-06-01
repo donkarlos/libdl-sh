@@ -214,6 +214,7 @@ EOF
 ##		a number (to stay compatible to dpkg(1)'s notion of UVs).
 ##
 ##  Non-local variables:
+##	- command	(R) command name
 ##	- BorF		(R) see note (1)
 ##	- ftag		(R) see note (2)
 ##	- re_ED		(R) unanchored with-EP/with-DR version RE
@@ -292,7 +293,9 @@ verscmp_collate_version() {
     ' <<EOF
 #$ftag#$1
 EOF
-    `"					## Emit collated VERSION.
+    `" || {				## Collation succeeded?
+	echo "$command: $1: invalid version!" >&2; return 2
+    }					## No, complain and indicate failure!
 }
 
 ##----------------------------------------------------------------------------
@@ -412,12 +415,8 @@ case ${4+4}${3+=}${2+=} in		## Usage OK?
 	verscmp_syntax operator "$frontend" "$backend" "$2" || exit $?
 					## Validate (and canonify) operator
 					## or die.
-	tv1=`verscmp_collate_version "$1"` || {
-	    echo "$command: Invalid version $QB$1$QE!" >&2; exit 2
-	}				## Collate VERSION1 or die.
-	tv2=`verscmp_collate_version "${3-}"` || {
-	    echo "$command: Invalid version $QB${3-}$QE!" >&2; exit 2
-	}				## Collate VERSION2 or die.
+	tv1=`verscmp_collate_version "$1"`    || exit $?
+	tv2=`verscmp_collate_version "${3-}"` || exit $?
 	;;
     *)  verscmp_help >&2; exit 2	## No, indicate abuse!
 	;;
