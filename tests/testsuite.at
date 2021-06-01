@@ -27,6 +27,7 @@ dnl			2021-05-08	Add libquote.sh tests.
 dnl			2021-05-14	Add libconf.sh and libundo.sh tests.
 dnl			2021-05-16	Add libemit.sh and libsafe.sh tests.
 dnl			2021-05-17	Add libsession.sh tests.
+dnl			2021-06-01	Add libxdg.sh tests.
 dnl
 dnl Initialization:
 dnl
@@ -67,6 +68,11 @@ dnl
 dnl Include libsafe.sh tests:
 dnl
 m4_include([libsafe.sh.at])
+
+dnl
+dnl Include libxdg.sh tests:
+dnl
+m4_include([libxdg.sh.at])
 
 dnl
 dnl Include libsession.sh tests:

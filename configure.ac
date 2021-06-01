@@ -32,6 +32,7 @@ dnl					cmp'.
 dnl		ks	2021-04-28	Import GNU Autotest-based test suite.
 dnl		ks	2021-05-17	Add sample library.
 dnl		ks	2021-05-31	Add API analysis script with frontend.
+dnl		ks	2021-06-01	Add libxdg.sh.
 dnl
 dnl NOTE:   (1)	Update the build system with autoreconf(1).
 dnl	    (2)	AM_INIT_AUTOMAKE() already invokes AC_ARG_PROGRAM, AC_PROG_-
@@ -74,6 +75,7 @@ AF_FINISH_FILES([
     lib/libsafe.sh
     lib/libsession.sh
     lib/libundo.sh
+    lib/libxdg.sh
     libexec/args.awk
     libexec/conf.awk
     tests/api-analysis

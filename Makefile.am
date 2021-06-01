@@ -40,6 +40,7 @@
 ##		ks	2021-05-31	Don't run `testsuite' if it can't be
 ##					made.
 ##					Add API analysis script with frontend.
+##		ks	2021-06-01	Add libxdg.sh with tests.
 ##
 ##  NOTE:   (1)	Update the build system with autoreconf(1).
 ##----------------------------------------------------------------------------
@@ -135,7 +136,8 @@ shlib_DATA		= lib/libconf.sh				\
 			  lib/libquote.sh				\
 			  lib/libsafe.sh				\
 			  lib/libsession.sh				\
-			  lib/libundo.sh
+			  lib/libundo.sh				\
+			  lib/libxdg.sh
 man_MANS		= doc/libconf.3sh				\
 			  doc/libdl-sh.1				\
 			  doc/libdl-sh.conf.5				\
@@ -158,7 +160,8 @@ TESTSUITE_INCLUDEES	= $(srcdir)/tests/package.m4			\
 			  tests/libquote.sh.at				\
 			  tests/libsafe.sh.at				\
 			  tests/libsession.sh.at			\
-			  tests/libundo.sh.at
+			  tests/libundo.sh.at				\
+			  tests/libxdg.sh.at
 TESTSUITE_REQUISITES	= tests/atconfig				\
 			  tests/atlocal 				\
 			  tests/api-analysis 				\

@@ -1,0 +1,116 @@
+#! /bin/sh ##
+#-----------------------------------------------------------------------------
+#   libxdg.sh		- XDG base directory library
+#
+#   Copyright © 2021 Das Computerlabor (DCl-M)
+#
+#   This library is free software; you can redistribute it and/or
+#   modify it under the terms of the GNU Lesser General Public License
+#   as published by the Free Software Foundation; either
+#   version 2.1 of the License, or (at your option) any later version.
+#
+#   This library is distributed in the hope that it will be useful,
+#   but WITHOUT ANY WARRANTY; without even the implied warranty of
+#   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+#   Lesser General Public License for more details.
+#
+#   You should have received a copy of the GNU Lesser General Public License
+#   along with this library; if not, write to the Free Software Founda-
+#   tion, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
+##
+##  AUTHOR(S):	ks	Karl Schmitz <ks@computerlabor.org>
+##
+##  WRITTEN BY:	ks	2021-06-01
+##  CHANGED BY:
+##----------------------------------------------------------------------------
+##  Global variables:
+#-----------------------------------------------------------------------------
+xdg_package=@PACKAGE_TARNAME@		## Define source package name and
+xdg_version=@PACKAGE_VERSION@		## version.
+readonly xdg_package xdg_version; unset xdg_ro xdg_api
+					## Discard spurious environment.
+
+##----------------------------------------------------------------------------
+##  xdg_meta(META [ARG ...]) Perform META operation (with ARGs)
+##----------------------------------------------------------------------------
+xdg_meta() {
+    local mp=xdg_ ms=\;			## Set meta prefix and separator.
+					## (dl_apis() needs them!)
+
+    case ${2+=}${1+$1-}${2-} in		## Which META operation?
+	=get-apis)			## Inquire APIs...
+	    shift 2 && dl_apis ${1+"$@"} <<EOF
+a${ms}0
+f${ms}0${ms}meta(META [ARG ...])${ms}2-4
+f${ms}0${ms}regular(&NAME VALUE)${ms}2
+EOF
+	    ;;
+	=get-package|=get-version|=get-api)
+					## Inquire internal variable...
+	    eval 'case ${'"$mp$2"'+=} in
+		=)  echo "$'"$mp$2"'"	;;
+		*)  return 1		;;
+	    esac'
+	    ;;
+	=set-*)				## Set internal variable once...
+	    case ${4+4}${3+=}$2 in	## Usage OK?
+		=api)	${mp}meta get apis | fgrep -qxe "$3"
+			;;		## Yes, try to validate API version.
+		*)	return 2	## No, indicate abuse!
+			;;
+	    esac && dl_readonly xdg "$2" "$3"
+	    ;;
+	=session-init|=session-load|=session-dump|=session-exit)
+	    :				## Session init/load/dump/exit...
+	    ;;				## ...is a no-op.
+	*)  return 2			## Anything else...
+	    ;;				## ...is abuse!
+    esac
+}
+
+##----------------------------------------------------------------------------
+##  xdg_regular(&NAME VALUE)	Regularize XDG environment variable
+##----------------------------------------------------------------------------
+xdg_regular() {
+    local p=; case $- in *x*) p=p;; esac
+					## Prepare sed(1) tracing.
+    case ${3+3}${2+=$1} in		## Usage OK?/Path or directory?
+	=XDG_?*_DIRS)			## Y/Path:
+	    eval "`sed "$p"'
+		:0'"$NL"'s|\(:/[^/:][^/:]*\(/[^/:][^/:]*\)*\)/:|\1:|g'"$p"';t0
+		/:[^/]/{;s|^.*$|unset '"$1"'; return 1|;q;}
+		/^#:.*['"$dl_cs_sh"']/{
+		    s|'"$SQ"'|&'"$BS$BS"'&&|g;s|^#:|&'"$SQ"'|;s|:$|'"$SQ"'&|'"$p"'
+		};s|:$|; export '"$1"'|'"$p"';s|^#:|'"$1"'=|;q
+	    ' <<EOF
+#:$2:
+EOF`"					## Export NAME=VALUE unless some com-
+	    ;;				## ponent isn't absolute.
+	=XDG_?*_HOME|=XDG_?*_DIR)	## Y/Directory:
+	    eval "`sed "$p"'
+		:0'"$NL"'s|^\(#:/[^/:][^/:]*\(/[^/:][^/:]*\)*\)/:$|\1:|'"$p"';t0
+		/^#:[^/]/{;s|^.*$|unset '"$1"'; return 1|;q;}
+		/^#:.*['"$dl_cs_sh"']/{
+		    s|'"$SQ"'|&'"$BS$BS"'&&|g;s|^#:|&'"$SQ"'|;s|:$|'"$SQ"'&|'"$p"'
+		};s|:$|; export '"$1"'|'"$p"';s|^#:|'"$1"'=|;q
+	    ' <<EOF
+#:$2:
+EOF`"					## Export NAME=VALUE unless directory
+	    ;;				## isn't absolute.
+	*)  return 2			## N/?: Indicate abuse!
+	    ;;
+    esac
+}
+
+##----------------------------------------------------------------------------
+##  Initialization:
+##----------------------------------------------------------------------------
+xdg_regular XDG_CACHE_HOME  "${XDG_CACHE_HOME:-${HOME:?}/.cache}"	&&
+xdg_regular XDG_CONFIG_DIRS "${XDG_CONFIG_DIRS:-/etc/xdg}"		&&
+xdg_regular XDG_CONFIG_HOME "${XDG_CONFIG_HOME:-${HOME:?}/.config}"	&&
+xdg_regular XDG_DATA_DIRS   "${XDG_DATA_DIRS:-/usr/local/share:/usr/share}" &&
+xdg_regular XDG_DATA_HOME   "${XDG_DATA_HOME:-${HOME:?}/.local/share}"	&&
+xdg_regular XDG_STATE_HOME  "${XDG_STATE_HOME:-${HOME:?}/.local/state}"	&&
+xdg_regular XDG_RUNTIME_DIR "${XDG_RUNTIME_DIR:-/run/user/`id -u`}"	&&
+dl_readonly xdg api 0			## Regularize XDG environment and set
+					## sole API version once.
