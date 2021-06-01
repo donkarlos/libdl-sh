@@ -268,12 +268,13 @@ EOF
 ##  Et voilà!
 ##----------------------------------------------------------------------------
 verscmp_collate_version() {
-    local p=; case $- in *x*) p=p;; esac
-					## Prepare sed(1) tracing.
     case ${2+2}${1+=}/${BorF:=B}/${ftag+=$ftag} in
 					## Usage OK?
-	=/[BF]/=[ds])	;;		## Yes.
-	*)  return 2	;;		## No, indicate abuse!
+	=/[BF]/=[ds])			## Yes, set up sed(1) tracing.
+	    local p=; case $- in *x*) p=p;; esac
+	    ;;
+	*)  return 2			## No, indicate abuse!
+	    ;;
     esac; eval "`sed '
 	s/^#[ds]#$/#'"$BorF"'#/'"$p"';t1
 	s/^#d#\('"$re_ED"'\)$/#B#\1/'"$p"';t1
