@@ -29,28 +29,31 @@
 .\#					Add 'exec' action.
 .\#		ks	2020-05-12	Fix 'exec' action's usage and describe
 .\#					how to use it as a test aid.
+.\#		ks	2021-06-01	Make libdl-sh(1) the demand-loading
+.\#					library's trusted helper.
 .\#
 .\# NOTE: (1)	Please adjust below date whenever revising the manual page.
 .\#		vvvvvv
-.TH LIBDL-SH 1 2020-05-12 "@PACKAGE_TARNAME@ @PACKAGE_VERSION@" "Shell Programming"
+.TH LIBDL-SH 1 2021-06-01 "@PACKAGE_TARNAME@ @PACKAGE_VERSION@" "Shell Programming"
 
 .SH NAME
-@PACKAGE_TARNAME@ \- Shell library demand-loading helper
+@PACKAGE_TARNAME@ \- Demand-loading library's trusted helper
 
 .SH SYNOPSIS
 \fB@PACKAGE_TARNAME@\fP \fIACTION\fP [\fIARGUMENT\fP ...]
 
 .SH DESCRIPTION
-The demand-loading library \fBlibdl.sh\fP and its helper
+The demand-loading library \fBlibdl.sh\fP and its trusted helper
 \fB@PACKAGE_TARNAME@\fP are the core of @PACKAGE_TARNAME@'s shell library
 demand-loading mechanism. Shell applications wishing to use the mechanism
 invoke \fB@PACKAGE_TARNAME@ load\fP (see below for details) to load
-\fBlibdl.sh\fP, thereby instantiating the mechanism within the application.
+\fBlibdl.sh\fP, thereby instantiating the demand-loading mechanism within the
+application.
 
 .SH ACTIONS
 .TP
 \fBload\fP
-Write a shell statement to standard output which, when executed, loads (i.e.,
+Write a shell statement to standard output that, when executed, loads (i.e.,
 sources) the demand-loading library \fBlibdl.sh\fP (see \fBFILES\fP below) or
 exits the application with status \fB127\fP (like a binary executable that
 fails to load a shared library would). Thus, an application invokes
@@ -154,7 +157,7 @@ are parsed.
 .PD 0
 .TP
 \fB@shlibdir@/libdl.sh\fP, \fB@bindir@/@PACKAGE_TARNAME@\fP
-The demand-loading library and its helper described here.
+The demand-loading library and its trusted helper described here.
 .TP
 \fB$HOME/.@PACKAGE_TARNAME@.conf\fP
 The user-specific demand-loading configuration file augmenting the library

@@ -1,6 +1,6 @@
 #! /bin/sh
 #-----------------------------------------------------------------------------
-#   libdl-sh			- libdl.sh Demand-loading helper
+#   libdl-sh			- Demand-loading library's trusted helper
 #
 #   Copyright © 2013-2021 Das Computerlabor (DCl-M)
 #
@@ -31,6 +31,8 @@
 ##					stallations in 'exec' action.
 ##		ks	2021-05-02	Add command line parsing.
 ##		ks	2021-05-12	Remove LIBDL_SH_DESTDIR nonsense.
+##		ks	2021-06-01	Make libdl-sh(1) the demand-loading
+##					library's trusted helper.
 ##----------------------------------------------------------------------------
 ##  Initialization:
 #-----------------------------------------------------------------------------
@@ -84,16 +86,17 @@ include() {
 libdl_sh_help() {
     cat <<EOF
 Usage: $command [OPTION ...] ACTION [ARG ...]
+Demand-loading library's trusted helper.
 
 Valid options are:
  -h, --help	Show help
  -V, --version	Show version information
 
 Valid actions are:
- load		Print command that loads libdl.sh
+ load		Print sh(1) command that loads libdl.sh
  path		Print library search path
  exec COMMAND [ARG ...]
-		Execute COMMAND in suitable environment
+		Execute COMMAND [ARG ...] in suitable environment
  echo NAME ...	Print installation path(s) named NAME
 EOF
 }
@@ -107,7 +110,7 @@ EOF
 libdl_sh_version() {
     cat <<EOF
 $command (@PACKAGE_NAME@) @PACKAGE_VERSION@
-Copyright © 2016-2021 Das Computerlabor
+Copyright © 2013-2021 Das Computerlabor
 License GPLv2: GNU GPL version 2 or later
 This is free software: you are free to change and redistribute it.
 There is NO WARRANTY, to the extent permitted by law.
