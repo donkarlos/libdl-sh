@@ -412,14 +412,12 @@ case ${action-} in			## Perform which action?
 esac
 ${TRACE-}				## Start tracing if requested.
 case ${4+4}${3+=}${2+=} in		## Usage OK?
-    =*)					## Yes,...
-	verscmp_syntax operator "$frontend" "$backend" "$2" || exit $?
-					## Validate (and canonify) operator
-					## or die.
-	tv1=`verscmp_collate_version "$1"`    || exit $?
+    =*)	tv1=`verscmp_collate_version "$1"`				&&
+	verscmp_syntax operator "$frontend" "$backend" "$2"		&&
 	tv2=`verscmp_collate_version "${3-}"` || exit $?
-	;;
-    *)  verscmp_help >&2; exit 2	## No, indicate abuse!
+					## Yes: Validate VERSION1, RELOP, and
+	;;				## VERSION2 or die.
+    *)  verscmp_help >&2; exit 2	## No: Show help and indicate abuse!
 	;;
 esac
 
