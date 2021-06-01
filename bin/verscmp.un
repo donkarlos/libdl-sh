@@ -449,12 +449,17 @@ eval "`sed "$p"'
 ' <<EOF
 #$form#$lh0#$tv1#$tv2#$rh0
 EOF
-`" || case $?:$status in		## What's the comparison's outcome?
-    1:3)				## Internal error:
+`"; case ${verbose-n}:$?:$status in	## Verbose?/Comparison's outcome?
+    ?:1:3)				## ?/Internal error in backend:
 	echo "$command: Internal error in backend!" >&2
-	exit $status	;;		## Issue error message and indicate so!
-    1:*)				## Comparison failed:
-	exit $?		;;		## Indicate so!
-esac; case ${verbose-n} in
-    y)	echo "$1 $operator $3"
-esac
+	;;				## Issue error message and indicate so!
+    y:1:*)				## Y/Failed:
+	status=$?; echo "$1 $HS$operator ${3-}"
+	;;				## Update status and show result.
+    y:0:*)				## Y/Succeeded:
+	echo "$1 $operator ${3-}"	## Show result.
+	;;
+    n:1:*)				## N/Failed:
+	status=$?			## Update status.
+	;;
+esac; exit $status			## Indicate success or failure.
