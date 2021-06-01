@@ -141,7 +141,7 @@ verscmp_syntax() {
 		s/'"$fs"'/'"$SQ"' obsolete='"$SQ"'/'"$p"'
 		s/'"$fs"'.*$//'"$p"';s/$/'"$SQ"'; readonly form sop nop/'"$p"'
 		s/^#//;q
-	    };$!d;s/^.*$/test/'`"
+	    };$!d;s/^.*$/status=6; test/'`"
 	    ;;
 	*)  return 2			## N/?: Indicate abuse!
 	    ;;
@@ -189,8 +189,8 @@ EOF
 	    echo "$command: $2: no such $1!" >&2
 	    ;;				## Issue error message!
 	1:operator:*)			## Unknown operator:
-	    echo "$command: $4: no such $1!" >&2; return 1
-	    ;;				## Complain and indicate failure!
+	    echo "$command: $4: no such relational $1!" >&2
+	    ;;				## Issue error message!
 	0:operator:y)			## Obsolete operator:
 	    echo "$command: $4: obsolete relational operator (use $QB$operator$QE instead)." >&2
 	    ;;				## Issue warning.
@@ -409,7 +409,7 @@ esac
 ${TRACE-}				## Start tracing if requested.
 case ${4+4}${3+=}${2+=} in		## Usage OK?
     =*)					## Yes,...
-	verscmp_syntax operator "$frontend" "$backend" "$2" || exit 2
+	verscmp_syntax operator "$frontend" "$backend" "$2" || exit $?
 					## Validate (and canonify) operator
 					## or die.
 	tv1=`verscmp_collate_version "$1"` || {
