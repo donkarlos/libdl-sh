@@ -365,16 +365,15 @@ while shift; do				## Process parsed options...
 			shift; backend=$1	;;
 	--)		shift; break		;;
     esac
-done; case ${action-} in
-    help)	verscmp_help   ; exit 0	;;
-    version)	verscmp_version; exit 0	;;
+done; unset ftag lh0 lh1 bh1 rh1 rh0 operator form sop nop BorF
+verscmp_syntax frontend "$frontend" && verscmp_syntax backend  "$backend" || {
+    exit 2				## Validate (and canonify) front- and
+}					## backend or die.
+case ${action-} in			## Perform which action?
+    help)	    verscmp_help   ; exit 0	;;
+    version)	    verscmp_version; exit 0	;;
 esac
 ${TRACE-}				## Start tracing if requested.
-unset ftag lh0 lh1 bh1 rh1 rh0 operator form sop nop BorF
-verscmp_syntax frontend "$frontend"					&&
-verscmp_syntax backend  "$backend" || exit 2
-					## Validate (and canonify) front- and
-					## backend or die.
 case ${4+4}${3+=}${2+=} in		## Usage OK?
     =*)					## Yes,...
 	verscmp_syntax operator "$frontend" "$backend" "$2" || exit 2
