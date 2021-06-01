@@ -213,7 +213,8 @@ dl_inform() {
 	s/^/invo='"$SQ"'/;s/$/'"$SQ"'/;:p
     ' <<EOF
 $func([$#]$args)
-EOF`"					## Rewrite invocation.
+EOF
+`"					## Rewrite invocation.
     case $dl_loaded in			## Library loaded?
 	*:${lib-}:*)			## Yes, try to determine package...
 	    package=`${lib}_meta get package` || unset package
@@ -388,7 +389,8 @@ dl_split() {
 	}
     ' <<EOF
 $*
-EOF`"
+EOF
+`"
 }
 
 ##----------------------------------------------------------------------------

@@ -84,7 +84,8 @@ xdg_regular() {
 		};s|:$|; export '"$1"'|'"$p"';s|^#:|'"$1"'=|;q
 	    ' <<EOF
 #:$2:
-EOF`"					## Export NAME=VALUE unless some com-
+EOF
+	    `"				## Export NAME=VALUE unless some com-
 	    ;;				## ponent isn't absolute.
 	=XDG_?*_HOME|=XDG_?*_DIR)	## Y/Directory:
 	    eval "`sed "$p"'
@@ -95,7 +96,8 @@ EOF`"					## Export NAME=VALUE unless some com-
 		};s|:$|; export '"$1"'|'"$p"';s|^#:|'"$1"'=|;q
 	    ' <<EOF
 #:$2:
-EOF`"					## Export NAME=VALUE unless directory
+EOF
+	    `"				## Export NAME=VALUE unless directory
 	    ;;				## isn't absolute.
 	*)  return 2			## N/?: Indicate abuse!
 	    ;;

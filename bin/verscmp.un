@@ -290,7 +290,8 @@ verscmp_collate_version() {
 	s/^#/echo '"$SQ"'/;s/#$/'"$SQ"'/;q
     ' <<EOF
 #$ftag#$1
-EOF`"
+EOF
+    `"					## Emit collated VERSION.
 }
 
 ##----------------------------------------------------------------------------
@@ -447,7 +448,8 @@ eval "`sed "$p"'
     s/^#[^#]*#//
 ' <<EOF
 #$form#$lh0#$tv1#$tv2#$rh0
-EOF`" || case $?:${status-0} in
+EOF
+`" || case $?:${status-0} in		## What's the comparison's outcome?
     1:6)    echo "$command: Internal backend error!" >&2; exit 2;;
     *)	    exit $?						;;
 esac; case ${verbose-n} in
