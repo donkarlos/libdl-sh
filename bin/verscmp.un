@@ -192,8 +192,8 @@ EOF
 	    echo "$command: $4: no such relational $1!" >&2
 	    ;;				## Issue error message!
 	0:operator:y)			## Obsolete operator:
-	    echo "$command: $4: obsolete relational operator (use $QB$operator$QE instead)." >&2
-	    ;;				## Issue warning.
+	    echo "$command: $4: obsolete relational $1 (use $QB$operator$QE instead)." >&2
+	    ;;				## Issue warning with hint.
     esac; return $status		## Indicate success or failure.
 }
 
