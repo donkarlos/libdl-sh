@@ -315,11 +315,11 @@ Valid options are:
  -h, --help		Show help
      --help-operators	Show help about relational operators
  -V, --version		Show version information
- -v, --verbose		Be verbose
- -m, --mode, --frontend=FRONTEND
-			Collate VERSIONs with FRONTEND
-     --target, --backend=BACKEND
-			Compile with BACKEND
+ -v, --verbose		Be verbose (i.e., show outcome of comparison)
+ -f, --frontend=FRONTEND
+			Use FRONTEND to validate and collate VERSIONs
+			as well as to validate the relational operator
+ -b, --backend=BACKEND	Use BACKEND  to compare collated VERSIONs
 
 Valid frontends are: `verscmp_syntax list-frontends $std_frontend`
 Valid backends  are: `verscmp_syntax list-backends  $std_backend`
@@ -371,9 +371,8 @@ EOF
     echo "$command: Legacy getopt(1) found!" >&2; exit 2
 					## Legacy; complain and abort!
 } || case $? in
-    4)	optstring=hVvm:
-	longopts=trace,help,help-operators,version,verbose,mode:,frontend:
-	longopts=$longopts,target:,backend:
+    4)	optstring=hVvf:m:b:
+	longopts=trace,help,help-operators,version,verbose,mode:,frontend:,backend:
 					## Modern; preset short and long
 	;;				## option lists.
     *)	echo "$command: Missing getopt(1)!" >&2
@@ -396,10 +395,9 @@ while shift; do				## Process parsed options...
 			action=help-operators	;;
 	-V|--version)	action=version		;;
 	-v|--verbose)	verbose=y		;;
-	-m|--mode|--frontend)
+	-f|--frontend|-m|--mode)
 			shift; sel_frontend=$1	;;
-	--target|--backend)
-			shift; sel_backend=$1	;;
+	-b|--backend)	shift; sel_backend=$1	;;
 	--)		shift; break		;;
     esac
 done; unset ftag lh0 lh1 bh1 rh1 rh0 operator form sop nop BorF
