@@ -185,13 +185,13 @@ verscmp_syntax() {
 EOF
     case $?:$1:${obsolete-} in		## What's the lookup's outcome?
 	1:frontend:|1:backend:)		## Unknown front-/backend:
-	    echo "$command: $2: no such $1!" >&2
+	    echo "$command: $QB$2$QE: no such $1!" >&2
 	    ;;				## Issue error message!
 	1:operator:*)			## Unknown operator:
-	    echo "$command: $4: no such relational $1!" >&2
+	    echo "$command: $QB$4$QE: no such relational $1!" >&2
 	    ;;				## Issue error message!
 	0:operator:y)			## Obsolete operator:
-	    echo "$command: $4: obsolete relational $1 (use $QB$operator$QE instead)." >&2
+	    echo "$command: $QB$4$QE: legacy relational $1 (use $QB$operator$QE instead)." >&2
 	    ;;				## Issue warning with hint.
     esac; return $status		## Indicate success or failure.
 }
@@ -294,7 +294,7 @@ verscmp_collate_version() {
 #$ftag#$1
 EOF
     `" || {				## Collation succeeded?
-	echo "$command: $1: invalid version!" >&2; return 2
+	echo "$command: $QB$1$QE: invalid version!" >&2; return 2
     }					## No, complain and indicate failure!
 }
 
