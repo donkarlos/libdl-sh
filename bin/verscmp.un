@@ -74,9 +74,8 @@ readonly slt sle seq sgt sge sne nlt nle neq ngt nge nne
 					## Preset string and numeric compari-
 					## son operators (as if they'd been
 					## quoted with 'quote sh rs /').
-default_frontend=simple default_backend=fast
-readonly default_frontend default_backend
-					## Define default front- and backend.
+std_frontend=simple std_backend=fast	## Define default front- and backend.
+readonly std_frontend std_backend
 
 ##----------------------------------------------------------------------------
 ##  verscmp_syntax(WHAT [ARG ...])	Do syntax table lookup
@@ -303,9 +302,9 @@ EOF
 ##  verscmp_help()		Show help
 ##
 ##  Non-local variables:
-##	- command	    (R) command name
-##	- default_frontend  (R) default frontend
-##	- default_backend   (R) default backend
+##	- command	(R) command name
+##	- std_frontend	(R) default frontend
+##	- std_backend	(R) default backend
 ##----------------------------------------------------------------------------
 verscmp_help() {
     cat <<EOF
@@ -322,8 +321,8 @@ Valid options are:
      --target, --backend=BACKEND
 			Compile with BACKEND
 
-Valid frontends are: `verscmp_syntax list-frontends $default_frontend`
-Valid backends  are: `verscmp_syntax list-backends  $default_backend`
+Valid frontends are: `verscmp_syntax list-frontends $std_frontend`
+Valid backends  are: `verscmp_syntax list-backends  $std_backend`
 EOF
 }
 
@@ -384,7 +383,7 @@ args=`getopt -n"$command" -o"$optstring" -l"$longopts" -- ${1+"$@"}` || {
     verscmp_help >&2; exit 2		## No, show help and abort!
 }
 eval set shiftee "$args"; unset optstring longopts args
-frontend=$default_frontend backend=$default_backend
+frontend=$std_frontend backend=$std_backend
 					## Preset front- and backend from
 unset TRACE status action verbose	## defaults.
 while shift; do				## Process parsed options...
