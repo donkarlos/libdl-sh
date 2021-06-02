@@ -331,15 +331,17 @@ EOF
 ##
 ##  Non-local variables:
 ##	- command	(R) command name
-##	- frontend	(R) selected frontend
-##	- backend	(R) selected backend
+##	- sel_frontend	(R) selected  frontend
+##	- sel_backend	(R) selected  backend
+##	- frontend	(R) effective frontend
+##	- backend	(R) effective backend
 ##----------------------------------------------------------------------------
 verscmp_help_operators() {
     cat <<EOF
 Usage: $command [OPTION ...] VERSION1 RELOP VERSION2
 Check if VERSION1 is RELOP VERSION2, where RELOP is a relational operator.
 
-Valid relational operators for front-/backend combination $QB$frontend/$backend$QE are:
+Valid relational operators for front-/backend combination $QB$sel_frontend/$sel_backend$QE are:
 `verscmp_syntax list-operators $frontend $backend`
 EOF
 }
@@ -383,9 +385,9 @@ args=`getopt -n"$command" -o"$optstring" -l"$longopts" -- ${1+"$@"}` || {
     verscmp_help >&2; exit 2		## No, show help and abort!
 }
 eval set shiftee "$args"; unset optstring longopts args
-frontend=$std_frontend backend=$std_backend
-					## Preset front- and backend from
-unset TRACE status action verbose	## defaults.
+sel_frontend=$std_frontend sel_backend=$std_backend
+					## Preset selected front- and backend
+unset TRACE status action verbose	## from defaults.
 while shift; do				## Process parsed options...
     case $1 in
 	--trace)	TRACE='set -x'		;;
@@ -395,15 +397,15 @@ while shift; do				## Process parsed options...
 	-V|--version)	action=version		;;
 	-v|--verbose)	verbose=y		;;
 	-m|--mode|--frontend)
-			shift; frontend=$1	;;
+			shift; sel_frontend=$1	;;
 	--target|--backend)
-			shift; backend=$1	;;
+			shift; sel_backend=$1	;;
 	--)		shift; break		;;
     esac
 done; unset ftag lh0 lh1 bh1 rh1 rh0 operator form sop nop BorF
-verscmp_syntax frontend "$frontend" && verscmp_syntax backend "$backend" || {
-    exit $?				## Validate (and canonify) front- and
-}					## backend or die.
+verscmp_syntax frontend "$sel_frontend" 				&&
+verscmp_syntax backend  "$sel_backend" || exit $?
+					## Validate front- and backend or die.
 case ${action-} in			## Perform which action?
     help)	    verscmp_help	    ; exit 0	;;
     help-operators) verscmp_help_operators  ; exit 0	;;
