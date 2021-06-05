@@ -1,4 +1,5 @@
-.\"								-*- nroff -*-
+.\" kate: syntax Troff Mandoc;					-*- nroff -*-
+.\"
 .\" libdl.3sh			- libdl(3sh) manual page
 .\"
 .\" Copyright © 2013-2021 Das Computerlabor (DCl-M)

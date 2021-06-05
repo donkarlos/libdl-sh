@@ -1,4 +1,5 @@
-.\"								-*- nroff -*-
+.\" kate: syntax Troff Mandoc;					-*- nroff -*-
+.\"
 .\" libdl-sh.conf.5		- libdl-sh.conf(5) manual page
 .\"
 .\" Copyright (C) 2013-2017 Das Computerlabor (DCl-M)

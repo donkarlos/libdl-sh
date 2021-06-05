@@ -1,4 +1,5 @@
-.\"								-*- nroff -*-
+.\" kate: syntax Troff Mandoc;					-*- nroff -*-
+.\"
 .\" libundo.3sh			- libundo(3sh) manual page
 .\"
 .\" Copyright © 2015-2021 Das Computerlabor (DCl-M)
