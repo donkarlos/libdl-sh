@@ -397,6 +397,14 @@ A carriage return.
 .B NL
 A newline (i.e., line feed).
 .TP
+.B LB
+A left (opening) bracket
+.RB ( [ ).
+.TP
+.B RB
+A right (closing) bracket
+.RB ( ] ).
+.TP
 .B QB
 A leading quote (for use in messages).
 .TP
