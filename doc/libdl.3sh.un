@@ -156,12 +156,12 @@ by the following line:
 
 .IP \(bu
 \fBfull\fP represents each function within each API version by a line of three
-semicolon-separated fields: \fIVERSION\fP, \fISIGNATURE\fP, and \fIARGCS\fP,
+semicolon-separated fields: \fIVERSION\fP, \fISIGNATURE\fP, and \fIRANGE\fP,
 where the second has the format \fINAME\fP\fB(\fP\fIARGS\fP\fB)\fP and the
-latter is a (possibly open) range of valid $# values.
+latter is the (possibly open) range of valid \fB$#\fP values.
 
-For example, for API 1, \fBdl_atexit\fP(3sh) and \fBdl_exit\fP(3sh) would be
-represented by the following two lines:
+For example, \fBdl_atexit\fP(3sh) and \fBdl_exit\fP(3sh) would be represented
+by the following two lines for API version 1:
 
 .in +4
 \fB1;dl_atexit(HOOK);1\fP
