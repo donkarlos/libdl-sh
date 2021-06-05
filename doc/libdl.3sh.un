@@ -33,11 +33,13 @@
 .\#		ks	2017-07-08	Add service function dl_split().
 .\#		ks	2018-08-27	Document public variables.
 .\#		ks	2020-05-03	Document 'meta get apis r/o'.
-.\"		ks	2021-05-26	Replace dl_warn() with dl_inform().
+.\#		ks	2021-05-26	Replace dl_warn() with dl_inform().
+.\#		ks	2021-06-01	Make libdl-sh(1) the demand-loading
+.\#					library's trusted helper.
 .\#
 .\# NOTE: (1)	Please adjust below date whenever revising the manual page.
 .\#		vvvvvv
-.TH LIBDL 3SH 2021-05-26 "@PACKAGE_TARNAME@ @PACKAGE_VERSION@" "Shell Programming"
+.TH LIBDL 3SH 2021-06-01 "@PACKAGE_TARNAME@ @PACKAGE_VERSION@" "Shell Programming"
 
 .SH NAME
 dl_atload, dl_load, dl_atexit, dl_exit, dl_which, dl_dump, dl_meta
@@ -59,12 +61,12 @@ dl_atload, dl_load, dl_atexit, dl_exit, dl_which, dl_dump, dl_meta
 \fBdl_meta\fP \fIMETA\fP [\fIARG\fP ...]
 
 .SH DESCRIPTION
-The demand-loading library \fBlibdl.sh\fP and its helper \fBlibdl-sh\fP are the
-core of @PACKAGE_TARNAME@'s shell library demand-loading mechanism. After the
-demand-loading library itself has been loaded into the application with
-\fBlibdl-sh\ load\fP (see \fBSYNOPSIS\fP above) and initialized the library
-search path by parsing its configuration, further libraries may be loaded by
-invoking \fBdl_load\fP.
+The demand-loading library \fBlibdl.sh\fP and its trusted helper \fBlibdl-sh\fP
+are the core of @PACKAGE_TARNAME@'s shell library demand-loading mechanism.
+After the demand-loading library itself has been loaded by the application
+with \fBlibdl-sh\ load\fP (see \fBSYNOPSIS\fP above) and initialized the
+library search path by parsing its configuration, further libraries may be
+loaded by invoking \fBdl_load\fP.
 
 Applications having private library directories may augment the library search
 path by invoking \fBdl_meta pre libpath\fP before loading further libraries.
