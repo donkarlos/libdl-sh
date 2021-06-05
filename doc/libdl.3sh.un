@@ -66,19 +66,19 @@ are the core of @PACKAGE_TARNAME@'s shell library demand-loading mechanism.
 After the demand-loading library itself has been loaded by the application
 with \fBlibdl-sh\ load\fP (see \fBSYNOPSIS\fP above) and initialized the
 library search path by parsing its configuration, further libraries may be
-loaded by invoking \fBdl_load\fP.
+demand-loaded by invoking \fBdl_load\fP.
 
 Applications having private library directories may augment the library search
 path by invoking \fBdl_meta pre libpath\fP before loading further libraries.
 
 Applications and/or libraries may also register load-time hooks (i.e.,
 functions invoked after successfully loading a library) as well as exit-time
-hooks (i.e., functions invoked before ultimately terminating execution) with
-\fBdl_atload\fP and \fBdl_atexit\fP, respectively.
+hooks (i.e., functions invoked before ultimately terminating the application)
+with \fBdl_atload\fP and \fBdl_atexit\fP, respectively.
 
 Applications and/or libraries terminate execution by either \fBexit\fPing or
-invoking \fBdl_exit\fP, thereby triggering invocation of registered exit-time
-hooks.
+invoking \fBdl_exit\fP, thereby triggering the invocation of registered
+exit-time hooks.
 
 Applications and/or libraries wishing to inquire or modify certain library
 internals may do so by performing meta operations.
