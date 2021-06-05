@@ -93,9 +93,14 @@ After \fBdl_load\fP successfully loads some library \fILIB\fP, all registered
 load-time hooks are invoked in LRFI (last-registered first-invoked) order,
 with \fILIB\fP as the only argument.
 
-If some load-time hook fails (i.e., returns non-zero status), \fBdl_load\fP
-terminates execution by invoking \fBdl_exit\fP with the status returned by the
-failing hook.
+If some load-time hook's invocation fails (i.e., returns non-zero status),
+the application is terminated with exit status \fB127\fP (see \fBdl_load\fP
+below for details).
+
+As an exception to the above rule, after the first load-time hook has been
+registered, \fBdl_atload\fP invokes it for this library (e.g.,
+\fIHOOK\fP\ \fBdl\fP), also terminating the application should that invocation
+fail.
 
 .TP
 \fBdl_load\fP \fILIB\fP ...
