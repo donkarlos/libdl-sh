@@ -277,14 +277,14 @@ undo_keep() {
 }					## Keep selected undos on stack.
 
 ##----------------------------------------------------------------------------
-##  undo_exit(STATUS)		Apply cleanups/undos
+##  undo_exit([STATUS=1])	Apply cleanups/undos
 ##
-##  NOTE:   (1)	This function is registered as exit-time hook!
+##  NOTE:   (1)	This function is registered as libundo.sh's exit-time hook!
 ##----------------------------------------------------------------------------
 undo_exit() {
     case ${1-1}${undo_0tag-} in		## Exit with...
 	0)				## ...success and no cleanups tag?
-	    ;;				## What's done is done.
+	    ;;				## What's done is done!
 	0:*)				## ...success and cleanups tag?
 	    eval "`undo_emit pick "$undo_0tag"`"
 	    ;;				## Apply cleanups.
@@ -297,4 +297,5 @@ undo_exit() {
 ##----------------------------------------------------------------------------
 ##  Initialization:
 ##----------------------------------------------------------------------------
-dl_load quote && dl_atexit undo_exit
+dl_load quote && dl_atexit undo_exit	## Demand-load requisite library and
+					## register exit-time hook.
