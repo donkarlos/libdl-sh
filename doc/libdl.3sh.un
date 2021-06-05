@@ -172,7 +172,8 @@ by the following two lines for API version 1:
 
 .IP \(bu
 \fBlist\fP is similar to \fBfull\fP, except that \fB(\fP\fIARGS\fP\fB)\fP in
-the second field is omitted (i.e., just the function name is shown).
+the second field is omitted (i.e., just the function name appears in the
+second field).
 
 .IP \(bu
 \fBr/o\fP represents each read-only public variable (see section \fBPUBLIC
