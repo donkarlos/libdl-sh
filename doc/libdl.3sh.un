@@ -175,14 +175,13 @@ the second field is omitted (i.e., just the function name is shown).
 
 .IP \(bu
 \fBr/o\fP represents each read-only public variable (see section \fBPUBLIC
-VARIABLES\fP below) within each API version by a line of two
-semicolon-separated fields: \fIVERSION\fP and \fINAME\fP.
+VARIABLES\fP below) by a line containing \fINAME\fP.
 
-For example, for API 1, \fBdl_re_id\fP would be represented by the following
-line:
+For example, the read-only public variable \fBdl_re_id\fP would be represented
+by the following line:
 
 .in +4
-\fB1;dl_re_id\fP
+\fBdl_re_id\fP
 .in -4
 .RE
 
