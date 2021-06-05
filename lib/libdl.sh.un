@@ -434,7 +434,7 @@ dl_atload() {
 }
 
 ##----------------------------------------------------------------------------
-##  dl_load(LIB ...)		Load demanded libraries
+##  dl_load(LIB ...)		Demand-load libraries into application
 ##----------------------------------------------------------------------------
 dl_load() {
     local lib needed path
@@ -455,7 +455,7 @@ dl_load() {
 	    *)	needed=$dl_needed; dl_needed=$dl_needed$lib:
 		. "lib$lib.sh" || dl_exit 127
 		dl_needed=$needed; dl_loaded=:$lib$dl_loaded
-		eval "${dl_atloads-:}"	## No, mark it as needed, load it,
+		eval "${dl_atloads-}"	## No, mark it as needed, load it,
 		;;			## mark it as loaded, and invoke load-
 	esac				## time hooks.
     done; case ${dl_needed+:$dl_needed} in
