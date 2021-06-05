@@ -106,9 +106,10 @@ fail.
 \fBdl_load\fP \fILIB\fP ...
 Demand-load each given shell library \fILIB\fP into the application by looking
 for \fBlib\fP\fILIB\fP\fB.sh\fP along the library search path and sourcing the
-first one found. If \fILIB\fP can't be loaded (either because it isn't found
-or its initialization commands fail), the application is terminated with
-\fBdl_exit\ 127\fP, thereby invoking registered exit-time hooks.
+first one found. If \fILIB\fP can't be loaded (either because it isn't found,
+its initialization commands fail, or some load-time hook's invocation fails),
+the application is terminated with \fBdl_exit\ 127\fP, thereby triggering the
+invocation of registered exit-time hooks.
 
 .TP
 \fBdl_atexit\fP \fIHOOK\fP
