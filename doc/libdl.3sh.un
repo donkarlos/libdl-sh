@@ -147,7 +147,12 @@ output. The information written depends on the output \fIFORMAT\fP:
 .RS 4
 .IP \(bu 2
 \fBapi\fP (the default format) represents each API version by a line
-containing \fIVERSION\fP.
+containing \fIVERSION\fP, e.g. API version 1 would be represented
+by the following line:
+
+.in +4
+\fB1\fP
+.in -4
 
 .IP \(bu
 \fBfull\fP represents each function within each API version by a line of three
