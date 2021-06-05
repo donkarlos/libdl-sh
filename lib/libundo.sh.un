@@ -48,6 +48,7 @@
 ##		ks	2021-05-26	Replace dl_warn() with dl_inform().
 ##		ks	2021-05-30	Improve undo_push()'s invocation vari-
 ##					ant recognition.
+##		ks	2021-06-05	Rename undo_emit() mode keep to pick.
 ##----------------------------------------------------------------------------
 ##  Global variables:
 #-----------------------------------------------------------------------------
@@ -131,7 +132,7 @@ undo_init() {
 ##  undo_emit(MODE MARK TAG)	Emit TAGged undos within MARKed range,
 ##  undo_emit(MODE TAG)		Emit TAGged undos, or
 ##  undo_emit(MODE [COUNT=1])	Emit COUNT undos on behalf of undo_MODE(),
-##				where MODE is drop or keep.
+##				where MODE is drop or pick.
 ##
 ##  NOTE:   (1)	When emitting a marked range, an empty line is prepended
 ##		so that the range matches even if MARK is on top.
@@ -143,7 +144,7 @@ undo_emit() {
 
     case ${1+=$1} in			## Which mode?
 	=drop)	i=	;;		## Drop, i.e. don't invert deletes.
-	=keep)	i='!'	;;		## Keep, i.e. invert deletes.
+	=pick)	i=$HS	;;		## Pick, i.e. invert deletes.
 	*)	return 2;;		## None of the above!
     esac; case ${2+=$2} in		## Mode followed by mark?
 	=::?*)				## Yes, derive mark/range fragments.
@@ -154,7 +155,7 @@ undo_emit() {
 		=:?*)			## Yes, ...
 		    case $1 in		## Which mode?
 			drop)	sx='{;'"$mark"'bp;/#'"$3$DS/$i"'d;1d;};:p'  ;;
-			keep)	sx='!d;'"$mark"'d;/#'"$3$DS/$i"'d'	    ;;
+			pick)	sx='!d;'"$mark"'d;/#'"$3$DS/$i"'d'	    ;;
 		    esac	    ;;
 		=?*)return 2	    ;;	## No, indicate abuse!
 		*)  sx="$i"'d;1d'   ;;	## Nothing, (don't) drop marked range.
@@ -245,8 +246,7 @@ undo_push() {
 ##  undo_pull([COUNT=1])	Pull COUNT undos from undo stack
 ##----------------------------------------------------------------------------
 undo_pull() {
-    eval "`undo_emit keep ${1+"$@"}`"
-    undo_stack=`undo_emit drop ${1+"$@"}`
+    eval "`undo_emit pick ${1+"$@"}`"; undo_stack=`undo_emit drop ${1+"$@"}`
 				## Pull (i.e. apply and drop) selected undos
 }				## from stack.
 
@@ -270,7 +270,7 @@ undo_keep() {
     case ${undo_api--} in
 	1|2)dl_inform api-wdr-func 1 0 undo_keep ${1+"$@"}		;;
 	*)  dl_inform rel-dpr-func 0.4 0.5 0.3.6 undo_keep ${1+"$@"}	;;
-    esac && undo_stack=`undo_emit keep ${1+"$@"}`
+    esac && undo_stack=`undo_emit pick ${1+"$@"}`
 }					## Keep selected undos on stack.
 
 ##----------------------------------------------------------------------------
@@ -283,7 +283,7 @@ undo_exit() {
 	0)				## ...success and no cleanups tag?
 	    ;;				## What's done is done.
 	0:*)				## ...success and cleanups tag?
-	    eval "`undo_emit keep "$undo_0tag"`"
+	    eval "`undo_emit pick "$undo_0tag"`"
 	    ;;				## Apply cleanups.
 	*)				## ...failure?
 	    eval "$undo_stack"		## Apply undos.
