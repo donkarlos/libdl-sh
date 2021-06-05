@@ -91,7 +91,7 @@ maintained by \fBlibdl.sh\fP.
 
 After \fBdl_load\fP successfully loads some library \fILIB\fP, all registered
 load-time hooks are invoked in LRFI (last-registered first-invoked) order,
-with \fILIB\fP as the only argument.
+with \fILIB\fP as the sole argument.
 
 If some load-time hook's invocation fails (i.e., returns non-zero status),
 the application is terminated with exit status \fB127\fP (see \fBdl_load\fP
@@ -119,7 +119,7 @@ maintained by \fBlibdl.sh\fP.
 \fBdl_exit\fP [\fISTATUS\fP=$?]
 Terminate execution by invoking registered exit-time hooks and \fBexit\fPing
 with \fISTATUS\fP. All registered exit-time hooks are invoked in LRFI
-(last-registered first-invoked) order with \fISTATUS\fP as the only argument;
+(last-registered first-invoked) order with \fISTATUS\fP as the sole argument;
 their return status is ignored by \fBdl_exit\fP.
 
 .TP
