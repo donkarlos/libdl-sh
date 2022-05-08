@@ -1,7 +1,7 @@
 dnl								-*-Autotest-*-
 dnl libquote.sh.at		- libquote.sh tests
 dnl
-dnl Copyright © 2021 Das Computerlabor (DCl-M)
+dnl Copyright © 2021-2022 Das Computerlabor (DCl-M)
 dnl
 dnl This library is free software; you can redistribute it and/or
 dnl modify it under the terms of the GNU Lesser General Public License
@@ -54,6 +54,8 @@ dnl					ours_4th().
 dnl		ks	2021-05-30	Add test group ['quote_meta get apis
 dnl					all' declarations sane?].
 dnl					Use atlocal_check_api_consistency().
+dnl		ks	2022-05-08	Make LIB_meta() tests AC_INIT()-inde-
+dnl					pendent.
 dnl
 dnl Test group 'String quoting library libquote.sh'
 dnl
@@ -127,9 +129,9 @@ eval "`libdl-sh load`"; dl_load quote	## Load libdl.sh and libquote.sh or die.
 atlocal_check_meta_inquiries quote	## Perform check for libquote.sh.
 ], 0, [dnl				## And the winner is...
 quote_meta([[2]]get,package)=0
-libdl-sh
+@PACKAGE_TARNAME@
 quote_meta([[2]]get,version)=0
-0.4~7
+@PACKAGE_VERSION@
 quote_meta([[2]]get,api)=0
 0
 quote_meta([[2]]get,apis)=0

@@ -2,7 +2,7 @@
 #-----------------------------------------------------------------------------
 #   gensubst			- Generate substitutions
 #
-#   Copyright (C) 2013-2019 Das Computerlabor (DCl-M)
+#   Copyright (C) 2013-2022 Das Computerlabor (DCl-M)
 #
 #   This library is free software; you can redistribute it and/or
 #   modify it under the terms of the GNU Lesser General Public License
@@ -17,6 +17,12 @@
 #   You should have received a copy of the GNU Lesser General Public License
 #   along with this library; if not, write to the Free Software Founda-
 #   tion, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
+#
+#   AUTHOR(S):	ks	Karl Schmitz <ks@computerlabor.org>
+#
+#   WRITTEN BY:	ks	2013-02-12
+#   CHANGED BY:	ks	2022-05-08	Make LIB_meta() tests AC_INIT()-inde-
+#					pendent.
 #-----------------------------------------------------------------------------
 LC_ALL=C; export LC_ALL
 
@@ -230,6 +236,9 @@ EOF
 	    '"$sx_finish_sedflags"'
 	    /\$(EXTRA_DIST)/s//$(af_dist_files) &/
 	    /^Makefile:/s/$/ $(af_dist_files)/
+	    /^\$(TESTSUITE):/a\
+	d=`dirname $@` && test -w "$$d" || chmod u+w "$$d"\
+	test -w $@ || chmod u+w $@
 	    /\.\/config\.status \$@/s//& autofinish/
 	    /^[^: ]*clean[^: ]*:\(  *[^ ][^ ]*\)*  *clean-am/s//& clean-af/
 	    /\$(am__CONFIG_DISTCLEAN_FILES)/s//& $(af_distclean_files)/

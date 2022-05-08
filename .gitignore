@@ -1,7 +1,7 @@
 #-----------------------------------------------------------------------------
 #   .gitignore			- libdl-sh git(1) exclude patterns
 #
-#   Copyright © 2013-2021 Das Computerlabor (DCl-M)
+#   Copyright © 2013-2022 Das Computerlabor (DCl-M)
 #
 #   This library is free software; you can redistribute it and/or
 #   modify it under the terms of the GNU Lesser General Public License
@@ -32,6 +32,8 @@
 #		ks	2021-05-03	Move complete test suite to tests/.
 #		ks	2021-05-17	Add sample library.
 #		ks	2021-05-31	Add API analysis script with frontend.
+#		ks	2022-05-08	Make LIB_meta() tests AC_INIT()-inde-
+#					pendent.
 #
 #   NOTE:   (1)	Exclude patterns for tools beyond the actual build tools have
 #		been left out intentionally! Such patterns are better kept in
@@ -57,6 +59,7 @@ Makefile.in
 #-----------------------------------------------------------------------------
 /config.*
 /tests/atconfig
+/tests/lib*.sh.at
 Makefile
 
 #-----------------------------------------------------------------------------

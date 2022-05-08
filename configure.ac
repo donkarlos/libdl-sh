@@ -1,7 +1,7 @@
 dnl								-*-Autoconf-*-
 dnl configure.ac		- libdl-sh Autotools configuration
 dnl
-dnl Copyright © 2013-2021 Das Computerlabor (DCl-M)
+dnl Copyright © 2013-2022 Das Computerlabor (DCl-M)
 dnl
 dnl This library is free software; you can redistribute it and/or
 dnl modify it under the terms of the GNU Lesser General Public License
@@ -33,6 +33,8 @@ dnl		ks	2021-04-28	Import GNU Autotest-based test suite.
 dnl		ks	2021-05-17	Add sample library.
 dnl		ks	2021-05-31	Add API analysis script with frontend.
 dnl		ks	2021-06-01	Add libxdg.sh.
+dnl		ks	2022-05-08	Make LIB_meta() tests AC_INIT()-inde-
+dnl					pendent.
 dnl
 dnl NOTE:   (1)	Update the build system with autoreconf(1).
 dnl	    (2)	AM_INIT_AUTOMAKE() already invokes AC_ARG_PROGRAM, AC_PROG_-
@@ -84,5 +86,13 @@ AF_FINISH_FILES([
 ])
 AC_CONFIG_FILES([
     Makefile
+    tests/libconf.sh.at
+    tests/libdl.sh.at
+    tests/libemit.sh.at
+    tests/libquote.sh.at
+    tests/libsafe.sh.at
+    tests/libsession.sh.at
+    tests/libundo.sh.at
+    tests/libxdg.sh.at
 ])
 AC_OUTPUT
