@@ -34,6 +34,7 @@
 #		ks	2021-05-31	Add API analysis script with frontend.
 #		ks	2022-05-08	Make LIB_meta() tests AC_INIT()-inde-
 #					pendent.
+#		ks	2022-05-09	Ignore stray `.lineno' files.
 #
 #   NOTE:   (1)	Exclude patterns for tools beyond the actual build tools have
 #		been left out intentionally! Such patterns are better kept in
@@ -58,6 +59,7 @@ Makefile.in
 #   configure(1) results:
 #-----------------------------------------------------------------------------
 /config.*
+/config*.lineno
 /tests/atconfig
 /tests/lib*.sh.at
 Makefile
