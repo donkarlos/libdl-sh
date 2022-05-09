@@ -46,6 +46,8 @@
 ##		ks	2021-05-16	Use dl_readonly() to freeze variables
 ##					and dl_apis() to emit API information.
 ##		ks	2021-05-26	Replace dl_warn() with dl_inform().
+##		ks	2021-06-08	Adapt to dl_readonly() readonly list
+##					separator change.
 ##----------------------------------------------------------------------------
 ##  Global variables:
 #-----------------------------------------------------------------------------
@@ -135,9 +137,9 @@ safe_init() {
 ##  safe_mktmpdir(&DPN [DRN])	Safely make temporary directory
 ##----------------------------------------------------------------------------
 safe_mktmpdir() {
-    case ${3+3}${2+=}${1+=}${safe_ro-,} in
+    case ${3+3}${2+=}${1+=}${safe_ro-:} in
 					## Usage OK?/Temp. directory made?
-	=*,tmpdir,*)			## Y/Y.
+	=*:tmpdir:*)			## Y/Y.
 	    ;;
 	=*)				## Y/N: Try to make it once and for all.
 	    safe_tmpdir=`mktemp -d` &&
