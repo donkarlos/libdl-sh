@@ -1,6 +1,6 @@
 #! /bin/sh ##
 #-----------------------------------------------------------------------------
-#   libxdg.sh		- XDG base directory library
+#   libxdg.sh			- XDG base directory library
 #
 #   Copyright © 2021 Das Computerlabor (DCl-M)
 #
@@ -31,7 +31,7 @@ readonly xdg_package xdg_version; unset xdg_ro xdg_api
 					## Discard spurious environment.
 
 ##----------------------------------------------------------------------------
-##  xdg_meta(META [ARG ...]) Perform META operation (with ARGs)
+##  xdg_meta(META [ARG ...])	Perform META operation (with ARGs)
 ##----------------------------------------------------------------------------
 xdg_meta() {
     local mp=xdg_ ms=\;			## Set meta prefix and separator.

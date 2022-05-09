@@ -356,7 +356,7 @@ dl_readonly() {
 		    return 1
 		    ;;
 		*)  '"$1_"'ro=${'"$1_"'ro-:}$2:; readonly '"$1_$2"'
-			;;		## Yes, freeze it.
+		    ;;			## Yes, freeze it.
 	    esac'
 	    ;;
 	*)  return 2			## N/?: Indicate abuse!

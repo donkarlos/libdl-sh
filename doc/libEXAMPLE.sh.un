@@ -31,12 +31,12 @@ readonly EXAMPLE_package EXAMPLE_version; unset EXAMPLE_ro EXAMPLE_api
 					## Discard spurious environment.
 
 ##----------------------------------------------------------------------------
-##  EXAMPLE_meta(META [ARG ...]) Perform META operation (with ARGs)
+##  EXAMPLE_meta(META [ARG ...])
+##				Perform META operation (with ARGs)
 ##----------------------------------------------------------------------------
 EXAMPLE_meta() {
     local mp=EXAMPLE_ ms=\;		## Set meta prefix and separator.
 					## (dl_apis() needs them!)
-
     case ${2+=}${1+$1-}${2-} in		## Which META operation?
 	=get-apis)			## Inquire APIs...
 	    shift 2 && dl_apis ${1+"$@"} <<EOF
