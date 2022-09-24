@@ -22,7 +22,7 @@
 ##
 ##  WRITTEN BY:	ks	2013-02-13
 ##  CHANGED BY:	ks	2016-05-16	Work around dash(1)'s local semantics.
-##					Fix `undo_* MARK TAG' semantics.
+##					Fix »undo_* MARK TAG« semantics.
 ##		ks	2016-05-19	Use meta prefix.
 ##		ks	2016-05-24	Deprecate undo_keep().
 ##					Add 'meta get package/version'.

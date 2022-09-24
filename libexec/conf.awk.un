@@ -23,7 +23,7 @@
 ##  AUTHOR(S):	ks	Karl Schmitz <ks@computerlabor.org>
 ##
 ##  WRITTEN BY:	ks	2013-02-14
-##  CHANGED BY:	ks	2013-03-06	Attribute this to `libconf.sh'.
+##  CHANGED BY:	ks	2013-03-06	Attribute this to »libconf.sh«.
 ##		ks	2013-03-11	Work around mawk(1)'s misfeature of
 ##					aborting on nonexisting input files.
 ##		ks	2020-05-27	Use universal interpreter.
@@ -69,7 +69,7 @@ function has_si(si) {
 
 ##----------------------------------------------------------------------------
 ##  get_si(SN)			Map section name SN to live SI (or 0), setting
-##				`si'as a side-effect.
+##				»si«as a side-effect.
 ##----------------------------------------------------------------------------
 function get_si(sn) {
     return ((si = sn2si[sn]) in si2vc)
@@ -77,7 +77,7 @@ function get_si(sn) {
 
 ##----------------------------------------------------------------------------
 ##  set_si(SN)			Map section name SN to (new) SI, setting
-##				`si' as a side-effect.
+##				»si« as a side-effect.
 ##----------------------------------------------------------------------------
 function set_si(sn) {
     if (!(si = sn2si[sn])) {		## SN not mapped yet?
@@ -102,7 +102,7 @@ function has_vi(si,vi) {
 
 ##----------------------------------------------------------------------------
 ##  get_vi(SI,VN)		Map variable name VN to live VI within SI,
-##				setting `vi' as a side-effect.
+##				setting »vi« as a side-effect.
 ##----------------------------------------------------------------------------
 function get_vi(si,vn) {
     return ((si,vi = sivn2vi[si,vn]) in sivi2vv)
@@ -110,7 +110,7 @@ function get_vi(si,vn) {
 
 ##----------------------------------------------------------------------------
 ##  set_vi(SI,VN)		Map variable name VN to (new) VI within SI,
-##				setting `vi' as a side-effect.
+##				setting »vi« as a side-effect.
 ##----------------------------------------------------------------------------
 function set_vi(si,vn) {
     if (!(vi = sivn2vi[si,vn]) || (vi > si2vc[si])) {
@@ -129,25 +129,25 @@ function has_vc(si ,vi) {
 }
 
 ##----------------------------------------------------------------------------
-##  get_sn_vn_vv(ITEM)		Split `SECTION.VARIABLE[=VALUE]' string ITEM,
-##				setting `sn', `vn', and `vv' as a side-effect
+##  get_sn_vn_vv(ITEM)		Split »SECTION.VARIABLE[=VALUE]« string ITEM,
+##				setting »sn«, »vn«, and »vv« as a side-effect
 ##				and return the number of recognized parts.
 ##----------------------------------------------------------------------------
 function get_sn_vn_vv(item) {
-    if (match(item, "^([^.=]+\\.)+")) {	## ITEM has `SECTION.' part?
+    if (match(item, "^([^.=]+\\.)+")) {	## ITEM has »SECTION.« part?
 	sn = substr(item, 1, RLENGTH - 1)
-					## Extract `SECTION' to sn.
+					## Extract »SECTION« to sn.
 	if (match(item, "\\.[^.=]+=")) {
-					## ITEM has `.VARIABLE=VALUE' part?
+					## ITEM has ».VARIABLE=VALUE« part?
 	    vn = substr(item, RSTART + 1, RLENGTH - 2)
 	    vv = substr(item, RSTART + RLENGTH)
-					## Extract `VARIABLE'/`VALUE' to vn/vv
+					## Extract »VARIABLE«/»VALUE« to vn/vv
 	    return 3			## and indicate three parts.
 	}
 	if (match(item, "\\.[^.=]+$")) {
-					## ITEM has `.VARIABLE' part instead?
+					## ITEM has ».VARIABLE« part instead?
 	    vn = substr(item, RSTART + 1, RLENGTH - 1)
-					## Extract `VARIABLE' to vn
+					## Extract »VARIABLE« to vn
 	    return 2			## and indicate two parts.
 	}
 	return 1
@@ -200,13 +200,13 @@ function get_sn_vn_vv(item) {
     next
 }
 
-($1 == "has") {				## `has' instruction!
+($1 == "has") {				## »has« instruction!
     sub(re_sk1, "")
     ((get_sn_vn_vv($0) > 1) && get_si(sn) && get_vi(si, vn)) || ++ec
     next
 }
 
-($1 == "get") {				## `get' instruction!
+($1 == "get") {				## »get« instruction!
     sub(re_sk1, ""); dc = 0
     if ((nf = get_sn_vn_vv($0)) > 1) {	## Item split into SN and VN?
 	if (sn != "*") {		## SN is specific?
@@ -227,7 +227,7 @@ function get_sn_vn_vv(item) {
     next
 }
 
-($1 == "put") {				## `put' instruction!
+($1 == "put") {				## »put« instruction!
     sub(re_sk1, "")
     if ((nf = get_sn_vn_vv($0)) < 2) {	## Item not split?
 	++ec				## Count error.

@@ -1,5 +1,5 @@
 ##								-*-Makefile-*-
-##  Makefile.am			- libdl-sh `Makefile.in' template
+##  Makefile.am			- libdl-sh »Makefile.in« template
 ##
 ##  Copyright © 2013-2021 Das Computerlabor (DCl-M)
 ##
@@ -22,11 +22,11 @@
 ##  WRITTEN BY:	ks	2013-02-12
 ##  CHANGED BY:	ks	2018-03-11	Import prebuilt autofinish scripts.
 ##		ks	2020-05-12	Import changelog generator.
-##		ks	2020-05-16	Move `conf.awk' and `args.awk' to lib-
+##		ks	2020-05-16	Move »conf.awk« and »args.awk« to lib-
 ##					exec/.
 ##		ks	2020-05-27	Add universal interpreter.
-##		ks	2021-04-23	Rename `test-deb-version' to `vers-
-##					cmp'.
+##		ks	2021-04-23	Rename »test-deb-version« to »vers-
+##					cmp«.
 ##		ks	2021-04-28	Import GNU Autotest-based test suite.
 ##		ks	2021-05-03	Move complete test suite to tests/.
 ##					Spin off libdl-sh(1) tests.
@@ -37,7 +37,7 @@
 ##			2021-05-17	Add libsession.sh tests.
 ##					Simplify building of test suite.
 ##					Add documentation and sample library.
-##		ks	2021-05-31	Don't run `testsuite' if it can't be
+##		ks	2021-05-31	Don't run »testsuite« if it can't be
 ##					made.
 ##					Add API analysis script with frontend.
 ##		ks	2021-06-01	Add libxdg.sh with tests.

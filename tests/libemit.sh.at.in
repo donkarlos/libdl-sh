@@ -35,18 +35,18 @@ dnl					Use atlocal_check_api_consistency().
 dnl		ks	2022-05-08	Make LIB_meta() tests AC_INIT()-inde-
 dnl					pendent.
 dnl
-dnl Test group 'Message emission library libemit.sh'
+dnl Test group »Message emission library libemit.sh«
 dnl
 AT_BANNER([Message emission library libemit.sh])
 
 dnl
-dnl Check if 'dl_load emit' loads libemit.sh
+dnl Check if »dl_load emit« loads libemit.sh
 dnl
-AT_SETUP(['dl_load emit' loads libemit.sh?])
+AT_SETUP([»dl_load emit« loads libemit.sh?])
 AT_KEYWORDS([libemit.sh libemit dl_load])
 AT_CHECK([dnl
 set -eu					## Employ strict execution environment
-					## to ensure 'set -u' resilience.
+					## to ensure »set -u« resilience.
 test_atload_trace=:			## Initialize load-time hook's trace.
 test_atload() {				## Declare load-time hook.
     test_atload_trace=:$1$test_atload_trace
@@ -57,7 +57,7 @@ test_atexit() {				## Declare exit-time hook.
     echo "$test_atload_trace"
 }
 
-case :$PATH: in				## Triggered by 'check-local:'?
+case :$PATH: in				## Triggered by »check-local:«?
     *:$abs_top_builddir/bin:*)		## Yes, export suitable LSP.
 	LIBDL_SH_LIBRARY_PATH=$abs_top_builddir/lib
 	LIBDL_SH_LIBEXECDIR=$abs_top_builddir/libexec
@@ -91,12 +91,12 @@ dnl NOTE:   (1)	This test wraps around atlocal_check_meta_inquiries()!
 dnl	    (2)	The double brackets within the expected output provide "just
 dnl		the right amount" of m4(1) quoting.
 dnl
-AT_SETUP(['emit_meta get' inquiries give expected results?])
+AT_SETUP([»emit_meta get« inquiries give expected results?])
 AT_KEYWORDS([libemit.sh libemit emit_meta])
 AT_CHECK([dnl
 set -eu					## Employ strict execution environment
-					## to ensure 'set -u' resilience.
-case :$PATH: in				## Triggered by 'check-local:'?
+					## to ensure »set -u« resilience.
+case :$PATH: in				## Triggered by »check-local:«?
     *:$abs_top_builddir/bin:*)		## Yes, export suitable LSP.
 	LIBDL_SH_LIBRARY_PATH=$abs_top_builddir/lib
 	LIBDL_SH_LIBEXECDIR=$abs_top_builddir/libexec
@@ -140,11 +140,11 @@ dnl
 dnl NOTE:   (1)	The double brackets within the expected output provide "just
 dnl		the right amount" of m4(1) quoting.
 dnl
-AT_SETUP(['emit_meta get apis all' declarations sane?])
+AT_SETUP([»emit_meta get apis all« declarations sane?])
 AT_KEYWORDS([libemit.sh libemit emit_meta consistent deprecated withdrawn])
 AT_CHECK([dnl
 set -eu					## Employ strict execution environment
-					## to ensure 'set -u' resilience.
+					## to ensure »set -u« resilience.
 test_hook() {				## (TESTER LIB API TESTEE)
     case ${5+5}${4+=$4} in		## Usage OK?/Function?
 	=${2-}|=${2-}_*)		## Y/Any recently deprecated/withdrawn:
@@ -155,7 +155,7 @@ test_hook() {				## (TESTER LIB API TESTEE)
     esac
 }
 
-case :$PATH: in				## Triggered by 'check-local:'?
+case :$PATH: in				## Triggered by »check-local:«?
     *:$abs_top_builddir/bin:*)		## Yes, export suitable LSP.
 	LIBDL_SH_LIBRARY_PATH=$abs_top_builddir/lib
 	LIBDL_SH_LIBEXECDIR=$abs_top_builddir/libexec
@@ -183,14 +183,14 @@ dnl		4th()!
 dnl	    (2)	The double brackets within the expected output provide "just
 dnl		the right amount" of m4(1) quoting.
 dnl	    (3)	The expected output contains one quadrigraph to account for
-dnl		the unmatched '(' in "full" format's sed(1) expression!
+dnl		the unmatched »(« in »full« format's sed(1) expression!
 dnl
-AT_SETUP(['emit_meta get apis' honours 4th argument?])
+AT_SETUP([»emit_meta get apis« honours 4th argument?])
 AT_KEYWORDS([libemit.sh libemit emit_meta])
 AT_CHECK([dnl
 set -eu					## Employ strict execution environment
-					## to ensure 'set -u' resilience.
-case :$PATH: in				## Triggered by 'check-local:'?
+					## to ensure »set -u« resilience.
+case :$PATH: in				## Triggered by »check-local:«?
     *:$abs_top_builddir/bin:*)		## Yes, export suitable LSP.
 	LIBDL_SH_LIBRARY_PATH=$abs_top_builddir/lib
 	LIBDL_SH_LIBEXECDIR=$abs_top_builddir/libexec
@@ -219,12 +219,12 @@ dnl NOTE:   (1)	This test wraps around atlocal_check_constants()!
 dnl	    (2)	The double brackets within the expected output provide "just
 dnl		the right amount" of m4(1) quoting.
 dnl
-AT_SETUP(['emit_meta get apis r/o' var.s set and readonly?])
+AT_SETUP([»emit_meta get apis r/o« var.s set and readonly?])
 AT_KEYWORDS([libemit.sh libemit emit_meta constants readonly])
 AT_CHECK([dnl
 set -eu					## Employ strict execution environment
-					## to ensure 'set -u' resilience.
-case :$PATH: in				## Triggered by 'check-local:'?
+					## to ensure »set -u« resilience.
+case :$PATH: in				## Triggered by »check-local:«?
     *:$abs_top_builddir/bin:*)		## Yes, export suitable LSP.
 	LIBDL_SH_LIBRARY_PATH=$abs_top_builddir/lib
 	LIBDL_SH_LIBEXECDIR=$abs_top_builddir/libexec
@@ -240,7 +240,7 @@ emit_re_level
 AT_CLEANUP
 
 dnl
-dnl Check if the functions reported by 'emit_meta get apis list' (for all API
+dnl Check if the functions reported by »emit_meta get apis list« (for all API
 dnl versions) indicate usage errors (i.e., return 2) when invoked with
 dnl insufficient arguments.
 dnl
@@ -252,8 +252,8 @@ AT_SETUP([libemit.sh functions indicate usage errors?])
 AT_KEYWORDS([libemit.sh libemit usage])
 AT_CHECK([dnl
 set -eu					## Employ strict execution environment
-					## to ensure 'set -u' resilience.
-case :$PATH: in				## Triggered by 'check-local:'?
+					## to ensure »set -u« resilience.
+case :$PATH: in				## Triggered by »check-local:«?
     *:$abs_top_builddir/bin:*)		## Yes, export suitable LSP.
 	LIBDL_SH_LIBRARY_PATH=$abs_top_builddir/lib
 	LIBDL_SH_LIBEXECDIR=$abs_top_builddir/libexec

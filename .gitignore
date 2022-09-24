@@ -22,19 +22,19 @@
 #   WRITTEN BY:	ks	2013-02-12
 #   CHANGED BY:	ks	2018-03-11	Import prebuilt autofinish scripts.
 #		ks	2020-05-12	Import changelog generator.
-#		ks	2020-05-16	Move `conf.awk' and `args.awk' to lib-
+#		ks	2020-05-16	Move »conf.awk« and »args.awk« to lib-
 #					exec/.
 #		ks	2020-05-27	Add universal interpreter.
 #		ks	2021-04-21	Ignore temporary stuff.
-#		ks	2021-04-23	Rename `test-deb-version' to `vers-
-#					cmp'.
+#		ks	2021-04-23	Rename »test-deb-version« to »vers-
+#					cmp«.
 #		ks	2021-04-28	Import GNU Autotest-based test suite.
 #		ks	2021-05-03	Move complete test suite to tests/.
 #		ks	2021-05-17	Add sample library.
 #		ks	2021-05-31	Add API analysis script with frontend.
 #		ks	2022-05-08	Make LIB_meta() tests AC_INIT()-inde-
 #					pendent.
-#		ks	2022-05-09	Ignore stray `.lineno' files.
+#		ks	2022-05-09	Ignore stray ».lineno« files.
 #
 #   NOTE:   (1)	Exclude patterns for tools beyond the actual build tools have
 #		been left out intentionally! Such patterns are better kept in

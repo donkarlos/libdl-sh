@@ -34,8 +34,8 @@
 ##			2020-05-16	Emit error messages with error().
 ##					Imply unquoted output in compatibility
 ##					mode.
-##					Implement options `-h|--help',
-##					`-V|--version', and `-T|--test'.
+##					Implement options »-h|--help«,
+##					»-V|--version«, and »-T|--test«.
 ##					Eliminate ++ARGI and ARGI--.
 ##					Defer entry into 2nd pass.
 ##					Overhaul 2nd pass and main program.
@@ -51,14 +51,14 @@
 ##					Count errors.
 ##			2020-05-19	Have end-of-options marker take pre-
 ##					cedence over options.
-##			2020-05-21	Add and implement option `-U|--unquot-
-##					ed-options.
+##			2020-05-21	Add and implement option »-U|--unquot-
+##					ed-options«.
 ##			2020-05-23	Ultimately distinguish between short
 ##					and alternative long options by merg-
 ##					ing option processing ([ks] It took me
 ##					nearly a week to properly figure this
 ##					out, discovering some "interesting"
-##					bugs in util-linux's getopt(1) `-a'
+##					bugs in util-linux's getopt(1) »-a«
 ##					implementation along the way... :-)
 ##			2020-05-26	Implement csh(1)-style quoting.
 ##					Show usage information.

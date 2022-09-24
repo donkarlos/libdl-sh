@@ -44,14 +44,14 @@ gcl_help() {
 Usage: $command [OPTION ...] CHANGELOG
 
 Valid OPTIONs are:
- -f FORMAT	Use output FORMAT (instead of 'oneline').
- -p PREFIX	Use release tag prefix PREFIX (instead of 'release/').
+ -f FORMAT	Use output FORMAT (instead of »oneline«).
+ -p PREFIX	Use release tag prefix PREFIX (instead of »release/«).
 EOF
 }
 
 ##----------------------------------------------------------------------------
 ##  gcl_tag_oneline(OBJECT)	Print annotated/signed tag OBJECT's message
-##				in faked '--oneline' format
+##				in faked »--oneline« format
 ##----------------------------------------------------------------------------
 gcl_tag_oneline() {
     git show --no-notes --no-patch "$1" | sed '1,/^$/d;s/^/ * '"$1"' /;q'
@@ -100,7 +100,7 @@ gcl_format_logs() {
 					## Yes.
 		*)  gcl_tag_oneline "$2";;
 					## No, print tag's message in fake
-					## '--oneline' format.
+					## »--oneline« format.
 	    esac
 	    git log --oneline "$3" | sed 's/^/ * /;${;p;s/^.*$//;}'
 	    ;;
@@ -125,11 +125,11 @@ esac
 format=oneline prefix=release/ unreleased=y
 while getopts 'rf:p:' o; do		## Foreach OPTION do...
     case $o in				## Which option?
-	r)  unreleased=n		## '-r'...
+	r)  unreleased=n		## »-r«...
 	    ;;				## Yes, suppress unreleased changes.
-	f)  format=$OPTARG		## '-f FORMAT'...
+	f)  format=$OPTARG		## »-f FORMAT«...
 	    ;;				## Yes, update output format.
-	p)  prefix=$OPTARG		## '-r PREFIX'...
+	p)  prefix=$OPTARG		## »-p PREFIX«...
 	    ;;				## Yes, update release tag prefix.
 	*)  gcl_help >&2		## Anything else...
 	    exit 2			## Show usage and indicate misusage!

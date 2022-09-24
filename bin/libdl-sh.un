@@ -21,7 +21,7 @@
 ##  AUTHOR(S):	ks	Karl Schmitz <ks@computerlabor.org>
 ##
 ##  WRITTEN BY:	ks	2013-02-12
-##  CHANGED BY:	ks	2013-03-06	Attribute this to `libdl.sh'.
+##  CHANGED BY:	ks	2013-03-06	Attribute this to »libdl.sh«.
 ##		ks	2015-04-19	Optimize LSP normalization.
 ##		ks	2017-02-10	Update copyright.
 ##					Simplify 'load' action.
@@ -65,9 +65,9 @@ include() {
     ' /dev/null ${1+"$@"} 2>/dev/null | while read line
     do					## Foreach configuration line do...
 	case "$line" in			## Which kind?
-	    'include')			## `include' without argument...
+	    'include')			## »include« without argument...
 		;;			## ...is ignored.
-	    'include '*)		## `include' with argument(s)...
+	    'include '*)		## »include« with argument(s)...
 		eval "$line"		## ...is recursively parsed after ap-
 		;;			## plying shell substitutions.
 	    *)				## Library search path items...

@@ -175,7 +175,7 @@ function error(msg) {
 
 ##----------------------------------------------------------------------------
 ##  set_ti(TN)			Look token name TN's token index up, setting
-##				`ti' as a side-effect.
+##				»ti« as a side-effect.
 ##----------------------------------------------------------------------------
 function set_ti(tn ,set) {
     if (T>1) enter("set_ti",sprintf("tn=\"%s\"",tn))
@@ -186,7 +186,7 @@ function set_ti(tn ,set) {
 
 ##----------------------------------------------------------------------------
 ##  map_ti(TN)			Map token name TN to token index, setting
-##				`ti' as a side-effect.
+##				»ti« as a side-effect.
 ##----------------------------------------------------------------------------
 function map_ti(tn ,set) {
     if (T>1) enter("map_ti",sprintf("tn=\"%s\"",tn))
@@ -201,7 +201,7 @@ function map_ti(tn ,set) {
 
 ##----------------------------------------------------------------------------
 ##  set_ai(AV)			Look API version AV's API index up, setting
-##				`ai' as a side-effect.
+##				»ai« as a side-effect.
 ##----------------------------------------------------------------------------
 function set_ai(av ,set) {
     if (T>1) enter("set_ai",sprintf("av=%d",av))
@@ -212,7 +212,7 @@ function set_ai(av ,set) {
 
 ##----------------------------------------------------------------------------
 ##  map_ai(AV)			Map API version AV to API index, setting
-##				`ai' as a side-effect.
+##				»ai« as a side-effect.
 ##----------------------------------------------------------------------------
 function map_ai(av ,set) {
     if (T>1) enter("map_ai",sprintf("av=%d",av))
@@ -237,7 +237,7 @@ function avfn2tn(av,fn ,tn) {
 
 ##----------------------------------------------------------------------------
 ##  set_fi(FN)			Look function name FN's index up, setting
-##				`fi' as a side-effect.
+##				»fi« as a side-effect.
 ##----------------------------------------------------------------------------
 function set_fi(fn ,set) {
     if (T>1) enter("set_fi",sprintf("fn=\"%s\"",fn))
@@ -248,7 +248,7 @@ function set_fi(fn ,set) {
 
 ##----------------------------------------------------------------------------
 ##  map_fi(AV,FN,PT,RG)		Map function name FN to function index,
-##				setting `fi' as a side-effect.
+##				setting »fi« as a side-effect.
 ##----------------------------------------------------------------------------
 function map_fi(av,fn,pt,rg ,set,tn,di) {
     if (T>1) enter("map_fi",sprintf("av=%d,fn=\"%s\",pt=\"%s\",rg=\"%s"	\

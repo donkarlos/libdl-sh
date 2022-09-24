@@ -26,7 +26,7 @@ dnl CHANGED BY:	ks	2021-05-23	Use atlocal_trace_invocation() and
 dnl					atlocal_trace_invocation_returns().
 dnl					Simplify atlocal_function_deprecated()
 dnl					and atlocal_function_withdrawn().
-dnl					Add test groups ['undo_meta set 0tag'
+dnl					Add test groups [»undo_meta set 0tag«
 dnl					works as expected?] and [undo_init()
 dnl					works as expected?].
 dnl		ks	2021-05-24	Use atlocal_check_meta_inquiries(),
@@ -38,24 +38,24 @@ dnl		ks	2021-05-25	Make constant's API table entries API
 dnl					version-independent.
 dnl					Use atlocal_check_meta_get_apis_hon-
 dnl					ours_4th().
-dnl		ks	2021-05-30	Add test group ['undo_meta get apis
-dnl					all' declarations sane?].
+dnl		ks	2021-05-30	Add test group [»undo_meta get apis
+dnl					all« declarations sane?].
 dnl					Use atlocal_check_api_consistency().
 dnl		ks	2022-05-08	Make LIB_meta() tests AC_INIT()-inde-
 dnl					pendent.
 dnl
-dnl Test group 'Undo stack management library libundo.sh'
+dnl Test group »Undo stack management library libundo.sh«
 dnl
 AT_BANNER([Undo stack management library libundo.sh])
 
 dnl
-dnl Check if 'dl_load undo' loads libundo.sh
+dnl Check if »dl_load undo« loads libundo.sh
 dnl
-AT_SETUP(['dl_load undo' loads libundo.sh?])
+AT_SETUP([»dl_load undo« loads libundo.sh?])
 AT_KEYWORDS([libundo.sh libundo dl_load])
 AT_CHECK([dnl
 set -eu					## Employ strict execution environment
-					## to ensure 'set -u' resilience.
+					## to ensure »set -u« resilience.
 test_atload_trace=:			## Initialize load-time hook's trace.
 test_atload() {				## Declare load-time hook.
     test_atload_trace=:$1$test_atload_trace
@@ -66,7 +66,7 @@ test_atexit() {				## Declare exit-time hook.
     echo "$test_atload_trace"
 }
 
-case :$PATH: in				## Triggered by 'check-local:'?
+case :$PATH: in				## Triggered by »check-local:«?
     *:$abs_top_builddir/bin:*)		## Yes, export suitable LSP.
 	LIBDL_SH_LIBRARY_PATH=$abs_top_builddir/lib
 	LIBDL_SH_LIBEXECDIR=$abs_top_builddir/libexec
@@ -100,12 +100,12 @@ dnl NOTE:   (1)	This test wraps around atlocal_check_meta_inquiries()!
 dnl	    (2)	The double brackets within the expected output provide "just
 dnl		the right amount" of m4(1) quoting.
 dnl
-AT_SETUP(['undo_meta get' inquiries give expected results?])
+AT_SETUP([»undo_meta get« inquiries give expected results?])
 AT_KEYWORDS([libundo.sh libundo undo_meta])
 AT_CHECK([dnl
 set -eu					## Employ strict execution environment
-					## to ensure 'set -u' resilience.
-case :$PATH: in				## Triggered by 'check-local:'?
+					## to ensure »set -u« resilience.
+case :$PATH: in				## Triggered by »check-local:«?
     *:$abs_top_builddir/bin:*)		## Yes, export suitable LSP.
 	LIBDL_SH_LIBRARY_PATH=$abs_top_builddir/lib
 	LIBDL_SH_LIBEXECDIR=$abs_top_builddir/libexec
@@ -176,11 +176,11 @@ dnl
 dnl NOTE:   (1)	The double brackets within the expected output provide "just
 dnl		the right amount" of m4(1) quoting.
 dnl
-AT_SETUP(['undo_meta get apis all' declarations sane?])
+AT_SETUP([»undo_meta get apis all« declarations sane?])
 AT_KEYWORDS([libundo.sh libundo undo_meta consistent deprecated withdrawn])
 AT_CHECK([dnl
 set -eu					## Employ strict execution environment
-					## to ensure 'set -u' resilience.
+					## to ensure »set -u« resilience.
 test_hook() {				## (TESTER LIB API TESTEE)
     case ${5+5}${4+=$4} in		## Usage OK?/Function?
 	=undo_init|=undo_keep)		## Y/undo_{init,keep}():
@@ -197,7 +197,7 @@ test_hook() {				## (TESTER LIB API TESTEE)
     esac
 }
 
-case :$PATH: in				## Triggered by 'check-local:'?
+case :$PATH: in				## Triggered by »check-local:«?
     *:$abs_top_builddir/bin:*)		## Yes, export suitable LSP.
 	LIBDL_SH_LIBRARY_PATH=$abs_top_builddir/lib
 	LIBDL_SH_LIBEXECDIR=$abs_top_builddir/libexec
@@ -243,14 +243,14 @@ dnl		4th()!
 dnl	    (2)	The double brackets within the expected output provide "just
 dnl		the right amount" of m4(1) quoting.
 dnl	    (3)	The expected output contains one quadrigraph to account for
-dnl		the unmatched '(' in "full" format's sed(1) expression!
+dnl		the unmatched »(« in »full« format's sed(1) expression!
 dnl
-AT_SETUP(['undo_meta get apis' honours 4th argument?])
+AT_SETUP([»undo_meta get apis« honours 4th argument?])
 AT_KEYWORDS([libundo.sh libundo undo_meta])
 AT_CHECK([dnl
 set -eu					## Employ strict execution environment
-					## to ensure 'set -u' resilience.
-case :$PATH: in				## Triggered by 'check-local:'?
+					## to ensure »set -u« resilience.
+case :$PATH: in				## Triggered by »check-local:«?
     *:$abs_top_builddir/bin:*)		## Yes, export suitable LSP.
 	LIBDL_SH_LIBRARY_PATH=$abs_top_builddir/lib
 	LIBDL_SH_LIBEXECDIR=$abs_top_builddir/libexec
@@ -282,12 +282,12 @@ dnl NOTE:   (1)	This test wraps around atlocal_check_constants()!
 dnl	    (2)	The double brackets within the expected output provide "just
 dnl		the right amount" of m4(1) quoting.
 dnl
-AT_SETUP(['undo_meta get apis r/o' var.s set and readonly?])
+AT_SETUP([»undo_meta get apis r/o« var.s set and readonly?])
 AT_KEYWORDS([libundo.sh libundo undo_meta constants readonly])
 AT_CHECK([dnl
 set -eu					## Employ strict execution environment
-					## to ensure 'set -u' resilience.
-case :$PATH: in				## Triggered by 'check-local:'?
+					## to ensure »set -u« resilience.
+case :$PATH: in				## Triggered by »check-local:«?
     *:$abs_top_builddir/bin:*)		## Yes, export suitable LSP.
 	LIBDL_SH_LIBRARY_PATH=$abs_top_builddir/lib
 	LIBDL_SH_LIBEXECDIR=$abs_top_builddir/libexec
@@ -301,7 +301,7 @@ atlocal_check_constants undo		## Perform check for libundo.sh.
 ])
 AT_CLEANUP
 dnl
-dnl Check if the functions reported by 'undo_meta get apis list' (for all
+dnl Check if the functions reported by »undo_meta get apis list« (for all
 dnl API versions) indicate usage errors (i.e., return 2) when invoked with
 dnl insufficient arguments.
 dnl
@@ -313,8 +313,8 @@ AT_SETUP([libundo.sh functions indicate usage errors?])
 AT_KEYWORDS([libundo.sh libundo usage])
 AT_CHECK([dnl
 set -eu					## Employ strict execution environment
-					## to ensure 'set -u' resilience.
-case :$PATH: in				## Triggered by 'check-local:'?
+					## to ensure »set -u« resilience.
+case :$PATH: in				## Triggered by »check-local:«?
     *:$abs_top_builddir/bin:*)		## Yes, export suitable LSP.
 	LIBDL_SH_LIBRARY_PATH=$abs_top_builddir/lib
 	LIBDL_SH_LIBEXECDIR=$abs_top_builddir/libexec
@@ -345,17 +345,17 @@ undo_push([[0]])=2
 AT_CLEANUP
 
 dnl
-dnl Check if 'undo_meta set 0tag' works as expected.
+dnl Check if »undo_meta set 0tag« works as expected.
 dnl
 dnl NOTE:   (1)	The double brackets within the expected output provide "just
 dnl		the right amount" of m4(1) quoting.
 dnl
-AT_SETUP(['undo_meta set 0tag' works as expected?])
+AT_SETUP([»undo_meta set 0tag« works as expected?])
 AT_KEYWORDS([libundo.sh libundo undo_meta cleanups])
 AT_CHECK([dnl
 set -eu					## Employ strict execution environment
-					## to ensure 'set -u' resilience.
-case :$PATH: in				## Triggered by 'check-local:'?
+					## to ensure »set -u« resilience.
+case :$PATH: in				## Triggered by »check-local:«?
     *:$abs_top_builddir/bin:*)		## Yes, export suitable LSP.
 	LIBDL_SH_LIBRARY_PATH=$abs_top_builddir/lib
 	LIBDL_SH_LIBEXECDIR=$abs_top_builddir/libexec
@@ -394,8 +394,8 @@ AT_SETUP([undo_init() works as expected?])
 AT_KEYWORDS([libundo.sh libundo undo_init cleanups])
 AT_CHECK([dnl
 set -eu					## Employ strict execution environment
-					## to ensure 'set -u' resilience.
-case :$PATH: in				## Triggered by 'check-local:'?
+					## to ensure »set -u« resilience.
+case :$PATH: in				## Triggered by »check-local:«?
     *:$abs_top_builddir/bin:*)		## Yes, export suitable LSP.
 	LIBDL_SH_LIBRARY_PATH=$abs_top_builddir/lib
 	LIBDL_SH_LIBEXECDIR=$abs_top_builddir/libexec

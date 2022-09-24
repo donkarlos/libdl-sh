@@ -20,16 +20,16 @@ dnl
 dnl AUTHOR(S):	ks	Karl Schmitz <ks@computerlabor.org>
 dnl
 dnl WRITTEN BY:	ks	2021-05-03
-dnl CHANGED BY:	ks	2021-05-05	Add test group ['eval "`libdl-sh
-dnl					load`"' catches EXIT?].
-dnl					Enhance test group ['dl_meta get'
+dnl CHANGED BY:	ks	2021-05-05	Add test group [»eval "`libdl-sh
+dnl					load`"« catches EXIT?].
+dnl					Enhance test group [»dl_meta get«
 dnl					inquiries give expected results?].
-dnl					Enhance test group ['dl_meta get apis'
+dnl					Enhance test group [»dl_meta get apis«
 dnl					honours 4th argument?].
-dnl		ks	2021-05-06	Enhance test group ['dl_meta get apis
-dnl					r/o' constants defined?].
-dnl					Enhance test group ['dl_meta get apis
-dnl					r/o' constants readonly?].
+dnl		ks	2021-05-06	Enhance test group [»dl_meta get apis
+dnl					r/o« constants defined?].
+dnl					Enhance test group [»dl_meta get apis
+dnl					r/o« constants readonly?].
 dnl					Add test group [libdl.sh's special
 dnl					characters unharmed?].
 dnl					Add test group [libdl.sh functions
@@ -43,13 +43,13 @@ dnl					before hooks?].
 dnl					Add test group [dl_load() loads
 dnl					another library?].
 dnl		ks	2021-05-07	Always expect no error output.
-dnl					'set -u'-harden dl_split(), dl_dump(),
+dnl					»set -u«-harden dl_split(), dl_dump(),
 dnl					and dl_which().
 dnl		ks	2021-05-09	Export test group [dl_load() loads
 dnl					another library?] to libquote.sh.at.
 dnl		ks	2021-05-14	Prepare for multiple API versions.
 dnl		ks	2021-05-16	Add dl_readonly() and dl_apis().
-dnl		ks	2021-05-18	Add special characters '[' and ']'.
+dnl		ks	2021-05-18	Add special characters »[« and »]«.
 dnl		ks	2021-05-23	Use atlocal_check_meta_inquiries(),
 dnl					atlocal_trace_invocation_set_output(),
 dnl					atlocal_trace_invocation_raw_output(),
@@ -66,7 +66,7 @@ dnl					Use atlocal_check_api_consistency().
 dnl		ks	2022-05-08	Make LIB_meta() tests AC_INIT()-inde-
 dnl					pendent.
 dnl
-dnl Test group 'Demand-loading library libdl.sh'
+dnl Test group »Demand-loading library libdl.sh«
 dnl
 AT_BANNER([Demand-loading library libdl.sh])
 
@@ -74,12 +74,12 @@ dnl
 dnl Check if libdl.sh's initialization code catches "signal" 0/EXIT by
 dnl appropriately invoking dl_exit().
 dnl
-AT_SETUP(['eval "`libdl-sh load`"' catches EXIT?])
+AT_SETUP([»eval "`libdl-sh load`"« catches EXIT?])
 AT_KEYWORDS([libdl.sh libdl load trap])
 AT_CHECK([dnl
 set -eu					## Employ strict execution environment
-					## to ensure 'set -u' resilience.
-case :$PATH: in				## Triggered by 'check-local:'?
+					## to ensure »set -u« resilience.
+case :$PATH: in				## Triggered by »check-local:«?
     *:$abs_top_builddir/bin:*)		## Yes, export suitable LSP.
 	LIBDL_SH_LIBRARY_PATH=$abs_top_builddir/lib
 	LIBDL_SH_LIBEXECDIR=$abs_top_builddir/libexec
@@ -113,12 +113,12 @@ dnl NOTE:   (1)	This test wraps around atlocal_check_meta_inquiries()!
 dnl	    (2)	The double brackets within the expected output provide "just
 dnl		the right amount" of m4(1) quoting.
 dnl
-AT_SETUP(['dl_meta get' inquiries give expected results?])
+AT_SETUP([»dl_meta get« inquiries give expected results?])
 AT_KEYWORDS([libdl.sh libdl dl_meta])
 AT_CHECK([dnl
 set -eu					## Employ strict execution environment
-					## to ensure 'set -u' resilience.
-case :$PATH: in				## Triggered by 'check-local:'?
+					## to ensure »set -u« resilience.
+case :$PATH: in				## Triggered by »check-local:«?
     *:$abs_top_builddir/bin:*)		## Yes, export suitable LSP.
 	LIBDL_SH_LIBRARY_PATH=$abs_top_builddir/lib
 	LIBDL_SH_LIBEXECDIR=$abs_top_builddir/libexec
@@ -199,11 +199,11 @@ dnl
 dnl NOTE:   (1)	The double brackets within the expected output provide "just
 dnl		the right amount" of m4(1) quoting.
 dnl
-AT_SETUP(['dl_meta get apis all' declarations sane?])
+AT_SETUP([»dl_meta get apis all« declarations sane?])
 AT_KEYWORDS([libdl.sh libdl dl_meta consistent deprecated withdrawn])
 AT_CHECK([dnl
 set -eu					## Employ strict execution environment
-					## to ensure 'set -u' resilience.
+					## to ensure »set -u« resilience.
 test_hook() {				## (TESTER LIB API TESTEE)
     case ${5+5}${4+=$4} in		## Usage OK?/Function?
 	=${2-}|=${2-}_*)		## Y/Any recently deprecated/withdrawn:
@@ -214,7 +214,7 @@ test_hook() {				## (TESTER LIB API TESTEE)
     esac
 }
 
-case :$PATH: in				## Triggered by 'check-local:'?
+case :$PATH: in				## Triggered by »check-local:«?
     *:$abs_top_builddir/bin:*)		## Yes, export suitable LSP.
 	LIBDL_SH_LIBRARY_PATH=$abs_top_builddir/lib
 	LIBDL_SH_LIBEXECDIR=$abs_top_builddir/libexec
@@ -243,14 +243,14 @@ dnl		4th()!
 dnl	    (2)	The double brackets within the expected output provide "just
 dnl		the right amount" of m4(1) quoting.
 dnl	    (3)	The expected output contains one quadrigraph to account for
-dnl		the unmatched '(' in "full" format's sed(1) expression!
+dnl		the unmatched »(« in »full« format's sed(1) expression!
 dnl
-AT_SETUP(['dl_meta get apis' honours 4th argument?])
+AT_SETUP([»dl_meta get apis« honours 4th argument?])
 AT_KEYWORDS([libdl.sh libdl dl_meta])
 AT_CHECK([dnl
 set -eu					## Employ strict execution environment
-					## to ensure 'set -u' resilience.
-case :$PATH: in				## Triggered by 'check-local:'?
+					## to ensure »set -u« resilience.
+case :$PATH: in				## Triggered by »check-local:«?
     *:$abs_top_builddir/bin:*)		## Yes, export suitable LSP.
 	LIBDL_SH_LIBRARY_PATH=$abs_top_builddir/lib
 	LIBDL_SH_LIBEXECDIR=$abs_top_builddir/libexec
@@ -280,19 +280,19 @@ re_0n
 AT_CLEANUP
 
 dnl
-dnl Check if the constants reported by 'dl_meta get apis r/o' (for the
+dnl Check if the constants reported by »dl_meta get apis r/o« (for the
 dnl default API version) are defined and readonly after loading libdl.sh.
 dnl
 dnl NOTE:   (1)	This test wraps around atlocal_check_constants()!
 dnl	    (2)	The double brackets within the expected output provide "just
 dnl		the right amount" of m4(1) quoting.
 dnl
-AT_SETUP(['dl_meta get apis r/o' var.s set and readonly?])
+AT_SETUP([»dl_meta get apis r/o« var.s set and readonly?])
 AT_KEYWORDS([libdl.sh libdl dl_meta constants readonly])
 AT_CHECK([dnl
 set -eu					## Employ strict execution environment
-					## to ensure 'set -u' resilience.
-case :$PATH: in				## Triggered by 'check-local:'?
+					## to ensure »set -u« resilience.
+case :$PATH: in				## Triggered by »check-local:«?
     *:$abs_top_builddir/bin:*)		## Yes, export suitable LSP.
 	LIBDL_SH_LIBRARY_PATH=$abs_top_builddir/lib
 	LIBDL_SH_LIBEXECDIR=$abs_top_builddir/libexec
@@ -329,20 +329,20 @@ dl_re_0n
 AT_CLEANUP
 
 dnl
-dnl Check if the special characters reported by 'dl_meta get apis r/o' (for
+dnl Check if the special characters reported by »dl_meta get apis r/o« (for
 dnl the default API version) make it through to libdl.sh unadulterated by
 dnl stupid build tools, stupid editors, or layer 8 problems. ;-)
 dnl
 dnl NOTE:   (1)	The most likely candidate to get screwed up is CR, since it's
 dnl		definition became pretty invisible now. That's why we check
-dnl		against 'od -bc' reference output!
+dnl		against »od -bc« reference output!
 dnl
 AT_SETUP([libdl.sh's special characters pristine?])
 AT_KEYWORDS([libdl.sh libdl dl_meta specials pristine])
 AT_CHECK([dnl
 set -eu					## Employ strict execution environment
-					## to ensure 'set -u' resilience.
-case :$PATH: in				## Triggered by 'check-local:'?
+					## to ensure »set -u« resilience.
+case :$PATH: in				## Triggered by »check-local:«?
     *:$abs_top_builddir/bin:*)		## Yes, export suitable LSP.
 	LIBDL_SH_LIBRARY_PATH=$abs_top_builddir/lib
 	LIBDL_SH_LIBEXECDIR=$abs_top_builddir/libexec
@@ -366,7 +366,7 @@ EOF
 AT_CLEANUP
 
 dnl
-dnl Check if the functions reported by 'dl_meta get apis list' (for all API
+dnl Check if the functions reported by »dl_meta get apis list« (for all API
 dnl versions) indicate usage errors (i.e., return 2) when invoked with
 dnl insufficient arguments.
 dnl
@@ -378,8 +378,8 @@ AT_SETUP([libdl.sh functions indicate usage errors?])
 AT_KEYWORDS([libdl.sh libdl usage])
 AT_CHECK([dnl
 set -eu					## Employ strict execution environment
-					## to ensure 'set -u' resilience.
-case :$PATH: in				## Triggered by 'check-local:'?
+					## to ensure »set -u« resilience.
+case :$PATH: in				## Triggered by »check-local:«?
     *:$abs_top_builddir/bin:*)		## Yes, export suitable LSP.
 	LIBDL_SH_LIBRARY_PATH=$abs_top_builddir/lib
 	LIBDL_SH_LIBEXECDIR=$abs_top_builddir/libexec
@@ -423,13 +423,13 @@ AT_SETUP([dl_atload() registers load-time hook?])
 AT_KEYWORDS([libdl.sh libdl dl_atload])
 AT_CHECK([dnl
 set -eu					## Employ strict execution environment
-					## to ensure 'set -u' resilience.
+					## to ensure »set -u« resilience.
 test_atload_trace=:			## Initialize hook's trace.
 test_atload() {
     test_atload_trace=:$1$test_atload_trace
 }
 
-case :$PATH: in				## Triggered by 'check-local:'?
+case :$PATH: in				## Triggered by »check-local:«?
     *:$abs_top_builddir/bin:*)		## Yes, export suitable LSP.
 	LIBDL_SH_LIBRARY_PATH=$abs_top_builddir/lib
 	LIBDL_SH_LIBEXECDIR=$abs_top_builddir/libexec
@@ -453,12 +453,12 @@ AT_SETUP([dl_atexit() registers exit-time hook?])
 AT_KEYWORDS([libdl.sh libdl dl_atexit])
 AT_CHECK([dnl
 set -eu					## Employ strict execution environment
-					## to ensure 'set -u' resilience.
+					## to ensure »set -u« resilience.
 test_atexit() {
     echo "test_atexit($status)"
 }
 
-case :$PATH: in				## Triggered by 'check-local:'?
+case :$PATH: in				## Triggered by »check-local:«?
     *:$abs_top_builddir/bin:*)		## Yes, export suitable LSP.
 	LIBDL_SH_LIBRARY_PATH=$abs_top_builddir/lib
 	LIBDL_SH_LIBEXECDIR=$abs_top_builddir/libexec
@@ -481,14 +481,14 @@ AT_SETUP([dl_exit() ignores EXIT   before hooks?])
 AT_KEYWORDS([libdl.sh libdl dl_exit])
 AT_CHECK([dnl
 set -eu					## Employ strict execution environment
-					## to ensure 'set -u' resilience.
+					## to ensure »set -u« resilience.
 test_atexit() {
     echo "test_atexit($status)"		## Emit exit-time hooks's trace and
 					## demodernized EXIT trap setting.
     trap | sed 's/ EXIT$/ 0/;/ 0$/!d;s/^\(trap\) --/\1/;'
 }
 
-case :$PATH: in				## Triggered by 'check-local:'?
+case :$PATH: in				## Triggered by »check-local:«?
     *:$abs_top_builddir/bin:*)		## Yes, export suitable LSP.
 	LIBDL_SH_LIBRARY_PATH=$abs_top_builddir/lib
 	LIBDL_SH_LIBEXECDIR=$abs_top_builddir/libexec
@@ -509,20 +509,20 @@ dnl Check if EXIT trap handler dl_exit() relaxes execution environment by
 dnl disabling sh(1) options errexit and nounset before triggering registered
 dnl exit-time hooks.
 dnl
-AT_SETUP([dl_exit() does 'set +eu' before hooks?])
+AT_SETUP([dl_exit() does »set +eu« before hooks?])
 AT_KEYWORDS([libdl.sh libdl dl_exit])
 AT_CHECK([dnl
 set -eu					## Employ strict execution environment
-					## to ensure 'set -u' resilience.
+					## to ensure »set -u« resilience.
 test_atexit() {
     echo "test_atexit($status)"		## Emit exit-time hooks's trace and
-					## extracted 'set -eu' setting.
+					## extracted »set -eu« setting.
     sed 's/[[^eu]]//g' <<EOF
 $-
 EOF
 }
 
-case :$PATH: in				## Triggered by 'check-local:'?
+case :$PATH: in				## Triggered by »check-local:«?
     *:$abs_top_builddir/bin:*)		## Yes, export suitable LSP.
 	LIBDL_SH_LIBRARY_PATH=$abs_top_builddir/lib
 	LIBDL_SH_LIBEXECDIR=$abs_top_builddir/libexec

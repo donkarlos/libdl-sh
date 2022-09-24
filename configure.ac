@@ -24,11 +24,11 @@ dnl CHANGED BY:	ks	2018-03-11	Import prebuilt autofinish scripts.
 dnl		ks	2020-05-03	Require at least GNU Automake 1.13.
 dnl					Make xz(1)-compressed distributions.
 dnl		ks	2020-05-12	Import changelog generator.
-dnl		ks	2020-05-16	Move `conf.awk' and `args.awk' to lib-
+dnl		ks	2020-05-16	Move »conf.awk« and »args.awk« to lib-
 dnl					exec/.
 dnl		ks	2020-05-27	Add universal interpreter.
-dnl		ks	2021-04-23	Rename `test-deb-version' to `vers-
-dnl					cmp'.
+dnl		ks	2021-04-23	Rename »test-deb-version« to »vers-
+dnl					cmp«.
 dnl		ks	2021-04-28	Import GNU Autotest-based test suite.
 dnl		ks	2021-05-17	Add sample library.
 dnl		ks	2021-05-31	Add API analysis script with frontend.

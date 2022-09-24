@@ -21,17 +21,17 @@ dnl AUTHOR(S):	ks	Karl Schmitz <ks@computerlabor.org>
 dnl
 dnl WRITTEN BY:	ks	2021-05-03
 dnl CHANGED BY:	ks	2021-05-04	Execute libdl-sh(1) tests under
-dnl					strict (i.e., 'set -eu') conditions.
+dnl					strict (i.e., »set -eu«) conditions.
 dnl					Don't augment LSP during install
 dnl					checks.
 dnl		ks	2021-05-07	Always expect no error output.
 dnl
-dnl Test group 'Demand-loading helper libdl-sh(1)'
+dnl Test group »Demand-loading helper libdl-sh(1)«
 dnl
 AT_TESTED([libdl-sh])
 AT_BANNER([Demand-loading helper libdl-sh(1)])
 
-AT_SETUP(['libdl-sh exec' prepends to $PATH at all?])
+AT_SETUP([»libdl-sh exec« prepends to $PATH at all?])
 AT_KEYWORDS([libdl-sh])
 AT_CHECK([dnl
 set -eu
@@ -45,11 +45,11 @@ esac
 ])
 AT_CLEANUP
 
-AT_SETUP(['libdl-sh exec' prepends ${builddir}/bin to $PATH?])
+AT_SETUP([»libdl-sh exec« prepends ${builddir}/bin to $PATH?])
 AT_KEYWORDS([libdl-sh])
 AT_CHECK([dnl
 set -eu
-case :$PATH: in				## Triggered by 'check-local:'?
+case :$PATH: in				## Triggered by »check-local:«?
     *:$abs_top_builddir/bin:*)		## Yes...
 	case `libdl-sh exec -- /bin/sh -c 'echo "$PATH"'` in
 	    $abs_top_builddir/bin:$PATH)
@@ -63,12 +63,12 @@ esac
 ])
 AT_CLEANUP
 
-AT_SETUP(['libdl-sh load' honours $LIBDL_SH_LIBRARY_PATH?])
+AT_SETUP([»libdl-sh load« honours $LIBDL_SH_LIBRARY_PATH?])
 AT_KEYWORDS([libdl-sh])
 AT_CHECK([dnl
 set -eu
 SQ=\'
-case :$PATH: in				## Triggered by 'check-local:'?
+case :$PATH: in				## Triggered by »check-local:«?
     *:$abs_top_builddir/bin:*)		## Yes...
 	LIBDL_SH_LIBRARY_PATH=$abs_top_builddir/lib
 	LIBDL_SH_LIBEXECDIR=$abs_top_builddir/libexec
@@ -85,11 +85,11 @@ esac
 ])
 AT_CLEANUP
 
-AT_SETUP(['eval "`libdl-sh load`"' loads libdl.sh?])
+AT_SETUP([»eval "`libdl-sh load`"« loads libdl.sh?])
 AT_KEYWORDS([libdl-sh])
 AT_CHECK([dnl
 set -eu
-case :$PATH: in				## Triggered by 'check-local:'?
+case :$PATH: in				## Triggered by »check-local:«?
     *:$abs_top_builddir/bin:*)		## Yes...
 	LIBDL_SH_LIBRARY_PATH=$abs_top_builddir/lib
 	LIBDL_SH_LIBEXECDIR=$abs_top_builddir/libexec

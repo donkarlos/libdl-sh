@@ -21,11 +21,11 @@ dnl AUTHOR(S):	ks	Karl Schmitz <ks@computerlabor.org>
 dnl
 dnl WRITTEN BY:	ks	2021-05-08
 dnl CHANGED BY:	ks	2021-05-09	quote_meta(): Publish r/o variables.
-dnl		ks	2021-05-09	Import test group ['dl_load quote'
+dnl		ks	2021-05-09	Import test group [»dl_load quote«
 dnl					loads libquote.sh?] from libdl.sh.at.
-dnl					Add test groups ['quote_meta get apis
-dnl					r/o' constants defined?], ['quote_meta
-dnl					get apis r/o' constants readonly?],
+dnl					Add test groups [»quote_meta get apis
+dnl					r/o« constants defined?], [»quote_meta
+dnl					get apis r/o« constants readonly?],
 dnl					and [quote_sh() works as expected?].
 dnl		ks	2021-05-10	Add test groups [quote_grep() works as
 dnl					expected?] and [quote_egrep() works as
@@ -51,24 +51,24 @@ dnl		ks	2021-05-25	Make constant's API table entries API
 dnl					version-independent.
 dnl					Use atlocal_check_meta_get_apis_hon-
 dnl					ours_4th().
-dnl		ks	2021-05-30	Add test group ['quote_meta get apis
-dnl					all' declarations sane?].
+dnl		ks	2021-05-30	Add test group [»quote_meta get apis
+dnl					all« declarations sane?].
 dnl					Use atlocal_check_api_consistency().
 dnl		ks	2022-05-08	Make LIB_meta() tests AC_INIT()-inde-
 dnl					pendent.
 dnl
-dnl Test group 'String quoting library libquote.sh'
+dnl Test group »String quoting library libquote.sh«
 dnl
 AT_BANNER([String quoting library libquote.sh])
 
 dnl
-dnl Check if 'dl_load quote' loads libquote.sh
+dnl Check if »dl_load quote« loads libquote.sh
 dnl
-AT_SETUP(['dl_load quote' loads libquote.sh?])
+AT_SETUP([»dl_load quote« loads libquote.sh?])
 AT_KEYWORDS([libquote.sh libquote dl_load])
 AT_CHECK([dnl
 set -eu					## Employ strict execution environment
-					## to ensure 'set -u' resilience.
+					## to ensure »set -u« resilience.
 test_atload_trace=:			## Initialize load-time hook's trace.
 test_atload() {				## Declare load-time hook.
     test_atload_trace=:$1$test_atload_trace
@@ -79,7 +79,7 @@ test_atexit() {				## Declare exit-time hook.
     echo "$test_atload_trace"
 }
 
-case :$PATH: in				## Triggered by 'check-local:'?
+case :$PATH: in				## Triggered by »check-local:«?
     *:$abs_top_builddir/bin:*)		## Yes, export suitable LSP.
 	LIBDL_SH_LIBRARY_PATH=$abs_top_builddir/lib
 	LIBDL_SH_LIBEXECDIR=$abs_top_builddir/libexec
@@ -113,12 +113,12 @@ dnl NOTE:   (1)	This test wraps around atlocal_check_meta_inquiries()!
 dnl	    (2)	The double brackets within the expected output provide "just
 dnl		the right amount" of m4(1) quoting.
 dnl
-AT_SETUP(['quote_meta get' inquiries give expected results?])
+AT_SETUP([»quote_meta get« inquiries give expected results?])
 AT_KEYWORDS([libquote.sh libquote quote_meta])
 AT_CHECK([dnl
 set -eu					## Employ strict execution environment
-					## to ensure 'set -u' resilience.
-case :$PATH: in				## Triggered by 'check-local:'?
+					## to ensure »set -u« resilience.
+case :$PATH: in				## Triggered by »check-local:«?
     *:$abs_top_builddir/bin:*)		## Yes, export suitable LSP.
 	LIBDL_SH_LIBRARY_PATH=$abs_top_builddir/lib
 	LIBDL_SH_LIBEXECDIR=$abs_top_builddir/libexec
@@ -177,11 +177,11 @@ dnl
 dnl NOTE:   (1)	The double brackets within the expected output provide "just
 dnl		the right amount" of m4(1) quoting.
 dnl
-AT_SETUP(['quote_meta get apis all' declarations sane?])
+AT_SETUP([»quote_meta get apis all« declarations sane?])
 AT_KEYWORDS([libquote.sh libquote quote_meta consistent deprecated withdrawn])
 AT_CHECK([dnl
 set -eu					## Employ strict execution environment
-					## to ensure 'set -u' resilience.
+					## to ensure »set -u« resilience.
 test_hook() {				## (TESTER LIB API TESTEE)
     case ${5+5}${4+=$4} in		## Usage OK?/Function?
 	=${2-}|=${2-}_*)		## Y/Any recently deprecated/withdrawn:
@@ -192,7 +192,7 @@ test_hook() {				## (TESTER LIB API TESTEE)
     esac
 }
 
-case :$PATH: in				## Triggered by 'check-local:'?
+case :$PATH: in				## Triggered by »check-local:«?
     *:$abs_top_builddir/bin:*)		## Yes, export suitable LSP.
 	LIBDL_SH_LIBRARY_PATH=$abs_top_builddir/lib
 	LIBDL_SH_LIBEXECDIR=$abs_top_builddir/libexec
@@ -220,14 +220,14 @@ dnl		4th()!
 dnl	    (2)	The double brackets within the expected output provide "just
 dnl		the right amount" of m4(1) quoting.
 dnl	    (3)	The expected output contains one quadrigraph to account for
-dnl		the unmatched '(' in "full" format's sed(1) expression!
+dnl		the unmatched »(« in »full« format's sed(1) expression!
 dnl
-AT_SETUP(['quote_meta get apis' honours 4th argument?])
+AT_SETUP([»quote_meta get apis« honours 4th argument?])
 AT_KEYWORDS([libquote.sh libquote quote_meta])
 AT_CHECK([dnl
 set -eu					## Employ strict execution environment
-					## to ensure 'set -u' resilience.
-case :$PATH: in				## Triggered by 'check-local:'?
+					## to ensure »set -u« resilience.
+case :$PATH: in				## Triggered by »check-local:«?
     *:$abs_top_builddir/bin:*)		## Yes, export suitable LSP.
 	LIBDL_SH_LIBRARY_PATH=$abs_top_builddir/lib
 	LIBDL_SH_LIBEXECDIR=$abs_top_builddir/libexec
@@ -259,12 +259,12 @@ dnl NOTE:   (1)	This test wraps around atlocal_check_constants()!
 dnl	    (2)	The double brackets within the expected output provide "just
 dnl		the right amount" of m4(1) quoting.
 dnl
-AT_SETUP(['quote_meta get apis r/o' var.s set and readonly?])
+AT_SETUP([»quote_meta get apis r/o« var.s set and readonly?])
 AT_KEYWORDS([libquote.sh libquote quote_meta constants readonly])
 AT_CHECK([dnl
 set -eu					## Employ strict execution environment
-					## to ensure 'set -u' resilience.
-case :$PATH: in				## Triggered by 'check-local:'?
+					## to ensure »set -u« resilience.
+case :$PATH: in				## Triggered by »check-local:«?
     *:$abs_top_builddir/bin:*)		## Yes, export suitable LSP.
 	LIBDL_SH_LIBRARY_PATH=$abs_top_builddir/lib
 	LIBDL_SH_LIBEXECDIR=$abs_top_builddir/libexec
@@ -283,7 +283,7 @@ quote_cs_brs
 AT_CLEANUP
 
 dnl
-dnl Check if the functions reported by 'quote_meta get apis list' (for all
+dnl Check if the functions reported by »quote_meta get apis list« (for all
 dnl API versions) indicate usage errors (i.e., return 2) when invoked with
 dnl insufficient arguments.
 dnl
@@ -295,8 +295,8 @@ AT_SETUP([libquote.sh functions indicate usage errors?])
 AT_KEYWORDS([libquote.sh libquote usage])
 AT_CHECK([dnl
 set -eu					## Employ strict execution environment
-					## to ensure 'set -u' resilience.
-case :$PATH: in				## Triggered by 'check-local:'?
+					## to ensure »set -u« resilience.
+case :$PATH: in				## Triggered by »check-local:«?
     *:$abs_top_builddir/bin:*)		## Yes, export suitable LSP.
 	LIBDL_SH_LIBRARY_PATH=$abs_top_builddir/lib
 	LIBDL_SH_LIBEXECDIR=$abs_top_builddir/libexec
@@ -336,8 +336,8 @@ AT_SETUP([quote_sh() works as expected?])
 AT_KEYWORDS([libquote.sh libquote quote_sh])
 AT_CHECK([dnl
 set -eu					## Employ strict execution environment
-					## to ensure 'set -u' resilience.
-case :$PATH: in				## Triggered by 'check-local:'?
+					## to ensure »set -u« resilience.
+case :$PATH: in				## Triggered by »check-local:«?
     *:$abs_top_builddir/bin:*)		## Yes, export suitable LSP.
 	LIBDL_SH_LIBRARY_PATH=$abs_top_builddir/lib
 	LIBDL_SH_LIBEXECDIR=$abs_top_builddir/libexec

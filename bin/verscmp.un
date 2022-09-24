@@ -31,10 +31,10 @@
 ##					'<='/'>=', respectively.
 ##					Treat missing VERSION2 as empty.
 ##		ks	2021-04-23	Catch internal errors.
-##					Rename to `verscmp'.
+##					Rename to »verscmp«.
 ##		ks	2021-04-25	Use table-driven implementation.
 ##		ks	2021-06-01	Spread sed(1) tracing preparation.
-##					Implement option `--help-operators'.
+##					Implement option »--help-operators«.
 ##----------------------------------------------------------------------------
 ##  Initialization:
 #-----------------------------------------------------------------------------
