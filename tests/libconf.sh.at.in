@@ -90,8 +90,8 @@ dnl   -	get apis r/o
 dnl produce expected results.
 dnl
 dnl NOTE:   (1)	This test wraps around atlocal_check_meta_inquiries()!
-dnl	    (2)	The double brackets within the expected output provide "just
-dnl		the right amount" of m4(1) quoting.
+dnl	    (2)	The double brackets within the expected output provide “just
+dnl		the right amount” of m4(1) quoting.
 dnl
 AT_SETUP([»conf_meta get« inquiries give expected results?])
 AT_KEYWORDS([libconf.sh libconf conf_meta])
@@ -155,8 +155,8 @@ dnl Check if the API version and function declarations reported by 'conf_meta
 dnl get apis all' are consistent and that the reported functions are properly
 dnl deprecated/withdrawn.
 dnl
-dnl NOTE:   (1)	The double brackets within the expected output provide "just
-dnl		the right amount" of m4(1) quoting.
+dnl NOTE:   (1)	The double brackets within the expected output provide “just
+dnl		the right amount” of m4(1) quoting.
 dnl
 AT_SETUP([»conf_meta get apis all« declarations sane?])
 AT_KEYWORDS([libconf.sh libconf conf_meta consistent deprecated withdrawn])
@@ -206,8 +206,8 @@ dnl hounour (i.e., apply) the extra sed(1) expression passed as 4th argument.
 dnl
 dnl NOTE:   (1)	This test wraps around atlocal_check_meta_get_apis_honours_-
 dnl		4th()!
-dnl	    (2)	The double brackets within the expected output provide "just
-dnl		the right amount" of m4(1) quoting.
+dnl	    (2)	The double brackets within the expected output provide “just
+dnl		the right amount” of m4(1) quoting.
 dnl	    (3)	The expected output contains one quadrigraph to account for
 dnl		the unmatched »(« in »full« format's sed(1) expression!
 dnl
@@ -241,8 +241,8 @@ dnl Check if the constants reported by »conf_meta get apis r/o« (for the
 dnl default API version) are defined and readonly after loading libconf.sh.
 dnl
 dnl NOTE:   (1)	This test wraps around atlocal_check_constants()!
-dnl	    (2)	The double brackets within the expected output provide "just
-dnl		the right amount" of m4(1) quoting.
+dnl	    (2)	The double brackets within the expected output provide “just
+dnl		the right amount” of m4(1) quoting.
 dnl
 AT_SETUP([»conf_meta get apis r/o« var.s set and readonly?])
 AT_KEYWORDS([libconf.sh libconf conf_meta constants readonly])
@@ -269,8 +269,8 @@ dnl API versions) indicate usage errors (i.e., return 2) when invoked with
 dnl insufficient arguments.
 dnl
 dnl NOTE:   (1)	This test wraps around atlocal_check_function_usage_errors()!
-dnl	    (2)	The double brackets within the expected output provide "just
-dnl		the right amount" of m4(1) quoting.
+dnl	    (2)	The double brackets within the expected output provide “just
+dnl		the right amount” of m4(1) quoting.
 dnl
 AT_SETUP([libconf.sh functions indicate usage errors?])
 AT_KEYWORDS([libconf.sh libconf usage])
