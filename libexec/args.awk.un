@@ -28,7 +28,7 @@
 ##					Trace argument types symbolically.
 ##					Print error messages with error().
 ##					Also trace to stderr.
-##			2020-05-15	Use system("echo '...' >&2").
+##			2020-05-15	Use system("echo '…' >&2").
 ##					Recognize POSIX compliancy mode.
 ##					Recognize scan mode prefices.
 ##			2020-05-16	Emit error messages with error().
@@ -59,7 +59,7 @@
 ##					nearly a week to properly figure this
 ##					out, discovering some "interesting"
 ##					bugs in util-linux's getopt(1) »-a«
-##					implementation along the way... :-)
+##					implementation along the way… :-)
 ##			2020-05-26	Implement csh(1)-style quoting.
 ##					Show usage information.
 ##			2020-05-27	Use universal interpreter.
@@ -115,7 +115,7 @@ BEGIN {
     bv2sy[FALSE	= 0	]	= "FALSE"
     bv2sy[TRUE	= !FALSE]	= "TRUE"
 					## Define booleans.
-    at				= -4	## Enumerate argument types...
+    at				= -4	## Enumerate argument types…
     at2sy[AT_ERR = ++at]	= "AT_ERR"
     at2sy[AT_EOA = ++at]	= "AT_EOA"
     at2sy[AT_EOO = ++at]	= "AT_EOO"
@@ -310,7 +310,7 @@ function getopt_add_optstring(optstring,pi ,re,ow,on,at,oi) {
 
     re = compatible ? "^.:?:?" : "^[^-:]:?:?"
 					## Choose short option descriptor RE.
-    while (optstring) {			## While OPTSTRING is not empty do...
+    while (optstring) {			## While OPTSTRING is not empty do…
 	if (!match(optstring,re)) {	## Looking at valid descriptor?
 	    error(sprintf("'%s' describes no short option!",optstring),pi)
 	    leave("1"); return 1	## No, complain and indicate failure!
@@ -370,7 +370,7 @@ function getopt_add_longopts(longopts,pi ,di,dc,dv,cp,ow,on,at,oi) {
 	error("no long option descriptor(s) passed!",pi)
 	leave("1"); return 1		## No, complain and indicate failure!
     }
-    while (++di <= dc) {		## Foreach descriptor do...
+    while (++di <= dc) {		## Foreach descriptor do…
 	if (!match(dv[di],/^[^-=:]+(-[^-=:]+)*:?:?$/)) {
 					## Description is valid?
 	    error(sprintf("'%s' describes no long option!",dv[di]),pi)
@@ -396,7 +396,7 @@ function getopt_add_longopts(longopts,pi ,di,dc,dv,cp,ow,on,at,oi) {
 	    leave("1"); return 1	## Yes, complain and indicate failure!
 	}
 
-	while (cp > 2) {		## Foreach abbreviation do...
+	while (cp > 2) {		## Foreach abbreviation do…
 	    if (!pion2oi[pi,on = substr(on,1,cp--)]) {
 					## Abbreviation already registered?
 		pion2oi[pi,on] = oi	## No, register abbreviation.
@@ -435,7 +435,7 @@ function unshift(arg) {
 ##	- ARGV[ARGI]	(R) Argument vector
 ##----------------------------------------------------------------------------
 function args_print() {
-    for (ARGI = 0; ARGI < ARGC; ++ARGI)	## Foreach argument do...
+    for (ARGI = 0; ARGI < ARGC; ++ARGI)	## Foreach argument do…
 	printf "ARGV[%u]=\"%s\"\n",ARGI,ARGV[ARGI]
 					## Print it.
     printf "ARGC=%u\n",ARGC; return 0	## Print argument count.
@@ -496,7 +496,7 @@ function args_getopt(cn ,pi,ec,arg,on,ov,oi,at,ep,O,A,son,lon) {
 	leave("3"); return 3		## No, indicate internal error!
     }
 
-    for (;;) {				## While processing arguments do...
+    for (;;) {				## While processing arguments do…
 	if (ARGI < ARGC) {		## Arguments remain?
 	    if ((pi == 1) && compatible) {
 					## In 1st pass and compatibility mode?
@@ -638,9 +638,9 @@ function args_getopt(cn ,pi,ec,arg,on,ov,oi,at,ep,O,A,son,lon) {
 					## No, saw option '-h|--help'?
 		arg = "cat >&2 <<EOF\n\
 Usage:\n\
- getopt OPTSTRING [ARGUMENT ...]\n\
- getopt [OPTIONS] [--] OPTSTRING [ARGUMENT ...]\n\
- getopt [OPTIONS] -o|--options OPTSTRING [OPTIONS] [--] [ARGUMENT ...]\n\n\
+ getopt OPTSTRING [ARGUMENT …]\n\
+ getopt [OPTIONS] [--] OPTSTRING [ARGUMENT …]\n\
+ getopt [OPTIONS] -o|--options OPTSTRING [OPTIONS] [--] [ARGUMENT …]\n\n\
 Parse ARGUMENTs into options and arguments\n\n\
 Valid options are:\n\
  -h, --help			Show this help and exit\n\
@@ -655,13 +655,13 @@ Valid options are:\n\
  -T, --test			Test for getopt(1) version\n\
  -u, --unquoted			Don't quote output\n\
  -U, --unquoted-options		Don't quote options in output\nEOF"
-		system(arg)		## Yes, show help and...
-		leave("2"); return 2	## ...indicate "misuse"!
+		system(arg)		## Yes, show help and…
+		leave("2"); return 2	## …indicate "misuse"!
 	    } else if (on ~ /^(-V|--version)$/) {
 					## No, saw option '-V|--version'?
 		printf "%s (%s) %s\n",cn,"@PACKAGE_NAME@","@PACKAGE_VERSION@"
-					## Yes, show version and...
-		leave("0"); return 0	## ...indicate success.
+					## Yes, show version and…
+		leave("0"); return 0	## …indicate success.
 	    } else if (on ~ /^(-T|--test)$/) {
 					## No, saw option '-V|--version'?
 		leave("4"); return 4	## Yes, indicate modern getopt(1).
@@ -735,7 +735,7 @@ Valid options are:\n\
     if (at < AT_EOA) {			## Prior getopt_shift() failed?
 	leave("1"); return 1		## Yes, indicate failure!
     }
-    while (ARGI < ARGC) {		## Foreach remaining argument do...
+    while (ARGI < ARGC) {		## Foreach remaining argument do…
 	A = A " " quote_sh(ARGV[ARGI++],pi,AT_ARG)
 	trace(sprintf("A=\"%s\"",A))	## Fetch, quote, and append it to RHS.
     }
@@ -754,9 +754,9 @@ BEGIN {
     } else if (action == "getopt") {
 	status = args_getopt(action)	## Emulate getopt(1).
     } else {
-	piow2ov[0,"n"] = ARGV[0]	## Fake 0th pass...
+	piow2ov[0,"n"] = ARGV[0]	## Fake 0th pass…
 	error(sprintf("unknown action '%s'!",action),0)
-	status = 2			## ...and indicate misuse!
+	status = 2			## …and indicate misuse!
     }
     trace(sprintf("exit %d",status)); exit status
 }

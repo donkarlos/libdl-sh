@@ -83,7 +83,7 @@ EOF
 }
 
 ##----------------------------------------------------------------------------
-##  atlocal_trace_invocation(FUNC [ARG ...])
+##  atlocal_trace_invocation(FUNC [ARG …])
 ##				Invoke FUNC, capture returned status and trace
 ##				invocation with status
 ##
@@ -114,7 +114,7 @@ EOF
 }
 
 ##----------------------------------------------------------------------------
-##  atlocal_trace_invocation_returns(STATUS FUNC [ARG ...])
+##  atlocal_trace_invocation_returns(STATUS FUNC [ARG …])
 ##				Invoke FUNC, capture returned status, trace
 ##				invocation with status, and check if FUNC's
 ##				invocation returned STATUS
@@ -128,7 +128,7 @@ atlocal_trace_invocation_returns() {
 }
 
 ##----------------------------------------------------------------------------
-##  atlocal_trace_invocation_raw_output(FUNC [ARG ...])
+##  atlocal_trace_invocation_raw_output(FUNC [ARG …])
 ##				Invoke FUNC, capture output as well as return-
 ##				ed status and trace invocation with status and
 ##				raw output
@@ -161,7 +161,7 @@ EOF
 }
 
 ##----------------------------------------------------------------------------
-##  atlocal_trace_invocation_set_output(&NAME FUNC [ARG ...])
+##  atlocal_trace_invocation_set_output(&NAME FUNC [ARG …])
 ##				Invoke FUNC, capture output as well as return-
 ##				ed status, trace invocation with status and
 ##				rewritten output, and assign output to NAME
@@ -179,9 +179,9 @@ atlocal_trace_invocation_set_output() {
 	1name_*|1func_*|1flags_*|1ifs_*|1args_*|1output_*|1returned_*)
 	    return 3			## No, indicate internal error!
 	    ;;
-	1?*_2?*_)			## Generally yes, but...
+	1?*_2?*_)			## Generally yes, but…
 	    expr "_$1/$2" : "_$dl_re_id/$dl_re_id$DS" >/dev/null || return 2
-					## ...indicate abuse if necesssary.
+					## …indicate abuse if necesssary.
 	    local name="$1" func="$2" flags ifs args output returned; shift 2
 	    ;;
 	*)  return 2			## Anything else is abuse!
@@ -249,7 +249,7 @@ EOF
 }
 
 ##----------------------------------------------------------------------------
-##  atlocal_function_deprecated(LIB API FUNC [ARG ...])
+##  atlocal_function_deprecated(LIB API FUNC [ARG …])
 ##				Check if LIBrary release deprecated FUNC
 ##----------------------------------------------------------------------------
 atlocal_function_deprecated() {
@@ -263,7 +263,7 @@ atlocal_function_deprecated() {
 	    ;;
 	*)  return 2			## N/?/?: Indicate abuse!
 	    ;;
-    esac; (				## Within subshell environment do...
+    esac; (				## Within subshell environment do…
 	dl_inform() {
 	    case ${5+5}${4+4}${1+=$1} in
 		54=rel-dpr-func)
@@ -282,7 +282,7 @@ atlocal_function_deprecated() {
 }
 
 ##----------------------------------------------------------------------------
-##  atlocal_function_withdrawn(LIB API FUNC [ARG ...])
+##  atlocal_function_withdrawn(LIB API FUNC [ARG …])
 ##				Check if LIBrary withdrew FUNC in API version
 ##----------------------------------------------------------------------------
 atlocal_function_withdrawn() {
@@ -294,7 +294,7 @@ atlocal_function_withdrawn() {
 	    ;;
 	*)  return 2			## N/?/?: Indicate abuse!
 	    ;;
-    esac; (				## Within subshell environment do...
+    esac; (				## Within subshell environment do…
 	dl_inform() {
 	    case ${5+5}${4+4}${1+=$1} in
 		*4=api-wdr-func)
@@ -334,19 +334,19 @@ atlocal_check_api_consistency() {
 	*)  return 2			## N/?: Indicate abuse!
 	    ;;
     esac; for mode in consistent deprecated withdrawn; do
-					## Foreach analysis mode do...
+					## Foreach analysis mode do…
 	case $mode in			## Which analysis mode?
-	    consistent)			## Check consistency...
+	    consistent)			## Check consistency…
 		${lib}_meta get apis all | api-analysis ${n+-n} "$lib"
 		;;
 	    *)				## Generate deprecated/withdrawn check
-					## list...
+					## list…
 		ifs=$IFS; IFS=$NL; set shiftee `
 		    ${lib}_meta get apis all | api-analysis -${n-}m$mode "$lib"
 		`; shift; IFS=$ifs	## Split check list into positional
 					## parameters.
 		for item in ${1+"$@"}; do
-					## Foreach check list item do...
+					## Foreach check list item do…
 		    $hook atlocal_function_$mode $lib $item || status=1
 					## Fail test unless HOOK-mediated
 		done			## check succeeds.
@@ -356,7 +356,7 @@ atlocal_check_api_consistency() {
 }					## Run API analysis in MODE for LIB.
 
 ##----------------------------------------------------------------------------
-##  atlocal_check_meta_inquiries(LIB [WHAT ...])
+##  atlocal_check_meta_inquiries(LIB [WHAT …])
 ##				Check if LIBrary provides the required set of
 ##				meta inquiries
 ##----------------------------------------------------------------------------
@@ -400,7 +400,7 @@ atlocal_check_meta_get_apis_honours_4th() {
 	*)  return 2			## N/?/?: Indicate abuse!
 	    ;;
     esac; for format in full list r/o; do
-					## Foreach format do...
+					## Foreach format do…
 	case $format in			## Construct its sed(1) expression.
 	    full)	sx="/;$2(/!d;s/;.*$DS//"	;;
 	    list)	sx="/;$2;/!d;s/;.*$DS//"	;;
@@ -426,7 +426,7 @@ atlocal_check_constants() {
 	*)  return 2			## N/?: Indicate abuse!
 	    ;;
     esac; for name in `$meta get apis r/o`; do
-					## Foreach constant do...
+					## Foreach constant do…
 	eval 'case ${'"$name"'+=} in	## Does it have a value?
 	    =)  (eval "$name=" 2>/dev/null) && status=1 || echo "$name"
 					## Yes, but fail test if we could set
@@ -464,14 +464,14 @@ atlocal_check_function_usage_errors() {
 	s/^\('"$dl_re_id"'\);\('"$dl_re_0n"'\)$/func=\1 min=\2/;tp
 	s/^.*$/test/;:p
     '
-    for api in `$meta get apis`; do (	## Foreach API version do...
+    for api in `$meta get apis`; do (	## Foreach API version do…
 	trap '' 0			## Ignore EXIT traps within subshell.
 	atlocal_trace_invocation $meta set api $api && {
 					## Library's API version selected?
 	    ifs=$IFS; IFS=$NL; set shiftee `
 		$meta get apis list "s/^$api;//;t0${NL}d;:0$sx"
 	    `; shift; IFS=$ifs; for signature in ${1+"$@"}; do
-					## Foreach parsed signature do...
+					## Foreach parsed signature do…
 		eval "$signature" && case $func in
 		    dl_exit)
 			;;

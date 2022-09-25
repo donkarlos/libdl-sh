@@ -77,7 +77,7 @@ eval "`libdl-sh load`"			## Load libdl.sh or die.
 dl_atload test_atload && dl_atexit test_atexit
 dl_load undo				## Register hooks and load
 					## libundo.sh.
-], 0, [dnl				## And the winner is...
+], 0, [dnl				## And the winner is…
 test_atexit(0)
 :undo:quote:dl:
 ], [dnl
@@ -114,7 +114,7 @@ case :$PATH: in				## Triggered by »check-local:«?
 esac
 eval "`libdl-sh load`"; dl_load undo	## Load libdl.sh and libundo.sh or die.
 atlocal_check_meta_inquiries undo	## Perform check for libundo.sh.
-], 0, [dnl				## And the winner is...
+], 0, [dnl				## And the winner is…
 undo_meta([[2]]get,package)=0
 @PACKAGE_TARNAME@
 undo_meta([[2]]get,version)=0
@@ -130,20 +130,20 @@ undo_meta([[3]]get,apis,api)=0
 1
 2
 undo_meta([[3]]get,apis,full)=0
-0;undo_meta(META [[ARG ...]]);2-4
+0;undo_meta(META [[ARG …]]);2-4
 0;undo_init(TAG);1
 0;undo_mark(MARK);1
-0;undo_push([[TAG] COMMAND [ARGUMENT|REDIRECTION ...]]);1-
+0;undo_push([[TAG] COMMAND [ARGUMENT|REDIRECTION …]]);1-
 0;undo_pull(MARK [[TAG] | TAG | [COUNT=1]]);0-2
 0;undo_drop(MARK [[TAG] | TAG | [COUNT=1]]);0-2
 0;undo_keep(MARK [[TAG] | TAG | [COUNT=1]]);0-2
-1;undo_meta(META [[ARG ...]]);2-4
+1;undo_meta(META [[ARG …]]);2-4
 1;undo_mark(MARK);1
-1;undo_push([[TAG] COMMAND [ARGUMENT|REDIRECTION ...]]);1-
+1;undo_push([[TAG] COMMAND [ARGUMENT|REDIRECTION …]]);1-
 1;undo_pull(MARK [[TAG] | TAG | [COUNT=1]]);0-2
 1;undo_drop(MARK [[TAG] | TAG | [COUNT=1]]);0-2
-2;undo_meta(META [[ARG ...]]);2-4
-2;undo_push(MARK|[[TAG] COMMAND [ARGUMENT|REDIRECTION ...]]);1-
+2;undo_meta(META [[ARG …]]);2-4
+2;undo_push(MARK|[[TAG] COMMAND [ARGUMENT|REDIRECTION …]]);1-
 2;undo_pull(MARK [[TAG] | TAG | [COUNT=1]]);0-2
 2;undo_drop(MARK [[TAG] | TAG | [COUNT=1]]);0-2
 undo_meta([[3]]get,apis,list)=0
@@ -207,7 +207,7 @@ esac
 eval "`libdl-sh load`"; dl_load undo	## Load libdl.sh and libundo.sh or die.
 atlocal_check_api_consistency undo test_hook
 					## Perform check for libundo.sh.
-], 0, [dnl				## And the winner is...
+], 0, [dnl				## And the winner is…
 Declared API versions: [[0;2]]
 undo_meta([[3]]set,api,0)=0
 undo_init([[1]]:TAG)=126
@@ -260,7 +260,7 @@ esac
 eval "`libdl-sh load`"; dl_load undo	## Load libdl.sh and libundo.sh or die.
 atlocal_check_meta_get_apis_honours_4th undo undo_push
 					## Perform check for libundo.sh.
-], 0, [dnl				## And the winner is...
+], 0, [dnl				## And the winner is…
 undo_meta([[4]]get,apis,full,/;undo_push@{:@/!d;s/;.*$//)=0
 0
 1
@@ -296,7 +296,7 @@ case :$PATH: in				## Triggered by »check-local:«?
 esac
 eval "`libdl-sh load`"; dl_load undo	## Load libdl.sh and libundo.sh or die.
 atlocal_check_constants undo		## Perform check for libundo.sh.
-], 0, [dnl				## And the winner is...
+], 0, [dnl				## And the winner is…
 ], [dnl
 ])
 AT_CLEANUP
@@ -324,7 +324,7 @@ esac
 eval "`libdl-sh load`"; dl_load undo	## Load libdl.sh and libundo.sh or die.
 atlocal_check_function_usage_errors undo
 					## Perform check for libundo.sh.
-], 0, [dnl				## And the winner is...
+], 0, [dnl				## And the winner is…
 undo_meta([[3]]set,api,0)=0
 undo_meta([[0]])=2
 undo_meta([[1]]1)=2
@@ -372,7 +372,7 @@ atlocal_trace_variable undo_0tag
 atlocal_trace_invocation_returns 1 undo_meta set 0tag :1	|| status=1
 atlocal_trace_variable undo_0tag
 exit $status				## Indicate success or failure.
-], 0, [dnl				## And the winner is...
+], 0, [dnl				## And the winner is…
 unset undo_0tag
 undo_meta([[3]]set,0tag,:0)=0
 undo_0tag=:0
@@ -413,7 +413,7 @@ atlocal_trace_variable undo_0tag
 atlocal_trace_invocation_returns 1 undo_init :1		|| status=1
 atlocal_trace_variable undo_0tag
 exit $status				## Indicate success or failure.
-], 0, [dnl				## And the winner is...
+], 0, [dnl				## And the winner is…
 undo_meta([[3]]set,api,0)=0
 unset undo_0tag
 undo_init([[1]]:0)=0

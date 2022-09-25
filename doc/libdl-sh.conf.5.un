@@ -49,7 +49,7 @@ Comments introduced by '#' as well as empty lines are ignored.
 Lines of the form
 
 .in +4
-\fBinclude\fP \fIPATHNAME\fP ...
+\fBinclude\fP \fIPATHNAME\fP …
 .in -4
 
 are substituted by the contents of the given configuration file(s), in the

@@ -39,7 +39,7 @@ dnl
 dnl NOTE:   (1)	Update the build system with autoreconf(1).
 dnl	    (2)	AM_INIT_AUTOMAKE() already invokes AC_ARG_PROGRAM, AC_PROG_-
 dnl		MAKE_SET, AC_PROG_INSTALL and AM_MISSING_PROG(ACLOCAL/AUTO-
-dnl		CONF/AUTOMAKE/AUTOHEADER/MAKEINFO, ...).
+dnl		CONF/AUTOMAKE/AUTOHEADER/MAKEINFO, …).
 dnl
 dnl Initialization:
 dnl

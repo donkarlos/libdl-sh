@@ -70,7 +70,7 @@ eval "`libdl-sh load`"			## Load libdl.sh or die.
 dl_atload test_atload && dl_atexit test_atexit
 dl_load conf				## Register hooks and load
 					## libconf.sh.
-], 0, [dnl				## And the winner is...
+], 0, [dnl				## And the winner is…
 test_atexit(0)
 :conf:dl:
 ], [dnl
@@ -107,7 +107,7 @@ case :$PATH: in				## Triggered by »check-local:«?
 esac
 eval "`libdl-sh load`"; dl_load conf	## Load libdl.sh and libconf.sh or die.
 atlocal_check_meta_inquiries conf	## Perform check for libconf.sh.
-], 0, [dnl				## And the winner is...
+], 0, [dnl				## And the winner is…
 conf_meta([[2]]get,package)=0
 @PACKAGE_TARNAME@
 conf_meta([[2]]get,version)=0
@@ -120,18 +120,18 @@ conf_meta([[3]]get,apis,api)=0
 1
 2
 conf_meta([[3]]get,apis,full)=0
--;conf_meta(META [[ARG ...]]);2-4
-1;conf_meta(META [[ARG ...]]);2-4
-1;conf_exec(CFPN ...);1-
-1;conf_has(ITEM[[=VALUE]] CFPN ...);2-
-1;conf_get(ITEM[[=VALUE]] CFPN ...);2-
-1;conf_put(ITEM[[=VALUE]] CFPN ...);2-
-1;conf_getenv(VARIABLE ITEM[[=VALUE]] CFPN ...);3-
-2;conf_meta(META [[ARG ...]]);2-4
-2;conf_exec(CFPN ...);1-
-2;conf_has(ITEM[[=VALUE]] CFPN ...);2-
-2;conf_get(ITEM[[=VALUE]] CFPN ...);2-
-2;conf_put(ITEM[[=VALUE]] CFPN ...);2-
+-;conf_meta(META [[ARG …]]);2-4
+1;conf_meta(META [[ARG …]]);2-4
+1;conf_exec(CFPN …);1-
+1;conf_has(ITEM[[=VALUE]] CFPN …);2-
+1;conf_get(ITEM[[=VALUE]] CFPN …);2-
+1;conf_put(ITEM[[=VALUE]] CFPN …);2-
+1;conf_getenv(VARIABLE ITEM[[=VALUE]] CFPN …);3-
+2;conf_meta(META [[ARG …]]);2-4
+2;conf_exec(CFPN …);1-
+2;conf_has(ITEM[[=VALUE]] CFPN …);2-
+2;conf_get(ITEM[[=VALUE]] CFPN …);2-
+2;conf_put(ITEM[[=VALUE]] CFPN …);2-
 conf_meta([[3]]get,apis,list)=0
 -;conf_meta;2-4
 1;conf_meta;2-4
@@ -186,7 +186,7 @@ esac
 eval "`libdl-sh load`"; dl_load conf	## Load libdl.sh and libconf.sh or die.
 atlocal_check_api_consistency conf test_hook
 					## Perform check for libconf.sh.
-], 0, [dnl				## And the winner is...
+], 0, [dnl				## And the winner is…
 Declared API versions: [[1;2]]
 API version 0 completely withdrawn.
 conf_meta([[3]]set,api,1)=0
@@ -226,7 +226,7 @@ esac
 eval "`libdl-sh load`"; dl_load conf	## Load libdl.sh and libconf.sh or die.
 atlocal_check_meta_get_apis_honours_4th conf conf_getenv
 					## Perform check for libconf.sh.
-], 0, [dnl				## And the winner is...
+], 0, [dnl				## And the winner is…
 conf_meta([[4]]get,apis,full,/;conf_getenv@{:@/!d;s/;.*$//)=0
 1
 conf_meta([[4]]get,apis,list,/;conf_getenv;/!d;s/;.*$//)=0
@@ -258,7 +258,7 @@ case :$PATH: in				## Triggered by »check-local:«?
 esac
 eval "`libdl-sh load`"; dl_load conf	## Load libdl.sh and libconf.sh or die.
 atlocal_check_constants conf		## Perform check for libconf.sh.
-], 0, [dnl				## And the winner is...
+], 0, [dnl				## And the winner is…
 ], [dnl
 ])
 AT_CLEANUP
@@ -287,7 +287,7 @@ esac
 eval "`libdl-sh load`"; dl_load conf	## Load libdl.sh and libconf.sh or die.
 atlocal_check_function_usage_errors conf
 					## Perform check for libconf.sh.
-], 0, [dnl				## And the winner is...
+], 0, [dnl				## And the winner is…
 conf_meta([[3]]set,api,1)=0
 conf_meta([[0]])=2
 conf_meta([[1]]1)=2

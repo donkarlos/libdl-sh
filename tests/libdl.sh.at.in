@@ -90,7 +90,7 @@ eval "`libdl-sh load`"			## Load libdl.sh or die.
 trap | sed 's/ EXIT$/ 0/;/ 0$/!d;s/^\(trap\) --/\1/;'
 					## Emit 0/EXIT trap setting (if any)
 					## and demodernize it.
-], 0, [dnl				## And the winner is...
+], 0, [dnl				## And the winner is…
 trap 'dl_exit $?' 0
 ], [dnl
 ])
@@ -127,7 +127,7 @@ case :$PATH: in				## Triggered by »check-local:«?
 esac
 eval "`libdl-sh load`"			## Load libdl.sh or die.
 atlocal_check_meta_inquiries dl loaded	## Perform check for libdl.sh.
-], 0, [dnl				## And the winner is...
+], 0, [dnl				## And the winner is…
 dl_meta([[2]]get,package)=0
 @PACKAGE_TARNAME@
 dl_meta([[2]]get,version)=0
@@ -139,15 +139,15 @@ dl_meta([[2]]get,apis)=0
 dl_meta([[3]]get,apis,api)=0
 1
 dl_meta([[3]]get,apis,full)=0
-1;dl_meta(META [[ARG ...]]);2-
-1;dl_inform(ABOUT [[AARG ...] FUNC [FARG ...]]);4-
+1;dl_meta(META [[ARG …]]);2-
+1;dl_inform(ABOUT [[AARG …] FUNC [FARG …]]);4-
 1;dl_apis([[FORMAT=api [SEDEX]]]);0-2
-1;dl_dump(MP VS ...);2-
+1;dl_dump(MP VS …);2-
 1;dl_readonly(LIB VS [[VALUE]]);2-3
-1;dl_split(WORD IFS &FIELD ...);3-
+1;dl_split(WORD IFS &FIELD …);3-
 1;dl_which(LIB);1
 1;dl_atload(HOOK);1
-1;dl_load(LIB ...);1-
+1;dl_load(LIB …);1-
 1;dl_atexit(HOOK);1
 1;dl_exit([[STATUS=$?]]);0-1
 dl_meta([[3]]get,apis,list)=0
@@ -224,7 +224,7 @@ esac
 eval "`libdl-sh load`"			## Load libdl.sh or die.
 atlocal_check_api_consistency dl test_hook
 					## Perform check for libdl.sh.
-], 0, [dnl				## And the winner is...
+], 0, [dnl				## And the winner is…
 Declared API versions: [[1;1]]
 API version 0 completely withdrawn.
 ], [dnl
@@ -260,7 +260,7 @@ esac
 eval "`libdl-sh load`"			## Load libdl.sh or die.
 atlocal_check_meta_get_apis_honours_4th dl dl_atload
 					## Perform check for libdl.sh.
-], 0, [dnl				## And the winner is...
+], 0, [dnl				## And the winner is…
 dl_meta([[4]]get,apis,full,/;dl_atload@{:@/!d;s/;.*$//)=0
 1
 dl_meta([[4]]get,apis,list,/;dl_atload;/!d;s/;.*$//)=0
@@ -301,7 +301,7 @@ case :$PATH: in				## Triggered by »check-local:«?
 esac
 eval "`libdl-sh load`"			## Load libdl.sh or die.
 atlocal_check_constants dl		## Perform check for libdl.sh.
-], 0, [dnl				## And the winner is...
+], 0, [dnl				## And the winner is…
 BQ
 DQ
 SQ
@@ -352,12 +352,12 @@ esac
 eval "`libdl-sh load`"			## Load libdl.sh or die.
 specials=
 for name in `dl_meta get apis r/o '/^dl_/d'`; do
-					## Foreach special character do...
+					## Foreach special character do…
     eval 'specials=$specials${'"$name"'-.}'
 done; od -bc <<EOF
 $specials
 EOF
-], 0, [dnl				## And the winner is...
+], 0, [dnl				## And the winner is…
 0000000 140 042 047 134 043 044 041 140 047 015 012 133 135 012
           `   "   '   \   #   $   !   `   '  \r  \n   [   ]  \n
 0000016
@@ -388,7 +388,7 @@ case :$PATH: in				## Triggered by »check-local:«?
 esac
 eval "`libdl-sh load`"			## Load libdl.sh or die.
 atlocal_check_function_usage_errors dl	## Perform check for libdl.sh.
-], 0, [dnl				## And the winner is...
+], 0, [dnl				## And the winner is…
 dl_meta([[3]]set,api,1)=0
 dl_meta([[0]])=2
 dl_meta([[1]]1)=2
@@ -439,7 +439,7 @@ esac
 eval "`libdl-sh load`"			## Load libdl.sh or die.
 dl_atload test_atload			## Register load-time hook.
 echo "$test_atload_trace"		## Emit resulting trace.
-], 0, [dnl				## And the winner is...
+], 0, [dnl				## And the winner is…
 :dl:
 ], [dnl
 ])
@@ -467,7 +467,7 @@ case :$PATH: in				## Triggered by »check-local:«?
 esac
 eval "`libdl-sh load`"			## Load libdl.sh or die.
 dl_atexit test_atexit			## Register exit-time hook.
-], 0, [dnl				## And the winner is...
+], 0, [dnl				## And the winner is…
 test_atexit(0)
 ], [dnl
 ])
@@ -497,7 +497,7 @@ case :$PATH: in				## Triggered by »check-local:«?
 esac
 eval "`libdl-sh load`"			## Load libdl.sh or die.
 dl_atexit test_atexit			## Register exit-time hook.
-], 0, [dnl				## And the winner is...
+], 0, [dnl				## And the winner is…
 test_atexit(0)
 trap '' 0
 ], [dnl
@@ -531,7 +531,7 @@ case :$PATH: in				## Triggered by »check-local:«?
 esac
 eval "`libdl-sh load`"			## Load libdl.sh or die.
 dl_atexit test_atexit			## Register exit-time hook.
-], 0, [dnl				## And the winner is...
+], 0, [dnl				## And the winner is…
 test_atexit(0)
 
 ], [dnl

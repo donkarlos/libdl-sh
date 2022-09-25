@@ -42,25 +42,25 @@ safe_meta \- Safe directory and file operations
 .br
 \fBsafe_mktmpdir\fP &\fIDPN\fP [\fIDRN\fP]
 .br
-\fBsafe_mkdir\fP \fIDPN\fP ...
+\fBsafe_mkdir\fP \fIDPN\fP …
 .br
 \fBsafe_chdir\fP \fIDPN\fP
 .br
-\fBsafe_touch\fP \fIFPN\fP ...
+\fBsafe_touch\fP \fIFPN\fP …
 .br
 \fBsafe_save\fP \fIFPN\fP
 .br
 \fBsafe_rename\fP \fIOLDPN\fP \fINEWPN\fP
 .br
-\fBsafe_remove\fP \fIPN\fP ...
+\fBsafe_remove\fP \fIPN\fP …
 .br
-\fBsafe_umask\fP \fIUMASK\fP \fICOMMAND\fP [\fIARGUMENT\fP ...]
+\fBsafe_umask\fP \fIUMASK\fP \fICOMMAND\fP [\fIARGUMENT\fP …]
 .br
 \fBsafe_lock\fP \fIPN\fP
 .br
 \fBsafe_wait\fP \fIPN\fP [\fISECONDS\fP=30]
 .br
-\fBsafe_meta\fP \fIMETA\fP [\fIARG\fP ...]
+\fBsafe_meta\fP \fIMETA\fP [\fIARG\fP …]
 
 .SH DESCRIPTION
 The safe directory and file operations library \fBlibsafe.sh\fP exploits the
@@ -84,7 +84,7 @@ Note that the temporary directory only will be made by the first invocation,
 whereas new subdirectories may be made by subsequent invocations.
 
 .TP
-\fBsafe_mkdir\fP \fIDPN\fP ...
+\fBsafe_mkdir\fP \fIDPN\fP …
 Unless they exist, recursively make directories \fIDPN\fP and their parent
 directories, pushing undos for each directory made.
 
@@ -94,7 +94,7 @@ Change to directory \fIDPN\fP and push an undo that, when pulled, changes back
 to the current directory.
 
 .TP
-\fBsafe_touch\fP \fIFPN\fP ...
+\fBsafe_touch\fP \fIFPN\fP …
 Unless they exist, touch files \fIFPN\fP into existence after recursively
 making their parent directories, pushing undos for each file created and/or
 directory made.
@@ -112,14 +112,14 @@ If it's safe to move \fIOLDPN\fP to \fINEWPN\fP (i.e., \fIOLDPN\fP exists but
 \fINEWPN\fP back to \fIOLDPN\fP.
 
 .TP
-\fBsafe_remove\fP \fIPN\fP ...
+\fBsafe_remove\fP \fIPN\fP …
 Backup directories and/or files \fIPN\fP into a \fBtar\fP(1) archive, remove
 them and push an undo that restores the backed-up directories/files from the
 archive.
 
 .TP
-\fBsafe_umask\fP \fIUMASK\fP \fICOMMAND\fP [\fIARGUMENT\fP ...]
-Execute \fICOMMAND\fP [\fIARGUMENT\fP ...] with the umask temporarily set
+\fBsafe_umask\fP \fIUMASK\fP \fICOMMAND\fP [\fIARGUMENT\fP …]
+Execute \fICOMMAND\fP [\fIARGUMENT\fP …] with the umask temporarily set
 to \fIUMASK\fP.
 
 .TP
@@ -139,7 +139,7 @@ Unless locking \fIPN\fP (with \fBsafe_lock\fP \fIPN\fP) succeeds, sleep for a
 second, then retry for at most SECONDS times.
 
 .TP
-\fBsafe_meta\fP \fIMETA\fP [\fIARG\fP ...]
+\fBsafe_meta\fP \fIMETA\fP [\fIARG\fP …]
 Perform one of \fBlibsafe.sh\fP's meta operations. These allow to inquire
 certain library internals in a controlled manner. Currently, the following
 meta operations are implemented:
@@ -169,7 +169,7 @@ For example, for API 0, \fBsafe_mkdir\fP(3sh) and \fBsafe_chdir\fP(3sh) would
 be represented by the following two lines:
 
 .in +4
-\fB0;safe_mkdir(DPN ...);1-\fP
+\fB0;safe_mkdir(DPN …);1-\fP
 .br
 \fB0;safe_chdir(DPN);1\fP
 .in -4

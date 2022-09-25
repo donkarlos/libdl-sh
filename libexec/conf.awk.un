@@ -31,7 +31,7 @@
 ##  Initialization:
 #-----------------------------------------------------------------------------
 BEGIN {
-    ai = 0; ac = ARGC - 2		## Foreach pathname argument do...
+    ai = 0; ac = ARGC - 2		## Foreach pathname argument do…
     while (++ai <= ac) {		## Create AV <-> AI mappings and
 	ai2av[ai] = av = ARGV[ai]; av2ai[av] = ai; gsub("'", "&\\\\&&", av)
 	if (system("test -f '" av "'")) delete ARGV[ai]
@@ -217,7 +217,7 @@ function get_sn_vn_vv(item) {
 		print vv; ++dc		## Print default VV if not.
 	    }
 	} else for (si = 1; si <= sc; ++si) {
-					## Foreach SI do...
+					## Foreach SI do…
 	    if (has_si(si) && get_vi(si, vn)) {
 		print sivi2vv[si,vi]; ++dc
 	    }				## Print VV if VN -> VI within SI.

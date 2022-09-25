@@ -90,7 +90,7 @@ eval "`libdl-sh load`"			## Load libdl.sh or die.
 dl_atload test_atload && dl_atexit test_atexit
 dl_load quote				## Register hooks and load
 					## libquote.sh.
-], 0, [dnl				## And the winner is...
+], 0, [dnl				## And the winner is…
 test_atexit(0)
 :quote:dl:
 ], [dnl
@@ -127,7 +127,7 @@ case :$PATH: in				## Triggered by »check-local:«?
 esac
 eval "`libdl-sh load`"; dl_load quote	## Load libdl.sh and libquote.sh or die.
 atlocal_check_meta_inquiries quote	## Perform check for libquote.sh.
-], 0, [dnl				## And the winner is...
+], 0, [dnl				## And the winner is…
 quote_meta([[2]]get,package)=0
 @PACKAGE_TARNAME@
 quote_meta([[2]]get,version)=0
@@ -139,10 +139,10 @@ quote_meta([[2]]get,apis)=0
 quote_meta([[3]]get,apis,api)=0
 0
 quote_meta([[3]]get,apis,full)=0
-0;quote_meta(META [[ARG ...]]);2-4
-0;quote([[[STYLE [DELIMITER]] ... STRING]]);0-
+0;quote_meta(META [[ARG …]]);2-4
+0;quote([[[STYLE [DELIMITER]] … STRING]]);0-
 0;quote_sh(STRING);1
-0;quote_command(COMMAND [[ARGUMENT|REDIRECTION ...]]);1-
+0;quote_command(COMMAND [[ARGUMENT|REDIRECTION …]]);1-
 0;quote_re(STRING [[DELIMITER]]);1-2
 0;quote_ere(STRING [[DELIMITER]]);1-2
 0;quote_rs(STRING [[DELIMITER]]);1-2
@@ -202,7 +202,7 @@ esac
 eval "`libdl-sh load`"; dl_load quote	## Load libdl.sh and libquote.sh or die.
 atlocal_check_api_consistency quote test_hook
 					## Perform check for libquote.sh.
-], 0, [dnl				## And the winner is...
+], 0, [dnl				## And the winner is…
 Declared API versions: [[0;0]]
 ], [dnl
 ])
@@ -237,7 +237,7 @@ esac
 eval "`libdl-sh load`"; dl_load quote	## Load libdl.sh and libquote.sh or die.
 atlocal_check_meta_get_apis_honours_4th quote quote_sh
 					## Perform check for libquote.sh.
-], 0, [dnl				## And the winner is...
+], 0, [dnl				## And the winner is…
 quote_meta([[4]]get,apis,full,/;quote_sh@{:@/!d;s/;.*$//)=0
 0
 quote_meta([[4]]get,apis,list,/;quote_sh;/!d;s/;.*$//)=0
@@ -273,7 +273,7 @@ case :$PATH: in				## Triggered by »check-local:«?
 esac
 eval "`libdl-sh load`"; dl_load quote	## Load libdl.sh and libquote.sh or die.
 atlocal_check_constants quote		## Perform check for libquote.sh.
-], 0, [dnl				## And the winner is...
+], 0, [dnl				## And the winner is…
 quote_cs_sh
 quote_cs_bre
 quote_cs_ere
@@ -306,7 +306,7 @@ esac
 eval "`libdl-sh load`"; dl_load quote	## Load libdl.sh and libquote.sh or die.
 atlocal_check_function_usage_errors quote
 					## Perform check for libquote.sh.
-], 0, [dnl				## And the winner is...
+], 0, [dnl				## And the winner is…
 quote_meta([[3]]set,api,0)=0
 quote_meta([[0]])=2
 quote_meta([[1]]1)=2
@@ -354,14 +354,14 @@ eval "set shiftee `atlocal_set_special_cs "$cs"`; shift"
 					## Split special characters into
 					## positional parameters.
 for quotee in '' ${1+"$@"} "em~bed${DS}ded" "em${SQ}bed${NL}ded"; do
-					## Foreach quotee do...
+					## Foreach quotee do…
     atlocal_trace_invocation_set_output quoted quote_sh "$quotee" || status=1 && {
 					## Fail test unless quoting succeeded.
 	eval 'test "_$quotee" = '"_$quoted" || status=1 && echo matched
 					## Fail test unless dequoted equals
     } 					## quotee.
 done; exit $status			## Indicate success or failure.
-], 0, [dnl				## And the winner is...
+], 0, [dnl				## And the winner is…
 quote_sh@{:@@<:@2@:>@quotee,excess@:}@=2
 quote_sh@{:@@<:@1@:>@@:}@=0=>''
 matched
@@ -457,7 +457,7 @@ eval "set shiftee `atlocal_set_special_cs "$cs"`; shift"
 					## Split special characters into
 					## positional parameters.
 for quotee in '' ${1+"$@"} "em~bed${DS}ded" "em${SQ}bed${NL}ded"; do
-    case $quotee in			## Foreach quotee do...
+    case $quotee in			## Foreach quotee do…
 	\<) quotee=${quotee}/dev/null	;;
 	\>) quotee=2${quotee}/dev/null	;;
     esac				## Construct redirection where
@@ -466,7 +466,7 @@ for quotee in '' ${1+"$@"} "em~bed${DS}ded" "em${SQ}bed${NL}ded"; do
 	status=1			## Fail test unless command was suc-
 					## cessfully quoted.
 done; exit $status			## Indicate success or failure.
-], 0, [dnl				## And the winner is...
+], 0, [dnl				## And the winner is…
 quote_command@{:@@<:@3@:>@rm,-f,@:}@=0=>rm<SP>-f<SP>''
 quote_command@{:@@<:@3@:>@rm,-f,<NL>@:}@=0=>rm<SP>-f<SP>'<NL>'
 quote_command@{:@@<:@3@:>@rm,-f,<HT>@:}@=0=>rm<SP>-f<SP>'<HT>'
@@ -533,7 +533,7 @@ atlocal_trace_invocation_returns 2 quote_re quotee / excess || status=1
 					## Fail test unless invocation with
 					## excess argument results in usage
 					## error.
-for de in '' / \| //; do		## Foreach delimiter do...
+for de in '' / \| //; do		## Foreach delimiter do…
     case $de in				## Is it invalid?
 	??*)atlocal_trace_invocation_returns 1 quote_re quotee "$de" ||
 		status=1; continue	## Yes, fail test unless invocation
@@ -545,14 +545,14 @@ for de in '' / \| //; do		## Foreach delimiter do...
 					## Split special characters into
 					## positional parameters.
     for quotee in '' ${1+"$@"} "em^bed${DS}ded" "em${de-/}bed${NL}ded"; do
-					## Foreach quotee do...
+					## Foreach quotee do…
 	atlocal_trace_invocation_set_output quoted quote_re "$quotee" ${de+"$de"} || status=1 && {
 					## Fail test unless quoting succeeded.
-	    case ${de+=}:$quotee in	## Delimiter/quotee combination...?
-		=:*"$NL"|:*"$NL"*)	## ...is known to fail match test:
+	    case ${de+=}:$quotee in	## Delimiter/quotee combination…?
+		=:*"$NL"|:*"$NL"*)	## …is known to fail match test:
 		    echo skipped	## Skip match test.
 		    ;;
-		=:*)			## ...must be matched with sed(1):
+		=:*)			## …must be matched with sed(1):
 		    sed '
 			:N'"$NL"'$!{;N;bN'"$NL"'}
 			s'"$de"'^'"$quoted"'$'"$de"'matched'"$de"';tp'"$NL"'d;:p
@@ -560,7 +560,7 @@ for de in '' / \| //; do		## Foreach delimiter do...
 $quotee
 EOF
 		    ;;
-		*)			## ...must be matched with grep(1):
+		*)			## …must be matched with grep(1):
 		    grep '^'"$quoted"'$' >/dev/null <<EOF || status=1 && echo matched
 $quotee
 EOF
@@ -569,7 +569,7 @@ EOF
 	}
     done
 done; exit $status			## Indicate success or failure.
-], 0, [dnl				## And the winner is...
+], 0, [dnl				## And the winner is…
 quote_re@{:@@<:@3@:>@quotee,/,excess@:}@=2
 quote_re@{:@@<:@2@:>@quotee,@:}@=1
 quote_re@{:@@<:@1@:>@@:}@=0=>
@@ -796,7 +796,7 @@ atlocal_trace_invocation_returns 2 quote_ere quotee / excess || status=1
 					## Fail test unless invocation with
 					## excess argument results in usage
 					## error.
-for de in '' / //; do			## Foreach delimiter do...
+for de in '' / //; do			## Foreach delimiter do…
     case $de in				## Is it invalid?
 	??*)atlocal_trace_invocation_returns 1 quote_ere quotee "$de" ||
 		status=1; continue	## Yes, fail test unless invocation
@@ -808,14 +808,14 @@ for de in '' / //; do			## Foreach delimiter do...
 					## Split special characters into
 					## positional parameters.
     for quotee in '' ${1+"$@"} "em^bed${DS}ded" "em${de-/}bed${NL}ded"; do
-					## Foreach quotee do...
+					## Foreach quotee do…
 	atlocal_trace_invocation_set_output quoted quote_ere "$quotee" ${de+"$de"} || status=1 && {
 					## Fail test unless quoting succeeded.
-	    case ${de+=}:$quotee in	## Delimiter/quotee combination...?
-		=:*|:*"$NL"*)		## ...is known to fail match test:
+	    case ${de+=}:$quotee in	## Delimiter/quotee combination…?
+		=:*|:*"$NL"*)		## …is known to fail match test:
 		    echo skipped	## Skip match test.
 		    ;;
-		*)			## ...must be matched with egrep(1):
+		*)			## …must be matched with egrep(1):
 		    egrep '^'"$quoted"'$' >/dev/null <<EOF || status=1 && echo matched
 $quotee
 EOF
@@ -824,7 +824,7 @@ EOF
 	}
     done
 done; exit $status			## Indicate success or failure.
-], 0, [dnl				## And the winner is...
+], 0, [dnl				## And the winner is…
 quote_ere@{:@@<:@3@:>@quotee,/,excess@:}@=2
 quote_ere@{:@@<:@2@:>@quotee,@:}@=1
 quote_ere@{:@@<:@1@:>@@:}@=0=>
@@ -985,7 +985,7 @@ atlocal_trace_invocation_returns 2 quote_rs quotee / excess || status=1
 					## Fail test unless invocation with
 					## excess argument results in usage
 					## error.
-for de in '' / \| //; do		## Foreach delimiter do...
+for de in '' / \| //; do		## Foreach delimiter do…
     case $de in				## Is it invalid?
 	??*)atlocal_trace_invocation_returns 1 quote_rs quotee "$de" ||
 		status=1; continue	## Yes, fail test unless invocation
@@ -997,15 +997,15 @@ for de in '' / \| //; do		## Foreach delimiter do...
 					## Split special characters into
 					## positional parameters.
     for quotee in '' ${1+"$@"} "em^bed${DS}ded" "em${de-/}bed${NL}ded"; do
-					## Foreach quotee do...
+					## Foreach quotee do…
 	atlocal_trace_invocation_set_output search quote_re "$quotee" "${de-/}"   || status=1
 	atlocal_trace_invocation_set_output quoted quote_rs "$quotee" ${de+"$de"} || status=1 && {
 					## Fail test unless quoting succeeded.
-	    case $quotee in		## Delimiter/quotee combination...?
-		*"$NL")			## ...is known to fail match test:
+	    case $quotee in		## Delimiter/quotee combination…?
+		*"$NL")			## …is known to fail match test:
 		    echo skipped	## Skip match test
 		    ;;
-		*)			## ...must be matched with sed(1):
+		*)			## …must be matched with sed(1):
 		    sed '
 			:N'"$NL"'$!{;N;bN'"$NL"'}
 			s'"${de-/}"'^'"$search"'$'"${de-/}$quoted${de-/}"';tm'"$NL"'d;:m
@@ -1018,7 +1018,7 @@ EOF
 	}
     done
 done; exit $status			## Indicate success or failure.
-], 0, [dnl				## And the winner is...
+], 0, [dnl				## And the winner is…
 quote_rs@{:@@<:@3@:>@quotee,/,excess@:}@=2
 quote_rs@{:@@<:@2@:>@quotee,@:}@=1
 quote_re@{:@@<:@2@:>@,/@:}@=0=>
@@ -1340,7 +1340,7 @@ atlocal_trace_invocation_returns 2 quote_sed quotee / excess || status=1
 					## Fail test unless invocation with
 					## excess argument results in usage
 					## error.
-for de in '' / \| //; do		## Foreach delimiter do...
+for de in '' / \| //; do		## Foreach delimiter do…
     case $de in				## Is it invalid?
 	??*)atlocal_trace_invocation_returns 1 quote_sed quotee "$de" ||
 		status=1; continue	## Yes, fail test unless invocation
@@ -1352,11 +1352,11 @@ for de in '' / \| //; do		## Foreach delimiter do...
 					## Split special characters into
 					## positional parameters.
     for quotee in '' ${1+"$@"} "em^bed${DS}ded" "em${de-/}bed${NL}ded"; do
-					## Foreach quotee do...
+					## Foreach quotee do…
 	atlocal_trace_invocation_set_output quoted quote_sed "$quotee" ${de+"$de"} || status=1
     done				## Fail test unless quoting succeeded.
 done; exit $status			## Indicate success or failure.
-], 0, [dnl				## And the winner is...
+], 0, [dnl				## And the winner is…
 quote_sed@{:@@<:@3@:>@quotee,/,excess@:}@=2
 quote_sed@{:@@<:@2@:>@quotee,@:}@=1
 quote_sed@{:@@<:@1@:>@@:}@=0=>
@@ -1493,7 +1493,7 @@ for quotee in '' ${1+"$@"} "em^bed${DS}ded" "em/bed${NL}ded"; do
     atlocal_trace_invocation_set_output quoted quote_grep "$quotee" || status=1
 					## Fail test unless quoting succeeded.
 done; exit $status			## Indicate success or failure.
-], 0, [dnl				## And the winner is...
+], 0, [dnl				## And the winner is…
 quote_grep@{:@@<:@2@:>@quotee,excess@:}@=2
 quote_grep@{:@@<:@1@:>@@:}@=0=>
 quote_grep@{:@@<:@1@:>@<NL>@:}@=0=>\
@@ -1563,7 +1563,7 @@ for quotee in '' ${1+"$@"} "em^bed${DS}ded" "em/bed${NL}ded"; do
     atlocal_trace_invocation_set_output quoted quote_egrep "$quotee" || status=1
 					## Fail test unless quoting succeeded.
 done; exit $status			## Indicate success or failure.
-], 0, [dnl				## And the winner is...
+], 0, [dnl				## And the winner is…
 quote_egrep@{:@@<:@2@:>@quotee,excess@:}@=2
 quote_egrep@{:@@<:@1@:>@@:}@=0=>
 quote_egrep@{:@@<:@1@:>@<NL>@:}@=0=>\
@@ -1616,7 +1616,7 @@ dnl
 dnl NOTE:   (1)	The expected output is peppered with quadrigraphs because
 dnl		it's as unbalanced as can be!
 dnl
-AT_SETUP([quote() works as expected? (be patient...)])
+AT_SETUP([quote() works as expected? (be patient…)])
 AT_KEYWORDS([libquote.sh libquote quote])
 AT_CHECK([dnl
 set -eu					## Employ strict execution environment
@@ -1636,22 +1636,22 @@ for operators in ''							    \
     're sh' 're re' 're re /' 're ere' 're ere /' 're rs' 're rs /'	    \
     'ere sh' 'ere re' 'ere re /' 'ere ere' 'ere ere /' 'ere rs' 'ere rs /'  \
     'rs sh' 'rs re' 'rs re /' 'rs ere' 'rs ere /' 'rs rs' 'rs rs /'
-do					## Foreach operators list do...
+do					## Foreach operators list do…
     set shiftee $operators; shift	## Split it into pos. parameters.
     case ${1-sh}${2+,$2} in		## Which operator is 1st?
-	sh*)				## 'sh'...
+	sh*)				## 'sh'…
 	    eq=${1-sh};	unset de;;
-	re,?)				## 're' DELIMITER...
+	re,?)				## 're' DELIMITER…
 	    eq=$1	de=$2	;;
-	re*)				## 're'...
+	re*)				## 're'…
 	    eq=$1;	unset de;;
-	ere,?)				## 'ere' DELIMITER...
+	ere,?)				## 'ere' DELIMITER…
 	    eq=$1	de=$2	;;
-	ere*)				## 'ere'...
+	ere*)				## 'ere'…
 	    eq=$1;	unset de;;
-	rs,?)				## 'rs' DELIMITER...
+	rs,?)				## 'rs' DELIMITER…
 	    eq=$1	de=$2	;;
-	rs*)				## 'rs'...
+	rs*)				## 'rs'…
 	    eq=$1	de=/	;;
 	*)  continue
 	    ;;
@@ -1659,7 +1659,7 @@ do					## Foreach operators list do...
 					## Split special characters into
 					## positional parameters.
     for quotee in '' ${1+"$@"} "em^bed${DS}ded" "em${de-}bed${NL}ded"; do
-					## Foreach quotee do...
+					## Foreach quotee do…
 	atlocal_trace_invocation_set_output quoted quote $operators "$quotee" || status=1
 					## Fail test unless quoting succeeded.
 	set shiftee $operators; shift	## Split operators list into posi-
@@ -1672,7 +1672,7 @@ do					## Foreach operators list do...
 	esac
     done
 done; exit $status			## Indicate success or failure.
-], 0, [dnl				## And the winner is...
+], 0, [dnl				## And the winner is…
 quote@{:@@<:@1@:>@@:}@=0=>''
 matched
 quote@{:@@<:@1@:>@<NL>@:}@=0=>'<NL>'

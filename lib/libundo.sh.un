@@ -64,43 +64,43 @@ readonly undo_package undo_version; unset undo_ro undo_0tag
 					## Discard spurious environment.
 
 ##----------------------------------------------------------------------------
-##  undo_meta(META [ARG ...])	Perform META operation (with ARGs)
+##  undo_meta(META [ARG …])	Perform META operation (with ARGs)
 ##----------------------------------------------------------------------------
 undo_meta() {
     local mp=undo_ ms=\;		## Set meta prefix and separator.
 
     case ${2+=}${1+$1-}${2-} in		## Which META operation?
-	=get-apis)			## Inquire APIs...
+	=get-apis)			## Inquire APIs…
 	    shift 2 && dl_apis ${1+"$@"} <<EOF
 a${ms}0
-f${ms}0${ms}meta(META [ARG ...])${ms}2-4
+f${ms}0${ms}meta(META [ARG …])${ms}2-4
 f${ms}0${ms}init(TAG)${ms}1
 f${ms}0${ms}mark(MARK)${ms}1
-f${ms}0${ms}push([TAG] COMMAND [ARGUMENT|REDIRECTION ...])${ms}1-
+f${ms}0${ms}push([TAG] COMMAND [ARGUMENT|REDIRECTION …])${ms}1-
 f${ms}0${ms}pull(MARK [TAG] | TAG | [COUNT=1])${ms}0-2
 f${ms}0${ms}drop(MARK [TAG] | TAG | [COUNT=1])${ms}0-2
 f${ms}0${ms}keep(MARK [TAG] | TAG | [COUNT=1])${ms}0-2
 a${ms}1
-f${ms}1${ms}meta(META [ARG ...])${ms}2-4
+f${ms}1${ms}meta(META [ARG …])${ms}2-4
 f${ms}1${ms}mark(MARK)${ms}1
-f${ms}1${ms}push([TAG] COMMAND [ARGUMENT|REDIRECTION ...])${ms}1-
+f${ms}1${ms}push([TAG] COMMAND [ARGUMENT|REDIRECTION …])${ms}1-
 f${ms}1${ms}pull(MARK [TAG] | TAG | [COUNT=1])${ms}0-2
 f${ms}1${ms}drop(MARK [TAG] | TAG | [COUNT=1])${ms}0-2
 a${ms}2
-f${ms}2${ms}meta(META [ARG ...])${ms}2-4
-f${ms}2${ms}push(MARK|[TAG] COMMAND [ARGUMENT|REDIRECTION ...])${ms}1-
+f${ms}2${ms}meta(META [ARG …])${ms}2-4
+f${ms}2${ms}push(MARK|[TAG] COMMAND [ARGUMENT|REDIRECTION …])${ms}1-
 f${ms}2${ms}pull(MARK [TAG] | TAG | [COUNT=1])${ms}0-2
 f${ms}2${ms}drop(MARK [TAG] | TAG | [COUNT=1])${ms}0-2
 EOF
 	    ;;
 	=get-package|=get-version|=get-api|=get-0tag)
-					## Inquire internal variable...
+					## Inquire internal variable…
 	    eval 'case ${'"$mp$2"'+=} in
 		=)  echo "$'"$mp$2"'"	;;
 		*)  return 1		;;
 	    esac'
 	    ;;
-	=set-*)				## Set internal variable once...
+	=set-*)				## Set internal variable once…
 	    case ${4+4}${3+=}$2 in	## Usage OK?
 		=api)	${mp}meta get apis | fgrep -qxe "$3"
 			;;		## Yes, try to validate API version.
@@ -111,10 +111,10 @@ EOF
 	    esac && eval dl_readonly undo "$2" "$3"
 	    ;;
 	=session-init|=session-load|=session-dump|=session-exit)
-	    :				## Session init/load/dump/exit...
-	    ;;				## ...is a no-op.
-	*)  return 2			## Anything else...
-	    ;;				## ...is abuse!
+	    :				## Session init/load/dump/exit…
+	    ;;				## …is a no-op.
+	*)  return 2			## Anything else…
+	    ;;				## …is abuse!
     esac
 }
 
@@ -153,7 +153,7 @@ undo_emit() {
 	    case ${3+=$3} in		## Mark followed by tag?
 		=::*)			## No (a 2nd mark!), indicate abuse!
 		    return 2	    ;;
-		=:?*)			## Yes, ...
+		=:?*)			## Yes, …
 		    case $1 in		## Which mode?
 			drop)	sx='{;'"$mark"'bp;/#'"$3$DS/$i"'d;1d;};:p'  ;;
 			pick)	sx='!d;'"$mark"'d;/#'"$3$DS/$i"'d'	    ;;
@@ -198,7 +198,7 @@ undo_mark() {
 }
 
 ##----------------------------------------------------------------------------
-##  undo_push([TAG] COMMAND [ARGUMENT|REDIRECTION ...])
+##  undo_push([TAG] COMMAND [ARGUMENT|REDIRECTION …])
 ##  undo_push(MARK)		Push (TAGged) COMMAND (with quoted ARGUMENTs
 ##				and/or REDIRECTIONs) or MARK onto undo stack
 ##  Legend:
@@ -282,13 +282,13 @@ undo_keep() {
 ##  NOTE:   (1)	This function is registered as libundo.sh's exit-time hook!
 ##----------------------------------------------------------------------------
 undo_exit() {
-    case ${1-1}${undo_0tag-} in		## Exit with...
-	0)				## ...success and no cleanups tag?
+    case ${1-1}${undo_0tag-} in		## Exit with…
+	0)				## …success and no cleanups tag?
 	    ;;				## What's done is done!
-	0:*)				## ...success and cleanups tag?
+	0:*)				## …success and cleanups tag?
 	    eval "`undo_emit pick "$undo_0tag"`"
 	    ;;				## Apply cleanups.
-	*)				## ...failure?
+	*)				## …failure?
 	    eval "$undo_stack"		## Apply undos.
 	    ;;
     esac

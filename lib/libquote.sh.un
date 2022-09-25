@@ -71,19 +71,19 @@ readonly quote_package quote_version; unset quote_ro quote_api
 					## Discard spurious environment.
 
 ##----------------------------------------------------------------------------
-##  quote_meta(META [ARG ...])	Perform META operation (with ARGs)
+##  quote_meta(META [ARG …])	Perform META operation (with ARGs)
 ##----------------------------------------------------------------------------
 quote_meta() {
     local mp=quote_ ms=\;		## Set meta prefix and separator.
 
     case ${2+=}${1+$1-}${2-} in		## Which META operation?
-	=get-apis)			## Inquire APIs...
+	=get-apis)			## Inquire APIs…
 	    shift 2 && dl_apis ${1+"$@"} <<EOF
 a${ms}0
-f${ms}0${ms}meta(META [ARG ...])${ms}2-4
-F${ms}0${ms}quote([[STYLE [DELIMITER]] ... STRING])${ms}0-
+f${ms}0${ms}meta(META [ARG …])${ms}2-4
+F${ms}0${ms}quote([[STYLE [DELIMITER]] … STRING])${ms}0-
 f${ms}0${ms}sh(STRING)${ms}1
-f${ms}0${ms}command(COMMAND [ARGUMENT|REDIRECTION ...])${ms}1-
+f${ms}0${ms}command(COMMAND [ARGUMENT|REDIRECTION …])${ms}1-
 f${ms}0${ms}re(STRING [DELIMITER])${ms}1-2
 f${ms}0${ms}ere(STRING [DELIMITER])${ms}1-2
 f${ms}0${ms}rs(STRING [DELIMITER])${ms}1-2
@@ -97,13 +97,13 @@ r${ms}cs_brs
 EOF
 	    ;;
 	=get-package|=get-version|=get-api)
-					## Inquire internal variable...
+					## Inquire internal variable…
 	    eval 'case ${'"$mp$2"'+=} in
 		=)  echo "$'"$mp$2"'"	;;
 		*)  return 1		;;
 	    esac'
 	    ;;
-	=set-*)				## Set internal variable once...
+	=set-*)				## Set internal variable once…
 	    case ${4+4}${3+=}$2 in	## Usage OK?
 		=api)	${mp}meta get apis | fgrep -qxe "$3"
 			;;		## Yes, try to validate API version.
@@ -112,15 +112,15 @@ EOF
 	    esac && dl_readonly quote "$2" "$3"
 	    ;;
 	=session-init|=session-load|=session-dump|=session-exit)
-	    :				## Session init/load/dump/exit...
-	    ;;				## ...is a no-op.
-	*)  return 2			## Anything else...
-	    ;;				## ...is abuse!
+	    :				## Session init/load/dump/exit…
+	    ;;				## …is a no-op.
+	*)  return 2			## Anything else…
+	    ;;				## …is abuse!
     esac
 }
 
 ##----------------------------------------------------------------------------
-##  quote([[STYLE [DELIMITER]] ... STRING])
+##  quote([[STYLE [DELIMITER]] … STRING])
 ##				Universally quote STRING
 ##
 ##  Non-local variables:
@@ -134,49 +134,49 @@ quote() {
 					## Preset sed(1) expr. with "read all
 					## lines into pattern buffer" loop.
     set shiftee ${1+"$@"}		## Let initial shift always succeed.
-    while shift ${n-}; do		## Foreach style do...
+    while shift ${n-}; do		## Foreach style do…
 	case ${2+2}${1+1}_${1+1$1_}${2+2$2_}${3+3} in
 					## What are we looking at?
 	    21_1[bo]r[es]_2?_3|21_1r[es]_2?_3|21_1[em]re_2?_3|		\
 	    21_1[bo]r[es]_2_3 |21_1r[es]_2_3 |21_1[em]re_2_3)
 					## Style ([bo]?r[es]|[em]re) with de-
-					## limiter...
+					## limiter…
 		n=2 st=$1 de=$2		## Fetch style and delimiter.
 		;;
-	    21_1*_2*_*)			## Style without delimiter...
+	    21_1*_2*_*)			## Style without delimiter…
 		n=1 st=$1 de=		## Fetch style and (just in case)
 		;;			## assume empty delimiter.
-	    1_1*_)			## STRING...
+	    1_1*_)			## STRING…
 		string=$1		## Fetch string.
 		case ${st+=} in		## Already saw some style?
 		    =)	break	;;	## Yes, let sed(1) do its thing!
 		    *)	n=1	;;	## No, append implicit »sh« pass.
 		esac
 		;;
-	    _)				## No (more) arguments...
+	    _)				## No (more) arguments…
 		break			## Let sed(1) do its thing!
 		;;
-	    *)				## Not really, but if...
+	    *)				## Not really, but if…
 		return 3		## Indicate internal error!
 		;;
 	esac; case ${st-sh} in		## Which style had been fetched?
-	    ore|bre|re)			## Obsolete/Basic RE...
+	    ore|bre|re)			## Obsolete/Basic RE…
 		sx="$sx$NL"'s/['"$quote_cs_bre${de-}"']/\\&/g;s/'"$BS$NL"'/\\&/g;s/^^/\\&/;s/$$/\\&/'
 					## Append "smart BRE quoting" state-
 		;;			## ments.
-	    mre|ere)			## Modern/Extended RE...
+	    mre|ere)			## Modern/Extended RE…
 		sx="$sx$NL"'s/['"$quote_cs_ere${de-}"']/\\&/g;s/'"$BS$NL"'/\\&/g'
 					## Append "smart ERE quoting" state-
 		;;			## ments.
-	    ors|brs|rs)			## 's///' right-hand side...
+	    ors|brs|rs)			## »s///« right-hand side…
 		sx="$sx$NL"'s/['"$quote_cs_brs${de-}"']/\\&/g;s/'"$BS$NL"'/\\&/g'
 					## Append "smart BRS quoting" state-
 		;;			## ments.
-	    sh)				## Bourne shell...
+	    sh)				## Bourne shell…
 		sx="$sx$NL"'/^$/bq'"$pass$NL"'/^~/bq'"$pass$NL"'/'"$BS$NL"'/bq'"$pass$NL"'/['"$quote_cs_sh"']/!be'"$pass$NL"':q'"$pass$NL"'s/'"$SQ"'/&'"$BS$BS"'&&/g;s/^/'"$SQ"'/;s/$/'"$SQ"'/;:e'"$pass"
 		pass=`expr $pass + 1`	## Append »smart sh(1) quoting« state-
 		;;			## ments.
-	    *)	return 1		## Unknown style...
+	    *)	return 1		## Unknown style…
 		;;			## Indicate failure!
 	esac
     done; sed "$sx$NL"'/^$/d' <<EOF
@@ -207,7 +207,7 @@ EOF
 }
 
 ##----------------------------------------------------------------------------
-##  quote_command(COMMAND [ARGUMENT|REDIRECTION ...])
+##  quote_command(COMMAND [ARGUMENT|REDIRECTION …])
 ##				Quote sh(1) command
 ##----------------------------------------------------------------------------
 quote_command() {
@@ -215,7 +215,7 @@ quote_command() {
 	1)  local cmd="$1" arg	;;	## Yes, fetch command.
 	*)  return 2		;;	## No, indicate abuse!
     esac; shift; for arg in ${1+"$@"}; do
-	case $arg in			## Foreach argument/redirection do...
+	case $arg in			## Foreach argument/redirection do…
 	    *\<*|*\>*)			## Redirection?
 		cmd="$cmd $arg"		## Yes, append it literally.
 		;;

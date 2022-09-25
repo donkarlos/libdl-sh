@@ -95,10 +95,10 @@ BEGIN {
     cs_an = cs_al cs_0d			## numerics as well as unanchored REs
     re_id = "[_" cs_al "][_" cs_an "]*"	## recognizing identifiers, non-nega-
     re_1n = "[" cs_1d "][" cs_0d "]*"	## tive/cardinal numbers, function
-    re_0n = "[" cs_0d "]+"		## names, prototypes, and...
+    re_0n = "[" cs_0d "]+"		## names, prototypes, and…
     re_fn = lib ? lib "(_[_" cs_an "]*)?" : re_id
     re_pt = "\\([^);(]*\\)"
-    re_rg = re_0n "(-(" re_1n ")?)?"	## ...argument count ranges.
+    re_rg = re_0n "(-(" re_1n ")?)?"	## …argument count ranges.
 
     are_id = "^" re_id "$"		## Derive anchored REs recognizing
     are_0n = "^" re_0n "$"		## identifiers, non-negative numbers,
@@ -323,15 +323,15 @@ END {					## After declarations are gathered:
     ##------------------------------------------------------------------------
     if (pi2do[++pi]) {			## Enter pass?
 	if (T>0) trace(sprintf("pi2do[pi=%u]=%s",pi,bv2sy[pi2do[pi]]))
-	ai = 0; while (++ai <= ac) {	## Yes, foreach API index do...
+	ai = 0; while (++ai <= ac) {	## Yes, foreach API index do…
 	    av = ai2av[ai]		## Fetch API version.
 	    if (ai > 1) {		## Update min-/maximal API version?
-		if (minav > av) {	## Update minimal API version...
+		if (minav > av) {	## Update minimal API version…
 		    minav = av; if (T>0) trace(sprintf("minav=%d",av))
-		}			## ...if necessary.
-		if (maxav < av) {	## Update maximal API version...
+		}			## …if necessary.
+		if (maxav < av) {	## Update maximal API version…
 		    maxav = av; if (T>0) trace(sprintf("maxav=%d",av))
-		}			## ...if necessary.
+		}			## …if necessary.
 	    } else {
 		minav = maxav = av; if (T>0) trace(sprintf("minav=maxav=%d",av))
 	    }				## No, initialize both.
@@ -344,9 +344,9 @@ END {					## After declarations are gathered:
     ##------------------------------------------------------------------------
     if (pi2do[++pi]) {			## Enter pass?
 	if (T>0) trace(sprintf("pi2do[pi=%u]=%s",pi,bv2sy[pi2do[pi]]))
-	fi = 0; while (++fi <= fc) {	## Yes, foreach function index do...
+	fi = 0; while (++fi <= fc) {	## Yes, foreach function index do…
 	    dc = fi2dc[fi]; di = 0; while (++di <= dc) {
-					## Foreach attached declaration do...
+					## Foreach attached declaration do…
 		if (map_ai(av = fidi2av[fi,di]) && (ai <= end_ac)) {
 					## Does it refer to decl. API version?
 		    ++ai2fc[fidi2ai[fi,di] = ai]; ++fi2ac[fi]
@@ -375,7 +375,7 @@ END {					## After declarations are gathered:
 	    if (V>0) printf "Declared API versions: [%d;%d]\n",minav,maxav
 	}
 	for (av = 0; av <= maxav; ++av) {
-					## Foreach API version do...
+					## Foreach API version do…
 	    if (!set_ai(av)) {		## Is it mapped?
 		if (av < minav) {	## No, is it withdrawn?
 		    if (V>0) printf "API version %d completely withdrawn.\n",av
@@ -389,7 +389,7 @@ END {					## After declarations are gathered:
 		    : "missing",ai2mc[ai]))
 	    }				## Complain about inconsistency!
 	}
-	ai = 0; while (++ai <= ac) {	## Foreach API index do...
+	ai = 0; while (++ai <= ac) {	## Foreach API index do…
 	    av = ai2av[ai]		## Fetch API version.
 	    if (ai <= end_ac) {		## API version declared?
 		if (!ai2fc[ai]) {	## Yes, and function declarations re-
@@ -410,7 +410,7 @@ END {					## After declarations are gathered:
     ##------------------------------------------------------------------------
     if (pi2do[++pi] && !ec && lib) {	## Enter pass?
 	if (T>0) trace(sprintf("pi2do[pi=%u]=%s",pi,bv2sy[pi2do[pi]]))
-	fi = 0; while (++fi <= fc) {	## Yes, foreach function index do...
+	fi = 0; while (++fi <= fc) {	## Yes, foreach function index do…
 	    if (fi2ac[fi] < end_ac) {	## Function withdrawn from some API?
 		fi2minav[fi] = maxav; fi2maxav[fi] = minav
 					## Initialize with transposed mini-/
@@ -418,27 +418,27 @@ END {					## After declarations are gathered:
 		if (T>0) trace(sprintf("fi2minav[fi=%u]=%d,fi2maxav[fi]"\
 		    "=%d",fi,maxav,minav))
 		dc = fi2dc[fi]; di = 0; while (++di <= dc) {
-					## Foreach attached declaration do...
+					## Foreach attached declaration do…
 		    if (fidi2ai[fi,di]) {
 					## Does it refer to decl. API version?
 			av = fidi2av[fi,di]
 					## Yes, fetch attached API version.
 			if (fi2minav[fi] > av) {
-					## Update per-function minimal API...
+					## Update per-function minimal API…
 			    fi2minav[fi] = av; if (T>0) trace(sprintf(	\
 				"fi2minav[fi=%u]=%d",fi,av))
-			}		## ...version if necessary.
+			}		## …version if necessary.
 			if (fi2maxav[fi] < av) {
-					## Update per-function maximal API...
+					## Update per-function maximal API…
 			    fi2maxav[fi] = av; if (T>0) trace(sprintf(	\
 				"fi2maxav[fi=%u]=%d",fi,av))
-			}		## ...version if necessary.
+			}		## …version if necessary.
 		    }
 		}
 		for (av = fi2minav[fi]; av <= maxav; ++av) {
 					## Foreach API version within per-
 					## function minimal and overall maxi-
-					## mal API version interval do...
+					## mal API version interval do…
 		    if (av <= fi2maxav[fi]) {
 					## Validate deprecation?
 			if (mode == "deprecated") printf "%d %s\n",av,fi2fn[fi]

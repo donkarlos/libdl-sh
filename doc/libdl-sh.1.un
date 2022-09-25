@@ -41,7 +41,7 @@
 @PACKAGE_TARNAME@ \- Demand-loading library's trusted helper
 
 .SH SYNOPSIS
-\fB@PACKAGE_TARNAME@\fP \fIACTION\fP [\fIARGUMENT\fP ...]
+\fB@PACKAGE_TARNAME@\fP \fIACTION\fP [\fIARGUMENT\fP …]
 
 .SH DESCRIPTION
 The demand-loading library \fBlibdl.sh\fP and its trusted helper
@@ -105,7 +105,7 @@ search path (LSP). You may also use it to verify your demand-loading
 configuration.
 
 .TP
-\fBexec\fP \fICOMMAND\fP [\fIARGUMENT\fP ...]
+\fBexec\fP \fICOMMAND\fP [\fIARGUMENT\fP …]
 Construct an environment that allows to execute shell application
 \fICOMMAND\fP without any actual or bypassing the installed demand-loading
 configuration (i.e., so that \fB@PACKAGE_TARNAME@ load\fP succeeds
@@ -129,7 +129,7 @@ demand-loads) may be tested by invoking
 (Any \fIARGUMENT\fPs have been omitted for simplicity's sake.)
 
 .TP
-\fBecho\fP \fINAME\fP ...
+\fBecho\fP \fINAME\fP …
 Write installation path \fINAME\fP to standard output, where \fINAME\fP
 may be \fBbindir\fP, \fBlibdir\fP, \fBsysconfdir\fP, or \fBpkgdatadir\fP.
 The action's purpose is helping other packages which provide

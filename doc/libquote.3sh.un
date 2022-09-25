@@ -46,11 +46,11 @@ quote_egrep, quote_sed, quote_meta \- String quoting
 .SH SYNOPSIS
 \fBdl_load quote\fP
 
-\fBquote\fP [\fISTYLE\fP [\fIDELIMITER\fP]] ... \fISTRING\fP]
+\fBquote\fP [\fISTYLE\fP [\fIDELIMITER\fP]] … \fISTRING\fP]
 .br
 \fBquote_sh\fP \fISTRING\fP
 .br
-\fBquote_command\fP \fICOMMAND\fP [\fIARGUMENT\fP|\fIREDIRECTION\fP ...]
+\fBquote_command\fP \fICOMMAND\fP [\fIARGUMENT\fP|\fIREDIRECTION\fP …]
 .br
 \fBquote_re\fP \fISTRING\fP [\fIDELIMITER\fP]
 .br
@@ -64,7 +64,7 @@ quote_egrep, quote_sed, quote_meta \- String quoting
 .br
 \fBquote_sed\fP \fISTRING\fP [\fIDELIMITER\fP=/]
 .br
-\fBquote_meta\fP \fIMETA\fP [\fIARG\fP ...]
+\fBquote_meta\fP \fIMETA\fP [\fIARG\fP …]
 
 .SH DESCRIPTION
 The string quoting library \fBlibquote.sh\fP allows applications to properly
@@ -73,7 +73,7 @@ quote arbitrary strings for POSIX shells, \fBgrep\fP(1) variants, and
 
 .SH FUNCTIONS
 .TP 4
-\fBquote\fP [\fISTYLE\fP [\fIDELIMITER\fP]] ... \fISTRING\fP]
+\fBquote\fP [\fISTYLE\fP [\fIDELIMITER\fP]] … \fISTRING\fP]
 Universally quote \fISTRING\fP by constructing a \fBsed\fP(1) expression
 from the \fISTYLE\fPs (and where appropriate, \fIDELIMITER\fPs) passed as
 arguments, then applying the constructed \fBsed\fP(1) expression to
@@ -140,7 +140,7 @@ below.
 Quote \fISTRING\fP for POSIX shells and write that to standard output.
 
 .TP
-\fBquote_command\fP \fICOMMAND\fP [\fIARGUMENT\fP|\fIREDIRECTION\fP ...]
+\fBquote_command\fP \fICOMMAND\fP [\fIARGUMENT\fP|\fIREDIRECTION\fP …]
 Quote POSIX shell \fICOMMAND\fP, its \fIARGUMENT\fPs and \fIREDIRECTION\fPs
 and write that to standard output, so that it may be \fBeval\fPuated by a
 POSIX shell.
@@ -180,7 +180,7 @@ Equivalent to \fBquote_ere\fP \fISTRING\fP (see above).
 Equivalent to \fBquote_re\fP \fISTRING\fP [\fIDELIMITER\fP=/] (see above).
 
 .TP
-\fBquote_meta\fP \fIMETA\fP [\fIARG\fP ...]
+\fBquote_meta\fP \fIMETA\fP [\fIARG\fP …]
 Perform one of \fBlibquote.sh\fP's meta operations. These allow to inquire
 certain library internals in a controlled manner. Currently, the following
 meta operations are implemented:

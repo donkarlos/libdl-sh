@@ -31,27 +31,27 @@ readonly EXAMPLE_package EXAMPLE_version; unset EXAMPLE_ro EXAMPLE_api
 					## Discard spurious environment.
 
 ##----------------------------------------------------------------------------
-##  EXAMPLE_meta(META [ARG ...])
+##  EXAMPLE_meta(META [ARG …])
 ##				Perform META operation (with ARGs)
 ##----------------------------------------------------------------------------
 EXAMPLE_meta() {
     local mp=EXAMPLE_ ms=\;		## Set meta prefix and separator.
 					## (dl_apis() needs them!)
     case ${2+=}${1+$1-}${2-} in		## Which META operation?
-	=get-apis)			## Inquire APIs...
+	=get-apis)			## Inquire APIs…
 	    shift 2 && dl_apis ${1+"$@"} <<EOF
 a${ms}0
-f${ms}0${ms}meta(META [ARG ...])${ms}2-4
+f${ms}0${ms}meta(META [ARG …])${ms}2-4
 EOF
 	    ;;
 	=get-package|=get-version|=get-api)
-					## Inquire internal variable...
+					## Inquire internal variable…
 	    eval 'case ${'"$mp$2"'+=} in
 		=)  echo "$'"$mp$2"'"	;;
 		*)  return 1		;;
 	    esac'
 	    ;;
-	=set-*)				## Set internal variable once...
+	=set-*)				## Set internal variable once…
 	    case ${4+4}${3+=}$2 in	## Usage OK?
 		=api)	${mp}meta get apis | fgrep -qxe "$3"
 			;;		## Yes, try to validate API version.
@@ -60,10 +60,10 @@ EOF
 	    esac && dl_readonly EXAMPLE "$2" "$3"
 	    ;;
 	=session-init|=session-load|=session-dump|=session-exit)
-	    :				## Session init/load/dump/exit...
-	    ;;				## ...is a no-op.
-	*)  return 2			## Anything else...
-	    ;;				## ...is abuse!
+	    :				## Session init/load/dump/exit…
+	    ;;				## …is a no-op.
+	*)  return 2			## Anything else…
+	    ;;				## …is abuse!
     esac
 }
 

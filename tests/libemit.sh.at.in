@@ -68,7 +68,7 @@ eval "`libdl-sh load`"			## Load libdl.sh or die.
 dl_atload test_atload && dl_atexit test_atexit
 dl_load emit				## Register hooks and load
 					## libemit.sh.
-], 0, [dnl				## And the winner is...
+], 0, [dnl				## And the winner is…
 test_atexit(0)
 :emit:dl:
 ], [dnl
@@ -105,7 +105,7 @@ case :$PATH: in				## Triggered by »check-local:«?
 esac
 eval "`libdl-sh load`"; dl_load emit	## Load libdl.sh and libemit.sh or die.
 atlocal_check_meta_inquiries emit	## Perform check for libemit.sh.
-], 0, [dnl				## And the winner is...
+], 0, [dnl				## And the winner is…
 emit_meta([[2]]get,package)=0
 @PACKAGE_TARNAME@
 emit_meta([[2]]get,version)=0
@@ -117,10 +117,10 @@ emit_meta([[2]]get,apis)=0
 emit_meta([[3]]get,apis,api)=0
 0
 emit_meta([[3]]get,apis,full)=0
-0;emit_meta(META [[ARG ...]]);2-4
+0;emit_meta(META [[ARG …]]);2-4
 0;emit_set_head(LEVEL HEAD);2
 0;emit_get_head(LEVEL);1
-0;emit(LEVEL MESSAGE ...);2-
+0;emit(LEVEL MESSAGE …);2-
 emit_meta([[3]]get,apis,list)=0
 0;emit_meta;2-4
 0;emit_set_head;2
@@ -165,7 +165,7 @@ esac
 eval "`libdl-sh load`"; dl_load emit	## Load libdl.sh and libemit.sh or die.
 atlocal_check_api_consistency emit test_hook
 					## Perform check for libemit.sh.
-], 0, [dnl				## And the winner is...
+], 0, [dnl				## And the winner is…
 Declared API versions: [[0;0]]
 ], [dnl
 ])
@@ -200,7 +200,7 @@ esac
 eval "`libdl-sh load`"; dl_load emit	## Load libdl.sh and libemit.sh or die.
 atlocal_check_meta_get_apis_honours_4th emit emit_set_head
 					## Perform check for libemit.sh.
-], 0, [dnl				## And the winner is...
+], 0, [dnl				## And the winner is…
 emit_meta([[4]]get,apis,full,/;emit_set_head@{:@/!d;s/;.*$//)=0
 0
 emit_meta([[4]]get,apis,list,/;emit_set_head;/!d;s/;.*$//)=0
@@ -233,7 +233,7 @@ case :$PATH: in				## Triggered by »check-local:«?
 esac
 eval "`libdl-sh load`"; dl_load emit	## Load libdl.sh and libemit.sh or die.
 atlocal_check_constants emit		## Perform check for libemit.sh.
-], 0, [dnl				## And the winner is...
+], 0, [dnl				## And the winner is…
 emit_re_level
 ], [dnl
 ])
@@ -263,7 +263,7 @@ esac
 eval "`libdl-sh load`"; dl_load emit	## Load libdl.sh and libemit.sh or die.
 atlocal_check_function_usage_errors emit
 					## Perform check for libemit.sh.
-], 0, [dnl				## And the winner is...
+], 0, [dnl				## And the winner is…
 emit_meta([[3]]set,api,0)=0
 emit_meta([[0]])=2
 emit_meta([[1]]1)=2

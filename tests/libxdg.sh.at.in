@@ -56,7 +56,7 @@ eval "`libdl-sh load`"			## Load libdl.sh or die.
 dl_atload test_atload && dl_atexit test_atexit
 dl_load xdg				## Register hooks and load
 					## libxdg.sh.
-], 0, [dnl				## And the winner is...
+], 0, [dnl				## And the winner is…
 test_atexit(0)
 :xdg:dl:
 ], [dnl
@@ -93,7 +93,7 @@ case :$PATH: in				## Triggered by »check-local:«?
 esac
 eval "`libdl-sh load`"; dl_load xdg	## Load libdl.sh and libxdg.sh or die.
 atlocal_check_meta_inquiries xdg	## Perform check for libxdg.sh.
-], 0, [dnl				## And the winner is...
+], 0, [dnl				## And the winner is…
 xdg_meta([[2]]get,package)=0
 @PACKAGE_TARNAME@
 xdg_meta([[2]]get,version)=0
@@ -105,7 +105,7 @@ xdg_meta([[2]]get,apis)=0
 xdg_meta([[3]]get,apis,api)=0
 0
 xdg_meta([[3]]get,apis,full)=0
-0;xdg_meta(META [[ARG ...]]);2-4
+0;xdg_meta(META [[ARG …]]);2-4
 0;xdg_regular(&NAME VALUE);2
 xdg_meta([[3]]get,apis,list)=0
 0;xdg_meta;2-4
@@ -148,7 +148,7 @@ esac
 eval "`libdl-sh load`"; dl_load xdg	## Load libdl.sh and libxdg.sh or die.
 atlocal_check_api_consistency xdg test_hook
 					## Perform check for libxdg.sh.
-], 0, [dnl				## And the winner is...
+], 0, [dnl				## And the winner is…
 Declared API versions: [[0;0]]
 ], [dnl
 ])
@@ -183,7 +183,7 @@ esac
 eval "`libdl-sh load`"; dl_load xdg	## Load libdl.sh and libxdg.sh or die.
 atlocal_check_meta_get_apis_honours_4th xdg xdg_regular
 					## Perform check for libxdg.sh.
-], 0, [dnl				## And the winner is...
+], 0, [dnl				## And the winner is…
 xdg_meta([[4]]get,apis,full,/;xdg_regular@{:@/!d;s/;.*$//)=0
 0
 xdg_meta([[4]]get,apis,list,/;xdg_regular;/!d;s/;.*$//)=0
@@ -215,7 +215,7 @@ case :$PATH: in				## Triggered by »check-local:«?
 esac
 eval "`libdl-sh load`"; dl_load xdg	## Load libdl.sh and libxdg.sh or die.
 atlocal_check_constants xdg		## Perform check for libxdg.sh.
-], 0, [dnl				## And the winner is...
+], 0, [dnl				## And the winner is…
 ], [dnl
 ])
 AT_CLEANUP
@@ -244,7 +244,7 @@ esac
 eval "`libdl-sh load`"; dl_load xdg	## Load libdl.sh and libxdg.sh or die.
 atlocal_check_function_usage_errors xdg
 					## Perform check for libxdg.sh.
-], 0, [dnl				## And the winner is...
+], 0, [dnl				## And the winner is…
 xdg_meta([[3]]set,api,0)=0
 xdg_meta([[0]])=2
 xdg_meta([[1]]1)=2

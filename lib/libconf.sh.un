@@ -59,38 +59,38 @@ readonly conf_package conf_version; unset conf_ro conf_api
 					## Discard spurious environment.
 
 ##----------------------------------------------------------------------------
-##  conf_meta(META [ARG ...])	Perform META operation (with ARGs)
+##  conf_meta(META [ARG …])	Perform META operation (with ARGs)
 ##----------------------------------------------------------------------------
 conf_meta() {
     local mp=conf_ ms=\;		## Set meta prefix and separator.
 
     case ${2+=}${1+$1-}${2-} in		## Which META operation?
-	=get-apis)			## Inquire APIs...
+	=get-apis)			## Inquire APIs…
 	    shift 2 && dl_apis ${1+"$@"} <<EOF
-f${ms}-${ms}meta(META [ARG ...])${ms}2-4
+f${ms}-${ms}meta(META [ARG …])${ms}2-4
 a${ms}1
-f${ms}1${ms}meta(META [ARG ...])${ms}2-4
-f${ms}1${ms}exec(CFPN ...)${ms}1-
-f${ms}1${ms}has(ITEM[=VALUE] CFPN ...)${ms}2-
-f${ms}1${ms}get(ITEM[=VALUE] CFPN ...)${ms}2-
-f${ms}1${ms}put(ITEM[=VALUE] CFPN ...)${ms}2-
-f${ms}1${ms}getenv(VARIABLE ITEM[=VALUE] CFPN ...)${ms}3-
+f${ms}1${ms}meta(META [ARG …])${ms}2-4
+f${ms}1${ms}exec(CFPN …)${ms}1-
+f${ms}1${ms}has(ITEM[=VALUE] CFPN …)${ms}2-
+f${ms}1${ms}get(ITEM[=VALUE] CFPN …)${ms}2-
+f${ms}1${ms}put(ITEM[=VALUE] CFPN …)${ms}2-
+f${ms}1${ms}getenv(VARIABLE ITEM[=VALUE] CFPN …)${ms}3-
 a${ms}2
-f${ms}2${ms}meta(META [ARG ...])${ms}2-4
-f${ms}2${ms}exec(CFPN ...)${ms}1-
-f${ms}2${ms}has(ITEM[=VALUE] CFPN ...)${ms}2-
-f${ms}2${ms}get(ITEM[=VALUE] CFPN ...)${ms}2-
-f${ms}2${ms}put(ITEM[=VALUE] CFPN ...)${ms}2-
+f${ms}2${ms}meta(META [ARG …])${ms}2-4
+f${ms}2${ms}exec(CFPN …)${ms}1-
+f${ms}2${ms}has(ITEM[=VALUE] CFPN …)${ms}2-
+f${ms}2${ms}get(ITEM[=VALUE] CFPN …)${ms}2-
+f${ms}2${ms}put(ITEM[=VALUE] CFPN …)${ms}2-
 EOF
 	    ;;
 	=get-package|=get-version|=get-api|=get-awk)
-					## Inquire internal variable...
+					## Inquire internal variable…
 	    eval 'case ${'"$mp$2"'+=} in
 		=)  echo "$'"$mp$2"'"	;;
 		*)  return 1		;;
 	    esac'
 	    ;;
-	=set-*)				## Set internal variable once...
+	=set-*)				## Set internal variable once…
 	    case ${4+4}${3+=}$2 in	## Usage OK?
 		=api)	${mp}meta get apis | fgrep -qxe "$3"
 			;;		## Yes, try to validate API version.
@@ -99,15 +99,15 @@ EOF
 	    esac && dl_readonly conf "$2" "$3"
 	    ;;
 	=session-init|=session-load|=session-dump|=session-exit)
-	    :				## Session init/load/dump/exit...
-	    ;;				## ...is a no-op.
-	*)  return 2			## Anything else...
-	    ;;				## ...is abuse!
+	    :				## Session init/load/dump/exit…
+	    ;;				## …is a no-op.
+	*)  return 2			## Anything else…
+	    ;;				## …is abuse!
     esac
 }
 
 ##----------------------------------------------------------------------------
-##  conf_exec(CFPN ...)		Process configuration file(s) CFPN by
+##  conf_exec(CFPN …)		Process configuration file(s) CFPN by
 ##				executing commands from standard input
 ##----------------------------------------------------------------------------
 conf_exec() {
@@ -121,7 +121,7 @@ conf_exec() {
 }
 
 ##----------------------------------------------------------------------------
-##  conf_has(ITEM[=VALUE] CFPN ...)
+##  conf_has(ITEM[=VALUE] CFPN …)
 ##				(Some) Configuration file CFPN has ITEM?
 ##----------------------------------------------------------------------------
 conf_has() {
@@ -138,7 +138,7 @@ EOF
 }
 
 ##----------------------------------------------------------------------------
-##  conf_get(ITEM[=VALUE] CFPN ...)
+##  conf_get(ITEM[=VALUE] CFPN …)
 ##				Get ITEM from (some) CFPN (or VALUE)
 ##----------------------------------------------------------------------------
 conf_get() {
@@ -155,7 +155,7 @@ EOF
 }
 
 ##----------------------------------------------------------------------------
-##  conf_put(ITEM[=VALUE] CFPN ...)
+##  conf_put(ITEM[=VALUE] CFPN …)
 ##				Unset ITEM/Set ITEM to VALUE in last CFPN
 ##----------------------------------------------------------------------------
 conf_put() {
@@ -172,7 +172,7 @@ EOF
 }
 
 ##----------------------------------------------------------------------------
-##  conf_getenv(VARIABLE ITEM[=VALUE] CFPN ...)			[API 1]
+##  conf_getenv(VARIABLE ITEM[=VALUE] CFPN …)			[API 1]
 ##				Get ITEM from VARIABLE or CFPN (or VALUE)
 ##----------------------------------------------------------------------------
 conf_getenv() {
@@ -180,9 +180,9 @@ conf_getenv() {
 	-)  dl_inform rel-req-set-api 0.4 0.3.6 conf_getenv ${1+"$@"}	;;
 					## No, inform about unset API!
 	2)  dl_inform api-wdr-func 2 1 conf_getenv ${1+"$@"}		;;
-					## Yes, inform about withdrawal...
+					## Yes, inform about withdrawal…
 	*)  dl_inform rel-dpr-func 0.4 0.5 0.3.6 conf_getenv ${1+"$@"}	;;
-					## ...or deprecation.
+					## …or deprecation.
     esac && case ${3+=} in		## Usage OK?
 	=)  eval 'case ${'"$1"'+=} in	## Yes, do as intended.
 		=)  echo "$'"$1"'"	;;

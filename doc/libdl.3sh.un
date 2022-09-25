@@ -51,7 +51,7 @@ dl_atload, dl_load, dl_atexit, dl_exit, dl_which, dl_dump, dl_meta
 
 \fBdl_atload\fP \fIHOOK\fP
 .br
-\fBdl_load\fP \fILIB\fP ...
+\fBdl_load\fP \fILIB\fP …
 .br
 \fBdl_atexit\fP \fIHOOK\fP
 .br
@@ -59,7 +59,7 @@ dl_atload, dl_load, dl_atexit, dl_exit, dl_which, dl_dump, dl_meta
 .br
 \fBdl_which\fP \fILIB\fP
 .br
-\fBdl_meta\fP \fIMETA\fP [\fIARG\fP ...]
+\fBdl_meta\fP \fIMETA\fP [\fIARG\fP …]
 
 .SH DESCRIPTION
 The demand-loading library \fBlibdl.sh\fP and its trusted helper \fBlibdl-sh\fP
@@ -104,7 +104,7 @@ registered, \fBdl_atload\fP invokes it for this library (e.g.,
 fail.
 
 .TP
-\fBdl_load\fP \fILIB\fP ...
+\fBdl_load\fP \fILIB\fP …
 Demand-load each given shell library \fILIB\fP into the application by looking
 for \fBlib\fP\fILIB\fP\fB.sh\fP along the library search path and sourcing the
 first one found. If \fILIB\fP can't be loaded (either because it isn't found,
@@ -131,7 +131,7 @@ absolute pathname to standard output if it's found. Otherwise, return status
 \fB127\fP.
 
 .TP
-\fBdl_meta\fP \fIMETA\fP [\fIARG\fP ...]
+\fBdl_meta\fP \fIMETA\fP [\fIARG\fP …]
 Perform one of \fBlibdl.sh\fP's meta operations. These allow to inquire or
 modify certain library internals in a controlled manner. Currently, the
 following meta operations are implemented:
@@ -217,7 +217,7 @@ versions (analogous to output format \fBapi\fP) of \fBlibdl.sh\fP provide
 .RE
 
 .TP
-\fBpre libpath\fP \fILIBPATH\fP ...
+\fBpre libpath\fP \fILIBPATH\fP …
 Prepend \fILIBPATH\fP, a colon-separated list of library search path items
 (i.e., directories containing demand-loadable libraries) to the library search
 path (LSP) maintained by \fBlibdl.sh\fP. Nonexisting LSP items are silently
@@ -250,7 +250,7 @@ Inquire registered session identifier and write it to standard output.
 The following functions are intended as a service to other demand-loadable
 libraries. They shouldn't be invoked directly from applications.
 .TP 4
-\fBdl_inform\fP \fIABOUT\fP [\fIAARG\fP ...] \fIFUNC\fP [\fIFARG\fP ...]
+\fBdl_inform\fP \fIABOUT\fP [\fIAARG\fP …] \fIFUNC\fP [\fIFARG\fP …]
 Inform about deprecated and/or withdrawn features by writing an appropriate
 message to standard error output and returning status \fB1\fP (unless noted
 otherwise). Currently, \fIABOUT\fP may be one of the following (shown with
@@ -294,11 +294,11 @@ Write a message stating that release \fIWREL\fP withdrew the meta operation repr
 .RE
 
 .TP
-\fBdl_dump\fP \fIMP\fP \fIVS\fP ...
+\fBdl_dump\fP \fIMP\fP \fIVS\fP …
 NOT DOCUMENTED YET
 
 .TP
-\fBdl_split\fP \fIWORD\fP \fIIFS\fP &\fIFIELD\fP ...
+\fBdl_split\fP \fIWORD\fP \fIIFS\fP &\fIFIELD\fP …
 Split \fIWORD\fP into fields, using input field separator \fIIFS\fP, then
 assign the resulting field values to variable(s) \fIFIELD\fP in the order
 given. Excess \fIFIELD\fPs will be unset instead, allowing the invoker to

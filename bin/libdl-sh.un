@@ -36,23 +36,23 @@
 ##----------------------------------------------------------------------------
 ##  Initialization:
 #-----------------------------------------------------------------------------
-case ${LC_ALL+=} in			## Preserve LC_ALL setting...
+case ${LC_ALL+=} in			## Preserve LC_ALL setting…
     =)	lc_all=$LC_ALL	;;
     *)	unset lc_all	;;
-esac; LC_ALL=C; export LC_ALL		## ...and avoid locale insanities.
+esac; LC_ALL=C; export LC_ALL		## …and avoid locale insanities.
 command=`basename "$0"`; readonly command
 					## Determine command name.
-case ${GETOPT_COMPATIBLE+=} in		## Preserve GETOPT_COMPATIBLE and...
+case ${GETOPT_COMPATIBLE+=} in		## Preserve GETOPT_COMPATIBLE and…
     =)	getopt_compatible=$GETOPT_COMPATIBLE	;;
     *)	unset getopt_compatible			;;
-esac; case ${POSIXLY_CORRECT+=} in	## POSIXLY_CORRECT settings and...
+esac; case ${POSIXLY_CORRECT+=} in	## POSIXLY_CORRECT settings and…
     =)	posixly_correct=$POSIXLY_CORRECT	;;
     *)	unset posixly_correct			;;
 esac; unset GETOPT_COMPATIBLE POSIXLY_CORRECT
-					## ...make modern getopt(1) behave.
+					## …make modern getopt(1) behave.
 
 ##----------------------------------------------------------------------------
-##  include(CONF ...)		Parse demand-loading configuration file(s)
+##  include(CONF …)		Parse demand-loading configuration file(s)
 ##				into list of library search path items
 ##----------------------------------------------------------------------------
 include() {
@@ -63,15 +63,15 @@ include() {
 	s/^ //;/^#/d;/^$/d		## whitespace, comment/empty lines,
 	s/ #.*$//;s/ $//		## and trailing comments/whitespace.
     ' /dev/null ${1+"$@"} 2>/dev/null | while read line
-    do					## Foreach configuration line do...
+    do					## Foreach configuration line do…
 	case "$line" in			## Which kind?
-	    'include')			## »include« without argument...
-		;;			## ...is ignored.
-	    'include '*)		## »include« with argument(s)...
-		eval "$line"		## ...is recursively parsed after ap-
+	    'include')			## »include« without argument…
+		;;			## …is ignored.
+	    'include '*)		## »include« with argument(s)…
+		eval "$line"		## …is recursively parsed after ap-
 		;;			## plying shell substitutions.
-	    *)				## Library search path items...
-		eval "echo $line"	## ...are echoed with shell substitu-
+	    *)				## Library search path items…
+		eval "echo $line"	## …are echoed with shell substitu-
 		;;			## tions applied.
 	esac
     done
@@ -85,7 +85,7 @@ include() {
 ##----------------------------------------------------------------------------
 libdl_sh_help() {
     cat <<EOF
-Usage: $command [OPTION ...] ACTION [ARG ...]
+Usage: $command [OPTION …] ACTION [ARG …]
 Demand-loading library's trusted helper.
 
 Valid options are:
@@ -95,9 +95,9 @@ Valid options are:
 Valid actions are:
  load		Print sh(1) command that loads libdl.sh
  path		Print library search path
- exec COMMAND [ARG ...]
-		Execute COMMAND [ARG ...] in suitable environment
- echo NAME ...	Print installation path(s) named NAME
+ exec COMMAND [ARG …]
+		Execute COMMAND [ARG …] in suitable environment
+ echo NAME …	Print installation path(s) named NAME
 EOF
 }
 
@@ -138,14 +138,14 @@ args=`getopt -n"$command" -o"$optstring" -l"$longopts" -- ${1+"$@"}` || {
     libdl_sh_help >&2; exit 2		## No, show help and abort!
 }
 eval set shiftee "$args"; unset optstring longopts args
-while shift; do				## Process parsed options...
+while shift; do				## Process parsed options…
     case $1 in
 	-h|--help)	libdl_sh_help   ; exit 0;;
 	-V|--version)	libdl_sh_version; exit 0;;
 	--)		shift; break		;;
     esac
 done; case ${1-usage} in		## Which action?
-    load)				## Emit command to load libdl.sh...
+    load)				## Emit command to load libdl.sh…
 	BS=\\ SQ=\'; for item in `	## Is it present on preliminary LSP?
 	    IFS=:; echo $LIBDL_SH_LIBRARY_PATH @shlibdir@
 	`; do
@@ -157,14 +157,14 @@ $libpn
 EOF
 	done; echo 'exit 127'		## No, abort the application.
 	;;
-    path)				## Emit library search path (LSP)...
+    path)				## Emit library search path (LSP)…
 	items= libpath=			## Start with empty LSP.
-	for item in `			## Foreach item in environment and...
+	for item in `			## Foreach item in environment and…
 	    ifs=$IFS; IFS=:; echo $LIBDL_SH_LIBRARY_PATH; IFS=$ifs
 	    include ${LIBDL_SH_CONF:+"$LIBDL_SH_CONF"}			\
 		    ${HOME:+"$HOME"/.@PACKAGE_TARNAME@.conf}		\
 		    @sysconfdir@/@PACKAGE_TARNAME@.conf
-	`; do				## ...configuration files do...
+	`; do				## …configuration files do…
 	    case :$items$libpath in	## Item already seen/on LSP?
 		*:$item:*)		## Yes, skip it.
 		    ;;
@@ -178,7 +178,7 @@ EOF
 	;;				## either empty or with trailing ':',
 					## which is what dl_load() needs as it
 					## always prepends the LSP to $PATH).
-    exec)				## Execute command...
+    exec)				## Execute command…
 	shift; bindn=`dirname "$0"`; binrn=`cd "$bindn" && /bin/pwd` && {
 					## Could we detect this program's
 					## real dirname?
@@ -186,7 +186,7 @@ EOF
 					## Yes, augment PSP so that this pro-
 					## gram is found by 1st PSP item.
 	}; case ${1+_$1} in		## COMMAND given?
-	    _?*)			## Yes, restore environment...
+	    _?*)			## Yes, restore environment…
 		case ${lc_all+=} in
 		    =)  LC_ALL=$lc_all
 			export LC_ALL		;;
@@ -197,12 +197,12 @@ EOF
 		esac; case ${posixly_correct+=} in
 		    =)  POSIXLY_CORRECT=$posixly_correct
 			export POSIXLY_CORRECT	;;
-		esac; exec "$@"	;;	## ... and execute it.
+		esac; exec "$@"	;;	## …and execute it.
 	    *)	exit 127	;;	## No, indicate failure!
 	esac
 	;;
-    echo)				## Emit installation path(s)...
-	shift; for name in ${1+"$@"}	## Foreach given name do...
+    echo)				## Emit installation path(s)…
+	shift; for name in ${1+"$@"}	## Foreach given NAME do…
 	do
 	    case $name in
 		bindir)	    echo @bindir@	;;

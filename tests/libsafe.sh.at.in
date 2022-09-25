@@ -73,7 +73,7 @@ eval "`libdl-sh load`"			## Load libdl.sh or die.
 dl_atload test_atload && dl_atexit test_atexit
 dl_load safe				## Register hooks and load
 					## libsafe.sh.
-], 0, [dnl				## And the winner is...
+], 0, [dnl				## And the winner is…
 test_atexit(0)
 :safe:undo:quote:dl:
 ], [dnl
@@ -110,7 +110,7 @@ case :$PATH: in				## Triggered by »check-local:«?
 esac
 eval "`libdl-sh load`"; dl_load safe	## Load libdl.sh and libsafe.sh or die.
 atlocal_check_meta_inquiries safe	## Perform check for libsafe.sh.
-], 0, [dnl				## And the winner is...
+], 0, [dnl				## And the winner is…
 safe_meta([[2]]get,package)=0
 @PACKAGE_TARNAME@
 safe_meta([[2]]get,version)=0
@@ -124,28 +124,28 @@ safe_meta([[3]]get,apis,api)=0
 0
 1
 safe_meta([[3]]get,apis,full)=0
-0;safe_meta(META [[ARG ...]]);2-4
+0;safe_meta(META [[ARG …]]);2-4
 0;safe_init(TAG);1
 0;safe_mktmpdir(&DPN [[DRN]]);1-2
-0;safe_mkdir(DPN ...);1-
+0;safe_mkdir(DPN …);1-
 0;safe_chdir(DPN);1
-0;safe_touch(FPN ...);1-
+0;safe_touch(FPN …);1-
 0;safe_save(FPN);1
 0;safe_rename(OLDPN NEWPN);2
-0;safe_remove(PN ...);1-
-0;safe_umask(UMASK COMMAND [[ARGUMENT ...]]);2-
+0;safe_remove(PN …);1-
+0;safe_umask(UMASK COMMAND [[ARGUMENT …]]);2-
 0;safe_unlock(PN);1
 0;safe_lock(PN);1
 0;safe_wait(PN [[SECONDS=30]]);1-2
-1;safe_meta(META [[ARG ...]]);2-4
+1;safe_meta(META [[ARG …]]);2-4
 1;safe_mktmpdir(&DPN [[DRN]]);1-2
-1;safe_mkdir(DPN ...);1-
+1;safe_mkdir(DPN …);1-
 1;safe_chdir(DPN);1
-1;safe_touch(FPN ...);1-
+1;safe_touch(FPN …);1-
 1;safe_save(FPN);1
 1;safe_rename(OLDPN NEWPN);2
-1;safe_remove(PN ...);1-
-1;safe_umask(UMASK COMMAND [[ARGUMENT ...]]);2-
+1;safe_remove(PN …);1-
+1;safe_umask(UMASK COMMAND [[ARGUMENT …]]);2-
 1;safe_unlock(PN);1
 1;safe_lock(PN);1
 1;safe_wait(PN [[SECONDS=30]]);1-2
@@ -216,7 +216,7 @@ esac
 eval "`libdl-sh load`"; dl_load safe	## Load libdl.sh and libsafe.sh or die.
 atlocal_check_api_consistency safe test_hook
 					## Perform check for libsafe.sh.
-], 0, [dnl				## And the winner is...
+], 0, [dnl				## And the winner is…
 Declared API versions: [[0;1]]
 safe_meta([[3]]set,api,0)=0
 safe_init([[1]]:TAG)=126
@@ -255,7 +255,7 @@ esac
 eval "`libdl-sh load`"; dl_load safe	## Load libdl.sh and libsafe.sh or die.
 atlocal_check_meta_get_apis_honours_4th safe safe_mkdir
 					## Perform check for libsafe.sh.
-], 0, [dnl				## And the winner is...
+], 0, [dnl				## And the winner is…
 safe_meta([[4]]get,apis,full,/;safe_mkdir@{:@/!d;s/;.*$//)=0
 0
 1
@@ -289,7 +289,7 @@ case :$PATH: in				## Triggered by »check-local:«?
 esac
 eval "`libdl-sh load`"; dl_load safe	## Load libdl.sh and libsafe.sh or die.
 atlocal_check_constants safe		## Perform check for libsafe.sh.
-], 0, [dnl				## And the winner is...
+], 0, [dnl				## And the winner is…
 ], [dnl
 ])
 AT_CLEANUP
@@ -318,7 +318,7 @@ esac
 eval "`libdl-sh load`"; dl_load safe	## Load libdl.sh and libsafe.sh or die.
 atlocal_check_function_usage_errors safe
 					## Perform check for libsafe.sh.
-], 0, [dnl				## And the winner is...
+], 0, [dnl				## And the winner is…
 safe_meta([[3]]set,api,0)=0
 safe_meta([[0]])=2
 safe_meta([[1]]1)=2
@@ -384,7 +384,7 @@ atlocal_trace_variable safe_0tag
 atlocal_trace_invocation_returns 1 safe_meta set 0tag :1	|| status=1
 atlocal_trace_variable safe_0tag
 exit $status				## Indicate success or failure.
-], 0, [dnl				## And the winner is...
+], 0, [dnl				## And the winner is…
 unset safe_0tag
 safe_meta([[3]]set,0tag,:0)=0
 safe_0tag=:0
@@ -425,7 +425,7 @@ atlocal_trace_variable safe_0tag
 atlocal_trace_invocation_returns 1 safe_init :1		|| status=1
 atlocal_trace_variable safe_0tag
 exit $status				## Indicate success or failure.
-], 0, [dnl				## And the winner is...
+], 0, [dnl				## And the winner is…
 safe_meta([[3]]set,api,0)=0
 unset safe_0tag
 safe_init([[1]]:0)=0

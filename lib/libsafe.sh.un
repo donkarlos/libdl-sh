@@ -61,51 +61,51 @@ readonly safe_package safe_version; unset safe_ro safe_0tag safe_tmpdir
 					## Discard spurious environment.
 
 ##----------------------------------------------------------------------------
-##  safe_meta(META [ARG ...])	Perform META operation (with ARGs)
+##  safe_meta(META [ARG …])	Perform META operation (with ARGs)
 ##----------------------------------------------------------------------------
 safe_meta() {
     local mp=safe_ ms=\;		## Set meta prefix and separator.
 
     case ${2+=}${1+$1-}${2-} in		## Which META operation?
-	=get-apis)			## Inquire APIs...
+	=get-apis)			## Inquire APIs…
 	    shift 2 && dl_apis ${1+"$@"} <<EOF
 a${ms}0
-f${ms}0${ms}meta(META [ARG ...])${ms}2-4
+f${ms}0${ms}meta(META [ARG …])${ms}2-4
 f${ms}0${ms}init(TAG)${ms}1
 f${ms}0${ms}mktmpdir(&DPN [DRN])${ms}1-2
-f${ms}0${ms}mkdir(DPN ...)${ms}1-
+f${ms}0${ms}mkdir(DPN …)${ms}1-
 f${ms}0${ms}chdir(DPN)${ms}1
-f${ms}0${ms}touch(FPN ...)${ms}1-
+f${ms}0${ms}touch(FPN …)${ms}1-
 f${ms}0${ms}save(FPN)${ms}1
 f${ms}0${ms}rename(OLDPN NEWPN)${ms}2
-f${ms}0${ms}remove(PN ...)${ms}1-
-f${ms}0${ms}umask(UMASK COMMAND [ARGUMENT ...])${ms}2-
+f${ms}0${ms}remove(PN …)${ms}1-
+f${ms}0${ms}umask(UMASK COMMAND [ARGUMENT …])${ms}2-
 f${ms}0${ms}unlock(PN)${ms}1
 f${ms}0${ms}lock(PN)${ms}1
 f${ms}0${ms}wait(PN [SECONDS=30])${ms}1-2
 a${ms}1
-f${ms}1${ms}meta(META [ARG ...])${ms}2-4
+f${ms}1${ms}meta(META [ARG …])${ms}2-4
 f${ms}1${ms}mktmpdir(&DPN [DRN])${ms}1-2
-f${ms}1${ms}mkdir(DPN ...)${ms}1-
+f${ms}1${ms}mkdir(DPN …)${ms}1-
 f${ms}1${ms}chdir(DPN)${ms}1
-f${ms}1${ms}touch(FPN ...)${ms}1-
+f${ms}1${ms}touch(FPN …)${ms}1-
 f${ms}1${ms}save(FPN)${ms}1
 f${ms}1${ms}rename(OLDPN NEWPN)${ms}2
-f${ms}1${ms}remove(PN ...)${ms}1-
-f${ms}1${ms}umask(UMASK COMMAND [ARGUMENT ...])${ms}2-
+f${ms}1${ms}remove(PN …)${ms}1-
+f${ms}1${ms}umask(UMASK COMMAND [ARGUMENT …])${ms}2-
 f${ms}1${ms}unlock(PN)${ms}1
 f${ms}1${ms}lock(PN)${ms}1
 f${ms}1${ms}wait(PN [SECONDS=30])${ms}1-2
 EOF
 	    ;;
 	=get-package|=get-version|=get-api|=get-0tag)
-					## Inquire internal variable...
+					## Inquire internal variable…
 	    eval 'case ${'"$mp$2"'+=} in
 		=)  echo "$'"$mp$2"'"	;;
 		*)  return 1		;;
 	    esac'
 	    ;;
-	=set-*)				## Set internal variable once...
+	=set-*)				## Set internal variable once…
 	    case ${4+4}${3+=}$2 in	## Usage OK?
 		=api)	${mp}meta get apis | fgrep -qxe "$3"
 			;;		## Yes, try to validate API version.
@@ -116,10 +116,10 @@ EOF
 	    esac && dl_readonly safe "$2" "$3"
 	    ;;
 	=session-init|=session-load|=session-dump|=session-exit)
-	    :				## Session init/load/dump/exit...
-	    ;;				## ...is a no-op.
-	*)  return 2			## Anything else...
-	    ;;				## ...is abuse!
+	    :				## Session init/load/dump/exit…
+	    ;;				## …is a no-op.
+	*)  return 2			## Anything else…
+	    ;;				## …is abuse!
     esac
 }
 
@@ -157,17 +157,17 @@ safe_mktmpdir() {
 }
 
 ##----------------------------------------------------------------------------
-##  safe_mkdir(DPN ...)		Safely make directories
+##  safe_mkdir(DPN …)		Safely make directories
 ##----------------------------------------------------------------------------
 safe_mkdir() {
     case ${1+=} in			## Usage OK?
 	=)  local dpn; for dpn in "$@"; do
-					## Yes, foreach directory do...
+					## Yes, foreach directory do…
 		test -d "$dpn" || {	## Does it already exist?
 		    safe_mkdir "`dirname "$dpn"`" && mkdir "$dpn" &&
 			undo_push rmdir "$dpn" || break
 		}			## No, try to make it recursively,
-	    done			## pushing undos along the way...
+	    done			## pushing undos along the way…
 	    ;;
 	*)  return 2			## No, indicate abuse!
 	    ;;
@@ -188,17 +188,17 @@ safe_chdir() {
 }
 
 ##----------------------------------------------------------------------------
-##  safe_touch(FPN ...)		Safely touch file(s) into existence
+##  safe_touch(FPN …)		Safely touch file(s) into existence
 ##----------------------------------------------------------------------------
 safe_touch() {
     case ${1+=} in			## Usage OK?
 	=)  local fpn; for fpn in "$@"; do
-					## Yes, foreach file do...
+					## Yes, foreach file do…
 		test -f "$fpn" || {	## Does it already exist?
 		    safe_mkdir "`dirname "$fpn"`" && touch "$fpn" &&
 			undo_push rm -f "$fpn" || break
 		}			## No, try to make it recursively,
-	    done			## pushing undos along the way...
+	    done			## pushing undos along the way…
 	    ;;
 	*)  return 2			## No, indicate abuse!
 	    ;;
@@ -241,7 +241,7 @@ safe_rename() {
 }
 
 ##----------------------------------------------------------------------------
-##  safe_remove(PN ...)		Safely remove directory tree(s)/file(s)
+##  safe_remove(PN …)		Safely remove directory tree(s)/file(s)
 ##----------------------------------------------------------------------------
 safe_remove() {
     case ${1+=} in			## Usage OK?
@@ -262,7 +262,7 @@ safe_remove() {
 }
 
 ##----------------------------------------------------------------------------
-##  safe_umask(UMASK COMMAND [ARGUMENT ...])
+##  safe_umask(UMASK COMMAND [ARGUMENT …])
 ##				Invoke COMMAND with umask UMASK
 ##----------------------------------------------------------------------------
 safe_umask() {
@@ -320,12 +320,12 @@ safe_wait() {
 	=*) local seconds="${2-30}"; test 0 -lt "$seconds" 2>/dev/null && {
 					## Positive number of seconds passed?
 		until safe_lock "$1"; do
-					## Until we lock map file do...
+					## Until we lock map file do…
 		    test -d "$1~lock" || return 1
 					## Indicate failure unless lock was
 					## made.
 		    sleep 1; seconds=`expr $seconds - 1`
-					## Wait a second...
+					## Wait a second…
 		    test $seconds -gt 0 || return 2
 					## Indicate timeout unless timer is
 		done			## still running.

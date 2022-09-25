@@ -53,13 +53,13 @@ use withdrawn API version 0. You have been warned!
 .SH SYNOPSIS (APIs 1-2)
 \fBdl_load conf && conf_meta set api 1\fP
 
-\fBconf_has\fP \fIITEM\fP[\fB=\fP\fIVALUE\fP] \fICFPN\fP ...
+\fBconf_has\fP \fIITEM\fP[\fB=\fP\fIVALUE\fP] \fICFPN\fP …
 .br
-\fBconf_get\fP \fIITEM\fP[\fB=\fP\fIVALUE\fP] \fICFPN\fP ...
+\fBconf_get\fP \fIITEM\fP[\fB=\fP\fIVALUE\fP] \fICFPN\fP …
 .br
-\fBconf_put\fP \fIITEM\fP[\fB=\fP\fIVALUE\fP] \fICFPN\fP ...
+\fBconf_put\fP \fIITEM\fP[\fB=\fP\fIVALUE\fP] \fICFPN\fP …
 .br
-\fBconf_meta\fP \fIMETA\fP [\fIARG\fP ...]
+\fBconf_meta\fP \fIMETA\fP [\fIARG\fP …]
 
 .SH DESCRIPTION
 The configuration file processing library \fBlibconf.sh\fP allows applications
@@ -70,19 +70,19 @@ to maintain persistent configuration in files with a format similar to that of
 The following paragraphs describe API versions 1 and 2.
 
 .TP 4
-\fBconf_has\fP \fIITEM\fP[\fB=\fP\fIVALUE\fP] \fICFPN\fP ...
+\fBconf_has\fP \fIITEM\fP[\fB=\fP\fIVALUE\fP] \fICFPN\fP …
 Check if \fIITEM\fP exists in stacked configuration space created by file(s)
 \fICFPN\fP. Return status \fB0\fP if it does or \fB1\fP otherwise.
 
 .TP
-\fBconf_get\fP \fIITEM\fP[\fB=\fP\fIVALUE\fP] \fICFPN\fP ...
+\fBconf_get\fP \fIITEM\fP[\fB=\fP\fIVALUE\fP] \fICFPN\fP …
 Get value of \fIITEM\fP in stacked configuration space created by file(s)
 \fICFPN\fP (or supply \fIVALUE\fP when given), write it to standard output,
 and return status \fB0\fP. If no value was found or supplied, return status
 \fB1\fP.
 
 .TP
-\fBconf_put\fP \fIITEM\fP[\fB=\fP\fIVALUE\fP] \fICFPN\fP ...
+\fBconf_put\fP \fIITEM\fP[\fB=\fP\fIVALUE\fP] \fICFPN\fP …
 If \fIVALUE\fP is given, assign it to \fIITEM\fP (existing or created) in
 the topmost file \fICFPN\fP of stacked configuration space, and update that
 file if necessary. Otherwise, remove \fIITEM\fP from the topmost file
@@ -105,7 +105,7 @@ does the former, whereas
 does the latter!
 
 .TP
-\fBconf_meta\fP \fIMETA\fP [\fIARG\fP ...]
+\fBconf_meta\fP \fIMETA\fP [\fIARG\fP …]
 Perform one of \fBlibconf.sh\fP's meta operations. These allow to inquire or
 modify certain library internals in a controlled manner. Currently, the
 following meta operations are implemented:
@@ -140,7 +140,7 @@ For example, for API version 1, \fBconf_get\fP(3sh) would be represented by
 the following line:
 
 .in +4
-\fB1;conf_get(ITEM[=VALUE] CFPN ...);2-\fP
+\fB1;conf_get(ITEM[=VALUE] CFPN …);2-\fP
 .in -4
 
 .IP \(bu
@@ -177,26 +177,26 @@ by release 0.5.
 The following paragraphs describe the deprecated functions (and how they ought
 to be migrated to API version 2).
 .TP 4
-\fBconf_getenv\fP \fIVARIABLE\fP \fIITEM\fP[\fB=\fP\fIVALUE\fP] \fICFPN\fP ...
+\fBconf_getenv\fP \fIVARIABLE\fP \fIITEM\fP[\fB=\fP\fIVALUE\fP] \fICFPN\fP …
 Unless (environment) \fIVARIABLE\fP is set, behave like \fBconf_get\fP.
 Otherwise, write \fB${\fP\fIVARIABLE\fP\fB}\fP to standard output, so that it
 essentially overrides \fIITEM\fP's configured value. In general, you may
 simply replace it by
 
 .in +4
-\fBecho "${\fP\fIVARIABLE\fP\fB-`conf_get\fP \fIITEM\fP[\fB=\fP\fIVALUE\fP] \fICFPN\fP ...\fB`}"\fP,
+\fBecho "${\fP\fIVARIABLE\fP\fB-`conf_get\fP \fIITEM\fP[\fB=\fP\fIVALUE\fP] \fICFPN\fP …\fB`}"\fP,
 .in -4
 
 but variable assignments like, e.g.
 
 .in +4
-\fBfoo=`conf_getenv bar\fP \fIITEM\fP[\fB=\fP\fIVALUE\fP] \fICFPN\fP ...\fB`\fP
+\fBfoo=`conf_getenv bar\fP \fIITEM\fP[\fB=\fP\fIVALUE\fP] \fICFPN\fP …\fB`\fP
 .in -4
 
 had better be replaced by
 
 .in +4
-\fBfoo=${bar-`conf_get\fP \fIITEM\fP[\fB=\fP\fIVALUE\fP] \fICFPN\fP ...\fB`}\fP
+\fBfoo=${bar-`conf_get\fP \fIITEM\fP[\fB=\fP\fIVALUE\fP] \fICFPN\fP …\fB`}\fP
 .in -4
 
 (though you \fIcould\fP use the 1st variant with escaped backquotes!).

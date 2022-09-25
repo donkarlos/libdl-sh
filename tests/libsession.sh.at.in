@@ -68,7 +68,7 @@ eval "`libdl-sh load`"			## Load libdl.sh or die.
 dl_atload test_atload && dl_atexit test_atexit
 dl_load session				## Register hooks and load libses-
 					## sion.sh.
-], 0, [dnl				## And the winner is...
+], 0, [dnl				## And the winner is…
 test_atexit(0)
 :session:dl:
 ], [dnl
@@ -106,7 +106,7 @@ esac
 eval "`libdl-sh load`"; dl_load session	## Load libdl.sh and libsession.sh or
 					## die.
 atlocal_check_meta_inquiries session	## Perform check for libsession.sh.
-], 0, [dnl				## And the winner is...
+], 0, [dnl				## And the winner is…
 session_meta([[2]]get,package)=0
 @PACKAGE_TARNAME@
 session_meta([[2]]get,version)=0
@@ -118,7 +118,7 @@ session_meta([[2]]get,apis)=0
 session_meta([[3]]get,apis,api)=0
 0
 session_meta([[3]]get,apis,full)=0
-0;session_meta(META [[ARG ...]]);2-4
+0;session_meta(META [[ARG …]]);2-4
 session_meta([[3]]get,apis,list)=0
 0;session_meta;2-4
 session_meta([[3]]get,apis,r/o)=0
@@ -159,7 +159,7 @@ esac
 eval "`libdl-sh load`"; dl_load session	## Load libdl.sh and libsession.sh or die.
 atlocal_check_api_consistency session test_hook
 					## Perform check for libsession.sh.
-], 0, [dnl				## And the winner is...
+], 0, [dnl				## And the winner is…
 Declared API versions: [[0;0]]
 ], [dnl
 ])
@@ -195,7 +195,7 @@ eval "`libdl-sh load`"; dl_load session	## Load libdl.sh and libsession.sh or
 					## die.
 atlocal_check_meta_get_apis_honours_4th session session_meta
 					## Perform check for libsession.sh.
-], 0, [dnl				## And the winner is...
+], 0, [dnl				## And the winner is…
 session_meta([[4]]get,apis,full,/;session_meta@{:@/!d;s/;.*$//)=0
 0
 session_meta([[4]]get,apis,list,/;session_meta;/!d;s/;.*$//)=0
@@ -228,7 +228,7 @@ esac
 eval "`libdl-sh load`"; dl_load session	## Load libdl.sh and libsession.sh or
 					## die.
 atlocal_check_constants session		## Perform check for libsession.sh.
-], 0, [dnl				## And the winner is...
+], 0, [dnl				## And the winner is…
 ], [dnl
 ])
 AT_CLEANUP
@@ -258,7 +258,7 @@ eval "`libdl-sh load`"; dl_load session	## Load libdl.sh and libsession.sh or
 					## die.
 atlocal_check_function_usage_errors session
 					## Perform check for libsession.sh.
-], 0, [dnl				## And the winner is...
+], 0, [dnl				## And the winner is…
 session_meta([[3]]set,api,0)=0
 session_meta([[0]])=2
 session_meta([[1]]1)=2

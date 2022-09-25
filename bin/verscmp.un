@@ -78,7 +78,7 @@ std_frontend=simple std_backend=fast	## Define default front- and backend.
 readonly std_frontend std_backend
 
 ##----------------------------------------------------------------------------
-##  verscmp_syntax(WHAT [ARG ...])	Do syntax table lookup
+##  verscmp_syntax(WHAT [ARG …])	Do syntax table lookup
 ##
 ##  Non-local variables:
 ##	- command	(R) command name
@@ -89,7 +89,7 @@ verscmp_syntax() {
     case $- in *x*) p=p;; esac		## Assume success, preset field/vari-
 					## ant separators, and set up sed(1)
 					## tracing.
-    case $#${1+=$1} in			## Usage OK?/WHAT [ARG ...]?
+    case $#${1+=$1} in			## Usage OK?/WHAT [ARG …]?
 	[12]=list-frontends)		## Y/list-frontends [DEFAULT]:
 	    sed '/^#f'"$fs"'[^'"$fs$vs"']*'"$vs"'\([^'"$fs"']*\)'"$fs"'.*$/{
 		s//\1/;s/[ 	]*$//;H
@@ -207,7 +207,7 @@ EOF
 ##		"dpkg" or "stow", respectively!
 ##	    (3)	Though technically the leading '#' sentinel isn't necessary,
 ##		it enables tracing intermediate substitutions done by sed(1),
-##		as the surrounding "eval `...`" perceives them as comments.
+##		as the surrounding "eval `…`" perceives them as comments.
 ##		Substitution tracing is enabled when "set -x" is in effect.
 ##	    (4)	Though technically not necessary, UVs are forced to start with
 ##		a number (to stay compatible to dpkg(1)'s notion of UVs).
@@ -232,7 +232,7 @@ EOF
 ##	    (and the default EP "0:" iff VERSION is sans-EP), so that the 2nd
 ##	    '#' sentinel is before the epoch number.
 ##	 c) A malformed VERSION is rejected by the 6th sed(1) expr.
-##   2.	Collation (":1"..."t1" loop):
+##   2.	Collation (":1"…"t1" loop):
 ##	 a) Numeric parts have leading zero digits stripped and are ' '-sepa-
 ##	    rated from non-numeric parts by the 7th and 8th sed(1) expr.s (the
 ##	    latter being a special case for zero), advancing the 2nd sentinel
@@ -308,7 +308,7 @@ EOF
 ##----------------------------------------------------------------------------
 verscmp_help() {
     cat <<EOF
-Usage: $command [OPTION ...] VERSION1 RELOP VERSION2
+Usage: $command [OPTION …] VERSION1 RELOP VERSION2
 Check if VERSION1 is RELOP VERSION2, where RELOP is a relational operator.
 
 Valid options are:
@@ -338,7 +338,7 @@ EOF
 ##----------------------------------------------------------------------------
 verscmp_help_operators() {
     cat <<EOF
-Usage: $command [OPTION ...] VERSION1 RELOP VERSION2
+Usage: $command [OPTION …] VERSION1 RELOP VERSION2
 Check if VERSION1 is RELOP VERSION2, where RELOP is a relational operator.
 
 Valid relational operators for front-/backend combination $QB$sel_frontend/$sel_backend$QE are:
@@ -387,7 +387,7 @@ eval set shiftee "$args"; unset optstring longopts args
 sel_frontend=$std_frontend sel_backend=$std_backend
 					## Preset selected front- and backend
 unset TRACE status action verbose	## from defaults.
-while shift; do				## Process parsed options...
+while shift; do				## Process parsed options…
     case $1 in
 	--trace)	TRACE='set -x'		;;
 	-h|--help)	action=help		;;

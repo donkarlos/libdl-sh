@@ -38,7 +38,7 @@ unset GETOPT_COMPATIBLE POSIXLY_CORRECT	## Make modern getopt(1) behave.
 ##----------------------------------------------------------------------------
 api_analysis_help() {
     cat <<EOF
-Usage: $command [OPTION ...] LIB
+Usage: $command [OPTION …] LIB
 API analysis script's frontend
 
 Valid options are:
@@ -91,7 +91,7 @@ args=`getopt -n"$command" -o"$optstring" -l"$longopts" -- ${1+"$@"}` || {
 }
 eval set shiftee "$args"; unset optstring longopts args
 T=0 V=1 U=0 mode=consistent		## Preset defaults.
-while shift; do				## Process parsed options...
+while shift; do				## Process parsed options…
     case $1 in
 	-h|--help)	api_analysis_help;	exit 0		;;
 	-V|--version)	api_analysis_version;	exit 0		;;

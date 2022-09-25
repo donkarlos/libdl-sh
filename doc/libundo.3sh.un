@@ -44,7 +44,7 @@ undo_mark, undo_push, undo_drop, undo_pull, undo_meta \- Undo stack management
 
 \fBundo_mark\fP \fIMARK\fP
 .br
-\fBundo_push\fP [\fITAG\fP] \fICOMMAND\fP [\fIARGUMENT\fP|\fIREDIRECTION\fP ...]
+\fBundo_push\fP [\fITAG\fP] \fICOMMAND\fP [\fIARGUMENT\fP|\fIREDIRECTION\fP …]
 .br
 \fBundo_drop\fP [\fICOUNT\fP=1]
 .br
@@ -62,7 +62,7 @@ undo_mark, undo_push, undo_drop, undo_pull, undo_meta \- Undo stack management
 .br
 \fBundo_pull\fP \fIMARK\fP \fITAG\fP
 .br
-\fBundo_meta\fP \fIMETA\fP [\fIARG\fP ...]
+\fBundo_meta\fP \fIMETA\fP [\fIARG\fP …]
 
 .SH DESCRIPTION
 In general, the undo stack management library \fBlibundo.sh\fP allows
@@ -102,7 +102,7 @@ whereas
 Push stack \fIMARK\fP onto the undo stack.
 
 .TP
-\fBundo_push\fP [\fITAG\fP] \fICOMMAND\fP [\fIARGUMENT\fP|\fIREDIRECTION\fP ...]
+\fBundo_push\fP [\fITAG\fP] \fICOMMAND\fP [\fIARGUMENT\fP|\fIREDIRECTION\fP …]
 Push (\fITAG\fPged) POSIX shell \fICOMMAND\fP (with its \fIARGUMENT\fPs and
 \fIREDIRECTION\fPs) onto the undo stack after quoting it with
 \fBquote_command\fP(3sh).
@@ -154,7 +154,7 @@ stack. The stack \fIMARK\fP itself and any contents below will be kept on the
 stack.
 
 .TP
-\fBundo_meta\fP \fIMETA\fP [\fIARG\fP ...]
+\fBundo_meta\fP \fIMETA\fP [\fIARG\fP …]
 Perform one of \fBlibundo.sh\fP's meta operations. These allow to inquire
 certain library internals in a controlled manner. Currently, the following
 meta operations are implemented:
@@ -195,7 +195,7 @@ For example, for API 1, \fBundo_push\fP(3sh) and \fBundo_pull\fP(3sh) would
 be represented by the following two lines:
 
 .in +4
-\fB1;undo_push([TAG] COMMAND [ARGUMENT|REDIRECTION ...]);1-\fP
+\fB1;undo_push([TAG] COMMAND [ARGUMENT|REDIRECTION …]);1-\fP
 .br
 \fB1;undo_pull(MARK [TAG] | TAG | [COUNT=1]);0-2\fP
 .in -4

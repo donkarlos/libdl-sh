@@ -97,24 +97,24 @@ readonly dl_package dl_version; unset dl_ro dl_api dl_atloads dl_session
 					## Discard spurious environment.
 
 ##----------------------------------------------------------------------------
-##  dl_meta(META [ARG ...])	Perform META operation (with ARGs)
+##  dl_meta(META [ARG …])	Perform META operation (with ARGs)
 ##----------------------------------------------------------------------------
 dl_meta() {
     local mp=dl_ ms=\;			## Set meta prefix and separator.
 
     case ${2+=}${1+$1-}${2-} in		## Which META operation?
-	=get-apis)			## Inquire APIs...
+	=get-apis)			## Inquire APIs…
 	    shift 2 && dl_apis ${1+"$@"} <<EOF
 a${ms}1
-f${ms}1${ms}meta(META [ARG ...])${ms}2-
-f${ms}1${ms}inform(ABOUT [AARG ...] FUNC [FARG ...])${ms}4-
+f${ms}1${ms}meta(META [ARG …])${ms}2-
+f${ms}1${ms}inform(ABOUT [AARG …] FUNC [FARG …])${ms}4-
 f${ms}1${ms}apis([FORMAT=api [SEDEX]])${ms}0-2
-f${ms}1${ms}dump(MP VS ...)${ms}2-
+f${ms}1${ms}dump(MP VS …)${ms}2-
 f${ms}1${ms}readonly(LIB VS [VALUE])${ms}2-3
-f${ms}1${ms}split(WORD IFS &FIELD ...)${ms}3-
+f${ms}1${ms}split(WORD IFS &FIELD …)${ms}3-
 f${ms}1${ms}which(LIB)${ms}1
 f${ms}1${ms}atload(HOOK)${ms}1
-f${ms}1${ms}load(LIB ...)${ms}1-
+f${ms}1${ms}load(LIB …)${ms}1-
 f${ms}1${ms}atexit(HOOK)${ms}1
 f${ms}1${ms}exit([STATUS=\$?])${ms}0-1
 R${ms}BQ
@@ -142,18 +142,18 @@ r${ms}re_0n
 EOF
 	    ;;
 	=get-package|=get-version|=get-api|=get-libpath|=get-loaded|	\
-	=get-session)			## Inquire internal variable...
+	=get-session)			## Inquire internal variable…
 	    eval 'case ${'"$mp$2"'+=} in
 		=)  echo "$'"$mp$2"'"	;;
 		*)  return 1		;;
 	    esac'
 	    ;;
-	=pre-libpath)			## Prepend to library search path...
+	=pre-libpath)			## Prepend to library search path…
 	    case ${3+=} in		## One or more path items given?
 		=)  local ifs vs=$2 items= item; shift 2
 		    ifs=$IFS; IFS=:; set shiftee $*; shift; IFS=$ifs
 		    for item in ${1+"$@"}; do
-					## Yes, foreach item do...
+					## Yes, foreach item do…
 			item=`cd "$item" 2>/dev/null && /bin/pwd` &&
 			    items=$items$item:
 		    done; eval "$mp$vs"'=$items$'"$mp$vs"
@@ -163,7 +163,7 @@ EOF
 		    ;;
 	    esac
 	    ;;
-	=set-session)			## Set session ID...
+	=set-session)			## Set session ID…
 	    case ${4+4}${3+=} in	## Usage OK?
 		=)  eval "$mp$2"'=$3'	## Yes, set session ID.
 		    ;;
@@ -171,7 +171,7 @@ EOF
 		    ;;
 	    esac
 	    ;;
-	=set-*)				## Set internal variable once...
+	=set-*)				## Set internal variable once…
 	    case ${4+4}${3+=}$2 in	## Usage OK?
 		=api)	${mp}meta get apis | fgrep -qxe "$3"
 			;;		## Yes, try to validate API version.
@@ -180,15 +180,15 @@ EOF
 	    esac && dl_readonly dl "$2" "$3"
 	    ;;
 	=session-init|=session-load|=session-dump|=session-exit)
-	    :				## Session init/load/dump/exit...
-	    ;;				## ...is a no-op.
-	*)  return 2			## Anything else...
-	    ;;				## ...is abuse!
+	    :				## Session init/load/dump/exit…
+	    ;;				## …is a no-op.
+	*)  return 2			## Anything else…
+	    ;;				## …is abuse!
     esac
 }
 
 ##----------------------------------------------------------------------------
-##  dl_inform(ABOUT [AARG ...] FUNC [FARG ...])
+##  dl_inform(ABOUT [AARG …] FUNC [FARG …])
 ##				Inform user about deprecated and/or withdrawn
 ##				features and abort application if necessary
 ##----------------------------------------------------------------------------
@@ -216,12 +216,12 @@ $func([$#]$args)
 EOF
 `"					## Rewrite invocation.
     case $dl_loaded in			## Library loaded?
-	*:${lib-}:*)			## Yes, try to determine package...
+	*:${lib-}:*)			## Yes, try to determine package…
 	    package=`${lib}_meta get package` || unset package
 	    version=`${lib}_meta get version` || unset version
-	    ;;				## ...name and version.
+	    ;;				## …name and version.
     esac; case ${lib+=}$about in
-	=rel-req-set-api)		## Release requires set API version...
+	=rel-req-set-api)		## Release requires set API version…
 	    cat >&2 <<EOF
 $invo; CAUTION!
 Function invoked without API version of lib$lib.sh being selected before,
@@ -234,7 +234,7 @@ work again.
 EOF
 	    exit 127
 	    ;;
-	=rel-dpr-func)			## Release deprecated function...
+	=rel-dpr-func)			## Release deprecated function…
 	    verscmp -- "${version-}" lt-nl "$drel" 2>/dev/null || {
 		cat >&2 <<EOF
 $invo; WARNING:
@@ -244,7 +244,7 @@ downgrade package ${package-} to release $crel.
 EOF
 	    }
 	    ;;
-	=api-wdr-func)			## API version withdrew function...
+	=api-wdr-func)			## API version withdrew function…
 	    cat >&2 <<EOF
 $invo; WARNING:
 Function withdrawn from API version $wapi of lib$lib.sh.
@@ -253,7 +253,7 @@ stay with (probably deprecated) API version $capi for the time being.
 EOF
 	    status=127
 	    ;;
-	=rel-wdr-meta)			## Release withdrew meta operation...
+	=rel-wdr-meta)			## Release withdrew meta operation…
 	    verscmp -- "${version-}" lt-nl "$wrel" 2>/dev/null || {
 		cat >&2 <<EOF
 $invo; WARNING:
@@ -264,7 +264,7 @@ EOF
 		status=2
 	    }
 	    ;;
-	*)				## Catch-all...
+	*)				## Catch-all…
 	    echo "$*; OOPS!" >&2
 	    status=3
 	    ;;
@@ -307,7 +307,7 @@ dl_apis() {
 }
 
 ##----------------------------------------------------------------------------
-##  dl_dump(MP VS ...)		Dump library's variables
+##  dl_dump(MP VS …)		Dump library's variables
 ##
 ##  NOTE:   (1)	The invoker is responsible for redirecting standard output!
 ##----------------------------------------------------------------------------
@@ -321,7 +321,7 @@ dl_dump() {
     local sx0=':0'"$NL"'$!{;N;b0'"$NL"'};s/'"$SQ"'/&'"$BS$BS"'&&/g;s/^/'\
 	  sx1='='"$SQ"'/;s/$/'"$SQ"'/'
 					## Fetch meta prefix.
-    shift; for vs in ${1+"$@"}; do	## Foreach stem do...
+    shift; for vs in ${1+"$@"}; do	## Foreach stem do…
 	eval 'case ${'"$mp$vs"'+=} in
 	    =)	sed "$sx0$mp$vs$sx1" <<EOF
 $'"$mp$vs"'
@@ -365,8 +365,7 @@ dl_readonly() {
 }
 
 ##----------------------------------------------------------------------------
-##  dl_split(WORD IFS &FIELD ...)
-##				Split WORD by IFS into FIELDs
+##  dl_split(WORD IFS &FIELD …)	Split WORD by IFS into FIELDs
 ##----------------------------------------------------------------------------
 dl_split() {
     case ${3+=} in			## At least one &FIELD given?
@@ -407,7 +406,7 @@ dl_which() {
     ' <<EOF
 $dl_libpath${PATH+:$PATH}
 EOF`; shift; IFS=$ifs			## Split combined library search path.
-    for item in ${1+"$@"}; do		## Locate library...
+    for item in ${1+"$@"}; do		## Locate library…
 	test -f "$item/lib$lib.sh" && echo "$item/lib$lib.sh" && return
     done; return 127
 }
@@ -427,14 +426,14 @@ dl_atload() {
 	    ;;				## No, register load-time hook.
 	*)  dl_atloads="$hook $DQ${DS}lib$DQ || dl_exit 127"
 					## Yes, register load-time hook with
-					## failure handling and...
+					## failure handling and…
 	    local lib=dl; eval "$dl_atloads"
-	    ;;				## ...exercise it for this library.
+	    ;;				## …exercise it for this library.
     esac
 }
 
 ##----------------------------------------------------------------------------
-##  dl_load(LIB ...)		Demand-load libraries into application
+##  dl_load(LIB …)		Demand-load libraries into application
 ##----------------------------------------------------------------------------
 dl_load() {
     local lib needed path
@@ -444,11 +443,11 @@ dl_load() {
 	=:) path=$PATH; PATH=$dl_libpath$PATH
 	    ;;				## Yes/Yes: Save and augment path.
 	=:*);;				## Yes/No.
-	=)  return 3			## Yes, but $dl_needed unset...
+	=)  return 3			## Yes, but $dl_needed unset…
 	    ;;				## Indicate internal error!
-	*)  return 2			## No...
+	*)  return 2			## No…
 	    ;;				## No, indicate abuse!
-    esac; for lib in "$@"; do		## Foreach demanded LIBrary do...
+    esac; for lib in "$@"; do		## Foreach demanded LIBrary do…
 	case $dl_loaded$dl_needed in	## Is it already loaded or needed?
 	    *:$lib:*)			## Yes, skip it.
 		;;
