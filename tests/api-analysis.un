@@ -34,7 +34,7 @@ unset GETOPT_COMPATIBLE POSIXLY_CORRECT	## Make modern getopt(1) behave.
 ##  api_analysis_help()		Show help
 ##
 ##  Non-local variables:
-##	- command	(R) command name
+##	• command	(R) command name
 ##----------------------------------------------------------------------------
 api_analysis_help() {
     cat <<EOF
@@ -56,7 +56,7 @@ EOF
 ##  api_analysis_version()	Show version and license information
 ##
 ##  Non-local variables:
-##	- command	(R) command name
+##	• command	(R) command name
 ##----------------------------------------------------------------------------
 api_analysis_version() {
     cat <<EOF

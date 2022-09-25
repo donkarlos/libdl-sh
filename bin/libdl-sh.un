@@ -81,7 +81,7 @@ include() {
 ##  libdl_sh_help()		Show help
 ##
 ##  Non-local variables:
-##	- command	(R) command name
+##	• command	(R) command name
 ##----------------------------------------------------------------------------
 libdl_sh_help() {
     cat <<EOF
@@ -105,7 +105,7 @@ EOF
 ##  libdl_sh_version()		Show version and license information
 ##
 ##  Non-local variables:
-##	- command	(R) command name
+##	• command	(R) command name
 ##----------------------------------------------------------------------------
 libdl_sh_version() {
     cat <<EOF

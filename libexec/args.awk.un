@@ -65,13 +65,13 @@
 ##			2020-05-27	Use universal interpreter.
 ##
 ##  Global constants and variables:
-##	- DEBUG		Debugging flag (set with '-vDEBUG=1')
-##	- FALSE/TRUE	Boolean constants
-##	- bv2sy[BV]	Boolean value -> symbol map
-##	- compatible	Compatibility mode flag
-##	- posixly	POSIX compliancy flag
-##	- ordered	Ordered output flag
-##	- AT_{ERR,EOA,EOO,ARG,ONA,OOA,ORA}
+##	• DEBUG		Debugging flag (set with '-vDEBUG=1')
+##	• FALSE/TRUE	Boolean constants
+##	• bv2sy[BV]	Boolean value -> symbol map
+##	• compatible	Compatibility mode flag
+##	• posixly	POSIX compliancy flag
+##	• ordered	Ordered output flag
+##	• AT_{ERR,EOA,EOO,ARG,ONA,OOA,ORA}
 ##			Argument/option type indices returned by
 ##			getopt_shift() denoting
 ##			  * ERRor,
@@ -80,34 +80,34 @@
 ##			  * ordinary ARGument,
 ##			  * Option with No/Optional/Required Argument
 ##			(The latter three being the option type subset)
-##	- at2sy[AT]	Argument type -> symbol map
-##	- dl2at[DL]	Short option descriptor's length -> option type map
-##	- at2ds[AT]	Option type -> descriptor suffix map
-##	- pi2oc[PI]	Per-pass option index -> name map's size
-##	- pion2oi[PI,ON] Per-pass option name -> index map
+##	• at2sy[AT]	Argument type -> symbol map
+##	• dl2at[DL]	Short option descriptor's length -> option type map
+##	• at2ds[AT]	Option type -> descriptor suffix map
+##	• pi2oc[PI]	Per-pass option index -> name map's size
+##	• pion2oi[PI,ON] Per-pass option name -> index map
 ##			 (also used for long options' abbreviations)
-##	- pioi2on[PI,OI] Per-pass option index -> name map
-##	- pioi2at[PI,OI] Per-pass option index -> type map
+##	• pioi2on[PI,OI] Per-pass option index -> name map
+##	• pioi2at[PI,OI] Per-pass option index -> type map
 ##			 (uses subset AT_{ONA,OOA,ORA})
-##	- piow2ov[PI,"a"]
+##	• piow2ov[PI,"a"]
 ##			Per-pass alternative long options flag
-##	- piow2ov[PI,"l"]
+##	• piow2ov[PI,"l"]
 ##			Per-pass LONGOPTS count
-##	- piow2ov[PI,"n"]
+##	• piow2ov[PI,"n"]
 ##			Per-pass command name
-##	- piow2ov[PI,"o"]
+##	• piow2ov[PI,"o"]
 ##			Per-pass OPTSTRING count
-##	- piow2ov[PI,"q"]
+##	• piow2ov[PI,"q"]
 ##			Per-pass quiet flag (i.e., suppress error messages)
-##	- piow2ov[PI,"Q"]
+##	• piow2ov[PI,"Q"]
 ##			Per-pass suppress output flag
-##	- piow2ov[PI,"u"]
+##	• piow2ov[PI,"u"]
 ##			Per-pass unquoted output flag
-##	- piow2ov[PI,"U"]
+##	• piow2ov[PI,"U"]
 ##			Per-pass unquoted options flag
-##	- piow2ov[PI,"s"]
+##	• piow2ov[PI,"s"]
 ##			Per-pass shell
-##	- nesting	Nesting depth
+##	• nesting	Nesting depth
 ##----------------------------------------------------------------------------
 ##  Initialization:
 #-----------------------------------------------------------------------------
@@ -134,10 +134,10 @@ BEGIN {
 ##				formatted parameter list FP to stderr and
 ##				increase nesting depth
 ##  Global variables:
-##	- nesting	(W) Nesting depth
+##	• nesting	(W) Nesting depth
 ##  Local variables:
-##	- fmt		(W) Format string
-##	- msg		(W) Quoted message
+##	• fmt		(W) Format string
+##	• msg		(W) Quoted message
 ##----------------------------------------------------------------------------
 function enter(fn,fp ,fmt,msg) {
     if (DEBUG) {
@@ -153,10 +153,10 @@ function enter(fn,fp ,fmt,msg) {
 ##  trace(EX)			Trace sprintf()-formatted EXpression to stderr
 ##
 ##  Global variables:
-##	- nesting	(R) Nesting depth
+##	• nesting	(R) Nesting depth
 ##  Local variables:
-##	- fmt		(W) Format string
-##	- msg		(W) Quoted message
+##	• fmt		(W) Format string
+##	• msg		(W) Quoted message
 ##----------------------------------------------------------------------------
 function trace(ex ,fmt,msg) {
     if (DEBUG) {
@@ -173,10 +173,10 @@ function trace(ex ,fmt,msg) {
 ##				formatted return value RV to stderr and
 ##				decrease nesting depth
 ##  Global variables:
-##	- nesting	(W) Nesting depth
+##	• nesting	(W) Nesting depth
 ##  Local variables:
-##	- fmt		(W) Format string
-##	- msg		(W) Quoted message
+##	• fmt		(W) Format string
+##	• msg		(W) Quoted message
 ##----------------------------------------------------------------------------
 function leave(rv ,fmt,msg) {
     if (DEBUG) {
@@ -193,9 +193,9 @@ function leave(rv ,fmt,msg) {
 ##  error(MSG,PI)		Emit sprintf()-formatted error message MSG
 ##				on stderr unless PI-th pass is quiet
 ##  Global variables:
-##	- piow2ov[PI,"n"]
+##	• piow2ov[PI,"n"]
 ##			(R) Per-pass command name
-##	- piow2ov[PI,"q"]
+##	• piow2ov[PI,"q"]
 ##			(R) Per-pass quiet flag
 ##----------------------------------------------------------------------------
 function error(msg,pi) {
@@ -210,11 +210,11 @@ function error(msg,pi) {
 ##  quote_sh(STRING,PI,AT)	Conditionally piow2ov[PI,"s"]-quote STRING
 ##
 ##  Global variables:
-##	- piow2ov[PI,"u"]
+##	• piow2ov[PI,"u"]
 ##			(R) Per-pass unquoted output flag
-##	- piow2ov[PI,"U"]
+##	• piow2ov[PI,"U"]
 ##			(R) Per-pass unquoted options flag
-##	- piow2ov[PI,"s"]
+##	• piow2ov[PI,"s"]
 ##			(R) Per-pass shell
 ##----------------------------------------------------------------------------
 function quote_sh(string,pi,at ,re) {
@@ -231,7 +231,7 @@ function quote_sh(string,pi,at ,re) {
 ##  set_property(PI,OW,OV)	Set string property piow2ov[PI,OW] to OV
 ##
 ##  Global variables:
-##	- piow2ov[PI,OW](W) String property piow2ov[PI,OW]
+##	• piow2ov[PI,OW](W) String property piow2ov[PI,OW]
 ##----------------------------------------------------------------------------
 function set_property(pi,ow,ov) {
     piow2ov[pi,ow] = ov
@@ -242,7 +242,7 @@ function set_property(pi,ow,ov) {
 ##  inc_property(PI,OW)		Increment numeric property piow2ov[PI,OW]
 ##
 ##  Global variables:
-##	- piow2ov[PI,OW](W) Numeric property piow2ov[PI,OW]
+##	• piow2ov[PI,OW](W) Numeric property piow2ov[PI,OW]
 ##----------------------------------------------------------------------------
 function inc_property(pi,ow) {
     trace(sprintf("++piow2ov[pi=%u,ow=\"%s\"]=%u",pi,ow,++piow2ov[pi,ow]))
@@ -252,9 +252,9 @@ function inc_property(pi,ow) {
 ##  become_compatible(PI)	Force compatibility mode for PI-th pass
 ##
 ##  Global variables:
-##	- compatible	(W) Compatibility mode flag
-##	- bv2sy[BV]	(R) Boolean value -> symbol map
-##	- piow2ov[PI,"u"]
+##	• compatible	(W) Compatibility mode flag
+##	• bv2sy[BV]	(R) Boolean value -> symbol map
+##	• piow2ov[PI,"u"]
 ##			(R) Per-pass unquoted output flag
 ##----------------------------------------------------------------------------
 function become_compatible(pi) {
@@ -267,27 +267,27 @@ function become_compatible(pi) {
 ##				Add short options described by OPTSTRING to
 ##				PI-th pass
 ##  Global variables:
-##	- compatible	(R) Compatibility mode flag
-##	- posixly	(W) POSIX compliancy flag
-##	- ordered	(W) Ordered output flag
-##	- bv2sy[BV]	(R) Boolean value -> symbol map
-##	- RSTART	(W) match() start position
-##	- RLENGTH	(W) match() length
-##	- at2sy[AT]	(R) Argument type -> symbol map
-##	- dl2at[DL]	(R) Short option descriptor's length -> type map
-##	- at2ds[AT]	(R) Option type -> descriptor suffix map
-##	- pi2oc[PI]	(W) Per-pass option index -> name map's size
-##	- pion2oi[PI,ON](W) Per-pass option name -> index map
-##	- pioi2on[PI,OI](W) Per-pass option index -> name map
-##	- pioi2at[PI,OI](W) Per-pass option index -> type map
-##	- piow2ov[PI,"o"]
+##	• compatible	(R) Compatibility mode flag
+##	• posixly	(W) POSIX compliancy flag
+##	• ordered	(W) Ordered output flag
+##	• bv2sy[BV]	(R) Boolean value -> symbol map
+##	• RSTART	(W) match() start position
+##	• RLENGTH	(W) match() length
+##	• at2sy[AT]	(R) Argument type -> symbol map
+##	• dl2at[DL]	(R) Short option descriptor's length -> type map
+##	• at2ds[AT]	(R) Option type -> descriptor suffix map
+##	• pi2oc[PI]	(W) Per-pass option index -> name map's size
+##	• pion2oi[PI,ON](W) Per-pass option name -> index map
+##	• pioi2on[PI,OI](W) Per-pass option index -> name map
+##	• pioi2at[PI,OI](W) Per-pass option index -> type map
+##	• piow2ov[PI,"o"]
 ##			(W) Per-pass OPTSTRING count
 ##  Local variables:
-##	- re		(R) Mode-specific short option descriptor RE
-##	- ow		(W) Option word
-##	- on		(W) Option name
-##	- at		(W) Option type
-##	- oi		(W) Option index
+##	• re		(R) Mode-specific short option descriptor RE
+##	• ow		(W) Option word
+##	• on		(W) Option name
+##	• at		(W) Option type
+##	• oi		(W) Option index
 ##----------------------------------------------------------------------------
 function getopt_add_optstring(optstring,pi ,re,ow,on,at,oi) {
     enter("getopt_add_optstring",sprintf("optstring=\"%s\",pi=%u",	\
@@ -342,26 +342,26 @@ function getopt_add_optstring(optstring,pi ,re,ow,on,at,oi) {
 ##				Add long options described by LONGOPTS's to
 ##				PI-th pass
 ##  Global variables:
-##	- RSTART	(W) match() start position
-##	- RLENGTH	(W) match() length
-##	- at2sy[AT]	(R) Argument type -> symbol map
-##	- dl2at[DL]	(R) Short option descriptor's length -> type map
-##	- at2ds[AT]	(R) Option type -> descriptor suffix map
-##	- pi2oc[PI]	(W) Per-pass option index -> name map's size
-##	- pion2oi[PI,ON](W) Per-pass option name -> index map
-##	- pioi2on[PI,OI](W) Per-pass option index -> name map
-##	- pioi2at[PI,OI](W) Per-pass option index -> type map
-##	- piow2ov[PI,"l"]
+##	• RSTART	(W) match() start position
+##	• RLENGTH	(W) match() length
+##	• at2sy[AT]	(R) Argument type -> symbol map
+##	• dl2at[DL]	(R) Short option descriptor's length -> type map
+##	• at2ds[AT]	(R) Option type -> descriptor suffix map
+##	• pi2oc[PI]	(W) Per-pass option index -> name map's size
+##	• pion2oi[PI,ON](W) Per-pass option name -> index map
+##	• pioi2on[PI,OI](W) Per-pass option index -> name map
+##	• pioi2at[PI,OI](W) Per-pass option index -> type map
+##	• piow2ov[PI,"l"]
 ##			(W) Per-pass LONGOPTS count
 ##  Local variables:
-##	- di		(W) Descriptor index
-##	- dc		(R) Descriptor count
-##	- dv[DI]	(R) Descriptor vector
-##	- cp		(W) ':' position/abbreviation length
-##	- ow		(W) Option word
-##	- on		(W) Option name
-##	- at		(W) Option type
-##	- oi		(W) Option index
+##	• di		(W) Descriptor index
+##	• dc		(R) Descriptor count
+##	• dv[DI]	(R) Descriptor vector
+##	• cp		(W) »:« position/abbreviation length
+##	• ow		(W) Option word
+##	• on		(W) Option name
+##	• at		(W) Option type
+##	• oi		(W) Option index
 ##----------------------------------------------------------------------------
 function getopt_add_longopts(longopts,pi ,di,dc,dv,cp,ow,on,at,oi) {
     enter("getopt_add_longopts",sprintf("longopts=\"%s\",pi=%u",longopts,pi))
@@ -419,8 +419,8 @@ function getopt_add_longopts(longopts,pi ,di,dc,dv,cp,ow,on,at,oi) {
 ##  unshift(ARG)		Unfetch ARGument
 ##
 ##  Global variables:
-##	- ARGI		(W) Argument index
-##	- ARGV[ARGI]	(W) Argument vector
+##	• ARGI		(W) Argument index
+##	• ARGV[ARGI]	(W) Argument vector
 ##----------------------------------------------------------------------------
 function unshift(arg) {
     ARGV[--ARGI] = arg; trace(sprintf("ARGV[--ARGI=%u]=\"%s\"",ARGI,arg))
@@ -430,9 +430,9 @@ function unshift(arg) {
 ##  args_print()		Print command line parameters
 ##
 ##  Global variables:
-##	- ARGC		(R) Argument count
-##	- ARGI		(W) Argument index
-##	- ARGV[ARGI]	(R) Argument vector
+##	• ARGC		(R) Argument count
+##	• ARGI		(W) Argument index
+##	• ARGV[ARGI]	(R) Argument vector
 ##----------------------------------------------------------------------------
 function args_print() {
     for (ARGI = 0; ARGI < ARGC; ++ARGI)	## Foreach argument do…
@@ -445,35 +445,35 @@ function args_print() {
 ##  args_getopt(CN)		Emulate getopt(1)
 ##
 ##  Global variables:
-##	- ARGI		(W) Argument index
-##	- ARGC		(R) Argument count
-##	- ARGV[ARGI]	(W) Argument vector
-##	- RSTART	(W) match() start position
-##	- RLENGTH	(W) match() length
-##	- compatible	(W) Compatibility mode flag
-##	- posixly	(W) POSIX compliancy flag
-##	- ordered	(R) Ordered output flag
-##	- bv2sy[BV]	(R) Boolean value -> symbol map
-##	- at2sy[AT]	(R) Argument type -> symbol map
-##	- pion2oi[PI,ON](R) Per-pass option name -> index map
-##	- pioi2on[PI,OI](R) Per-pass option index -> name map
-##	- pioi2at[PI,OI](R) Per-pass option index -> type map
+##	• ARGI		(W) Argument index
+##	• ARGC		(R) Argument count
+##	• ARGV[ARGI]	(W) Argument vector
+##	• RSTART	(W) match() start position
+##	• RLENGTH	(W) match() length
+##	• compatible	(W) Compatibility mode flag
+##	• posixly	(W) POSIX compliancy flag
+##	• ordered	(R) Ordered output flag
+##	• bv2sy[BV]	(R) Boolean value -> symbol map
+##	• at2sy[AT]	(R) Argument type -> symbol map
+##	• pion2oi[PI,ON](R) Per-pass option name -> index map
+##	• pioi2on[PI,OI](R) Per-pass option index -> name map
+##	• pioi2at[PI,OI](R) Per-pass option index -> type map
 ##  Local variables:
-##	- pi		(W) Pass index (1st pass processes getopt(1) options,
+##	• pi		(W) Pass index (1st pass processes getopt(1) options,
 ##					2nd pass processes invoker's options
 ##					and emits result)
-##	- ec		(W) Error count
-##	- arg		(W) Fetched argument
-##	- at		(W) Argument type
-##	- on		(W) Option name
-##	- ov		(W) Option value
-##	- oi		(W) Option index
-##	- at		(W) Fetched argument's type
-##	- ep		(W) '=' position
-##	- O		(W) Result's  left-hand side (LHS)
-##	- A		(W) Result's right-hand side (RHS)
-##	- son		(W) Short option name
-##	- lon		(W) Long option name
+##	• ec		(W) Error count
+##	• arg		(W) Fetched argument
+##	• at		(W) Argument type
+##	• on		(W) Option name
+##	• ov		(W) Option value
+##	• oi		(W) Option index
+##	• at		(W) Fetched argument's type
+##	• ep		(W) »=« position
+##	• O		(W) Result's  left-hand side (LHS)
+##	• A		(W) Result's right-hand side (RHS)
+##	• son		(W) Short option name
+##	• lon		(W) Long option name
 ##----------------------------------------------------------------------------
 function args_getopt(cn ,pi,ec,arg,on,ov,oi,at,ep,O,A,son,lon) {
     enter("args_getopt",sprintf("cn=\"%s\"",cn))

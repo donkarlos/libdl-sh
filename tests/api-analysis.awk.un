@@ -41,45 +41,45 @@
 ##					check lists.
 ##
 ##  Global constants and variables:
-##	- T			Trace	  level	(set with '-vT=TLEVEL')
-##	- V			Verbosity level	(set with '-vV=VLEVEL')
-##	- U			Skip function decl.s with API version '-'?
-##	- mode			Output mode	(set with '-vmode=MODE')
-##	- lib			Library name	(set with '-vlib=LIB')
-##	- FALSE/TRUE		Boolean constants
-##	- bv2sy[BV]		Map boolean value -> symbol
-##	- nesting		Nesting depth (for tracing)
-##	- tn2ti[TN]		Map token index <- name
-##	- ti2tn[TI]		Map token index -> name
-##	- ti2mc[TI]		Map token index -> #mappings
-##	- tc			#(Function index <-> name mappings)
-##	- ti			Function index (set by set/map_ti())
-##	- av2ai[AV]		Map API index <- API version
-##	- ai2av[AI]		Map API index -> API version
-##	- ai2mc[AI]		Map API index -> #mappings
-##	- ai2nr[AI]		Map API index -> NR
-##	- ac			#(API index <-> API version mappings)
-##	- ai			API index (set by set/map_ai())
-##	- minav			Minimal declared API version
-##	- maxav			Maximal declared API version
-##	- fn2fi[FN]		Map function index <- name
-##	- fi2fn[FI]		Map function index -> name
-##	- fi2mc[FI]		Map function index -> #mappings
-##	- fc			#(Function index <-> name mappings)
-##	- fi			Function index (set by set/map_fi())
-##	- fi2dc[FI]		Map function index -> #(function declarations)
-##	- fi2ac[FI]		Map function index -> #(API index references)
-##	- fi2minav[FI]		Map function index -> minimal API version
-##	- fi2maxav[FI]		Map function index -> maximal API version
-##	- di			Function declaration index
-##	- fidi2nr[FI,NR]	Per-function declaration NR
-##	- fidi2ti[FI,DI]	Per-function declaration (AV,FN) token index
-##	- fidi2av[FI,DI]	Per-function declaration API version
-##	- fidi2pt[FI,DI]	Per-function declaration prototype
-##	- fidi2rg[FI,DI]	Per-function declaration argument count range
-##	- fidi2ai[FI,DI]	Per-function declaration API index
-##	- pi2do[PI]		PI-th analysis pass enabled?
-##	- ec			Total error count (auto-updated by error())
+##	• T			Trace	  level	(set with '-vT=TLEVEL')
+##	• V			Verbosity level	(set with '-vV=VLEVEL')
+##	• U			Skip function decl.s with API version '-'?
+##	• mode			Output mode	(set with '-vmode=MODE')
+##	• lib			Library name	(set with '-vlib=LIB')
+##	• FALSE/TRUE		Boolean constants
+##	• bv2sy[BV]		Map boolean value -> symbol
+##	• nesting		Nesting depth (for tracing)
+##	• tn2ti[TN]		Map token index <- name
+##	• ti2tn[TI]		Map token index -> name
+##	• ti2mc[TI]		Map token index -> #mappings
+##	• tc			#(Function index <-> name mappings)
+##	• ti			Function index (set by set/map_ti())
+##	• av2ai[AV]		Map API index <- API version
+##	• ai2av[AI]		Map API index -> API version
+##	• ai2mc[AI]		Map API index -> #mappings
+##	• ai2nr[AI]		Map API index -> NR
+##	• ac			#(API index <-> API version mappings)
+##	• ai			API index (set by set/map_ai())
+##	• minav			Minimal declared API version
+##	• maxav			Maximal declared API version
+##	• fn2fi[FN]		Map function index <- name
+##	• fi2fn[FI]		Map function index -> name
+##	• fi2mc[FI]		Map function index -> #mappings
+##	• fc			#(Function index <-> name mappings)
+##	• fi			Function index (set by set/map_fi())
+##	• fi2dc[FI]		Map function index -> #(function declarations)
+##	• fi2ac[FI]		Map function index -> #(API index references)
+##	• fi2minav[FI]		Map function index -> minimal API version
+##	• fi2maxav[FI]		Map function index -> maximal API version
+##	• di			Function declaration index
+##	• fidi2nr[FI,NR]	Per-function declaration NR
+##	• fidi2ti[FI,DI]	Per-function declaration (AV,FN) token index
+##	• fidi2av[FI,DI]	Per-function declaration API version
+##	• fidi2pt[FI,DI]	Per-function declaration prototype
+##	• fidi2rg[FI,DI]	Per-function declaration argument count range
+##	• fidi2ai[FI,DI]	Per-function declaration API index
+##	• pi2do[PI]		PI-th analysis pass enabled?
+##	• ec			Total error count (auto-updated by error())
 ##----------------------------------------------------------------------------
 ##  Initialization:
 #-----------------------------------------------------------------------------
@@ -114,10 +114,10 @@ BEGIN {
 ##				formatted parameter list FP to stderr and
 ##				increase nesting depth
 ##  Global variables:
-##	- nesting	(W) Nesting depth
+##	• nesting	(W) Nesting depth
 ##  Local variables:
-##	- fmt		(W) Format string
-##	- msg		(W) Quoted message
+##	• fmt		(W) Format string
+##	• msg		(W) Quoted message
 ##----------------------------------------------------------------------------
 function enter(fn,fp ,fmt,msg) {
     fmt = sprintf("#%%%us%%s(%%s)",nesting++)
@@ -131,10 +131,10 @@ function enter(fn,fp ,fmt,msg) {
 ##  trace(EX)			Trace sprintf()-formatted EXpression to stderr
 ##
 ##  Global variables:
-##	- nesting	(R) Nesting depth
+##	• nesting	(R) Nesting depth
 ##  Local variables:
-##	- fmt		(W) Format string
-##	- msg		(W) Quoted message
+##	• fmt		(W) Format string
+##	• msg		(W) Quoted message
 ##----------------------------------------------------------------------------
 function trace(ex ,fmt,msg) {
     fmt = sprintf("#%%%us%%s",nesting)	## Construct format string.
@@ -148,10 +148,10 @@ function trace(ex ,fmt,msg) {
 ##				function with sprintf()-formatted return value
 ##				RV to stderr
 ##  Global variables:
-##	- nesting	(W) Nesting depth
+##	• nesting	(W) Nesting depth
 ##  Local variables:
-##	- fmt		(W) Format string
-##	- msg		(W) Quoted message
+##	• fmt		(W) Format string
+##	• msg		(W) Quoted message
 ##----------------------------------------------------------------------------
 function leave(rv ,fmt,msg) {
     fmt = rv ? sprintf("#%%%usreturn(%%s)",--nesting)		\
@@ -166,7 +166,7 @@ function leave(rv ,fmt,msg) {
 ##  error(MSG)			Write sprintf()-formatted error message MSG
 ##				to stderr
 ##  Global variables:
-##	- ec		(W) Total error count
+##	• ec		(W) Total error count
 ##----------------------------------------------------------------------------
 function error(msg) {
     ++ec; gsub(/'/,"&\\\\&&",msg)	## No, construct quoted message and

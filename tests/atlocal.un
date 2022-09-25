@@ -63,9 +63,9 @@ readonly PACKAGE_TARNAME PACKAGE_VERSION bindir libdir pkgdatadir sysconfdir
 ##				»unset NAME« otherwise
 ##
 ##  Non-local variables:
-##	- NL		(R) A newline.		(ASCII <LF>)
-##	- CR		(R) A carriage return.	(ASCII <CR>)
-##	- BS		(R) A backslash.	(»\«)
+##	• NL		(R) A newline.		(ASCII <LF>)
+##	• CR		(R) A carriage return.	(ASCII <CR>)
+##	• BS		(R) A backslash.	(»\«)
 ##----------------------------------------------------------------------------
 atlocal_trace_variable() {
     expr "${1+_$1}" : "_$dl_re_id$DS" >/dev/null || return 2
@@ -91,9 +91,9 @@ EOF
 ##		EXIT trap if FUNC's invocation fails!
 ##
 ##  Non-local variables:
-##	- NL		(R) A newline.		(ASCII <LF>)
-##	- CR		(R) A carriage return.	(ASCII <CR>)
-##	- BS		(R) A backslash.	(»\«)
+##	• NL		(R) A newline.		(ASCII <LF>)
+##	• CR		(R) A carriage return.	(ASCII <CR>)
+##	• BS		(R) A backslash.	(»\«)
 ##----------------------------------------------------------------------------
 atlocal_trace_invocation() {
     expr "${1+_$1}" : "_$dl_re_id$DS" >/dev/null || return 2
@@ -137,9 +137,9 @@ atlocal_trace_invocation_returns() {
 ##		EXIT trap if FUNC's invocation fails!
 ##
 ##  Non-local variables:
-##	- NL		(R) A newline.		(ASCII <LF>)
-##	- CR		(R) A carriage return.	(ASCII <CR>)
-##	- BS		(R) A backslash.	(»\«)
+##	• NL		(R) A newline.		(ASCII <LF>)
+##	• CR		(R) A carriage return.	(ASCII <CR>)
+##	• BS		(R) A backslash.	(»\«)
 ##----------------------------------------------------------------------------
 atlocal_trace_invocation_raw_output() {
     expr "${1+_$1}" : "_$dl_re_id$DS" >/dev/null || return 2
@@ -170,9 +170,9 @@ EOF
 ##		EXIT trap if FUNC's invocation fails!
 ##
 ##  Non-local variables:
-##	- NL		(R) A newline.		(ASCII <LF>)
-##	- CR		(R) A carriage return.	(ASCII <CR>)
-##	- BS		(R) A backslash.	(»\«)
+##	• NL		(R) A newline.		(ASCII <LF>)
+##	• CR		(R) A carriage return.	(ASCII <CR>)
+##	• BS		(R) A backslash.	(»\«)
 ##----------------------------------------------------------------------------
 atlocal_trace_invocation_set_output() {
     case ${1+1$1_}${2+2$2_} in		## Usage OK?
@@ -206,13 +206,13 @@ EOF
 ##				characters
 ##
 ##  Non-local variables:
-##	- NL		(R) A newline.		(ASCII <LF>)
-##	- BS		(R) A backslash.	(»\«)
-##	- DS		(R) A dollar sign.	(»$«)
-##	- quote_cs_sh	(R) Special sh(1) character set sans »~«.
-##	- quote_cs_bre	(R) Special BRE character set sans »^« and »$«.
-##	- quote_cs_ere	(R) Special ERE character set with »^« and »$«.
-##	- quote_cs_brs	(R) Special »s///« right-hand side character set
+##	• NL		(R) A newline.		(ASCII <LF>)
+##	• BS		(R) A backslash.	(»\«)
+##	• DS		(R) A dollar sign.	(»$«)
+##	• quote_cs_sh	(R) Special sh(1) character set sans »~«.
+##	• quote_cs_bre	(R) Special BRE character set sans »^« and »$«.
+##	• quote_cs_ere	(R) Special ERE character set with »^« and »$«.
+##	• quote_cs_brs	(R) Special »s///« right-hand side character set
 ##----------------------------------------------------------------------------
 atlocal_get_special_cs() {
     sed '
@@ -231,10 +231,10 @@ EOF
 ##				usable with »eval set shiftee …; shift«
 ##
 ##  Non-local variables:
-##	- NL		(R) A newline.		(ASCII <LF>)
-##	- BS		(R) A backslash.	(»\«)
-##	- SQ		(R) A single quote.
-##	- quote_cs_sh	(R) Special sh(1) character set sans »~«.
+##	• NL		(R) A newline.		(ASCII <LF>)
+##	• BS		(R) A backslash.	(»\«)
+##	• SQ		(R) A single quote.
+##	• quote_cs_sh	(R) Special sh(1) character set sans »~«.
 ##----------------------------------------------------------------------------
 atlocal_set_special_cs() {
     sed '
@@ -388,7 +388,7 @@ atlocal_check_meta_inquiries() {
 ##				sed(1) expr. of formats »full« and »list«
 ##
 ##  Non-local variables:
-##	- DS		(R) A dollar sign.	(»$«)
+##	• DS		(R) A dollar sign.	(»$«)
 ##----------------------------------------------------------------------------
 atlocal_check_meta_get_apis_honours_4th() {
     case ${3+3}${2+=$2/`dl_meta get loaded`} in
@@ -445,10 +445,10 @@ atlocal_check_constants() {
 ##				when invoked with insufficient arguments
 ##
 ##  Non-local variables:
-##	- NL		(R) A newline.		(ASCII <LF>)
-##	- dl_re_id	(R) Unanchored BREs received sh(1) identifiers,
-##	- dl_re_0n	(R) non-negative unmbers, and
-##	- dl_re_1n	(R) positive numbers.
+##	• NL		(R) A newline.		(ASCII <LF>)
+##	• dl_re_id	(R) Unanchored BREs received sh(1) identifiers,
+##	• dl_re_0n	(R) non-negative unmbers, and
+##	• dl_re_1n	(R) positive numbers.
 ##----------------------------------------------------------------------------
 atlocal_check_function_usage_errors() {
     case ${2+2}${1+=`dl_meta get loaded`} in

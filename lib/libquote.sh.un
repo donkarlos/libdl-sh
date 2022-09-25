@@ -124,10 +124,10 @@ EOF
 ##				Universally quote STRING
 ##
 ##  Non-local variables:
-##	- quote_cs_bre	(R) Special BRE character set sans »^« and »$«.
-##	- quote_cs_ere	(R) Special ERE character set with »^« and »$«.
-##	- quote_cs_brs	(R) Special »s///« right-hand side character set
-##	- quote_cs_sh	(R) Special sh(1) character set sans »~«.
+##	• quote_cs_bre	(R) Special BRE character set sans »^« and »$«.
+##	• quote_cs_ere	(R) Special ERE character set with »^« and »$«.
+##	• quote_cs_brs	(R) Special »s///« right-hand side character set
+##	• quote_cs_sh	(R) Special sh(1) character set sans »~«.
 ##----------------------------------------------------------------------------
 quote() {
     local n st de string pass=1 sx=':N'"$NL"'$!{;N;bN'"$NL"'}'
@@ -188,7 +188,7 @@ EOF
 ##  quote_sh(STRING)		Quote STRING for sh(1)
 ##
 ##  Non-local variables:
-##	- quote_cs_sh	(R) Special sh(1) character set sans »~«
+##	• quote_cs_sh	(R) Special sh(1) character set sans »~«
 ##----------------------------------------------------------------------------
 quote_sh() {
     case ${2+2}${1+1} in		## Usage OK?
@@ -230,7 +230,7 @@ quote_command() {
 ##				Quote STRING for use as obsolete/basic RE
 ##
 ##  Non-local variables:
-##	- quote_cs_bre	(R) Special BRE character set sans »^« and »$«.
+##	• quote_cs_bre	(R) Special BRE character set sans »^« and »$«.
 ##----------------------------------------------------------------------------
 quote_re() {
     case ${3+3}${2+2$2_}${1+1} in	## Usage OK/delimiter OK?
@@ -253,7 +253,7 @@ EOF
 ##				Quote STRING for use as modern/extended RE
 ##
 ##  Non-local variables:
-##	- quote_cs_ere	(R) Special ERE character set with »^« and »$«.
+##	• quote_cs_ere	(R) Special ERE character set with »^« and »$«.
 ##----------------------------------------------------------------------------
 quote_ere() {
     case ${3+3}${2+2$2_}${1+1} in	## Usage OK/delimiter OK?
@@ -276,7 +276,7 @@ EOF
 ##				tution
 ##
 ##  Non-local variables:
-##	- quote_cs_brs	(R) Special »s///« right-hand side character set
+##	• quote_cs_brs	(R) Special »s///« right-hand side character set
 ##----------------------------------------------------------------------------
 quote_rs() {
     case ${3+3}${2+2$2_}${1+1} in	## Usage OK/delimiter OK?

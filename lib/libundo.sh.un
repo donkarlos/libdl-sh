@@ -202,13 +202,13 @@ undo_mark() {
 ##  undo_push(MARK)		Push (TAGged) COMMAND (with quoted ARGUMENTs
 ##				and/or REDIRECTIONs) or MARK onto undo stack
 ##  Legend:
-##    -	MARK	Valid	mark	(e.g., "::MARK")
-##    -	invMARK	Invalid	mark	(e.g., ":::")
-##    -	TAG	Valid	tag	(e.g., ":TAG")
-##    -	invTAG	Invalid	tag	(e.g., "::")
-##    -	CMD	Valid	command	(e.g., "rm")
-##    -	invCMD	Invalid	command	(e.g., ":")
-##    -	emtCMD	Empty	command	(i.e., "")
+##    •	MARK	Valid	mark	(e.g., "::MARK")
+##    •	invMARK	Invalid	mark	(e.g., ":::")
+##    •	TAG	Valid	tag	(e.g., ":TAG")
+##    •	invTAG	Invalid	tag	(e.g., "::")
+##    •	CMD	Valid	command	(e.g., "rm")
+##    •	invCMD	Invalid	command	(e.g., ":")
+##    •	emtCMD	Empty	command	(i.e., "")
 ##
 ##  An 'inv' or 'emt' prefix in parentheses means maybe invalid/empty, resp.
 ##----------------------------------------------------------------------------

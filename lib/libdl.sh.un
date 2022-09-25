@@ -278,8 +278,8 @@ EOF
 ##  NOTE:   (1)	Invoker must provide API information on standard input!
 ##
 ##  Non-local variables:
-##	- mp		(R) Meta prefix
-##	- ms[=;]	(R) Meta separator
+##	• mp		(R) Meta prefix
+##	• ms[=;]	(R) Meta separator
 ##----------------------------------------------------------------------------
 dl_apis() {
     local all='
