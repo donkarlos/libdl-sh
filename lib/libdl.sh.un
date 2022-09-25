@@ -159,7 +159,7 @@ EOF
 		    done; eval "$mp$vs"'=$items$'"$mp$vs"
 					## Canonify and prepend it to library
 		    ;;			## search path if it does exist.
-		*)  return 2		## No, indicate misuse!
+		*)  return 2		## No, indicate abuse!
 		    ;;
 	    esac
 	    ;;

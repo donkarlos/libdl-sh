@@ -620,7 +620,7 @@ function args_getopt(cn ,pi,ec,arg,on,ov,oi,at,ep,O,A,son,lon) {
 					## Saw OPTSTRING for 2nd pass and
 					## in compatibility mode?
 		error("missing OPTSTRING!",pi); leave("2"); return 2
-	    }				## No, indicate misuse!
+	    }				## No, indicate abuse!
 	    trace(sprintf("at=%s",at2sy[at = AT_EOA]))
 	}				## Yes, indicate exhaustion!
 
@@ -656,7 +656,7 @@ Valid options are:\n\
  -u, --unquoted			Don't quote output\n\
  -U, --unquoted-options		Don't quote options in output\nEOF"
 		system(arg)		## Yes, show help and…
-		leave("2"); return 2	## …indicate "misuse"!
+		leave("2"); return 2	## …indicate abuse!
 	    } else if (on ~ /^(-V|--version)$/) {
 					## No, saw option '-V|--version'?
 		printf "%s (%s) %s\n",cn,"@PACKAGE_NAME@","@PACKAGE_VERSION@"
@@ -756,7 +756,7 @@ BEGIN {
     } else {
 	piow2ov[0,"n"] = ARGV[0]	## Fake 0th pass…
 	error(sprintf("unknown action '%s'!",action),0)
-	status = 2			## …and indicate misuse!
+	status = 2			## …and indicate abuse!
     }
     trace(sprintf("exit %d",status)); exit status
 }
