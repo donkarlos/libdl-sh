@@ -211,7 +211,7 @@ EOF
 		sysconfdir) echo @sysconfdir@	;;
 		pkgdatadir) echo @pkgdatadir@	;;
 		*)	    exit 1		;;
-	    esac			## Emit installation path if name is
+	    esac			## Emit installation path if NAME is
 	done				## valid, bail out if not.
 	;;
     *)
