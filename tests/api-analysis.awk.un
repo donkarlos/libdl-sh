@@ -28,7 +28,7 @@
 ##					Validate declarations more strictly.
 ##					Part function name and prototype in-
 ##					dependently (i.e., process raw
-##					'get apis all' output).
+##					»get apis all« output).
 ##		ks	2021-05-29	Rename DEBUG to T.
 ##					Introduce concept of verbosity.
 ##					Move min-/maximal API version designa-
@@ -36,16 +36,16 @@
 ##					Determine per-function min-/maximal
 ##					API versions.
 ##					Conditionally skip function declara-
-##					tions with API version '-'.
+##					tions with API version »-«.
 ##					Generate "deprecated" and "withdrawn"
 ##					check lists.
 ##
 ##  Global constants and variables:
-##	• T			Trace	  level	(set with '-vT=TLEVEL')
-##	• V			Verbosity level	(set with '-vV=VLEVEL')
-##	• U			Skip function decl.s with API version '-'?
-##	• mode			Output mode	(set with '-vmode=MODE')
-##	• lib			Library name	(set with '-vlib=LIB')
+##	• T			Trace	  level	(set with »-vT=TLEVEL«)
+##	• V			Verbosity level	(set with »-vV=VLEVEL«)
+##	• U			Skip function decl.s with API version »-«?
+##	• mode			Output mode	(set with »-vmode=MODE«)
+##	• lib			Library name	(set with »-vlib=LIB«)
 ##	• FALSE/TRUE		Boolean constants
 ##	• bv2sy[BV]		Map boolean value -> symbol
 ##	• nesting		Nesting depth (for tracing)
@@ -261,7 +261,7 @@ function map_fi(av,fn,pt,rg ,set,tn,di) {
     set = (fi in fi2mc); ++fi2mc[fi]	## Count FI<->FN mapping.
     if (T>0) trace(sprintf("++fi2mc[fi=%u]=%u",fi,fi2mc[fi]))
     if (map_ti(tn = avfn2tn(av,fn))) {	## (AV,FN) token already mapped?
-	error(sprintf("Line %u, 'f;%d;%s(%s);%s': Duplicate function "	\
+	error(sprintf("Line %u, »f;%d;%s(%s);%s«: Duplicate function "	\
 	    "declaration! (see line %u)",NR,av,fn,pt,rg,fidi2nr[fi,di]))
 					## Yes, show error message.
     } else {
@@ -283,28 +283,28 @@ function map_fi(av,fn,pt,rg ,set,tn,di) {
 ##  Main program:
 ##----------------------------------------------------------------------------
 BEGIN {
-    FS = ";"				## Fields are ';'-separated.
+    FS = ";"				## Fields are »;«-separated.
 }
 
 (NF == 2) && ($1 == "a") {		## Process API version declaration?
     if ($2 !~ are_0n) {			## Yes, is it valid?
-	error(sprintf("Line %u, '%s': Invalid API version declaration!",NR,$0))
+	error(sprintf("Line %u, »%s«: Invalid API version declaration!",NR,$0))
 					## No, complain about it!
     } else if (map_ai($2)) {		## Yes, but is it unique?
-	error(sprintf("Line %u, '%s': Duplicate API version declaration"\
+	error(sprintf("Line %u, »%s«: Duplicate API version declaration"\
 	    "! (see line %u)",NR,$0,ai2nr[ai]))
     }					## No, complain about duplicate!
 }
 
 U && (NF == 4) && ($1 == "f") && ($2 == "-") {
     next				## Conditionally skip function decla-
-}					## ration with special API version '-'.
+}					## ration with special API version »-«.
 
 (NF == 4) && ($1 == "f") {		## Process function declaration?
     if (($2 !~ are_0n) || (match($3,are_pt) < 2) ||			\
 	((fn = substr($3,1,RSTART-1)) !~ are_fn) || ($4 !~ are_rg)) {
 					## Yes, is it valid?
-	error(sprintf("Line %u, '%s': Invalid function declaration!",NR,$0))
+	error(sprintf("Line %u, »%s«: Invalid function declaration!",NR,$0))
     } else {				## No, complain about it!
 	map_fi($2,fn,substr($3,RSTART+1,RLENGTH-2),$4)
     }					## Yes, map it.
@@ -354,7 +354,7 @@ END {					## After declarations are gathered:
 			"di=%u]=ai=%u]=%u,++fi2ac[fi]=%u",fi,di,ai,	\
 			ai2fc[ai],fi2ac[fi]))
 		} else {		## Yes, count [FI,DI]->[AI] reference.
-		    error(sprintf("Line %u, 'f;%d;%s(%s);%s' refers to "\
+		    error(sprintf("Line %u, »f;%d;%s(%s);%s« refers to "\
 			"%s API version!",fidi2nr[fi,di],av,fi2fn[fi],	\
 			fidi2pt[fi,di],fidi2rg[fi,di],(av < minav) ?	\
 			"withdrawn" : (av <= maxav) ? "missing" :	\

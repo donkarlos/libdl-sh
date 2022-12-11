@@ -65,7 +65,7 @@
 ##			2020-05-27	Use universal interpreter.
 ##
 ##  Global constants and variables:
-##	• DEBUG		Debugging flag (set with '-vDEBUG=1')
+##	• DEBUG		Debugging flag (set with »-vDEBUG=1«)
 ##	• FALSE/TRUE	Boolean constants
 ##	• bv2sy[BV]	Boolean value -> symbol map
 ##	• compatible	Compatibility mode flag
@@ -292,18 +292,18 @@ function become_compatible(pi) {
 function getopt_add_optstring(optstring,pi ,re,ow,on,at,oi) {
     enter("getopt_add_optstring",sprintf("optstring=\"%s\",pi=%u",	\
 	optstring,pi))
-    if (optstring ~ /^\+/) {		## OPSTRING has leading '+'?
+    if (optstring ~ /^\+/) {		## OPSTRING has leading »+«?
 	if (!(piow2ov[pi,"o"] || compatible)) {
 	    posixly = TRUE		## Yes, force POSIX compliancy (unless
 					## a prior OPTSTRING had been seen
 	}				## or in compatibility mode)
-	sub(/^./,"",optstring)		## and consume leading '+'.
-    } else if (optstring ~ /^-/) {	## OPSTRING has leading '-'?
+	sub(/^./,"",optstring)		## and consume leading »+«.
+    } else if (optstring ~ /^-/) {	## OPSTRING has leading »-«?
 	if (!(piow2ov[pi,"o"] || compatible)) {
 	    ordered = TRUE		## Yes, force ordered output (unless
 	    posixly = FALSE		## a prior OPTSTRING had been seen
 	}				## or in compatibility mode)
-	sub(/^./,"",optstring)		## and consume leading '-'.
+	sub(/^./,"",optstring)		## and consume leading »-«.
     }
     trace(sprintf("posixly=%s;ordered=%s;optstring=\"%s\"",		\
 	bv2sy[posixly],bv2sy[ordered],optstring))
@@ -312,7 +312,7 @@ function getopt_add_optstring(optstring,pi ,re,ow,on,at,oi) {
 					## Choose short option descriptor RE.
     while (optstring) {			## While OPTSTRING is not empty do…
 	if (!match(optstring,re)) {	## Looking at valid descriptor?
-	    error(sprintf("'%s' describes no short option!",optstring),pi)
+	    error(sprintf("»%s« describes no short option!",optstring),pi)
 	    leave("1"); return 1	## No, complain and indicate failure!
 	}
 	ow = substr(optstring,1,1); on = "-" ow; at = dl2at[RLENGTH]
@@ -326,7 +326,7 @@ function getopt_add_optstring(optstring,pi ,re,ow,on,at,oi) {
 		"=%u]=on;pioi2at[pi,oi]=at",pi,oi))
 	} else if (at != pioi2at[pi,oi]) {
 					## No, and registered differently?
-	    error(sprintf("'%s' already registered by '%s%s'!",on,ow,	\
+	    error(sprintf("»%s« already registered by »%s%s«!",on,ow,	\
 		at2ds[pioi2at[pi,oi]]),pi)
 	    leave("1"); return 1	## Yes, complain and indicate failure!
 	}
@@ -373,7 +373,7 @@ function getopt_add_longopts(longopts,pi ,di,dc,dv,cp,ow,on,at,oi) {
     while (++di <= dc) {		## Foreach descriptor do…
 	if (!match(dv[di],/^[^-=:]+(-[^-=:]+)*:?:?$/)) {
 					## Description is valid?
-	    error(sprintf("'%s' describes no long option!",dv[di]),pi)
+	    error(sprintf("»%s« describes no long option!",dv[di]),pi)
 	    leave("1"); return 1	## No, complain and indicate failure!
 	}
 	if (!(cp = index(dv[di],":"))) cp = RLENGTH + 1
@@ -391,7 +391,7 @@ function getopt_add_longopts(longopts,pi ,di,dc,dv,cp,ow,on,at,oi) {
 		"=%u]=on;pioi2at[pi,oi]=at",pi,oi))
 	} else if (at != pioi2at[pi,oi]) {
 					## No, and registered differently?
-	    error(sprintf("'%s' already registered by '%s%s'!",on,ow,	\
+	    error(sprintf("»%s« already registered by »%s%s«!",on,ow,	\
 		at2ds[pioi2at[pi,oi]]),pi)
 	    leave("1"); return 1	## Yes, complain and indicate failure!
 	}
@@ -526,14 +526,14 @@ function args_getopt(cn ,pi,ec,arg,on,ov,oi,at,ep,O,A,son,lon) {
 					## Is it a long option?
 		    on = substr(arg,RSTART,RLENGTH); ep = RSTART + RLENGTH
 		    oi = pion2oi[pi,on]	## Yes, extract name, compute assumed
-					## '=' position, and fetch index.
+					## »=« position, and fetch index.
 		} else if (   piow2ov[pi,"l"] && piow2ov[pi,"a"]	\
 			   && match(arg,/^-[^-][^=]*/)) {
 					## Is it maybe an alt. long option?
 		    on = substr(arg,RSTART,RLENGTH); ep = RSTART + RLENGTH
 		    son = substr(arg,RSTART,2); lon = "-" on
 					## Yes, extract name, compute assumed
-					## '=' position, and extract short/
+					## »=« position, and extract short/
 					## construct long option name.
 		    if (   (pion2oi[pi,son] && !pion2oi[pi,lon])	\
 			|| (   pion2oi[pi,on] && pion2oi[pi,lon]	\
@@ -542,7 +542,7 @@ function args_getopt(cn ,pi,ec,arg,on,ov,oi,at,ep,O,A,son,lon) {
 			oi = pion2oi[pi,on = son]; RLENGTH = 2; ep = 0
 					## Yes, fetch short option's index,
 					## reduce length, and invalidate
-		    } else {		## assumed '=' position.
+		    } else {		## assumed »=« position.
 			oi = pion2oi[pi,on = lon]
 					## No, fetch corresponding long op-
 		    }			## tion's index.
@@ -550,7 +550,7 @@ function args_getopt(cn ,pi,ec,arg,on,ov,oi,at,ep,O,A,son,lon) {
 					## Is it a short option?
 		    on = substr(arg,RSTART,RLENGTH); ep = 0
 		    oi = pion2oi[pi,on]	## Yes, extract option's name, invali-
-					## date '=' position, and fetch index.
+					## date »=« position, and fetch index.
 		} else {		## This isn't supposed to happen!
 		    ++ec; error("OOPS! How did we get here?")
 		    leave("3"); return 3 ## Indicate internal error!
@@ -558,10 +558,10 @@ function args_getopt(cn ,pi,ec,arg,on,ov,oi,at,ep,O,A,son,lon) {
 		trace(sprintf("on=\"%s\";oi=%d;ep=%u",on,oi,ep))
 
 		if (oi < 0) {		## Option name is ambiguous?
-		    ++ec; error(sprintf("ambiguous option '%s'!",on),pi)
+		    ++ec; error(sprintf("ambiguous option »%s«!",on),pi)
 		    continue		## Yes, complain and skip it!
 		} else if (!oi) {	## Option name unknown in PI-th pass?
-		    ++ec; error(sprintf("unknown option '%s'!",arg),pi)
+		    ++ec; error(sprintf("unknown option »%s«!",arg),pi)
 					## Yes, complain and skip it if it's
 		    if (ep) continue	## a long option.
 		    at = AT_ONA
@@ -579,14 +579,14 @@ function args_getopt(cn ,pi,ec,arg,on,ov,oi,at,ep,O,A,son,lon) {
 		} else if (substr(arg,ep,1) == "=") {
 					## Long option with affixed value?
 		    if (at == AT_ONA) {	## Yes, but it mustn't have one?
-			++ec; error(sprintf("option '%s' mustn't have "	\
+			++ec; error(sprintf("option »%s« mustn't have "	\
 			    "value!",on),pi)
 			continue	## Yes, complain and skip it!
 		    }
 		    ov = substr(arg,ep+1)
 					## No, extract affixed value.
 		} else {		## This isn't supposed to happen!
-		    ++ec; error(sprintf("invalid option '%s'!",arg),pi)
+		    ++ec; error(sprintf("invalid option »%s«!",arg),pi)
 		    leave("3"); return 3 ## Indicate internal error!
 		}
 		trace(sprintf("ov=\"%s\"",ov))
@@ -608,7 +608,7 @@ function args_getopt(cn ,pi,ec,arg,on,ov,oi,at,ep,O,A,son,lon) {
 			ov = ARGV[ARGI++]; trace(sprintf("ov=\"%s\"",ov))
 					## Yes, fetch value.
 		    } else {
-			++ec; error(sprintf("option '%s' requires value!",on),pi)
+			++ec; error(sprintf("option »%s« requires value!",on),pi)
 			trace(sprintf("at=%s",at2sy[at = AT_ERR]))
 					## No, count error, complain, and
 		    }			## indicate failure!
@@ -635,7 +635,7 @@ function args_getopt(cn ,pi,ec,arg,on,ov,oi,at,ep,O,A,son,lon) {
 		continue		## Yes, back argument index up and
 					## enter 2nd pass.
 	    } else if (on ~ /^(-h|--help)$/) {
-					## No, saw option '-h|--help'?
+					## No, saw option »-h|--help«?
 		arg = "cat >&2 <<EOF\n\
 Usage:\n\
  getopt OPTSTRING [ARGUMENT …]\n\
@@ -658,51 +658,51 @@ Valid options are:\n\
 		system(arg)		## Yes, show help and…
 		leave("2"); return 2	## …indicate abuse!
 	    } else if (on ~ /^(-V|--version)$/) {
-					## No, saw option '-V|--version'?
+					## No, saw option »-V|--version«?
 		printf "%s (%s) %s\n",cn,"@PACKAGE_NAME@","@PACKAGE_VERSION@"
 					## Yes, show version and…
 		leave("0"); return 0	## …indicate success.
 	    } else if (on ~ /^(-T|--test)$/) {
-					## No, saw option '-V|--version'?
+					## No, saw option »-T|--test«?
 		leave("4"); return 4	## Yes, indicate modern getopt(1).
 	    } else if (on ~ /^(-a|--alternative)$/) {
-					## No, saw option '-a|--alternative'?
+					## No, saw option »-a|--alternative«?
 		inc_property(pi+1,"a")	## Yes, allow alternative long options
 					## in 2nd pass.
 	    } else if (on ~ /^(-l|--longoptions)$/) {
-					## No, saw option '-l|--longoptions'?
+					## No, saw option »-l|--longoptions«?
 		if (!getopt_add_longopts(ov,pi+1)) continue
 					## Yes, 2nd pass's LONGOPTS added?
 		leave("3"); return 3	## No, indicate internal error!
 	    } else if (on ~ /^(-n|--name)$/) {
-					## No, saw option '-n|--name'?
+					## No, saw option »-n|--name«?
 		set_property(pi+1,"n",ov)
 					## Yes, set 2nd pass's command name.
 	    } else if (on ~ /^(-o|--options)$/) {
-					## No, saw option '-o|--options'?
+					## No, saw option »-o|--options«?
 		if (!getopt_add_optstring(ov,pi+1)) continue
 					## Yes, 2nd pass's OPTSTRING added?
 		leave("3"); return 3	## No, indicate internal error!
 	    } else if (on ~ /^(-q|--quiet)$/) {
-					## No, saw option '-q|--quiet'?
+					## No, saw option »-q|--quiet«?
 		inc_property(pi+1,"q")	## Yes, make 2nd pass quiet.
 	    } else if (on ~ /^(-Q|--quiet-output)$/) {
-					## No, saw option '-Q|--quiet-output'?
+					## No, saw option »-Q|--quiet-output«?
 		inc_property(pi+1,"Q")	## Yes, make 2nd pass entirely quiet.
 	    } else if (on ~ /^(-s|--shell)$/) {
-					## No, saw option '-s|--shell'?
+					## No, saw option »-s|--shell«?
 		if (ov ~ /^([bd]?a|k|t?c)?sh$/) {
 					## Yes. Valid shell specified?
 		    set_property(pi+1,"s",ov)
 					## Yes, set 2nd pass's shell.
 		} else {
-		    ++ec; error(sprintf("invalid shell '%s'!",ov),pi)
+		    ++ec; error(sprintf("invalid shell »%s«!",ov),pi)
 		}
 	    } else if (on ~ /^(-u|--unquoted)$/) {
-					## No, saw option '-u|--unquoted'?
+					## No, saw option »-u|--unquoted«?
 		inc_property(pi+1,"u")	## Yes, don't quote 2nd pass's output.
 	    } else if (on ~ /^(-U|--unquoted-options)$/) {
-					## No, saw option '-U|--unquoted-options'?
+					## No, saw option »-U|--unquoted-options«?
 		inc_property(pi+1,"U")	## Yes, don't quote 2nd pass's options.
 	    }
 	} else {			## In 2nd pass!
@@ -755,7 +755,7 @@ BEGIN {
 	status = args_getopt(action)	## Emulate getopt(1).
     } else {
 	piow2ov[0,"n"] = ARGV[0]	## Fake 0th pass…
-	error(sprintf("unknown action '%s'!",action),0)
+	error(sprintf("unknown action »%s«!",action),0)
 	status = 2			## …and indicate abuse!
     }
     trace(sprintf("exit %d",status)); exit status

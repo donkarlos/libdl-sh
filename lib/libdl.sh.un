@@ -2,7 +2,7 @@
 #-----------------------------------------------------------------------------
 #   libdl.sh			- Demand-loading library
 #
-#   Copyright © 2013-2021 Das Computerlabor (DCl-M)
+#   Copyright © 2013-2022 Das Computerlabor (DCl-M)
 #
 #   This library is free software; you can redistribute it and/or
 #   modify it under the terms of the GNU Lesser General Public License
@@ -24,35 +24,36 @@
 ##  CHANGED BY:	ks	2015-04-23	Implement meta operations.
 ##					Lay session concept foundation.
 ##		ks	2016-05-19	Use meta prefix.
-##		ks	2016-05-24	Add 'meta get package/version'.
-##					Use 'meta get apis' separator ';'.
+##		ks	2016-05-24	Add »meta get package/version«.
+##					Use »meta get apis« separator »;«.
 ##		ks	2017-01-15	Update copyright.
-##					Add 'meta session *'.
-##		ks	2017-02-11	Canonify LSP items in 'pre libpath'
+##					Add »meta session *«.
+##		ks	2017-02-11	Canonify LSP items in »pre libpath«
 ##					meta operation.
 ##		ks	2017-07-01	Add service function dl_dump().
 ##		ks	2017-07-08	Add service function dl_split().
 ##		ks	2018-02-26	Overhaul dl_split().
-##		ks	2020-05-03	Add 'meta get-apis r/o'.
+##		ks	2020-05-03	Add »meta get-apis r/o«.
 ##		ks	2020-05-12	Become aware of relocated installa-
 ##					tions.
-##					Limit valid 'meta session' operations.
-##		ks	2021-05-01	'set -u'-harden dl_meta().
-##		ks	2021-05-07	'set -u'-harden dl_split(), dl_dump(),
+##					Limit valid »meta session« operations.
+##		ks	2021-05-01	»set -u«-harden dl_meta().
+##		ks	2021-05-07	»set -u«-harden dl_split(), dl_dump(),
 ##					and dl_which().
-##		ks	2021-05-08	Make 'dl_meta get apis' sed(1) expr.
+##		ks	2021-05-08	Make »dl_meta get apis« sed(1) expr.
 ##					labels portable.
 ##		ks	2021-05-12	Remove LIBDL_SH_DESTDIR nonsense.
 ##		ks	2021-05-14	Prepare for multiple API versions.
 ##		ks	2021-05-15	Add dl_readonly() and use it to freeze
 ##					variables.
-##		ks	2021-05-16	'set -u'-harden dl_readonly().
+##		ks	2021-05-16	»set -u«-harden dl_readonly().
 ##					Add dl_apis() and use it to emit API
 ##					information.
-##		ks	2021-05-18	Add special characters '[' and ']'.
+##		ks	2021-05-18	Add special characters »[« and »]«.
 ##		ks	2021-05-25	Make constant's API table entries API
 ##					version-independent.
 ##		ks	2021-02-26	Add service function dl_inform().
+##		ks	2022-09-25	UTF-8ize comments.
 ##
 ##  NOTE:   (1)	To avoid cluttering code, this library is exempted from need-
 ##		ing namespace prefixes for its special character definitions.
@@ -273,7 +274,7 @@ EOF
 
 ##----------------------------------------------------------------------------
 ##  dl_apis([FORMAT=api [SEDEX]])
-##				'get apis' meta operation helper
+##				»get apis« meta operation helper
 ##
 ##  NOTE:   (1)	Invoker must provide API information on standard input!
 ##

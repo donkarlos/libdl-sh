@@ -2,7 +2,7 @@
 #-----------------------------------------------------------------------------
 #   libdl-sh			- Demand-loading library's trusted helper
 #
-#   Copyright © 2013-2021 Das Computerlabor (DCl-M)
+#   Copyright © 2013-2022 Das Computerlabor (DCl-M)
 #
 #   This library is free software; you can redistribute it and/or
 #   modify it under the terms of the GNU Lesser General Public License
@@ -24,15 +24,16 @@
 ##  CHANGED BY:	ks	2013-03-06	Attribute this to »libdl.sh«.
 ##		ks	2015-04-19	Optimize LSP normalization.
 ##		ks	2017-02-10	Update copyright.
-##					Simplify 'load' action.
-##					Canonify LSP items in 'path' action.
-##		ks	2018-02-26	Add 'exec' action.
+##					Simplify »load« action.
+##					Canonify LSP items in »path« action.
+##		ks	2018-02-26	Add »exec« action.
 ##		ks	2020-05-12	Make libdl.sh aware of relocated in-
-##					stallations in 'exec' action.
+##					stallations in »exec« action.
 ##		ks	2021-05-02	Add command line parsing.
 ##		ks	2021-05-12	Remove LIBDL_SH_DESTDIR nonsense.
 ##		ks	2021-06-01	Make libdl-sh(1) the demand-loading
 ##					library's trusted helper.
+##		ks	2022-09-25	UTF-8ize and fix comments.
 ##----------------------------------------------------------------------------
 ##  Initialization:
 #-----------------------------------------------------------------------------

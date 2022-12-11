@@ -2,7 +2,7 @@
 #-----------------------------------------------------------------------------
 #   libundo.sh			- Undo stack management library
 #
-#   Copyright © 2013-2021 Das Computerlabor (DCl-M)
+#   Copyright © 2013-2022 Das Computerlabor (DCl-M)
 #
 #   This library is free software; you can redistribute it and/or
 #   modify it under the terms of the GNU Lesser General Public License
@@ -25,20 +25,20 @@
 ##					Fix »undo_* MARK TAG« semantics.
 ##		ks	2016-05-19	Use meta prefix.
 ##		ks	2016-05-24	Deprecate undo_keep().
-##					Add 'meta get package/version'.
-##					Use 'meta get apis' separator ';'.
+##					Add »meta get package/version«.
+##					Use »meta get apis« separator »;«.
 ##		ks	2017-01-15	Update copyright.
-##					Add 'meta session *'.
-##					Add 'meta get/set 0tag' as substitute
+##					Add »meta session *«.
+##					Add »meta get/set 0tag« as substitute
 ##					for undo_init().
 ##		ks	2017-02-11	Deprecate undo_init().
-##		ks	2020-05-12	Limit valid 'meta session' operations.
-##					Make 'meta get apis FORMAT' properly
+##		ks	2020-05-12	Limit valid »meta session« operations.
+##					Make »meta get apis FORMAT« properly
 ##					handle namespace rule-exempted names.
-##		ks	2021-05-01	'set -u'-harden undo_meta().
-##		ks	2021-05-08	Make 'undo_meta get apis' sed(1) expr.
+##		ks	2021-05-01	»set -u«-harden undo_meta().
+##		ks	2021-05-08	Make »undo_meta get apis« sed(1) expr.
 ##					labels portable.
-##		ks	2021-05-13	'set -u'-harden undo_init(), undo_ex-
+##		ks	2021-05-13	»set -u«-harden undo_init(), undo_ex-
 ##					it(), undo_emit(), and undo_mark().
 ##					Merge undo_mark() functionality into
 ##					undo_push().
@@ -49,7 +49,8 @@
 ##		ks	2021-05-30	Improve undo_push()'s invocation vari-
 ##					ant recognition.
 ##		ks	2021-06-05	Rename undo_emit() mode keep to pick.
-##					'set -e'-harden undo_pull().
+##					»set -e«-harden undo_pull().
+##		ks	2022-09-25	UTF-8ize comments.
 ##----------------------------------------------------------------------------
 ##  Global variables:
 #-----------------------------------------------------------------------------
@@ -202,15 +203,15 @@ undo_mark() {
 ##  undo_push(MARK)		Push (TAGged) COMMAND (with quoted ARGUMENTs
 ##				and/or REDIRECTIONs) or MARK onto undo stack
 ##  Legend:
-##    •	MARK	Valid	mark	(e.g., "::MARK")
-##    •	invMARK	Invalid	mark	(e.g., ":::")
-##    •	TAG	Valid	tag	(e.g., ":TAG")
-##    •	invTAG	Invalid	tag	(e.g., "::")
-##    •	CMD	Valid	command	(e.g., "rm")
-##    •	invCMD	Invalid	command	(e.g., ":")
-##    •	emtCMD	Empty	command	(i.e., "")
+##    •	MARK	Valid	mark	(e.g., »::MARK«)
+##    •	invMARK	Invalid	mark	(e.g., »:::«)
+##    •	TAG	Valid	tag	(e.g., »:TAG«)
+##    •	invTAG	Invalid	tag	(e.g., »::«)
+##    •	CMD	Valid	command	(e.g., »rm«)
+##    •	invCMD	Invalid	command	(e.g., »:«)
+##    •	emtCMD	Empty	command	(i.e., »«)
 ##
-##  An 'inv' or 'emt' prefix in parentheses means maybe invalid/empty, resp.
+##  An »inv« or »emt« prefix in parentheses means maybe invalid/empty, resp.
 ##----------------------------------------------------------------------------
 undo_push() {
     local tag cmd; case ${1+1$1_}${2+2$2_} in
