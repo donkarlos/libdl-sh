@@ -35,6 +35,7 @@ dnl		ks	2021-05-31	Add API analysis script with frontend.
 dnl		ks	2021-06-01	Add libxdg.sh.
 dnl		ks	2022-05-08	Make LIB_meta() tests AC_INIT()-inde-
 dnl					pendent.
+dnl		ks	2022-12-10	Check for »shebang«.
 dnl
 dnl NOTE:   (1)	Update the build system with autoreconf(1).
 dnl	    (2)	AM_INIT_AUTOMAKE() already invokes AC_ARG_PROGRAM, AC_PROG_-
@@ -52,6 +53,11 @@ AC_CONFIG_MACRO_DIRS([auto])
 AM_INIT_AUTOMAKE([1.13 foreign no-define dist-xz no-dist-gzip])
 AF_INIT([auto/gensubst])
 AC_CONFIG_TESTDIR([tests], [bin:tests])
+
+dnl
+dnl Check for programs:
+dnl
+AC_PATH_PROG([SHEBANG],[shebang],[@bindir@/shebang])
 
 dnl
 dnl Generate output files:

@@ -2,7 +2,7 @@
 #-----------------------------------------------------------------------------
 #   shebang			- “Universal” script interpreter
 #
-#   Copyright © 2020-2021 Das Computerlabor (DCl-M)
+#   Copyright © 2020-2022 Das Computerlabor (DCl-M)
 #
 #   This library is free software; you can redistribute it and/or
 #   modify it under the terms of the GNU Lesser General Public License
@@ -24,36 +24,38 @@
 ##  CHANGED BY:	ks	2021-04-18	Split awk(1)/nawk(1) alternatives.
 ##			2021-04-21	Suppress shell error messsages while
 ##					locating the locator.
+##		ks	2022-12-10	Accept inline form only.
 ##----------------------------------------------------------------------------
 ##  Initialization:
 #-----------------------------------------------------------------------------
-BS=\\ SQ=\'
+command=`basename "$0"`			## Determine command name.
 
 ##----------------------------------------------------------------------------
 ##  Main program:
 ##----------------------------------------------------------------------------
-eval "`sed '
-    1{;/^#/d;};/^#!/!d;s///
-    y/	/ /;s/   */ /g;s/^ //;s/ $//;s/'"$SQ"'/&'"$BS$BS"'&&/g
-    s/^.*\/\([^/ ][^/ ]*\)/\1/;s/^\([^/ ][^/ ]*\)\/\/*/\1/
-    s/^/interp='"$SQ"'/;s/ /'"$SQ"' args='"$SQ"'/;s/$/'"$SQ"'/
-    q
-' "$1" 2>/dev/null`"			## Split 2nd shebang line into inter-
-					## preter's basename and arguments.
-for locate in 'command -v' whence which; do
+interp=$1; unset inline args		## Grab inlined interpreter.
+until egrep -q '^#! ?'"$0"'[[:space:]]?' -- "$1" 2>/dev/null; do
+					## Until interpretee is found do…
+    case ${inline-n} in			## Inline form detected?
+	y)  args="${args+$args }$1" ;;	## Yes, augment interpreter arguments.
+	*)  inline=y		    ;;	## No, consider it detected.
+    esac; shift				## Try next argument.
+done; case ${inline-n} in		## Inline form detected?
+    y)	set $interp ${args-} ${1+"$@"};	## Yes, expand argument and refetch
+	interp=$1; shift;;		## interpreter.
+    *)	echo "$command: »$1«: Bad “#!” magic!" >&2
+	exit 2		;;
+esac; for locate in 'command -v' whence which; do
 					## Foreach command locator do…
-    if ($locate $locate) >/dev/null 2>&1; then
-					## Does it locate itself?
-	case $interp in			## Yes. Provide alternatives…
+    ($locate $locate) >/dev/null 2>&1 && {
+					## Did it locate itself?
+	case $interp in			## ## Yes. Provide alternatives…
 	    awk)    interps="$interp nawk mawk gawk"	;;
 	    nawk)   interps="$interp mawk gawk"		;;
 	    *)	    interps=$interp			;;
-	esac
-	for interp in $interps; do	## Foreach alternative do…
-	    if interp=`$locate $interp 2>/dev/null`; then
-					## Could we locate it?
-		exec "$interp" $args ${1+"$@"}
-	    fi				## Yes, use it to execute script.
-	done
-    fi
+	esac; for interp in $interps; do
+					## Foreach alternative do…
+	    interp=`$locate $interp 2>/dev/null` && exec "$interp" ${1+"$@"}
+	done				## Interpret script with located alt.
+    }
 done; exit 127
