@@ -56,6 +56,7 @@ dnl					all« declarations sane?].
 dnl					Use atlocal_check_api_consistency().
 dnl		ks	2022-05-08	Make LIB_meta() tests AC_INIT()-inde-
 dnl					pendent.
+dnl		ks	2022-12-11	UTF-8ize comments.
 dnl
 dnl Test group »String quoting library libquote.sh«
 dnl
@@ -99,18 +100,18 @@ AT_CLEANUP
 
 dnl
 dnl Check if quote_meta() inquiries
-dnl   -	get package
-dnl   -	get version
-dnl   -	get api
-dnl   -	get apis
-dnl   -	get apis api
-dnl   -	get apis full
-dnl   -	get apis list
-dnl   -	get apis r/o
+dnl   •	get package
+dnl   •	get version
+dnl   •	get api
+dnl   •	get apis
+dnl   •	get apis api
+dnl   •	get apis full
+dnl   •	get apis list
+dnl   •	get apis r/o
 dnl produce expected results.
 dnl
 dnl NOTE:   (1)	This test wraps around atlocal_check_meta_inquiries()!
-dnl	    (2)	The double brackets within the expected output provide “just
+dnl	    (2)	The “excess” brackets within the expected output provide “just
 dnl		the right amount” of m4(1) quoting.
 dnl
 AT_SETUP([»quote_meta get« inquiries give expected results?])
@@ -170,11 +171,11 @@ quote_cs_brs
 AT_CLEANUP
 
 dnl
-dnl Check if the API version and function declarations reported by 'quote_meta
-dnl get apis all' are consistent and that the reported functions are properly
+dnl Check if the API version and function declarations reported by »quote_meta
+dnl get apis all« are consistent and that the reported functions are properly
 dnl deprecated/withdrawn.
 dnl
-dnl NOTE:   (1)	The double brackets within the expected output provide “just
+dnl NOTE:   (1)	The “excess” brackets within the expected output provide “just
 dnl		the right amount” of m4(1) quoting.
 dnl
 AT_SETUP([»quote_meta get apis all« declarations sane?])
@@ -210,14 +211,14 @@ AT_CLEANUP
 
 dnl
 dnl Check if quote_meta() inquiries
-dnl   -	get apis full
-dnl   -	get apis list
-dnl   -	get apis r/o
+dnl   •	get apis full
+dnl   •	get apis list
+dnl   •	get apis r/o
 dnl hounour (i.e., apply) the extra sed(1) expression passed as 4th argument.
 dnl
 dnl NOTE:   (1)	This test wraps around atlocal_check_meta_get_apis_honours_-
 dnl		4th()!
-dnl	    (2)	The double brackets within the expected output provide “just
+dnl	    (2)	The “excess” brackets within the expected output provide “just
 dnl		the right amount” of m4(1) quoting.
 dnl	    (3)	The expected output contains one quadrigraph to account for
 dnl		the unmatched »(« in »full« format's sed(1) expression!
@@ -252,11 +253,11 @@ cs_brs
 AT_CLEANUP
 
 dnl
-dnl Check if the constants reported by 'quote_meta get apis r/o (for the
+dnl Check if the constants reported by »quote_meta get apis r/o« (for the
 dnl default API version) are defined and readonly after loading libquote.sh.
 dnl
 dnl NOTE:   (1)	This test wraps around atlocal_check_constants()!
-dnl	    (2)	The double brackets within the expected output provide “just
+dnl	    (2)	The “excess” brackets within the expected output provide “just
 dnl		the right amount” of m4(1) quoting.
 dnl
 AT_SETUP([»quote_meta get apis r/o« var.s set and readonly?])
@@ -288,7 +289,7 @@ dnl API versions) indicate usage errors (i.e., return 2) when invoked with
 dnl insufficient arguments.
 dnl
 dnl NOTE:   (1)	This test wraps around atlocal_check_function_usage_errors()!
-dnl	    (2)	The double brackets within the expected output provide “just
+dnl	    (2)	The “excess” brackets within the expected output provide “just
 dnl		the right amount” of m4(1) quoting.
 dnl
 AT_SETUP([libquote.sh functions indicate usage errors?])
@@ -324,10 +325,10 @@ AT_CLEANUP
 
 dnl
 dnl Check if quote_sh() works as expected, i.e.
-dnl   -	an empty quotee is considered special,
-dnl   -	tilde is considered special iff it's the 1st character,
-dnl   -	<NL> as well as all other special characters are considered special,
-dnl   -	and single quotes are escaped with backslashes.
+dnl   •	an empty quotee is considered special,
+dnl   •	tilde is considered special iff it's the 1st character,
+dnl   •	<NL> as well as all other special characters are considered special,
+dnl   •	and single quotes are escaped with backslashes.
 dnl
 dnl NOTE:   (1)	The expected output is peppered with quadrigraphs because
 dnl		it's as unbalanced as can be!
@@ -443,8 +444,8 @@ AT_SETUP([quote_command() works as expected?])
 AT_KEYWORDS([libquote.sh libquote quote_command])
 AT_CHECK([dnl
 set -eu					## Employ strict execution environment
-					## to ensure 'set -u' resilience.
-case :$PATH: in				## Triggered by 'check-local:'?
+					## to ensure »set -u« resilience.
+case :$PATH: in				## Triggered by »check-local:«?
     *:$abs_top_builddir/bin:*)		## Yes, export suitable LSP.
 	LIBDL_SH_LIBRARY_PATH=$abs_top_builddir/lib
 	LIBDL_SH_LIBEXECDIR=$abs_top_builddir/libexec
@@ -504,9 +505,9 @@ AT_CLEANUP
 
 dnl
 dnl Check if quote_re() works as expected, i.e.
-dnl   -	'^' is considered special iff it's the 1st character,
-dnl   -	'$' is considered special iff it's the last character,
-dnl   -	<NL> as well as all other special characters are considered special.
+dnl   •	»^« is considered special iff it's the 1st character,
+dnl   •	»$« is considered special iff it's the last character,
+dnl   •	<NL> as well as all other special characters are considered special.
 dnl
 dnl NOTE:   (1)	The expected output is peppered with quadrigraphs because
 dnl		it's as unbalanced as can be!
@@ -519,8 +520,8 @@ AT_SETUP([quote_re() works as expected?])
 AT_KEYWORDS([libquote.sh libquote quote_bre quote_re])
 AT_CHECK([dnl
 set -eu					## Employ strict execution environment
-					## to ensure 'set -u' resilience.
-case :$PATH: in				## Triggered by 'check-local:'?
+					## to ensure »set -u« resilience.
+case :$PATH: in				## Triggered by »check-local:«?
     *:$abs_top_builddir/bin:*)		## Yes, export suitable LSP.
 	LIBDL_SH_LIBRARY_PATH=$abs_top_builddir/lib
 	LIBDL_SH_LIBEXECDIR=$abs_top_builddir/libexec
@@ -769,7 +770,7 @@ AT_CLEANUP
 
 dnl
 dnl Check if quote_ere() works as expected, i.e.
-dnl   -	<NL> as well as all other special characters are considered special.
+dnl   •	<NL> as well as all other special characters are considered special.
 dnl
 dnl NOTE:   (1)	The expected output is peppered with quadrigraphs because
 dnl		it's as unbalanced as can be!
@@ -782,8 +783,8 @@ AT_SETUP([quote_ere() works as expected?])
 AT_KEYWORDS([libquote.sh libquote quote_ere])
 AT_CHECK([dnl
 set -eu					## Employ strict execution environment
-					## to ensure 'set -u' resilience.
-case :$PATH: in				## Triggered by 'check-local:'?
+					## to ensure »set -u« resilience.
+case :$PATH: in				## Triggered by »check-local:«?
     *:$abs_top_builddir/bin:*)		## Yes, export suitable LSP.
 	LIBDL_SH_LIBRARY_PATH=$abs_top_builddir/lib
 	LIBDL_SH_LIBEXECDIR=$abs_top_builddir/libexec
@@ -960,7 +961,7 @@ AT_CLEANUP
 
 dnl
 dnl Check if quote_rs() works as expected, i.e.
-dnl   -	<NL> as well as all other special characters are considered special.
+dnl   •	<NL> as well as all other special characters are considered special.
 dnl
 dnl NOTE:   (1)	The expected output is peppered with quadrigraphs because
 dnl		it's as unbalanced as can be!
@@ -971,8 +972,8 @@ AT_SETUP([quote_rs() works as expected?])
 AT_KEYWORDS([libquote.sh libquote quote_brs quote_rs])
 AT_CHECK([dnl
 set -eu					## Employ strict execution environment
-					## to ensure 'set -u' resilience.
-case :$PATH: in				## Triggered by 'check-local:'?
+					## to ensure »set -u« resilience.
+case :$PATH: in				## Triggered by »check-local:«?
     *:$abs_top_builddir/bin:*)		## Yes, export suitable LSP.
 	LIBDL_SH_LIBRARY_PATH=$abs_top_builddir/lib
 	LIBDL_SH_LIBEXECDIR=$abs_top_builddir/libexec
@@ -1326,8 +1327,8 @@ AT_SETUP([quote_sed() works as expected?])
 AT_KEYWORDS([libquote.sh libquote quote_sed])
 AT_CHECK([dnl
 set -eu					## Employ strict execution environment
-					## to ensure 'set -u' resilience.
-case :$PATH: in				## Triggered by 'check-local:'?
+					## to ensure »set -u« resilience.
+case :$PATH: in				## Triggered by »check-local:«?
     *:$abs_top_builddir/bin:*)		## Yes, export suitable LSP.
 	LIBDL_SH_LIBRARY_PATH=$abs_top_builddir/lib
 	LIBDL_SH_LIBEXECDIR=$abs_top_builddir/libexec
@@ -1472,8 +1473,8 @@ AT_SETUP([quote_grep() works as expected?])
 AT_KEYWORDS([libquote.sh libquote quote_grep])
 AT_CHECK([dnl
 set -eu					## Employ strict execution environment
-					## to ensure 'set -u' resilience.
-case :$PATH: in				## Triggered by 'check-local:'?
+					## to ensure »set -u« resilience.
+case :$PATH: in				## Triggered by »check-local:«?
     *:$abs_top_builddir/bin:*)		## Yes, export suitable LSP.
 	LIBDL_SH_LIBRARY_PATH=$abs_top_builddir/lib
 	LIBDL_SH_LIBEXECDIR=$abs_top_builddir/libexec
@@ -1542,8 +1543,8 @@ AT_SETUP([quote_egrep() works as expected?])
 AT_KEYWORDS([libquote.sh libquote quote_egrep])
 AT_CHECK([dnl
 set -eu					## Employ strict execution environment
-					## to ensure 'set -u' resilience.
-case :$PATH: in				## Triggered by 'check-local:'?
+					## to ensure »set -u« resilience.
+case :$PATH: in				## Triggered by »check-local:«?
     *:$abs_top_builddir/bin:*)		## Yes, export suitable LSP.
 	LIBDL_SH_LIBRARY_PATH=$abs_top_builddir/lib
 	LIBDL_SH_LIBEXECDIR=$abs_top_builddir/libexec
@@ -1602,15 +1603,15 @@ AT_CLEANUP
 
 dnl
 dnl Check if quote() works as expected, i.e.
-dnl   -	'quote sh QUOTEE' produces the same output as
-dnl	'quote_sh QUOTEE',
-dnl   -	'quote re [DELIMITER] QUOTEE' produces the same output as
-dnl	'quote_re [DELIMITER] QUOTEE',
-dnl   -	'quote ere [DELIMITER] QUOTEE' produces the same output as
-dnl	'quote_ere [DELIMITER] QUOTEE',
-dnl   -	'quote rs [DELIMITER] QUOTEE' produces the same output as
-dnl	'quote_rs [DELIMITER] QUOTEE', and
-dnl   -	'quote QUOTEE' behaves like 'quote sh QUOTEE' (i.e., that 'sh' is the
+dnl   •	»quote sh QUOTEE« produces the same output as
+dnl	»quote_sh QUOTEE«,
+dnl   •	»quote re [DELIMITER] QUOTEE« produces the same output as
+dnl	»quote_re [DELIMITER] QUOTEE«,
+dnl   •	»quote ere [DELIMITER] QUOTEE« produces the same output as
+dnl	»quote_ere [DELIMITER] QUOTEE«,
+dnl   •	»quote rs [DELIMITER] QUOTEE« produces the same output as
+dnl	»quote_rs [DELIMITER] QUOTEE«, and
+dnl   •	»quote QUOTEE« behaves like »quote sh QUOTEE« (i.e., that »sh« is the
 dnl	default quoting operator).
 dnl
 dnl NOTE:   (1)	The expected output is peppered with quadrigraphs because
@@ -1620,8 +1621,8 @@ AT_SETUP([quote() works as expected? (be patient…)])
 AT_KEYWORDS([libquote.sh libquote quote])
 AT_CHECK([dnl
 set -eu					## Employ strict execution environment
-					## to ensure 'set -u' resilience.
-case :$PATH: in				## Triggered by 'check-local:'?
+					## to ensure »set -u« resilience.
+case :$PATH: in				## Triggered by »check-local:«?
     *:$abs_top_builddir/bin:*)		## Yes, export suitable LSP.
 	LIBDL_SH_LIBRARY_PATH=$abs_top_builddir/lib
 	LIBDL_SH_LIBEXECDIR=$abs_top_builddir/libexec
@@ -1639,19 +1640,19 @@ for operators in ''							    \
 do					## Foreach operators list do…
     set shiftee $operators; shift	## Split it into pos. parameters.
     case ${1-sh}${2+,$2} in		## Which operator is 1st?
-	sh*)				## 'sh'…
+	sh*)				## »sh«…
 	    eq=${1-sh};	unset de;;
-	re,?)				## 're' DELIMITER…
+	re,?)				## »re DELIMITER«…
 	    eq=$1	de=$2	;;
-	re*)				## 're'…
+	re*)				## »re«…
 	    eq=$1;	unset de;;
-	ere,?)				## 'ere' DELIMITER…
+	ere,?)				## »ere DELIMITER«…
 	    eq=$1	de=$2	;;
-	ere*)				## 'ere'…
+	ere*)				## »ere«…
 	    eq=$1;	unset de;;
-	rs,?)				## 'rs' DELIMITER…
+	rs,?)				## »rs DELIMITER«…
 	    eq=$1	de=$2	;;
-	rs*)				## 'rs'…
+	rs*)				## »rs«…
 	    eq=$1	de=/	;;
 	*)  continue
 	    ;;

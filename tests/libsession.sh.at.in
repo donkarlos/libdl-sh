@@ -34,6 +34,7 @@ dnl					all« declarations sane?].
 dnl					Use atlocal_check_api_consistency().
 dnl		ks	2022-05-08	Make LIB_meta() tests AC_INIT()-inde-
 dnl					pendent.
+dnl		ks	2022-12-11	UTF-8ize comments.
 dnl
 dnl Test group »Session management library libsession.sh«
 dnl
@@ -77,18 +78,18 @@ AT_CLEANUP
 
 dnl
 dnl Check if session_meta() inquiries
-dnl   -	get package
-dnl   -	get version
-dnl   -	get api
-dnl   -	get apis
-dnl   -	get apis api
-dnl   -	get apis full
-dnl   -	get apis list
-dnl   -	get apis r/o
+dnl   •	get package
+dnl   •	get version
+dnl   •	get api
+dnl   •	get apis
+dnl   •	get apis api
+dnl   •	get apis full
+dnl   •	get apis list
+dnl   •	get apis r/o
 dnl produce expected results.
 dnl
 dnl NOTE:   (1)	This test wraps around atlocal_check_meta_inquiries()!
-dnl	    (2)	The double brackets within the expected output provide “just
+dnl	    (2)	The “excess” brackets within the expected output provide “just
 dnl		the right amount” of m4(1) quoting.
 dnl
 AT_SETUP([»session_meta get« inquiries give expected results?])
@@ -131,7 +132,7 @@ dnl Check if the API version and function declarations reported by 'session_-
 dnl meta get apis all' are consistent and that the reported functions are
 dnl properly deprecated/withdrawn.
 dnl
-dnl NOTE:   (1)	The double brackets within the expected output provide “just
+dnl NOTE:   (1)	The “excess” brackets within the expected output provide “just
 dnl		the right amount” of m4(1) quoting.
 dnl
 AT_SETUP([»session_meta get apis all« declarations sane?])
@@ -167,14 +168,14 @@ AT_CLEANUP
 
 dnl
 dnl Check if session_meta() inquiries
-dnl   -	get apis full
-dnl   -	get apis list
-dnl   -	get apis r/o
+dnl   •	get apis full
+dnl   •	get apis list
+dnl   •	get apis r/o
 dnl hounour (i.e., apply) the extra sed(1) expression passed as 4th argument.
 dnl
 dnl NOTE:   (1)	This test wraps around atlocal_check_meta_get_apis_honours_-
 dnl		4th()!
-dnl	    (2)	The double brackets within the expected output provide “just
+dnl	    (2)	The “excess” brackets within the expected output provide “just
 dnl		the right amount” of m4(1) quoting.
 dnl	    (3)	The expected output contains one quadrigraph to account for
 dnl		the unmatched »(« in »full« format's sed(1) expression!
@@ -210,7 +211,7 @@ dnl Check if the constants reported by 'session_meta get apis r/o (for the
 dnl default API version) are defined and readonly after loading libsession.sh.
 dnl
 dnl NOTE:   (1)	This test wraps around atlocal_check_constants()!
-dnl	    (2)	The double brackets within the expected output provide “just
+dnl	    (2)	The “excess” brackets within the expected output provide “just
 dnl		the right amount” of m4(1) quoting.
 dnl
 AT_SETUP([»session_meta get apis r/o« var.s set and readonly?])
@@ -239,7 +240,7 @@ dnl API versions) indicate usage errors (i.e., return 2) when invoked with
 dnl insufficient arguments.
 dnl
 dnl NOTE:   (1)	This test wraps around atlocal_check_function_usage_errors()!
-dnl	    (2)	The double brackets within the expected output provide “just
+dnl	    (2)	The “excess” brackets within the expected output provide “just
 dnl		the right amount” of m4(1) quoting.
 dnl
 AT_SETUP([libsession.sh functions indicate usage errors?])
