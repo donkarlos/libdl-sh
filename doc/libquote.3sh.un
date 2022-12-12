@@ -2,7 +2,7 @@
 .\"
 .\" libquote.3sh		- libquote(3sh) manual page
 .\"
-.\" Copyright © 2015-2021 Das Computerlabor (DCl-M)
+.\" Copyright © 2015-2022 Das Computerlabor (DCl-M)
 .\"
 .\" This library is free software; you can redistribute it and/or
 .\" modify it under the terms of the GNU Lesser General Public License
@@ -21,23 +21,24 @@
 .\# AUTHOR(S):	ks	Karl Schmitz <ks@computerlabor.org>
 .\#
 .\# WRITTEN BY:	ks	2015-12-29
-.\# CHANGED BY:	ks	2016-05-21	Withdraw 'quote_meta get apis' brief
+.\# CHANGED BY:	ks	2016-05-21	Withdraw »quote_meta get apis brief«
 .\#					format.
-.\#		ks	2016-05-24	Add 'meta get package/version'.
-.\#					Use 'meta get apis' separator ';'.
+.\#		ks	2016-05-24	Add »meta get package/version«.
+.\#					Use »meta get apis« separator »;«.
 .\#		ks	2016-11-04	Add quote_{re,ere,rs}().
 .\#		ks	2021-04-29	Document quote_rs()'s new DELIMITER
 .\#					default.
 .\#		ks	2021-04-30	Document universal quoter quote().
-.\#		ks	2021-05-09	Introduce style aliases ore, bre,
-.\#					ors, and brs.
-.\#					Overhaul quote(), adding style 'ere
-.\#					[DELIMITER]' with alias mre.
+.\#		ks	2021-05-09	Introduce style aliases »ore«, »bre«,
+.\#					»ors«, and »brs«.
+.\#					Overhaul quote(), adding style »ere
+.\#					[DELIMITER]' with alias »mre«.
 .\#		ks	2021-05-10	Add section CAVEATS.
+.\#		ks	2022-12-11	Document »meta get apis prop«.
 .\#
 .\# NOTE: (1)	Please adjust below date whenever revising the manual page.
 .\#		vvvvvv
-.TH libquote 3SH 2021-05-10 "@PACKAGE_TARNAME@ @PACKAGE_VERSION@" "Shell Programming"
+.TH libquote 3SH 2022-12-11 "@PACKAGE_TARNAME@ @PACKAGE_VERSION@" "Shell Programming"
 
 .SH NAME
 quote, quote_sh, quote_command, quote_re, quote_ere, quote_rs, quote_grep,
@@ -218,6 +219,15 @@ be represented by the following two lines:
 .IP \(bu
 \fBlist\fP is similar to \fBfull\fP, except that \fB(\fP\fIARGS\fP\fB)\fP in
 the second field is omitted (i.e., just the function name is shown).
+
+.IP \(bu
+\fBprop\fP is similar to \fBlist\fP, except that the 3rd field doesn't show the
+range of valid \fB$#\fP values, but instead a property assigned to the
+function. The property may be an arbitrary string (as long as it won't conflict
+with the overall syntax of API entries).
+
+Also note that \(em contrary to the \fBlist\fP format \(em only functions
+actually having a property assigned are represented in the output.
 
 .IP \(bu
 \fBr/o\fP represents each read-only public variable within each API version

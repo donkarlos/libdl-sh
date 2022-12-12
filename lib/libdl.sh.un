@@ -53,7 +53,8 @@
 ##		ks	2021-05-25	Make constant's API table entries API
 ##					version-independent.
 ##		ks	2021-02-26	Add service function dl_inform().
-##		ks	2022-09-25	UTF-8ize comments.
+##		ks	2022-09-25	Implement dl_apis() »prop« format.
+##					UTF-8ize comments.
 ##
 ##  NOTE:   (1)	To avoid cluttering code, this library is exempted from need-
 ##		ing namespace prefixes for its special character definitions.
@@ -109,7 +110,7 @@ dl_meta() {
 a${ms}1
 f${ms}1${ms}meta(META [ARG …])${ms}2-
 f${ms}1${ms}inform(ABOUT [AARG …] FUNC [FARG …])${ms}4-
-f${ms}1${ms}apis([FORMAT=api [SEDEX]])${ms}0-2
+f${ms}1${ms}apis([FORMAT=api [SEDEX]])${ms}0-2${ms}dummy
 f${ms}1${ms}dump(MP VS …)${ms}2-
 f${ms}1${ms}readonly(LIB VS [VALUE])${ms}2-3
 f${ms}1${ms}split(WORD IFS &FIELD …)${ms}3-
@@ -295,13 +296,15 @@ dl_apis() {
 	  pr="s/^r${ms-;}//;t_s${NL}d;:_s"				\
 	 d2a="${NL}s/([^)${ms-;}(]*)//;t_2$NL:_2"			\
 	  f1="${NL}s/^$uf.*$DS/${BS}1/;t_f${NL}:_f"			\
-	f123="${NL}s/^$tf$tf$uf.*$DS/${BS}1${BS}2${BS}3/;t_f${NL}:_f"
+	f123="${NL}s/^$tf$tf$uf.*$DS/${BS}1${BS}2${BS}3/;t_f${NL}:_f"	\
+	p124="${NL}s/^$tf$tf$tf$uf.*$DS/${BS}1${BS}2${BS}4/;t_f${NL}d;:_f"
 
     case ${1-api} in			## Which format?
 	all)	sed "$all${2-}"			;;
 	api)	sed "$all$pa$f1"		;;
 	full)	sed "$all$pf$f123${2+$NL$2}"	;;
 	list)	sed "$all$pf$d2a$f123${2+$NL$2}";;
+	prop)	sed "$all$pf$d2a$p124${2+$NL$2}";;
 	r/o)	sed "$all$pr$f1${2+$NL$2}"	;;
 	*)	return 1			;;
     esac

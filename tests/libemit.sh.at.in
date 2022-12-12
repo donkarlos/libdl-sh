@@ -35,6 +35,7 @@ dnl					Use atlocal_check_api_consistency().
 dnl		ks	2022-05-08	Make LIB_meta() tests AC_INIT()-inde-
 dnl					pendent.
 dnl		ks	2022-12-11	UTF-8ize comments.
+dnl					Also check »LIB_meta apis prop« output.
 dnl
 dnl Test group »Message emission library libemit.sh«
 dnl
@@ -85,6 +86,7 @@ dnl   •	get apis
 dnl   •	get apis api
 dnl   •	get apis full
 dnl   •	get apis list
+dnl   •	get apis prop
 dnl   •	get apis r/o
 dnl produce expected results.
 dnl
@@ -127,6 +129,7 @@ emit_meta([[3]]get,apis,list)=0
 0;emit_set_head;2
 0;emit_get_head;1
 0;emit;2-
+emit_meta([[3]]get,apis,prop)=0
 emit_meta([[3]]get,apis,r/o)=0
 emit_re_level
 ], [dnl
@@ -176,6 +179,7 @@ dnl
 dnl Check if emit_meta() inquiries
 dnl   •	get apis full
 dnl   •	get apis list
+dnl   •	get apis prop
 dnl   •	get apis r/o
 dnl hounour (i.e., apply) the extra sed(1) expression passed as 4th argument.
 dnl
@@ -206,6 +210,7 @@ emit_meta([[4]]get,apis,full,/;emit_set_head@{:@/!d;s/;.*$//)=0
 0
 emit_meta([[4]]get,apis,list,/;emit_set_head;/!d;s/;.*$//)=0
 0
+emit_meta([[3]]get,apis,prop)=0
 emit_meta([[4]]get,apis,r/o,/^emit_/!d;s///)=0
 re_level
 ], [dnl

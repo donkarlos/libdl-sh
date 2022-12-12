@@ -2,7 +2,7 @@
 .\"
 .\" libdl.3sh			- libdl(3sh) manual page
 .\"
-.\" Copyright © 2013-2021 Das Computerlabor (DCl-M)
+.\" Copyright © 2013-2022 Das Computerlabor (DCl-M)
 .\"
 .\" This library is free software; you can redistribute it and/or
 .\" modify it under the terms of the GNU Lesser General Public License
@@ -37,10 +37,12 @@
 .\#		ks	2021-05-26	Replace dl_warn() with dl_inform().
 .\#		ks	2021-06-01	Make libdl-sh(1) the demand-loading
 .\#					library's trusted helper.
+.\#		ks	2022-12-11	Add service function dl_apis() and
+.\#					describe »prop« format.
 .\#
 .\# NOTE: (1)	Please adjust below date whenever revising the manual page.
 .\#		vvvvvv
-.TH LIBDL 3SH 2021-06-01 "@PACKAGE_TARNAME@ @PACKAGE_VERSION@" "Shell Programming"
+.TH LIBDL 3SH 2022-12-11 "@PACKAGE_TARNAME@ @PACKAGE_VERSION@" "Shell Programming"
 
 .SH NAME
 dl_atload, dl_load, dl_atexit, dl_exit, dl_which, dl_dump, dl_meta
@@ -177,6 +179,15 @@ the second field is omitted (i.e., just the function name appears in the
 second field).
 
 .IP \(bu
+\fBprop\fP is similar to \fBlist\fP, except that the 3rd field doesn't show the
+range of valid \fB$#\fP values, but instead a property assigned to the
+function. The property may be an arbitrary string (as long as it won't conflict
+with the overall syntax of API entries).
+
+Also note that \(em contrary to the \fBlist\fP format \(em only functions
+actually having a property assigned are represented in the output.
+
+.IP \(bu
 \fBr/o\fP represents each read-only public variable (see section \fBPUBLIC
 VARIABLES\fP below) by a line containing \fINAME\fP.
 
@@ -292,6 +303,13 @@ version) withdrew \fIFUNC\fP, but that you instead may stay with API version
 Write a message stating that release \fIWREL\fP withdrew the meta operation represented by
 \fIFARG\fPs, give the usual downgrade hint and return status \fB2\fP.
 .RE
+
+.TP
+\fBdl_apis\fP [\fIFORMAT\fP=api [\fISEDEX\fP]]
+This is the internal “workhorse” for all »\fILIB\fP\fB_meta get apis\fP«
+operations. It takes the API information from the standard input (usually
+supplied by a here script). See the description of \fBdl_meta get apis\fP
+above for more information.
 
 .TP
 \fBdl_dump\fP \fIMP\fP \fIVS\fP …
