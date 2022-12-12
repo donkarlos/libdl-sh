@@ -49,6 +49,7 @@ session_meta() {
 	    shift 2 && dl_apis ${1+"$@"} <<EOF
 a${ms}0
 f${ms}0${ms}meta(META [ARG …])${ms}2-4
+f${ms}0${ms}fqdn(UQDN)${ms}1
 EOF
 	    ;;
 	=get-package|=get-version|=get-api)
@@ -71,6 +72,26 @@ EOF
 	    ;;				## …is a no-op.
 	*)  return 2			## Anything else…
 	    ;;				## …is abuse!
+    esac
+}
+
+##----------------------------------------------------------------------------
+##  session_fqdn(UQDN)		Look up UQDN's FQDN
+##----------------------------------------------------------------------------
+session_fqdn() {
+    case ${2+2}${1+=$1} in		## Usage OK?/UQDN is unqualified?
+	=*.*)				## Y/N:
+	    echo "$1"
+	    ;;
+	=*)				## Y/Y:
+	    eval "`getent hosts "$1" | sed '
+		y/	/ /;s/   */ /g;:0
+		s/^[^ ]* //;/^'"$1"'\./{;s/ .*$//;s/^/echo /;q;};/ /b0
+		$!d;s/^.*$/test/
+	    '`"
+	    ;;
+	*)  return 2
+	    ;;
     esac
 }
 

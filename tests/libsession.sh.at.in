@@ -122,8 +122,10 @@ session_meta([[3]]get,apis,api)=0
 0
 session_meta([[3]]get,apis,full)=0
 0;session_meta(META [[ARG …]]);2-4
+0;session_fqdn(UQDN);1
 session_meta([[3]]get,apis,list)=0
 0;session_meta;2-4
+0;session_fqdn;1
 session_meta([[3]]get,apis,prop)=0
 session_meta([[3]]get,apis,r/o)=0
 ], [dnl
@@ -268,6 +270,7 @@ atlocal_check_function_usage_errors session
 session_meta([[3]]set,api,0)=0
 session_meta([[0]])=2
 session_meta([[1]]1)=2
+session_fqdn([[0]])=2
 ], [dnl
 ])
 AT_CLEANUP
