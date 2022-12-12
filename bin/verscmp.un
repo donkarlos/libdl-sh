@@ -86,6 +86,17 @@ readonly std_frontend std_backend
 ##  Non-local variables:
 ##	• command	(R) command name
 ##	• &WHAT		(W) canonical WHAT
+##	• ftag		(W) frontend tag
+##	• tnl		(W) dynamic »t[ns]« label
+##	• lh0		(W) “outer” left-hand side prefix
+##	• lh1		(W) “inner” left-hand side prefix
+##	• bh1		(W) boolean operator (and left parenthesization)
+##	• rh1		(W) “inner” right-hand side suffix
+##	• rh0		(W) “outer” right-hand side suffix
+##	• form		(W) compilation schema
+##	• sop		(W) relational operator for strings
+##	• nop		(W) relational operator for numbers
+##	• BorF		(W) empty version's weight (»B« or »F«)
 ##----------------------------------------------------------------------------
 verscmp_syntax() {
     local status=0 p= fs='%' vs=, obsolete
