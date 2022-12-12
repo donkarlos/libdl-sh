@@ -35,7 +35,8 @@
 #-----------------------------------------------------------------------------
 session_package=@PACKAGE_TARNAME@	## Define source package name and
 session_version=@PACKAGE_VERSION@	## version.
-readonly session_package session_version; unset session_ro session_api
+readonly session_package session_version
+unset session_ro session_api session_sha1_uuid
 					## Discard spurious environment.
 
 ##----------------------------------------------------------------------------
@@ -49,6 +50,7 @@ session_meta() {
 	    shift 2 && dl_apis ${1+"$@"} <<EOF
 a${ms}0
 f${ms}0${ms}meta(META [ARG …])${ms}2-4
+f${ms}0${ms}init()${ms}0
 f${ms}0${ms}fqdn(UQDN)${ms}1
 EOF
 	    ;;
@@ -76,6 +78,19 @@ EOF
 }
 
 ##----------------------------------------------------------------------------
+##  session_init()		Initialize library by deriving a hash-based
+##				UUID from the host's FQDN
+##----------------------------------------------------------------------------
+session_init() {
+    case ${1+1} in			## Usage OK?
+	1)  return 2;;			## No, indicate abuse!
+    esac; : ${HOSTNAME=`uname -n`}	## Emulate bash(1)'s $HOSTNAME.
+    local fqdn; fqdn=`session_fqdn "$HOSTNAME"`				&&
+    session_sha1_uuid=`uuidgen -sn@dns -N"$fqdn" 2>/dev/null`		&&
+    dl_readonly session sha1_uuid
+}
+
+##----------------------------------------------------------------------------
 ##  session_fqdn(UQDN)		Look up UQDN's FQDN
 ##----------------------------------------------------------------------------
 session_fqdn() {
@@ -98,4 +113,6 @@ session_fqdn() {
 ##----------------------------------------------------------------------------
 ##  Initialization:
 ##----------------------------------------------------------------------------
-dl_readonly session api 0		## Set sole API version once.
+dl_load xdg && session_init && dl_readonly session api 0
+					## Demand-load requisite library and
+					## set sole API version once.

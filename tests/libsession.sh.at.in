@@ -72,7 +72,7 @@ dl_load session				## Register hooks and load libses-
 					## sion.sh.
 ], 0, [dnl				## And the winner is…
 test_atexit(0)
-:session:dl:
+:session:xdg:dl:
 ], [dnl
 ])
 AT_CLEANUP
@@ -122,9 +122,11 @@ session_meta([[3]]get,apis,api)=0
 0
 session_meta([[3]]get,apis,full)=0
 0;session_meta(META [[ARG …]]);2-4
+0;session_init();0
 0;session_fqdn(UQDN);1
 session_meta([[3]]get,apis,list)=0
 0;session_meta;2-4
+0;session_init;0
 0;session_fqdn;1
 session_meta([[3]]get,apis,prop)=0
 session_meta([[3]]get,apis,r/o)=0
