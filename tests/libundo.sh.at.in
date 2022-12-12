@@ -431,3 +431,53 @@ undo_0tag=:0
 ], [dnl
 ])
 AT_CLEANUP
+
+dnl
+dnl Check if undo_push() works as expected.
+dnl
+dnl NOTE:   (1)	The “excess” brackets within the expected output provide “just
+dnl		the right amount” of m4(1) quoting.
+dnl
+AT_SETUP([undo_push() works as expected?])
+AT_KEYWORDS([libundo.sh libundo undo_push])
+AT_CHECK([dnl
+set -eu					## Employ strict execution environment
+					## to ensure »set -u« resilience.
+case :$PATH: in				## Triggered by »check-local:«?
+    *:$abs_top_builddir/bin:*)		## Yes, export suitable LSP.
+	LIBDL_SH_LIBRARY_PATH=$abs_top_builddir/lib
+	LIBDL_SH_LIBEXECDIR=$abs_top_builddir/libexec
+	export LIBDL_SH_LIBRARY_PATH LIBDL_SH_LIBEXECDIR
+	;;
+esac
+eval "`libdl-sh load`"; dl_load undo	## Load libdl.sh and libundo.sh or die.
+lib=undo; status=0			## Assume success.
+atlocal_trace_invocation_returns 2 undo_push			|| status=1
+atlocal_trace_invocation_returns 1 undo_push ''			|| status=1
+atlocal_trace_invocation_returns 2 undo_push :			|| status=1
+atlocal_trace_invocation_returns 2 undo_push ::			|| status=1
+atlocal_trace_invocation_returns 1 undo_push :::		|| status=1
+atlocal_trace_invocation_returns 2 undo_push :TAG		|| status=1
+atlocal_trace_invocation_returns 1 undo_push :TAG ''		|| status=1
+atlocal_trace_invocation_returns 2 undo_push :TAG :		|| status=1
+atlocal_trace_invocation_returns 2 undo_push :TAG ::		|| status=1
+atlocal_trace_invocation_returns 2 undo_push ::MARK ''		|| status=1
+atlocal_trace_invocation_returns 2 undo_push ::MARK :		|| status=1
+atlocal_trace_invocation_returns 2 undo_push ::MARK COMMAND	|| status=1
+exit $status				## Indicate success or failure.
+], 0, [dnl				## And the winner is…
+undo_push([[0]])=2
+undo_push([[1]])=1
+undo_push([[1]]:)=2
+undo_push([[1]]::)=2
+undo_push([[1]]:::)=1
+undo_push([[1]]:TAG)=2
+undo_push([[2]]:TAG,)=1
+undo_push([[2]]:TAG,:)=2
+undo_push([[2]]:TAG,::)=2
+undo_push([[2]]::MARK,)=2
+undo_push([[2]]::MARK,:)=2
+undo_push([[2]]::MARK,COMMAND)=2
+], [dnl
+])
+AT_CLEANUP
