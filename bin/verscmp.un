@@ -269,8 +269,8 @@ EOF
 ##  The collated VERSION emitted has the following properties:
 ##  (1) It's a space-separated sequence of alternating (collated) non-numeric
 ##	and numeric (with leading zero digits removed) parts
-##  (2) whose first part is always non-nuemric part, i.e. it matches the RE
-##	»<STR>[ <NUM> <STR>]*«.
+##  (2) whose 1st and last part are always non-numeric,
+##	i.e. it matches the RE »<STR>( <NUM> <STR>)*«.
 ##
 ##  Consequently, neither
 ##    •	special handling of empty VERSIONs nor
@@ -423,7 +423,7 @@ case ${action-} in			## Perform which action?
     help-operators) verscmp_help_operators  ; exit 0	;;
     version)	    verscmp_version	    ; exit 0	;;
 esac
-${TRACE-}				## Start tracing if requested.
+${TRACE-}				## Conditionally trace execution.
 case ${4+4}${3+=}${2+=} in		## Usage OK?
     =*)	tv1=`verscmp_collate_version "$1"`				&&
 	verscmp_syntax operator "$frontend" "$backend" "$2"		&&
