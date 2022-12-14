@@ -38,21 +38,22 @@
 conf_has, conf_get, conf_put, conf_meta \- Process configuration files
 
 .SH API VERSIONS
-Release 0.3 introduced stacked configuraton space, allowing applications to
-process a hierarchical (e.g., site- and user-specific) set of configuration
-files at once. This necessitated radical changes (most of them pertaining to
-parameter order) to the library's API, lest applications be able to specify
-multiple pathnames. Moreover, the functionality of \fBconf_set\fP(3sh) and
-\fBconf_unset\fP(3sh) has been merged into \fBconf_put\fP(3sh).
+Release 0.3 introduced stacked configuraton spaces made up from overlaid sets
+of configuration files (e.g., site- and user-specific ones). This called
+for radical changes (most of them related to passing parameters) to the
+library's API, so that invokers may pass multiple configuration files. Aside
+from that, the functionality of \fBconf_set\fP(3sh) and \fBconf_unset\fP(3sh)
+was merged into \fBconf_put\fP(3sh).
 
-Please note that starting with release 0.4, the application \fImust\fP select
-an API version with \fBconf_meta set api\fP \fIVERSION\fP. Unless it hadn't
-done so, the moment it tries to process configuration files it'll be aborted
-(with a warning message shown) under the presumption that it still tries to
-use withdrawn API version 0. You have been warned!
+Note that starting with release 0.4, applications using this library \fImust\fP
+select an API version with \fBconf_meta set api\fP \fIVERSION\fP prior to
+accessing configuration files. Otherwise, applications will be aborted (with
+a warning message telling why) under the assumption that they still try to
+use withdrawn API version 0, which may lead to serious data corruption.
+You have been warned!
 
 .SH SYNOPSIS (APIs 1-2)
-\fBdl_load conf && conf_meta set api 1\fP
+\fBdl_load conf && conf_meta set api 2\fP
 
 \fBconf_has\fP \fIITEM\fP[\fB=\fP\fIVALUE\fP] \fICFPN\fP …
 .br
