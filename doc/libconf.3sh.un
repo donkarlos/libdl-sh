@@ -65,31 +65,32 @@ You have been warned!
 
 .SH DESCRIPTION
 The configuration file processing library \fBlibconf.sh\fP allows applications
-to maintain persistent configuration in files with a format similar to that of
-\fBgit-config\fP(1) by getting, setting, or unsetting configuration items.
+to maintain persistent configuration in files with a format closely resembling
+\fBgit-config\fP(1)'s by getting, setting, or unsetting configuration items
+stored in these files.
 
 .SH FUNCTIONS
 The following paragraphs describe API versions 1 and 2.
 
 .TP 4
 \fBconf_has\fP \fIITEM\fP[\fB=\fP\fIVALUE\fP] \fICFPN\fP …
-Check if \fIITEM\fP exists in stacked configuration space created by file(s)
-\fICFPN\fP. Return status \fB0\fP if it does or \fB1\fP otherwise.
+Check if \fIITEM\fP is stored in the stacked configuration space made up from
+file(s) \fICFPN\fP. Return status \fB0\fP if it does or \fB1\fP otherwise.
 
 .TP
 \fBconf_get\fP \fIITEM\fP[\fB=\fP\fIVALUE\fP] \fICFPN\fP …
-Get value of \fIITEM\fP in stacked configuration space created by file(s)
-\fICFPN\fP (or supply \fIVALUE\fP when given), write it to standard output,
-and return status \fB0\fP. If no value was found or supplied, return status
-\fB1\fP.
+Get \fIITEM\fP's value from the stacked configuration space made up from
+file(s) \fICFPN\fP (or supply default \fIVALUE\fP instead), write it to
+standard output, and return status \fB0\fP. If \fIITEM\fP was neither found
+nor a default \fIVALUE\fPsupplied, return status \fB1\fP.
 
 .TP
 \fBconf_put\fP \fIITEM\fP[\fB=\fP\fIVALUE\fP] \fICFPN\fP …
-If \fIVALUE\fP is given, assign it to \fIITEM\fP (existing or created) in
-the topmost file \fICFPN\fP of stacked configuration space, and update that
-file if necessary. Otherwise, remove \fIITEM\fP from the topmost file
-\fICFPN\fP and update that file if necessary. Return status \fB0\fP on success
-or \fB1\fP on any failure.
+If \fIVALUE\fP was supplied, assign it to \fIITEM\fP (creating it when
+necessary) in the topmost file \fICFPN\fP within the stacked configuration
+space, and update that file. If no \fIVALUE\fP was supplied, remove \fIITEM\fP
+from the topmost file \fICFPN\fP and update that file. Return status \fB0\fP
+on success or \fB1\fP on any failure.
 
 Beware of the subtle difference between setting \fIITEM\fP to the empty value
 and unsetting it:
